@@ -1,0 +1,129 @@
+<div id="preloader">
+  <div class="sk-three-bounce">
+    <div class="sk-child sk-bounce1"></div>
+    <div class="sk-child sk-bounce2"></div>
+    <div class="sk-child sk-bounce3"></div>
+  </div>
+</div>
+<div class="deznav">
+  <div
+    class="deznav-scroll"
+    style="
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    "
+  >
+    <ul class="metismenu" id="menu">
+      <li >
+        <a routerLink="/Admin/dashboard" class="ai-icon"
+        (click)="onRoleChange('dashboard', 'Dashboard')"
+         aria-expanded="false">
+          <i class="fa fa-dashboard"></i>
+          <span class="nav-text"> Dashboard </span>
+        </a>
+      </li>
+      <li>
+        <a
+         style="cursor: pointer;"
+          class="has-arrow ai-icon"
+          
+          aria-expanded="false"
+        >
+          <i class="fa fa-users"></i>
+          <span class="nav-text">Users</span>
+        </a>
+        <ul aria-expanded="false">
+          <li
+             
+          >
+            <a  routerLink="/Admin/user-all"   class="ai-icon" aria-expanded="false" 
+            (click)="onRoleChange('user-all', 'User Management')">
+              User Management</a
+            >
+          </li>
+          <li 
+          >
+            <a  routerLink="/Admin/role"   class="ai-icon" aria-expanded="false" 
+            (click)="onRoleChange('user-all', 'Role Management')">Role Management</a>
+          </li>
+        </ul>
+      </li>
+
+      <li>
+        <a
+          class="has-arrow ai-icon"
+          href="javascript:void()"
+          aria-expanded="false"
+        >
+          <i class="fa fa-route"></i>
+          <span class="nav-text">transaction</span>
+        </a>
+        <ul aria-expanded="false">
+          <!-- <li>
+            <a href="/Admin/user-all" class="ai-icon" aria-expanded="false">
+              User Management</a
+            >
+          </li> -->
+          <li 
+          >
+            <a  routerLink="/Admin/vehicle" aria-expanded="false" (click)="onRoleChange('Vehicle', 'Vehicle')"> Vehicle Master </a>
+          </li>
+        </ul>
+      </li>
+
+      <li>
+        <a
+        style="cursor: pointer;"
+          class="has-arrow ai-icon"
+          
+          aria-expanded="false"
+        >
+          <i class="fa fa-folder-open"></i>
+          <span class="nav-text">Utils</span>
+        </a>
+        <ul aria-expanded="false">
+          <li 
+          >
+            <a  routerLink="/Admin/customer"  class="ai-icon" aria-expanded="false" (click)="onRoleChange('Accounts', 'Accounts')">
+              Accounts
+            </a>
+          </li>
+          <li 
+          >
+            <a  routerLink="/Admin/dealer" aria-expanded="false" (click)="onRoleChange('Dealers', 'Dealers')"> Dealers </a>
+          </li>
+        </ul>
+      </li>
+
+      <!-- <li>
+        <a href="/Admin/customer" class="ai-icon" aria-expanded="false">
+          <i class="fa fa-users"></i>
+          <span class="nav-text">Accounts</span>
+        </a>
+      </li> -->
+      <!-- <li>
+        <a href="/Admin/dealer" aria-expanded="false">
+          <i class="flaticon-381-controls-3"></i>
+          <span class="nav-text">Dealers</span>
+        </a>
+      </li> -->
+      <!-- <li>
+        <a href="/Admin/vehicle" aria-expanded="false">
+          <i class="flaticon-381-settings-2"></i>
+          <span class="nav-text">Vehicles</span>
+        </a>
+      </li> -->
+
+      <!-- <li>
+        <a href="/Admin/user-all" class="ai-icon" aria-expanded="false">
+          <i class="fa fa-user"></i>
+          <span class="nav-text">Users</span>
+        </a>
+      </li> -->
+    </ul>
+    <div class="copyright">
+      <p>© 2024 Ariantech. All Rights Reserved</p>
+    </div>
+  </div>
+</div>

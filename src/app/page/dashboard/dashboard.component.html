@@ -1,0 +1,74 @@
+<div class="content-body rightside-event">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-xl-12">
+        <!-- Contenido Principal del Dashboard -->
+        <div class="main-content " id="main-content" >
+          <!-- Cards Superiores -->
+         
+
+          <!-- Contenedor de Gráfica de Ventas del Ultimo Mes -->
+          <div class="sales-chart-container" id="sales-chart-container">
+            <!-- Gráfico de Ventas del Ultimo Mes -->
+            <div class="sales-line-chart">
+              <h2>Sales Last Month</h2>
+              <canvas class="canvas-1" id="lineChart"></canvas>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="row">
+        <div class="col-xl-6 col-lg-12 col-sm-12">
+          <div class="card">
+              <div class="card-header">
+                  <h4 class="card-title">Total Leads Chart</h4>
+              </div>
+              <div class="card-body">
+                  <canvas id="barChart_2"></canvas>
+              </div>
+          </div>
+      </div>
+        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title">Vehicles </h4>
+            </div>
+            <div class="card-body">
+              <canvas id="pie_chart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title">Total Users Chart</h4>
+            </div>
+            <div class="card-body">
+              <div class="chart-point">
+                <div class=" ">
+                  <canvas id="doughnut_chart"></canvas>
+                </div>
+                <ul class="chart-point-list">
+                  <li>
+                    <i class="fa fa-circle text-primary mr-1"></i> 40% Leads
+                  </li>
+                  <li>
+                    <i class="fa fa-circle text-success mr-1"></i> 35% User
+                  </li>
+                  <li>
+                    <i class="fa fa-circle text-warning mr-1"></i> 25% Opportunities
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

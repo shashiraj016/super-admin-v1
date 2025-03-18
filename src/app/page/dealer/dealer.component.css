@@ -1,0 +1,30 @@
+.buttons:hover{
+    color: white !important;
+
+}
+.buttons{
+    color: black !important;
+}
+
+ 
+  
+.custom-disabled {
+  background-color: #e0e2e4;
+  
+  cursor: not-allowed !important; /* Force cursor property */
+  pointer-events: none; /* Prevent interactions */
+}
+input.custom-disabled {
+  cursor: not-allowed !important;
+  pointer-events: auto;
+  border: 1px solid lightgray;
+}
+
+
+.is-invalid {
+  border: 1px solid red !important;
+}
+span {
+    font-size: .8rem;
+    margin-left: .5rem;
+}

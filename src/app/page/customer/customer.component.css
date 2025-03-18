@@ -1,0 +1,25 @@
+.buttons:hover{
+    color: white !important;
+
+}
+.buttons{
+    color: black !important;
+}
+
+.custom-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.is-invalid {
+  border: 1px solid red !important;
+}
+span {
+    font-size: .8rem;
+    margin-left: .5rem;
+}
+
+.x{ 
+  font-size: 20px !important;
+  font-weight: 500;
+}
