@@ -185,92 +185,13 @@
                 <span>Team is required.</span>
               </div>
             </div>
-            <!-- 
-             <div class="row">
-            <div class="col-md-6 form-group">
-              <label for="team_lead" class="form-label">Team lead</label>
-              <select
-                id="team_name"
-                class="form-control form-control-lg"
-                formControlName="team_id"
-                (change)="onTeamChange()"
-                [ngClass]="{
-                  'is-invalid':
-                    useForm.get('team_id')?.touched &&
-                    useForm.get('team_id')?.invalid
-                }"
-              >
-                <option value="" disabled selected>Select team email</option>
 
-
-                <option *ngFor="let team of teamList()" [value]="team.team_id">
-                  {{ team.team_lead_email }}
-                </option>
-              </select>
-              <div
-                class="text-danger"
-                *ngIf="
-                  useForm.get('team_id')?.touched &&
-                  useForm.get('team_id')?.invalid
-                "
-              >
-                <span>Team is required.</span>
-              </div>
-            </div>
-          </div> -->
 
             <!-- ROLE -->
 
-            <!-- <div class="modal-footer">
-        <ng-container *ngIf="isEditMode; else saveButton">
-          <button
-            type="button"
-            class="btn btn-outline-primary"
-            (click)="onUpdate()"
-            [disabled]="useForm.invalid"
-          >
-            Update
-          </button>
-        </ng-container>
-        <ng-template #saveButton>
-          <button
-            type="button"
-            class="btn btn-outline-primary"
-            (click)="onSave()"
-          >
-            Save
-          </button>
-        </ng-template>
-        <button
-          type="button"
-          class="btn btn-outline-danger"
-          data-dismiss="modal"
-        >
-          Close
-        </button>
-      </div>
-    </div> -->
-            <!-- <div class="modal-footer">
-              <ng-container *ngIf="teamObj.team_id !== null && teamObj.team_id !== undefined; else saveButton">
-                <button type="button" class="btn btn-outline-primary" (click)="onUpdate()"
-                  [disabled]="!isTeamNameChanged()">
-                  Edit
-                </button>
-              </ng-container>
 
-              <button type="button" class="btn btn-outline-danger" (click)="closeModal()" data-dismiss="modal">
-                Close
-              </button>
-
-              <ng-template #saveButton>
-                <button type="button" class="btn btn-outline-primary" (click)="onSave()"
-                  [attr.data-dismiss]="useForm.valid ? 'modal' : null">
-                  Save
-                </button>
-              </ng-template>
-            </div> -->
             <div class="modal-footer">
-              <ng-container *ngIf="teamObj?.team_id; else saveButton">
+              <ng-container *ngIf="teamObj.team_id; else saveButton">
                 <button type="button" class="btn btn-outline-primary" data-dismiss="modal" (click)="onUpdate()"
                   [disabled]="!isTeamNameChanged()">
                   Edit
@@ -282,7 +203,9 @@
               <ng-template #saveButton>
                 <button type="button" class="btn btn-outline-primary" (click)="onSave()"
                   [attr.data-dismiss]="useForm.valid ? 'modal' : null">
-                  Save
+                  save
                 </button>
               </ng-template>
             </div>
+
+          </div>

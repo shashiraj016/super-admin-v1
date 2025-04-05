@@ -448,11 +448,6 @@ export class VehicleComponent implements OnInit {
   }
 
   // Delete Vehicle
-  selectedVehicleForDeletion: Vehicle | null = null;
-
-  selectVehicleForDeletion(vehicle: Vehicle) {
-    this.selectedVehicleForDeletion = vehicle;
-  }
 
   // deleteVehicleId() {
   //   if (
@@ -474,29 +469,33 @@ export class VehicleComponent implements OnInit {
   //     alert('No vehicle selected for deletion');
   //   }
   // }
+
+  selectedVehicleForDeletion: Vehicle | null = null;
+
+  selectVehicleForDeletion(vehicle: Vehicle) {
+    this.selectedVehicleForDeletion = vehicle;
+  }
+
   deleteVehicleId() {
     console.log(
-      'Selected vehicle for deletion:',
+      'this is the selected vehicle',
       this.selectedVehicleForDeletion
     );
 
-    if (this.selectedVehicleForDeletion?.vehicle_id) {
+    if (
+      this.selectedVehicleForDeletion &&
+      this.selectedVehicleForDeletion.vehicle_id
+    ) {
       this.masterSrv
         .deleteVehicle(this.selectedVehicleForDeletion.vehicle_id)
         .subscribe(
           (res: VehicleResponse) => {
-            if (res?.status === 200) {
-              this.toastr.success('Vehicle deleted successfully', 'Success');
-              this.getAllVehicle(); // Refresh the vehicle list
-            } else {
-              this.toastr.error(
-                res.message || 'Failed to delete vehicle',
-                'Error'
-              );
-            }
+            this.toastr.success('Vehicle deleted successfully', 'Success');
+            this.getAllVehicle();
           },
           (error) => {
-            this.toastr.error(error?.message || 'Server Error', 'Error');
+            // alert(error.message || 'Failed to delete vehicle');
+            this.toastr.error('Server Error', 'Error');
           }
         );
     } else {

@@ -148,7 +148,7 @@ export class MasterService {
   getEventsAll(id: string): Observable<EventResponse[]> {
     const headers = this.getAuthHeaders();
     return this.http.get<EventResponse[]>(
-      `${this.apiUrl}dealers/${id}/events/all`,
+      `${this.apiUrl}dealers/${id}/events/t-drives/all`,
       { headers }
     );
   }

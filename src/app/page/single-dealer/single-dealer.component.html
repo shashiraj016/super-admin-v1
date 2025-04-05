@@ -9,7 +9,7 @@
                     <a [routerLink]="['/Admin/dealer']">Dealer</a>
                 </li>
                 <li class="breadcrumb-item active">
-                    <a style="font-weight: 700 !important; color: black">{{ this.dealerData?.data?.dealer?.dealer_id}}
+                    <a style="font-weight: 700 !important; color: black">{{ this.dealerData?.data?.dealer?.dealer_name}}
                     </a>
                 </li>
             </ol>
@@ -38,7 +38,7 @@
             </div>
             <div class="form-group" style="margin-inline: 1em">
                 <div class="media align-items-center"
-                    (click)="toggleUsersTable(); getAllUser(dealerData.data.dealer.dealer_id)">
+                    (click)="toggleUsersTable(); getAllUser(dealerData.data.dealer.dealer_code)">
                     <div class="media-body ml-1">
                         <p class="mb-0 fs-14">Total Users</p>
                         <h4 class="mb-0 text-black font-w600 fs-22">
@@ -132,22 +132,13 @@
             </div>
         </div>
         <!-- table -->
-        <!-- <h1>User List Debugging</h1>
-        <p *ngIf="UserList === undefined">⚠️ UserList is undefined</p>
-        <p *ngIf="UserList && UserList.length === 0">⚠️ UserList is empty</p>
-        <p *ngIf="UserList && UserList.length > 0">✅ UserList Length: {{ UserList.length }}</p> -->
-        <!-- <pre *ngIf="UserList && UserList.length > 0">{{ UserList | json }}</pre> -->
 
         <div class="row">
-            <div class="col-lg-12" *ngIf="selectedOption() === 'users'">
-
+            <div class="col-lg-12">
                 <!-- <pre>{{ UserList | json }}</pre> -->
-                <div class="table-responsive">
-                    <!-- <div class="table-responsive" *ngIf="selectedOption() === 'users'"> -->
-                    <!-- <p *ngIf="UserList">UserList Length: {{ UserList.length }}</p>
-                    <pre *ngIf="UserList">{{ UserList | json }}</pre> -->
 
-                    <table *ngIf="UserList && UserList.length > 0" class="table display mb-4">
+                <div class="table-responsive" *ngIf="selectedOption() === 'users'">
+                    <table class="table display mb-4 table-responsive-xl dataTablesCard fs-14">
                         <thead>
 
                             <tr>
@@ -167,21 +158,12 @@
 
                         <tbody>
 
-                            <!-- <tr *ngIf="!UserList || UserList.length === 0">
-                                <td colspan="8">
-                                    <p style="color: red; text-align: center;">⚠️ Nooo Users Found!</p>
-                                </td>
-                            </tr> -->
-                            <tr *ngIf="UserList && UserList.length === 0">
+                            <tr *ngIf="!UserList || UserList.length === 0">
                                 <td colspan="8">
                                     <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
                                 </td>
                             </tr>
-                            <!-- <tr>
-                                <td colspan="8">
-                                    <p style="color: blue;">ddfdf</p>
-                                </td>
-                            </tr> -->
+
 
                             <tr *ngFor="let user of UserList; let i = index">
                                 <td>{{ i + 1 }}</td>
@@ -194,7 +176,7 @@
 
                                 <td>
                                     <a [routerLink]="['/Admin/single-user', user.user_id]"
-                                        (click)="logUserId(user?.user_id)">
+                                        (click)="logUserId(user.user_id)">
                                         <i class="fa fa-eye"></i>
                                     </a>
                                 </td>
@@ -234,8 +216,7 @@
                             </tr>
                         </thead>
                         <tbody>
-
-                            <tr *ngIf="leadList.length === 0">
+                            <tr *ngIf="!leadList || leadList.length === 0">
                                 <td colspan="8">
                                     <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
                                 </td>
@@ -300,11 +281,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngIf="OpportunityList().length === 0">
-                                <td colspan="8">
-                                    <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
-                                </td>
-                            </tr>
                             <tr *ngFor="let opp of OpportunityList(); let i = index">
                                 <td>{{i + 1}}</td>
                                 <td>
@@ -398,12 +374,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngIf="TaskList().length === 0">
+                            <!-- <tr *ngIf="!leadList || leadList.length === 0">
                                 <td colspan="8">
                                     <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
                                 </td>
-                            </tr>
-                            <tr *ngFor="let task of TaskList(); let i = index">
+                            </tr> -->
+                            <tr *ngFor="let task of TaskList; let i = index">
                                 <td>{{i + 1}}</td>
                                 <td>
                                     {{ task.subject }}
@@ -476,12 +452,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngIf="EventList().length === 0">
+                            <tr *ngIf="!UserList || UserList.length === 0">
                                 <td colspan="8">
                                     <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
                                 </td>
                             </tr>
-                            <tr *ngFor="let event of EventList(); let i = index">
+                            <tr *ngFor="let event of EventList; let i = index">
                                 <td>{{i + 1}}</td>
                                 <td>
                                     {{ event.subject }}

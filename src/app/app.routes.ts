@@ -191,7 +191,9 @@ export const routes: Routes = [
       },
 
       {
-        path: 'single-lead/:leadId',
+        // path: 'single-lead/:leadId',
+        path: 'single-lead/:dealerId/:leadId',
+
         component: SingleLeadComponent,
         resolve: { leadData: LeadResolver },
         data: { title: 'Single Lead Data' },

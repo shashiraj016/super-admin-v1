@@ -12,6 +12,7 @@ import {
   Lead,
   LeadResponse,
   SingleDealerResponse,
+  TaskResponse,
   UserResponse,
 } from '../../model/interface/master';
 import { ActivatedRoute, Route, Router, RouterLink } from '@angular/router';
@@ -40,17 +41,15 @@ declare var $: any;
 export class SingleDealerComponent implements AfterViewInit {
   // userList = signal<Users[]>([]);
   UserList: any[] = []; // ✅ Initialize as an empty array
-  selectedDealerId: string | null = null; // 🔹 Add this property
-  dealer_id!: string; // ✅ Declare dealer_id
-
   loading: boolean = false;
-  isLoading: boolean = false; // Add this property if missing
-  OpportunityList = signal<Opportunities[]>([]);
-  TaskList = signal<Tasks[]>([]);
-  EventList = signal<Events[]>([]);
-
   leadList: any[] = []; // ✅ Initialize as an empty array
+  TaskList: any[] = []; // ✅ Initialize as an empty array
+  EventList: any[] = []; // ✅ Initialize as an empty array
 
+  OpportunityList = signal<Opportunities[]>([]);
+  // TaskList = signal<Tasks[]>([]);
+  // EventList = signal<Events[]>([]);
+  // leadList = signal<Leads[]>([]);
   dealerData: SingleDealerResponse | undefined;
   masterSrv = inject(MasterService);
   showUsersTable: boolean = true;
@@ -73,74 +72,26 @@ export class SingleDealerComponent implements AfterViewInit {
     private zone: NgZone
   ) {}
   ngOnInit() {
-    console.log('✅ ngOnInit is called');
+    console.log('ngOnInit is called');
 
-    this.route.paramMap.subscribe((params) => {
-      console.log('🔍 Full Params:', params.keys);
-      const dealerId = params.get('dealer_id'); // Corrected param extraction
-      console.log('🔍 Extracted Dealer ID:', dealerId);
-
-      if (dealerId) {
-        this.getAllUser(dealerId);
-      } else {
-        console.warn('⚠️ Dealer ID is missing in the route');
-      }
-
-      const data = localStorage.getItem('dealerData');
-      if (data) {
-        this.dealerData = JSON.parse(data);
-        console.log('📦 dealerData loaded:', this.dealerData);
-      } else {
-        console.warn('🚫 No dealerData in localStorage!');
-      }
-    });
-
-    // ✅ Handle query params
     this.handleQueryParams();
     this.handleRouteData();
-
-    // ✅ Handle Dealer ID properly
     this.handleDealerId((dealerId) => {
-      console.log('🔄 Fetching Users for Dealer ID:', dealerId);
       this.getAllUser(dealerId);
+      this.getAllLeads(dealerId);
+      this.getAllTasks(dealerId);
+      this.getAllEvent(dealerId);
+      // this.fetchUsers();
+      // this.getAllEvent(dealerId);
+      // this.getAllLeads(dealerId);
+      // this.getAllOpp(dealerId);
+      // this.getAllTasks(dealerId)
 
-      console.log('🔍 Dealer Data:', this.dealerData);
-      console.log('📊 Initial UserList:', this.UserList);
+      console.log('API Data:', data); // Check the data in console
+
+      console.log('dealerData:', this.dealerData);
+      console.log('Fetched UserList:', this.UserList);
     });
-    setTimeout(() => {
-      console.log('🔍 dealerData after init:', this.dealerData);
-    }, 2000);
-
-    // if (this.dealer_id) {
-    //   this.getAllLeads(this.dealer_id); // ✅ Fetch leads automatically
-    // } else {
-    //   console.warn('🚨 dealer_id is missing in the route parameters!');
-    // }
-    // if (this.dealer_id) {
-    //   this.dealer_id = this.dealer_id; // ✅ Assign dealer_id
-    //   console.log('✅ Assigned dealer_id:', this.dealer_id);
-
-    //   this.getAllUser(this.dealer_id); // ✅ Fetch users
-    //   this.getAllLeads(this.dealer_id); // ✅ Fetch leads after assignment
-    // } else {
-    //   console.warn('🚨 dealer_id is missing in the route parameters!');
-    // }
-    if (!this.dealer_id) {
-      console.warn('🚨 dealer_id is missing in the route for leads!');
-      return; // Exit if dealer_id is null
-    }
-    this.getAllLeads(this.dealer_id); // ✅ Pass the actual dealer_id instead of a string
-
-    this.route.paramMap.subscribe((params) => {
-      const dealer_id = params.get('dealer_id');
-      console.log('🔍 Retrieved dealer_id from route for leads:', dealer_id);
-    });
-    // ✅ Assign selectedOption properly
-
-    // ✅ Debugging: Check if UserList is updating
-    // setTimeout(() => {
-    //   console.log('📊 Final UserList:', this.UserList);
-    // }, 500);
   }
 
   // selectedOption: string = 'users';
@@ -149,8 +100,6 @@ export class SingleDealerComponent implements AfterViewInit {
   selectedOption = this.dropdownService.getSelectedOption();
 
   handleSelectionChange(event: Event) {
-    console.log('🔥 handleSelectionChange triggered'); // Debug log
-
     const option = (event.target as HTMLSelectElement).value;
     // this.selectedOption = option;
     //  const option = (event.target as HTMLSelectElement).value;
@@ -158,34 +107,16 @@ export class SingleDealerComponent implements AfterViewInit {
 
     console.log('this is option', this.selectedOption());
 
-    // switch (option) {
-    //   case 'leads':
-    //     console.log('✅ Leads option selected');
-    //     this.toggleLeadsTable();
-    //     if (option === 'leads') {
-    //       if (this.dealerData?.data?.dealer?.dealer_id) {
-    //         const dealerId = this.dealerData.data.dealer.dealer_id;
-    //         console.log('📨 Calling getAllLeads with ID:', dealerId);
-    //         this.getAllLeads(dealerId);
-    //       } else {
-    //         console.warn('⚠️ dealer_id is missing in dealerData!');
-    //       }
-    //     }
-    //     break;
-
     switch (option) {
       case 'leads':
-        console.log('✅ Leads option selected');
+        console.log('dealerData:', this.dealerData); // Log the value of dealerData
 
-        this.toggleLeadsTable();
-
-        // ✅ Directly call leads API without dealerData check
-        console.log('📨 Calling getAllLeads without dealer ID');
-        this.getAllLeads('8193bfb2-8f81-4d7b-8dcd-5d7a7b76a311'); // Remove dealerId if not needed
-
-        console.log('📨 Calling getAllLeads without dealer ID');
-        this.getAllLeads('54ab3c49-9206-469d-af71-17cf381761fa'); // Remove dealerId if not needed
-
+        if (this.dealerData) {
+          this.getAllLeads(this.dealerData.data.dealer.dealer_id);
+          this.toggleLeadsTable();
+        } else {
+          console.warn('lead data is not available.');
+        }
         break;
       case 'users':
         if (this.dealerData) {
@@ -326,12 +257,10 @@ export class SingleDealerComponent implements AfterViewInit {
   private handleDealerId(callback: (dealerId: string) => void) {
     this.route.paramMap.subscribe((params) => {
       const dealerId = params.get('dealer_id');
-      console.log('🔍 Extracted Dealer ID:', dealerId); // Debugging
-
-      if (!dealerId) {
-        console.error('❌ Dealer ID not found in the URL!');
-      } else {
+      if (dealerId) {
         callback(dealerId);
+      } else if (!this.dealerData) {
+        console.error('Dealer ID not found in the URL and no resolver data.');
       }
     });
   }
@@ -423,54 +352,41 @@ export class SingleDealerComponent implements AfterViewInit {
   //     },
   //   });
   // }
-  // getAllUser(dealerId: string) {
-  //   this.masterSrv.getAllUser(dealerId).subscribe({
-  //     next: (res: UserResponse) => {
-  //       console.log('✅ Full API Response:', res);
-  //       console.log('Fetched Users:', res.data); // Log the fetched data
-
-  //       if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
-  //         this.UserList = res.data ?? [];
-  //       } else {
-  //         console.warn('No users found or invalid response');
-  //         this.UserList = [];
-  //       }
-
-  //       // Ensure UI updates and DataTable initializes properly
-  //       this.zone.run(() => {
-  //         if (Array.isArray(this.UserList)) {
-  //           console.log('✅ Assigned UserList:', this.UserList);
-  //           this.cdr.detectChanges(); // Force UI update
-  //           setTimeout(() => {
-  //             this.initializeDataTable(); // Initialize DataTable after data is set
-  //           }, 500);
-  //         } else {
-  //           console.warn('⚠️ Invalid API Response Format:', res);
-  //           this.UserList = [];
-  //         }
-  //       });
-  //     },
-  //     error: (err) => {
-  //       console.error('❌ API Error:', err);
-  //       this.UserList = [];
-  //       this.cdr.detectChanges();
-  //     },
-  //   });
-  // }
   getAllUser(dealerId: string) {
+    console.log('Calling API with dealerId:', dealerId); // Add this line to check if API call is being made
+
     this.masterSrv.getAllUser(dealerId).subscribe({
       next: (res: UserResponse) => {
-        console.log('✅ API Response:', res); // Check if data exists
-        console.log('🔍 Data inside response:', res.data); // Verify if data exists
+        console.log('✅ Full API Response:', res);
+        console.log('Fetched Users:', res.data); // Log the fetched data
 
-        this.UserList = res.data ?? [];
-        console.log('✅ Updated UserList:', this.UserList);
-        this.cdr.detectChanges();
-        this.reinitializeDataTable(); // ✅ Call DataTable after setting data
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+          this.UserList = res.data;
+          console.log('Users List:', this.UserList); // Ensure data is set correctly
+          this.loading = false; // Stop loading indicator
+        } else {
+          console.warn('No users found');
+          this.UserList = [];
+        }
+
+        // Ensure UI updates and DataTable initializes properly
+        this.zone.run(() => {
+          if (Array.isArray(this.UserList)) {
+            console.log('✅ Assigned UserList:', this.UserList);
+            this.cdr.detectChanges(); // Force UI update
+            setTimeout(() => {
+              this.initializeDataTable(); // Initialize DataTable after data is set
+            }, 500);
+          } else {
+            console.warn('⚠️ Invalid API Response Format:', res);
+            this.UserList = [];
+          }
+        });
       },
       error: (err) => {
         console.error('❌ API Error:', err);
         this.UserList = [];
+        this.cdr.detectChanges();
       },
     });
   }
@@ -513,25 +429,29 @@ export class SingleDealerComponent implements AfterViewInit {
   //     },
   //   });
   // }
+  // Assuming you're setting the data correctly in this.leadList
+  getAllLeads(dealerId: string) {
+    console.log('Calling API with dealerId for leads:', dealerId);
+    if (!dealerId) {
+      console.warn('dealerId is missing!');
+      return;
+    }
 
-  // Call this method in ngOnInit()
-  // remove the problematic interface for now if you're still building
-  getAllLeads(dealer_id: string): void {
-    console.log('getALLleads');
-    this.masterSrv.getAllLead(dealer_id).subscribe({
+    this.masterSrv.getAllLead(dealerId).subscribe({
       next: (res: any) => {
-        console.log('✅ API called. Raw Response:', res);
+        console.log('✅ Full API Response:', res);
 
-        // just show an empty table for now
-        this.leadList = res?.data?.length ? res.data : [];
-
-        this.cdr.detectChanges();
-        this.reinitializeDataTable();
+        if (res && res.data && res.data.length > 0) {
+          this.leadList = res.data; // Access the 'data' field from the response
+          console.log('Leads List:', this.leadList); // Ensure data is set correctly
+        } else {
+          console.warn('No leads found');
+          this.leadList = [];
+        }
       },
       error: (err) => {
         console.error('❌ API Error:', err);
         this.leadList = [];
-        this.reinitializeDataTable();
       },
     });
   }
@@ -545,36 +465,88 @@ export class SingleDealerComponent implements AfterViewInit {
   //     },
   //     error: (err: any) => {
   //       console.error('Error fetching users:', err);
-
   //     },
   //   });
   // }
 
+  // getAllEvent(dealerId: string) {
+  //   this.masterSrv.getEventsAll(dealerId).subscribe({
+  //     next: (res: Events[]) => {
+  //       // Now res is of type Leads[]
+  //       this.EventList.set(res);
+  //       console.log('Leads data fetched:', res);
+  //     },
+  //     error: (err) => {
+  //       alert(err.message || 'An error occurred while fetching leads.');
+  //     },
+  //   });
+  // }
   getAllEvent(dealerId: string) {
+    console.log('Calling API with dealerId for leads:', dealerId);
+    if (!dealerId) {
+      console.warn('dealerId is missing!');
+      return;
+    }
+
     this.masterSrv.getEventsAll(dealerId).subscribe({
-      next: (res: Events[]) => {
-        // Now res is of type Leads[]
-        this.EventList.set(res);
-        console.log('Leads data fetched:', res);
+      next: (res: any) => {
+        // You can use `any` temporarily if you're unsure about the exact type
+        console.log('✅ Full API Response:', res);
+
+        if (res && res.data && res.data.length > 0) {
+          this.EventList = res.data; // Assign the array inside `data` field to EventList
+          console.log('Event List:', this.EventList); // Ensure data is set correctly
+        } else {
+          console.warn('No events found');
+          this.EventList = [];
+        }
       },
       error: (err) => {
-        alert(err.message || 'An error occurred while fetching leads.');
+        console.error('❌ API Error:', err);
+        this.EventList = [];
       },
     });
   }
 
   getAllTasks(dealerId: string) {
+    console.log('Calling API with dealerId for leads:', dealerId);
+    if (!dealerId) {
+      console.warn('dealerId is missing!');
+      return;
+    }
+
     this.masterSrv.getAllTask(dealerId).subscribe({
-      next: (res: Tasks[]) => {
-        // Now res is of type Leads[]
-        this.TaskList.set(res);
-        console.log('Leads data fetched:', res);
+      next: (res: any) => {
+        // Use TaskResponse instead of TaskResponse[]
+        console.log('✅ Full API Response:', res);
+
+        if (res && res.data && res.data.length > 0) {
+          this.TaskList = res.data; // Access the 'data' field from the response
+          console.log('Task List:', this.TaskList); // Ensure data is set correctly
+        } else {
+          console.warn('No tasks found');
+          this.TaskList = [];
+        }
       },
       error: (err) => {
-        alert(err.message || 'An error occurred while fetching leads.');
+        console.error('❌ API Error:', err);
+        this.TaskList = [];
       },
     });
   }
+
+  // getAllTasks(dealerId: string) {
+  //   this.masterSrv.getAllTask(dealerId).subscribe({
+  //     next: (res: Tasks[]) => {
+  //       // Now res is of type Leads[]
+  //       this.TaskList.set(res);
+  //       console.log('Leads data fetched:', res);
+  //     },
+  //     error: (err) => {
+  //       alert(err.message || 'An error occurred while fetching leads.');
+  //     },
+  //   });
+  // }
 
   getAllOpp(dealerId: string) {
     this.masterSrv.getAllOpportunities(dealerId).subscribe({
@@ -601,7 +573,7 @@ export class SingleDealerComponent implements AfterViewInit {
   logUserId(userId: string): void {
     console.log('Navigating to user with ID:', userId);
 
-    if (this.dealerData?.data?.dealer?.dealer_id) {
+    if (this.dealerData?.data.dealer?.dealer_id) {
       localStorage.setItem(
         'previousRoute',
         this.dealerData.data.dealer.dealer_id
