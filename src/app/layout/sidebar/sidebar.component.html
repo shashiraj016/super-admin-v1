@@ -31,7 +31,7 @@
           aria-expanded="false"
         >
           <i class="fa fa-users"></i>
-          <span class="nav-text">Users</span>
+          <span class="nav-text">Masters</span>
         </a>
         <ul aria-expanded="false">
           <li
@@ -46,6 +46,11 @@
           >
             <a  routerLink="/Admin/role"   class="ai-icon" aria-expanded="false" 
             (click)="onRoleChange('user-all', 'Role Management')">Role Management</a>
+          </li>
+          <li 
+          >
+            <a  routerLink="/Admin/team"   class="ai-icon" aria-expanded="false" 
+            (click)="onTeamChange('team-all', 'Team Management')">Team Management</a>
           </li>
         </ul>
       </li>

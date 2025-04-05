@@ -1,31 +1,22 @@
 <div class="container-fluid">
   <!-- <div class="content-body"> -->
-  <div class="content-body">
+  <div class="content-body" style="margin-left:300px;">
     <div class="page-titles">
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
           <a href="javascript:void(0)" style="cursor: auto">Utils</a>
         </li>
         <li class="breadcrumb-item active">
-          <a
-            href="javascript:void(0)"
-            style="cursor: auto; font-weight: 700 !important; color: black"
-            >User-All</a
-          >
+          <a href="javascript:void(0)" style="cursor: auto; font-weight: 700 !important; color: black">User-All</a>
         </li>
       </ol>
     </div>
     <div class="row mb-5 align-items-center">
       <div class="col-xl-2 mb-4 mb-xl-0">
-        <a
-          style="cursor: pointer; color: white !important"
-          (click)="openModal()"
-          type="button"
-          data-toggle="modal"
+        <a style="cursor: pointer; color: white !important" (click)="openModal()" type="button" data-toggle="modal"
           data-target=".bd-example-modal-lg"
-          class="btn btn-primary light btn-lg btn-block rounded shadow px-2 buttons"
-          ><i class="fa fa-plus mr-1"></i>Add Users</a
-        >
+          class="btn btn-primary light btn-lg btn-block rounded shadow px-2 buttons"><i class="fa fa-plus mr-1"></i>Add
+          Users</a>
       </div>
       <div class="col-xl-2 mb-4 mb-xl-0">
         <div class="media-body ml-1">
@@ -76,10 +67,7 @@
     <div class="row">
       <div class="col-lg-12">
         <div class="table-responsive">
-          <table
-            id="example5"
-            class="table display mb-4 table-responsive-xl dataTablesCard fs-14"
-          >
+          <table id="example5" class="table display mb-4 table-responsive-xl dataTablesCard fs-14">
             <thead>
               <tr>
                 <th>Sr No</th>
@@ -92,74 +80,46 @@
             </thead>
             <tbody>
               @if(userList().length === 0){
-                <tr>
+              <tr>
                 <td colspan="6" class="text-center">
                   <p>No Users Found</p>
                 </td>
               </tr>
               }@else(){
-                <tr *ngFor="let user of userList(); let i = index">
-                  <td>{{ i + 1 }}</td>
-                  <td>{{ user.name }}</td>
-                  <td>{{ user.email }}</td>
-                  <td>{{ user.role }}</td>
-                  <td>{{ user.dealer_code }}</td>
-                  <td class="d-flex">
-                    <a
-                      href="javascript:void(0);"
-                      data-target=".bd-example-modal-lg"
-                      data-toggle="modal"
-                      class="btn btn-primary shadow btn-xs sharp mr-1"
-                      (click)="onEdit(user.user_id)"
-                      ><i class="fa fa-pencil"></i
-                    ></a>
-                     <a
-                      href="javascript:void(0);"
-                      type="button"
-                      class="btn btn-primary mb-2"
-                      data-toggle="modal"
-                      data-target=".bd-example-modal-sm"
-                      class="btn btn-danger shadow btn-xs sharp"
-                      (click)="selectUserForDeletion(user)"
-                      ><i class="fa fa-trash"></i
-                    ></a>
-                    <div
-                      class="modal fade bd-example-modal-sm"
-                      tabindex="-1"
-                      role="dialog"
-                      aria-hidden="true"
-                    >
-                      <div class="modal-dialog modal-sm">
-                        <div class="modal-content">
-                          <div
-                            class="modal-header text-center"
-                            style="margin-inline: auto"
-                          >
-                            <h5 class="modal-title text-center">Delete User</h5>
-                          </div>
-                          <div class="modal-body">HEY ARE YOU OKAY..!</div>
-                          <div class="modal-footer">
-                            <button
-                              type="button"
-                              class="btn btn-outline-primary "
-                              data-dismiss="modal"
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              type="button"
-                              class="btn btn-outline-danger"
-                              (click)="deleteUserId()"
-                              data-dismiss="modal"
-                            >
-                              Delete
-                            </button>
-                          </div>
+              <tr *ngFor="let user of userList(); let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.user_role }}</td>
+                <td>{{ user.dealer_code }}</td>
+                <td class="d-flex">
+                  <a href="javascript:void(0);" data-target=".bd-example-modal-lg" data-toggle="modal"
+                    class="btn btn-primary shadow btn-xs sharp mr-1" (click)="onEdit(user)"><i
+                      class="fa fa-pencil"></i></a>
+                  <a href="javascript:void(0);" type="button" class="btn btn-primary mb-2" data-toggle="modal"
+                    data-target=".bd-example-modal-sm" class="btn btn-danger shadow btn-xs sharp"
+                    (click)="selectUserForDeletion(user)"><i class="fa fa-trash"></i></a>
+                  <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-sm">
+                      <div class="modal-content">
+                        <div class="modal-header text-center" style="margin-inline: auto">
+                          <h5 class="modal-title text-center">Delete User</h5>
+                        </div>
+                        <div class="modal-body">HEY ARE YOU OKAY..!</div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-outline-primary" data-dismiss="modal">
+                            Cancel
+                          </button>
+                          <button type="button" class="btn btn-outline-danger" (click)="deleteUserId()"
+                            data-dismiss="modal">
+                            Delete
+                          </button>
                         </div>
                       </div>
                     </div>
-                  </td>
-                </tr>
+                  </div>
+                </td>
+              </tr>
 
               }
             </tbody>
@@ -172,12 +132,7 @@
 
 <!-- Modal -->
 <!-- <div class="modal fade" style="margin-block: 2em"> -->
-<div
-  class="modal fade bd-example-modal-lg custom-modal"
-  tabindex="-1"
-  role="dialog"
-  aria-hidden="true"
->
+<div class="modal fade bd-example-modal-lg custom-modal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -194,65 +149,72 @@
           <div class="row">
             <!-- Name -->
             <div class="col-md-6 form-group">
-              <label for="name" class="form-label">Name</label>
-              <input
-                id="name"
-                class="form-control form-control-lg"
-                type="text"
-                formControlName="name"
-                placeholder="User Name"
-                [ngClass]="{
+              <label for="fname" class="form-label">First Name</label>
+              <input id="fname" class="form-control form-control-lg" type="text" formControlName="fname"
+                placeholder="User fName" [ngClass]="{
                   'is-invalid':
-                    useForm.get('name')?.touched && useForm.get('name')?.invalid
-                }"
-                required
-              />
-              <div
-                class="text-danger"
-                *ngIf="
-                  useForm.get('name')?.invalid && useForm.get('name')?.touched
-                "
-              >
-                <span *ngIf="useForm.get('name')?.errors?.['required']"
-                  >Name is required.</span
-                >
+                    useForm.get('fname')?.touched &&
+                    useForm.get('fname')?.invalid
+                }" required />
+              <div class="text-danger" *ngIf="
+                  useForm.get('fname')?.invalid && useForm.get('fname')?.touched
+                ">
+                <span *ngIf="useForm.get('fname')?.errors?.['required']">Name is required.</span>
               </div>
             </div>
 
-            <!-- Department -->
+            <!-- LAST NAME -->
             <div class="col-md-6 form-group">
-              <label for="role" class="form-label">Department</label>
-              <select
-                id="role"
-                class="form-control form-control-lg"
-                formControlName="role"
-                [ngClass]="{
+              <label for="lname" class="form-label">Last Name</label>
+              <input id="lname" class="form-control form-control-lg" type="text" formControlName="lname"
+                placeholder="User lName" [ngClass]="{
                   'is-invalid':
-                    useForm.get('role')?.touched && useForm.get('role')?.invalid
-                }"
-              >
-                <option value="null" disabled>Select Role</option>
-                <!-- <option
-                  *ngFor="let role of roleList()"
-                  [value]="role.role_name"
-                >
+                    useForm.get('lname')?.touched &&
+                    useForm.get('lname')?.invalid
+                }" required />
+              <div class="text-danger" *ngIf="
+                  useForm.get('lname')?.invalid && useForm.get('lname')?.touched
+                ">
+                <span *ngIf="useForm.get('lname')?.errors?.['required']">Name is required.</span>
+              </div>
+            </div>
+
+            <!-- ROLE -->
+            <div class="col-md-6 form-group">
+              <label for="role_name" class="form-label">Role Name*</label>
+
+              <!-- Dropdown (Select) for Role Name -->
+              <select id="role_name" class="form-control form-control-lg" formControlName="role_id" [ngClass]="{
+                  'is-invalid':
+                    useForm.get('role_name')?.touched &&
+                    useForm.get('role_name')?.invalid
+                }">
+                <option value="" disabled selected>Select Role</option>
+                <!-- Dynamic Role List -->
+                <!-- <option *ngFor="let role of roleList()" [value]="role.role_id">
                   {{ role.role_name }}
-                </option> --> 
+                </option> -->
+
+
+                <!-- Static Fallback List (if required) -->
+                <option *ngFor="let role of roleList()" [value]="role.role_id">
+                  {{ role.role_name }}
+                </option>
+
               </select>
-              <div
-                class="text-danger"
-                *ngIf="
-                  useForm.get('role')?.touched && useForm.get('role')?.invalid
-                "
-              >
-                <span>Department is required.</span>
+
+              <div class="text-danger" *ngIf="
+                  useForm.get('role_name')?.touched &&
+                  useForm.get('role_name')?.invalid
+                ">
+                <span>Role Name is required.</span>
               </div>
             </div>
           </div>
 
           <div class="row">
             <!-- Account No -->
-            <div class="col-md-6 form-group">
+            <!-- <div class="col-md-6 form-group">
               <label for="account_id" class="form-label">Account No</label>
               <input
                 id="account_id"
@@ -282,68 +244,74 @@
                 >
                  
               </div>
-            </div>
+            </div> -->
 
             <!-- Email -->
             <div class="col-md-6 form-group">
               <label for="email" class="form-label">E-mail</label>
-              <input
-                id="email"
-                type="email"
-                class="form-control form-control-lg"
-                formControlName="email"
-                placeholder="E-mail"
-                [ngClass]="{
+              <input id="email" type="email" class="form-control form-control-lg" formControlName="email"
+                placeholder="E-mail" [ngClass]="{
                   'is-invalid':
                     useForm.get('email')?.touched &&
                     useForm.get('email')?.invalid
-                }"
-              />
-              <div
-                class="text-danger"
-                *ngIf="
+                }" />
+              <div class="text-danger" *ngIf="
                   useForm.get('email')?.invalid && useForm.get('email')?.touched
-                "
-              >
-                <span *ngIf="useForm.get('email')?.errors?.['required']"
-                  >Email is required.</span
-                >
-                <span *ngIf="useForm.get('email')?.errors?.['email']"
-                  >Please enter a valid email address.</span
-                >
+                ">
+                <span *ngIf="useForm.get('email')?.errors?.['required']">Email is required.</span>
+                <span *ngIf="useForm.get('email')?.errors?.['email']">Please enter a valid email address.</span>
               </div>
             </div>
           </div>
 
+          <!-- TEAM -->
           <div class="row">
-             <div class="col-md-6 form-group" >
-              <label for="dealer_code" class="form-label">Dealer Code</label>
-              <select
-                id="dealer_code"
-                class="form-control form-control-lg"
-                formControlName="dealer_code"
-                (change)="onDealerChange()"
-                [ngClass]="{
+            <div class="col-md-6 form-group">
+              <label for="team_name" class="form-label">Team name</label>
+              <select id="team_name" class="form-control form-control-lg" formControlName="team_id"
+                (change)="onTeamChange()" [ngClass]="{
                   'is-invalid':
-                    useForm.get('dealer_code')?.touched &&
-                    useForm.get('dealer_code')?.invalid
-                }"
-              >
+                    useForm.get('team_name')?.touched &&
+                    useForm.get('team_name')?.invalid
+                }">
+                <option value="" disabled selected>Select team name</option>
+
+                <!-- Static list fallback (if required) -->
+
+                <option *ngFor="let team of teamList()" [value]="team.team_id">
+                  {{ team.team_name }}
+                </option>
+              </select>
+              <div class="text-danger" *ngIf="
+                  useForm.get('team_name')?.touched &&
+                  useForm.get('team_name')?.invalid
+                ">
+                <span>Team is required.</span>
+              </div>
+            </div>
+          </div>
+          <!-- USER ID FIELD  -->
+
+          <!-- DEALER -->
+          <div class="row">
+            <div class="col-md-6 form-group">
+              <label for="dealer_code" class="form-label">Dealer Code</label>
+              <select id="dealer_id" class="form-control form-control-lg" formControlName="dealer_id"
+                (change)="onDealerChange()" [ngClass]="{
+                  'is-invalid':
+                    useForm.get('dealer_id')?.touched &&
+                    useForm.get('dealer_id')?.invalid
+                }">
                 <option value="null" disabled>Select Dealer</option>
-                <option
-                  *ngFor="let dealer of dealerList()"
-                  [value]="dealer.dealer_code"
-                >
+
+                <option *ngFor="let dealer of dealerList()" [value]="dealer.dealer_id">
                   {{ dealer.dealer_code }}
                 </option>
               </select>
-              <div
-                class="text-danger"
-                *ngIf="
-                  useForm.get('dealer_code')?.touched &&
-                  useForm.get('dealer_code')?.invalid
-                "
-              >
+              <div class="text-danger" *ngIf="
+                  useForm.get('dealer_id')?.touched &&
+                  useForm.get('dealer_id')?.invalid
+                ">
                 <span>Dealer is required.</span>
               </div>
             </div>
@@ -351,19 +319,12 @@
             <!-- Phone -->
             <div class="col-md-6 form-group">
               <label for="phone" class="form-label">Phone</label>
-              <input
-                id="phone"
-                class="form-control form-control-lg"
-                formControlName="phone"
-                placeholder="Phone" 
+              <input id="phone" class="form-control form-control-lg" formControlName="phone" placeholder="Phone"
                 [ngClass]="{
                   'is-invalid':
                     useForm.get('phone')?.touched &&
                     useForm.get('phone')?.invalid
-                }"
-                maxlength="10"
-                (keypress)="restrictToNumbers($event)"
-              />
+                }" maxlength="10" (keypress)="restrictToNumbers($event)" />
               <!-- <div
 
                 class="text-danger"
@@ -384,12 +345,9 @@
                   >Only numbers are allowed.</span
                 >
               </div> -->
-              <div
-                class="text-danger"
-                *ngIf="
+              <div class="text-danger" *ngIf="
                   useForm.get('phone')?.touched && useForm.get('phone')?.invalid
-                "
-              >
+                ">
                 <span *ngIf="useForm.get('phone')?.errors?.['required']">
                   Phone is required.
                 </span>
@@ -405,36 +363,39 @@
         </form>
       </div>
 
-      <div class="modal-footer">
-       
-
-        <ng-container *ngIf="isEditMode; else saveButton">
-          <button
-            type="button"
-            class="btn btn-outline-primary"
-            (click)="onUpdate()"
-            [disabled]="useForm.invalid"
-          >
-            Update
+      <!-- <div class="modal-footer">
+        <ng-container *ngIf="dealerObj.dealer_id; else saveButton">
+          <button type="button" class="btn btn-outline-primary" data-dismiss="modal" (click)="onUpdate()"
+            [disabled]="!isUserNameChanged()">
+            Edit
           </button>
         </ng-container>
+        <button type="button" class="btn btn-outline-danger" data-dismiss="modal" (click)="closeModal()">
+          Close
+        </button>
         <ng-template #saveButton>
-          <button
-            type="button"
-            class="btn btn-outline-primary"
-            (click)="onSave()"
-          >
+          <button type="button" class="btn btn-outline-primary" (click)="onSave()"
+            [attr.data-dismiss]="useForm.valid ? 'modal' : null">
+            save
+          </button>
+        </ng-template>
+      </div>
+    </div>
+  </div> -->
+      <div class="modal-footer">
+        <ng-container *ngIf="userObj?.user_id; else saveButton">
+          <button type="button" class="btn btn-outline-primary" data-dismiss="modal" (click)="onUpdate()"
+            [disabled]="!isUserNameChanged()">
+            Edit
+          </button>
+        </ng-container>
+        <button type="button" class="btn btn-outline-danger" data-dismiss="modal" (click)="closeModal()">
+          Close
+        </button>
+        <ng-template #saveButton>
+          <button type="button" class="btn btn-outline-primary" (click)="onSave()"
+            [attr.data-dismiss]="useForm.valid ? 'modal' : null">
             Save
           </button>
         </ng-template>
-        <button
-          type="button"
-          class="btn btn-outline-danger"
-          data-dismiss="modal"
-        >
-          Close
-        </button>
       </div>
-    </div>
-  </div>
-</div>

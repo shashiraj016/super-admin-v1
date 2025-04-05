@@ -1,554 +1,542 @@
 <div class="container-fluid">
-  <div class="content-body">
-    <div class="page-titles">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="javascript:void(0)" style="cursor: auto">Utils</a>
-        </li>
-        <li class="breadcrumb-item">
-          <a [routerLink]="['/Admin/dealer']">Dealer</a>
-        </li>
-        <li class="breadcrumb-item active">
-          <a style="font-weight: 700 !important; color: black"
-            >{{ this.dealerData?.dealer?.dealer_name}}
-          </a>
-        </li>
-      </ol>
-    </div>
-    <!-- table header -->
+    <div class="content-body" style="margin-left:300px;">
+        <div class="page-titles">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="javascript:void(0)" style="cursor: auto">Utils</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a [routerLink]="['/Admin/dealer']">Dealer</a>
+                </li>
+                <li class="breadcrumb-item active">
+                    <a style="font-weight: 700 !important; color: black">{{ this.dealerData?.data?.dealer?.dealer_id}}
+                    </a>
+                </li>
+            </ol>
+        </div>
+        <!-- table header -->
 
-    <div
-      class="col-xl-9"
-      style="
+        <div class="col-xl-9" style="
         margin-top: 2em !important;
         display: flex;
         justify-content: space-between;
         align-items: center;
         width: 100%;
-      "
-      *ngIf="dealerData"
-    >
-      <div class="form-group" style="margin-inline: 1em">
-        <div class="media align-items-center">
-          <div class="media-body ml-1">
-            <p class="mb-0 fs-14">
-              {{ dealerData.dealer.dealer_name }}
-            </p>
-            <h4 class="mb-0 text-black font-w600 fs-22">
-              Dealer Code :
-              <span class="span">{{ dealerData.dealer.dealer_code }}</span>
-            </h4>
-          </div>
-        </div>
-      </div>
-      <div class="form-group" style="margin-inline: 1em">
-        <div
-          class="media align-items-center"
-          (click)="toggleUsersTable(); getUser(dealerData.dealer.dealer_id)"
-        >
-          <div class="media-body ml-1">
-            <p class="mb-0 fs-14">Total Users</p>
-            <h4 class="mb-0 text-black font-w600 fs-22">
-              <span class="span">{{ dealerData.users }}</span> User
-            </h4>
-          </div>
-        </div>
-      </div>
-      <div class="form-group" style="margin-inline: 1em">
-        <div
-          class="media-body ml-1"
-          (click)="
-            toggleOpportunityTable(); getAllOpp(dealerData.dealer.dealer_id)
-          "
-        >
-          <p class="mb-0 fs-14">Total Opportunities</p>
-          <h4 class="mb-0 text-black font-w600 fs-22">
-            <span class="span">{{ dealerData.opportunities }}</span>
-            Opportunities
-          </h4>
-        </div>
-      </div>
-      <!-- dropdown -->
-      <div class="form-group" style="margin-inline: 1em">
-        <div
-          class="media align-items-center"
-          (click)="toggleLeadsTable(); getAllLeads(dealerData.dealer.dealer_id)"
-        >
-          <div class="media-body ml-1">
-            <p class="mb-0 fs-14">Total Lead</p>
-            <h4 class="mb-0 text-black font-w600 fs-22">
-              <span class="span">{{ dealerData.leads }}</span> Lead
-            </h4>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group" style="margin-inline: 1em">
-        <div
-          class="media align-items-center"
-          (click)="toggleTasksTable(); getAllTasks(dealerData.dealer.dealer_id)"
-        >
-          <div class="media-body ml-1">
-            <p class="mb-0 fs-14">Total Tasks</p>
-            <h4 class="mb-0 text-black font-w600 fs-22">
-              <span class="span">{{ dealerData.tasks }}</span> Tasks
-            </h4>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group" style="margin-inline: 1em">
-        <div
-          class="media align-items-center"
-          (click)="toggleEventTable(); getAllEvent(dealerData.dealer.dealer_id)"
-        >
-          <div class="media-body ml-1">
-            <p class="mb-0 fs-14">Total Events</p>
-            <h4 class="mb-0 text-black font-w600 fs-22">
-              <span class="span">{{ dealerData.events }} </span> Events
-            </h4>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="col-xl-9"
-      style="
-        margin-top: 2em !important;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-      "
-    >
-      <div class="card">
-        <div
-          class="card-body py-9 py-md-2"
-          style="margin-left: 0.2rem !important"
-        >
-          <div class="row align-items-start">
-            <div class="mb-md-0">
-              <div class="media align-items-end">
-                <div class="media-body">
-                  <!-- <p class="mb-1 fs-14">Table</p> -->
-                  <h3 class="mb-0 text-black font-w600 fs-20">
-                    {{ selectedOption() }}
-                  </h3>
+      " *ngIf="dealerData">
+            <div class="form-group" style="margin-inline: 1em">
+                <div class="media align-items-center">
+                    <div class="media-body ml-1">
+                        <p class="mb-0 fs-14">
+                            {{ dealerData.data.dealer.dealer_name }}
+                        </p>
+                        <h4 class="mb-0 text-black font-w600 fs-22">
+                            Dealer Code :
+                            <span class="span">{{ dealerData.data.dealer.dealer_code }}</span>
+                        </h4>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
-        </div>
-      </div>
-      <!-- dropdown -->
-      <div class="form-group" style="margin-inline: 1em">
-        <select
-          class="form-control form-control-lg"
-          (change)="handleSelectionChange($event)"
-          [value]="selectedOption()"
-        >
-            
-          <option selected value="users" class="drop">Users</option>
-          <option value="leads" class="drop">Leads</option>
-          <option value="opportunities" class="drop">Opportunities</option>
-          <option value="tasks" class="drop">Tasks</option>
-          <option value="events" class="drop">Events</option>
-        </select>
-      </div>
-    </div>
-    <!-- table -->
+            <div class="form-group" style="margin-inline: 1em">
+                <div class="media align-items-center"
+                    (click)="toggleUsersTable(); getAllUser(dealerData.data.dealer.dealer_id)">
+                    <div class="media-body ml-1">
+                        <p class="mb-0 fs-14">Total Users</p>
+                        <h4 class="mb-0 text-black font-w600 fs-22">
+                            <span class="span">{{ dealerData.data.users }}</span> User
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" style="margin-inline: 1em">
+                <div class="media-body ml-1" (click)="
+            toggleOpportunityTable(); getAllOpp(dealerData.data.dealer.dealer_id)
+          ">
+                    <p class="mb-0 fs-14">Total Opportunities</p>
+                    <h4 class="mb-0 text-black font-w600 fs-22">
+                        <span class="span">{{ dealerData.data.opportunities }}</span>
+                        Opportunities
+                    </h4>
+                </div>
+            </div>
+            <!-- dropdown -->
+            <div class="form-group" style="margin-inline: 1em">
+                <div class="media align-items-center"
+                    (click)="toggleLeadsTable(); getAllLeads(dealerData.data.dealer.dealer_id)">
+                    <div class="media-body ml-1">
+                        <p class="mb-0 fs-14">Total Lead</p>
+                        <h4 class="mb-0 text-black font-w600 fs-22">
+                            <span class="span">{{ dealerData.data.leads }}</span> Lead
+                        </h4>
+                    </div>
+                </div>
+            </div>
 
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="table-responsive" *ngIf="selectedOption() === 'users'">
-          <table
-            id="example5"
-            class="table display mb-4 table-responsive-xl dataTablesCard fs-14"
-          >
-            <thead>
-              <tr>
-                <th>Sr No</th>
-                <th>Account ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Role</th>
-                <th>Dealer Code</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let user of userList() ; let i = index" >
-                <td>
-                  {{  i + 1}}
-                </td>
-                <td>
-                  {{ user.user_account_id }}
-                </td>
-                <td>
-                  {{ user.name }}
-                </td>
-                <td>
-                  {{ user.email }}
-                </td>
-                <td>
-                  {{ user.phone }}
-                </td>
-                <td>
-                  {{ user.user_role }}
-                </td>
-                <td>
-                  {{ user.dealer_code }}
-                </td>
-                <td>
-                  <a [routerLink]="['/Admin/single-user', user.user_id]">
-                    <span class="" (click)="userId()">
-                      <i class="fa fa-eye"></i>
-                    </span>
-                  </a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <!-- <button (click)="userId()">Something</button> -->
-    </div>
+            <div class="form-group" style="margin-inline: 1em">
+                <div class="media align-items-center"
+                    (click)="toggleTasksTable(); getAllTasks(dealerData.data.dealer.dealer_id)">
+                    <div class="media-body ml-1">
+                        <p class="mb-0 fs-14">Total Tasks</p>
+                        <h4 class="mb-0 text-black font-w600 fs-22">
+                            <span class="span">{{ dealerData.data.tasks }}</span> Tasks
+                        </h4>
+                    </div>
+                </div>
+            </div>
 
-    <!-- table 2 -->
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="table-responsive" *ngIf="selectedOption() === 'leads'">
-          <table
-            id="example5"
-            class="table display mb-4 table-responsive-xl dataTablesCard fs-14"
-          >
-            <thead>
-              <tr>
-                <th>Sr No</th>
-                <th>Lead Code</th>
-                <th>Dealer Name</th>
-                <!-- <th>Dealer Code</th> -->
-                <th>Status</th>
-                <th>Purchase Type</th>
-                <th>Type</th>
-                <th>Sub Type</th>
-                <th>Brand</th>
-                <th>PMI</th>
-                <th>Lead Source</th>
-                <th>Last Name</th>
-                <!-- <th>Description</th> -->
-                <th>Mobile</th>
-                <th>Email</th>
-                <th>Lead Owner</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let lead of leadList(); let i = index">
-                <td>{{i + 1}}</td>
-                <td>{{ lead.lead_code }}</td>
-                <td>{{ lead.dealer_name }}</td>
-                <!-- <td>{{ lead.dealer_code }}</td> -->
-                <td>{{ lead.status }}</td>
-                <td>{{ lead.purchase_type }}</td>
-                <td>{{ lead.type }}</td>
-                <td>{{ lead.sub_type }}</td>
-                <td>{{ lead.brand }}</td>
-                <td>{{ lead.PMI }}</td>
-                <td>{{ lead.lead_source }}</td>
-                <td>{{ lead.lname }}</td>
-                <!-- <td>{{ lead.description }}</td> -->
-                <td>{{ lead.mobile }}</td>
-                <td>{{ lead.email }}</td>
-                <td>{{ lead.lead_owner }}</td>
-                <td>
-                  <a
-                    [routerLink]="['/Admin/single-lead', lead.lead_id]"
-                    (click)="userId()"
-                  >
-                    <span class="">
-                      <i class="fa fa-eye"></i>
-                    </span>
-                  </a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+            <div class="form-group" style="margin-inline: 1em">
+                <div class="media align-items-center"
+                    (click)="toggleEventTable(); getAllEvent(dealerData.data.dealer.dealer_id)">
+                    <div class="media-body ml-1">
+                        <p class="mb-0 fs-14">Total Events</p>
+                        <h4 class="mb-0 text-black font-w600 fs-22">
+                            <span class="span">{{ dealerData.data.events }} </span> Events
+                        </h4>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-    <!-- tabel 3  -->
-    <div class="row">
-      <div class="col-lg-12">
-        <div
-          class="table-responsive"
-          *ngIf="selectedOption() === 'opportunities'"
-        >
-          <table
-            id="example5"
-            class="table display mb-4 table-responsive-xl dataTablesCard fs-14"
-          >
-            <thead>
-              <tr>
-                <th>Sr No</th>
-                <th>Opportunity Name</th>
-                <th>stage</th>
-                <th>Opportunities Record</th>
-                <th>account Name</th>
-                <th>close Date</th>
-                <th>Opportunity Currency</th>
-                <th>VIN</th>
-                <th>Purchase Type</th>
-                <th>Sub Type</th>
-                <th>Brand</th>
-                <th>PMI</th>
-                <th>Description</th>
-                <th>Mobile</th>
-                <th>Phone</th>
-                <th>E-mail</th>
-                <th>Enquiry Type</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let opp of OpportunityList(); let i = index">
-                <td>{{i + 1}}</td>
-                <td>
-                  {{ opp.opportunity_name }}
-                </td>
-                <td>
-                  {{ opp.stage }}
-                </td>
-                <td>
-                  {{ opp.opportunity_record_type }}
-                </td>
-                <td>
-                  {{ opp.account_name }}
-                </td>
-                <td>
-                  {{ opp.close_date }}
-                </td>
-                <td>
-                  {{ opp.VIN }}
-                </td>
-                <td>
-                  {{ opp.purchase_type }}
-                </td>
-                <td>
-                  {{ opp.type }}
-                </td>
-                <td>
-                  {{ opp.sub_type }}
-                </td>
-                <td>
-                  {{ opp.brand }}
-                </td>
-                <td>
-                  {{ opp.PMI }}
-                </td>
-                <td>
-                  {{ opp.description }}
-                </td>
-                <td>
-                  {{ opp.mobile }}
-                </td>
-                <td>
-                  {{ opp.phone }}
-                </td>
-                <td>
-                  {{ opp.email }}
-                </td>
-                <td>
-                  {{ opp.enquiry_type }}
-                </td>
-                <td>
-                  <a
-                    [routerLink]="[
+        <div class="col-xl-9" style="
+        margin-top: 2em !important;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+      ">
+            <div class="card">
+                <div class="card-body py-9 py-md-2" style="margin-left: 0.2rem !important">
+                    <div class="row align-items-start">
+                        <div class="mb-md-0">
+                            <div class="media align-items-end">
+                                <div class="media-body">
+                                    <!-- <p class="mb-1 fs-14">Table</p> -->
+                                    <h3 class="mb-0 text-black font-w600 fs-20">
+                                        {{ selectedOption() }}
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- dropdown -->
+            <div class="form-group" style="margin-inline: 1em">
+                <select class="form-control form-control-lg" (change)="handleSelectionChange($event)"
+                    [value]="selectedOption()">
+
+                    <option selected value="users" class="drop">Users</option>
+                    <option value="leads" class="drop">Leads</option>
+                    <option value="opportunities" class="drop">Opportunities</option>
+                    <option value="tasks" class="drop">Tasks</option>
+                    <option value="events" class="drop">Events</option>
+                </select>
+            </div>
+        </div>
+        <!-- table -->
+        <!-- <h1>User List Debugging</h1>
+        <p *ngIf="UserList === undefined">⚠️ UserList is undefined</p>
+        <p *ngIf="UserList && UserList.length === 0">⚠️ UserList is empty</p>
+        <p *ngIf="UserList && UserList.length > 0">✅ UserList Length: {{ UserList.length }}</p> -->
+        <!-- <pre *ngIf="UserList && UserList.length > 0">{{ UserList | json }}</pre> -->
+
+        <div class="row">
+            <div class="col-lg-12" *ngIf="selectedOption() === 'users'">
+
+                <!-- <pre>{{ UserList | json }}</pre> -->
+                <div class="table-responsive">
+                    <!-- <div class="table-responsive" *ngIf="selectedOption() === 'users'"> -->
+                    <!-- <p *ngIf="UserList">UserList Length: {{ UserList.length }}</p>
+                    <pre *ngIf="UserList">{{ UserList | json }}</pre> -->
+
+                    <table *ngIf="UserList && UserList.length > 0" class="table display mb-4">
+                        <thead>
+
+                            <tr>
+                                <th>Sr No</th>
+                                <th>Account ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Role</th>
+                                <th>Dealer Code</th>
+                                <th>Actions</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <!-- <tr *ngIf="!UserList || UserList.length === 0">
+                                <td colspan="8">
+                                    <p style="color: red; text-align: center;">⚠️ Nooo Users Found!</p>
+                                </td>
+                            </tr> -->
+                            <tr *ngIf="UserList && UserList.length === 0">
+                                <td colspan="8">
+                                    <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
+                                </td>
+                            </tr>
+                            <!-- <tr>
+                                <td colspan="8">
+                                    <p style="color: blue;">ddfdf</p>
+                                </td>
+                            </tr> -->
+
+                            <tr *ngFor="let user of UserList; let i = index">
+                                <td>{{ i + 1 }}</td>
+                                <td>{{ user.user_account_id || 'N/A' }}</td>
+                                <td>{{ user.name || 'N/A' }}</td>
+                                <td>{{ user.email || 'N/A' }}</td>
+                                <td>{{ user.phone || 'N/A' }}</td>
+                                <td>{{ user.user_role || 'N/A' }}</td>
+                                <td>{{ user.dealer_code || 'N/A' }}</td>
+
+                                <td>
+                                    <a [routerLink]="['/Admin/single-user', user.user_id]"
+                                        (click)="logUserId(user?.user_id)">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- <button (click)="userId()">Something</button> -->
+        </div>
+
+        <!-- table 2 -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="table-responsive" *ngIf="selectedOption() === 'leads'">
+                    <table id="example5" class="table display mb-4 table-responsive-xl dataTablesCard fs-14">
+                        <thead>
+                            <tr>
+                                <th>Sr No</th>
+                                <th>Lead Code</th>
+                                <th>Dealer Name</th>
+                                <!-- <th>Dealer Code</th> -->
+                                <th>Status</th>
+                                <th>Purchase Type</th>
+                                <th>Type</th>
+                                <th>Sub Type</th>
+                                <th>Brand</th>
+                                <th>PMI</th>
+                                <th>Lead Source</th>
+                                <th>Last Name</th>
+                                <!-- <th>Description</th> -->
+                                <th>Mobile</th>
+                                <th>Email</th>
+                                <th>Lead Owner</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <tr *ngIf="leadList.length === 0">
+                                <td colspan="8">
+                                    <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
+                                </td>
+                            </tr>
+
+                            <tr *ngFor="let lead of leadList; let i = index">
+                                <td>{{i + 1}}</td>
+                                <td>{{ lead.lead_code }}</td>
+                                <td>{{ lead.dealer_name }}</td>
+                                <!-- <td>{{ lead.dealer_code }}</td> -->
+                                <td>{{ lead.status }}</td>
+                                <td>{{ lead.purchase_type }}</td>
+                                <td>{{ lead.type }}</td>
+                                <td>{{ lead.sub_type }}</td>
+                                <td>{{ lead.brand }}</td>
+                                <td>{{ lead.PMI }}</td>
+                                <td>{{ lead.lead_source }}</td>
+                                <td>{{ lead.lname }}</td>
+                                <!-- <td>{{ lead.description }}</td> -->
+                                <td>{{ lead.mobile }}</td>
+                                <td>{{ lead.email }}</td>
+                                <td>{{ lead.lead_owner }}</td>
+                                <td>
+                                    <a [routerLink]="['/Admin/single-lead', lead.lead_id]"
+                                        (click)="logUserId(lead.lead_id)">
+                                        <span class="">
+                                            <i class="fa fa-eye"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- tabel 3  -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="table-responsive" *ngIf="selectedOption() === 'opportunities'">
+                    <table id="example5" class="table display mb-4 table-responsive-xl dataTablesCard fs-14">
+                        <thead>
+                            <tr>
+                                <th>Sr No</th>
+                                <th>Opportunity Name</th>
+                                <th>stage</th>
+                                <th>Opportunities Record</th>
+                                <th>account Name</th>
+                                <th>close Date</th>
+                                <th>Opportunity Currency</th>
+                                <th>VIN</th>
+                                <th>Purchase Type</th>
+                                <th>Sub Type</th>
+                                <th>Brand</th>
+                                <th>PMI</th>
+                                <th>Description</th>
+                                <th>Mobile</th>
+                                <th>Phone</th>
+                                <th>E-mail</th>
+                                <th>Enquiry Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngIf="OpportunityList().length === 0">
+                                <td colspan="8">
+                                    <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
+                                </td>
+                            </tr>
+                            <tr *ngFor="let opp of OpportunityList(); let i = index">
+                                <td>{{i + 1}}</td>
+                                <td>
+                                    {{ opp.opportunity_name }}
+                                </td>
+                                <td>
+                                    {{ opp.stage }}
+                                </td>
+                                <td>
+                                    {{ opp.opportunity_record_type }}
+                                </td>
+                                <td>
+                                    {{ opp.account_name }}
+                                </td>
+                                <td>
+                                    {{ opp.close_date }}
+                                </td>
+                                <td>
+                                    {{ opp.VIN }}
+                                </td>
+                                <td>
+                                    {{ opp.purchase_type }}
+                                </td>
+                                <td>
+                                    {{ opp.type }}
+                                </td>
+                                <td>
+                                    {{ opp.sub_type }}
+                                </td>
+                                <td>
+                                    {{ opp.brand }}
+                                </td>
+                                <td>
+                                    {{ opp.PMI }}
+                                </td>
+                                <td>
+                                    {{ opp.description }}
+                                </td>
+                                <td>
+                                    {{ opp.mobile }}
+                                </td>
+                                <td>
+                                    {{ opp.phone }}
+                                </td>
+                                <td>
+                                    {{ opp.email }}
+                                </td>
+                                <td>
+                                    {{ opp.enquiry_type }}
+                                </td>
+                                <td>
+                                    <a [routerLink]="[
                       '/Admin/single-opportunities',
                       opp.opportunity_id
-                    ]"
-                    (click)="userId()"
-                  >
-                    <!-- <a
+                    ]" (click)="opp.opportunity_id">
+                                        <!-- <a
                     href="javascript:void(0);"
                     class="btn btn-success shadow btn-xs sharp"
                   > -->
-                    <span class="">
-                      <i class="fa fa-eye"></i>
-                    </span>
-                  </a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                                        <span class="">
+                                            <i class="fa fa-eye"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
 
-    <!-- table 4 Tasks -->
+        <!-- table 4 Tasks -->
 
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="table-responsive" *ngIf="selectedOption() === 'tasks'">
-          <table
-            id="example5"
-            class="table display mb-4 table-responsive-xl dataTablesCard fs-14"
-          >
-            <thead>
-              <tr>
-                <th>Sr No</th>
-                <th>Subject</th>
-                <th>Status</th>
-                <th>Priority</th>
-                <th>Assigned</th>
-                <th>Due Date</th>
-                <th>Comments</th>
-                <th>Lead Name</th>
-                <th>Lead Email</th>
-                <th>Lead Code</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let task of TaskList(); let i = index">
-                <td>{{i + 1}}</td>
-                <td>
-                  {{ task.subject }}
-                </td>
-                <td>
-                  {{ task.status }}
-                </td>
-                <td>
-                  {{ task.priority }}
-                </td>
-                <td>
-                  {{ task.assigned_to }}
-                </td>
-                <td>
-                  {{ task.due_date }}
-                </td>
-                <td>
-                  {{ task.comments }}
-                </td>
-                <td>
-                  {{ task.lead_name }}
-                </td>
-                <td>
-                  {{ task.lead_email }}
-                </td>
-                <td>
-                  {{ task.lead_code }}
-                </td>
-                <td>
-                  <a
-                    [routerLink]="['/Admin/single-task', task.task_id]"
-                    (click)="userId()"
-                  >
-                    <!-- <a
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="table-responsive" *ngIf="selectedOption() === 'tasks'">
+                    <table id="example5" class="table display mb-4 table-responsive-xl dataTablesCard fs-14">
+                        <thead>
+                            <tr>
+                                <th>Sr No</th>
+                                <th>Subject</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Assigned</th>
+                                <th>Due Date</th>
+                                <th>Comments</th>
+                                <th>Lead Name</th>
+                                <th>Lead Email</th>
+                                <th>Lead Code</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngIf="TaskList().length === 0">
+                                <td colspan="8">
+                                    <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
+                                </td>
+                            </tr>
+                            <tr *ngFor="let task of TaskList(); let i = index">
+                                <td>{{i + 1}}</td>
+                                <td>
+                                    {{ task.subject }}
+                                </td>
+                                <td>
+                                    {{ task.status }}
+                                </td>
+                                <td>
+                                    {{ task.priority }}
+                                </td>
+                                <td>
+                                    {{ task.assigned_to }}
+                                </td>
+                                <td>
+                                    {{ task.due_date }}
+                                </td>
+                                <td>
+                                    {{ task.comments }}
+                                </td>
+                                <td>
+                                    {{ task.lead_name }}
+                                </td>
+                                <td>
+                                    {{ task.lead_email }}
+                                </td>
+                                <td>
+                                    {{ task.lead_code }}
+                                </td>
+                                <td>
+                                    <a [routerLink]="['/Admin/single-task', task.task_id]" (click)="task.task_id">
+                                        <!-- <a
                     href="javascript:void(0);"
                     class="btn btn-success shadow btn-xs sharp"
                   > -->
-                    <span class="">
-                      <i class="fa fa-eye"></i>
-                    </span>
-                  </a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                                        <span class="">
+                                            <i class="fa fa-eye"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Table 5 Events -->
+        <!-- Table 5 Events -->
 
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="table-responsive" *ngIf="selectedOption() === 'events'">
-          <table
-            id="example5"
-            class="table display mb-4 table-responsive-xl dataTablesCard fs-14"
-          >
-            <thead>
-              <tr>
-                <th>Sr No</th>
-                <th>Subject</th>
-                <th>Assigned</th>
-                <th>Description</th>
-                <th>account Name</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>VIN</th>
-                <th>T_Drive Status</th>
-                <th>Name</th>
-                <th>Related</th>
-                <th>Locations</th>
-                <th>Lead Name</th>
-                <th>Lead Code</th>
-                <th>Lead Email</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let event of EventList(); let i = index">
-                <td>{{i + 1}}</td>
-                <td>
-                  {{ event.subject }}
-                </td>
-                <td>
-                  {{ event.assigned_to }}
-                </td>
-                <td>
-                  {{ event.description }}
-                </td>
-                <td>
-                  {{ event.name }}
-                </td>
-                <td>
-                  {{ event.start_date }}
-                </td>
-                <td>
-                  {{ event.end_date }}
-                </td>
-                <td>
-                  {{ event.VIN }}
-                </td>
-                <td>
-                  {{ event.t_drive_status }}
-                </td>
-                <td>
-                  {{ event.name }}
-                </td>
-                <td>
-                  {{ event.related_to }}
-                </td>
-                <td>
-                  {{ event.location }}
-                </td>
-                <td>
-                  {{ event.lead_name }}
-                </td>
-                <td>
-                  {{ event.lead_code }}
-                </td>
-                <td>
-                  {{ event.lead_email }}
-                </td>
-                <td>
-                  <a
-                    [routerLink]="['/Admin/single-events', event.event_id]"
-                    (click)="userId()"
-                  >
-                    <span class="">
-                      <i class="fa fa-eye"></i>
-                    </span>
-                  </a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="table-responsive" *ngIf="selectedOption() === 'events'">
+                    <table id="example5" class="table display mb-4 table-responsive-xl dataTablesCard fs-14">
+                        <thead>
+                            <tr>
+                                <th>Sr No</th>
+                                <th>Subject</th>
+                                <th>Assigned</th>
+                                <th>Description</th>
+                                <th>account Name</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>VIN</th>
+                                <th>T_Drive Status</th>
+                                <th>Name</th>
+                                <th>Related</th>
+                                <th>Locations</th>
+                                <th>Lead Name</th>
+                                <th>Lead Code</th>
+                                <th>Lead Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngIf="EventList().length === 0">
+                                <td colspan="8">
+                                    <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
+                                </td>
+                            </tr>
+                            <tr *ngFor="let event of EventList(); let i = index">
+                                <td>{{i + 1}}</td>
+                                <td>
+                                    {{ event.subject }}
+                                </td>
+                                <td>
+                                    {{ event.assigned_to }}
+                                </td>
+                                <td>
+                                    {{ event.description }}
+                                </td>
+                                <td>
+                                    {{ event.name }}
+                                </td>
+                                <td>
+                                    {{ event.start_date }}
+                                </td>
+                                <td>
+                                    {{ event.end_date }}
+                                </td>
+                                <td>
+                                    {{ event.VIN }}
+                                </td>
+                                <td>
+                                    {{ event.t_drive_status }}
+                                </td>
+                                <td>
+                                    {{ event.name }}
+                                </td>
+                                <td>
+                                    {{ event.related_to }}
+                                </td>
+                                <td>
+                                    {{ event.location }}
+                                </td>
+                                <td>
+                                    {{ event.lead_name }}
+                                </td>
+                                <td>
+                                    {{ event.lead_code }}
+                                </td>
+                                <td>
+                                    {{ event.lead_email }}
+                                </td>
+                                <td>
+                                    <a [routerLink]="['/Admin/single-events', event.event_id]" (click)="event.event_id">
+                                        <span class="">
+                                            <i class="fa fa-eye"></i>
+                                        </span>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>

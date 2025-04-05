@@ -14,11 +14,13 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './role.component.html',
   styleUrls: ['./role.component.css'],
 })
+
 export class RoleComponent implements OnInit {
    private http = inject(HttpClient);
   useForm: FormGroup = new FormGroup({});
   roleList = signal<Role[]>([]); 
   count = signal<number>(0);
+  
 
   // service
   private masterSrv = inject(MasterService);
@@ -27,6 +29,14 @@ export class RoleComponent implements OnInit {
   constructor() {
     this.initializeForm();
   }
+ 
+  staticDealerList = [
+    { dealer_code: 'Admin' },
+    { dealer_code: 'SalesManager' },
+    { dealer_code: 'Salesperson' },
+    { dealer_code: 'GM' }
+  ];
+  
 
   ngOnInit(): void {
     this.loadRole();
@@ -38,20 +48,25 @@ export class RoleComponent implements OnInit {
       description: new FormControl('', [Validators.required]),
     });
   }
+// Example for setting the role list dynamically
 
   closeModal() {
     ($('.bd-example-modal-lg') as any).modal('hide');
   }
 
-  openModals() {
-    ($('.bd-example-modal-sm') as any).modal('show');
-  }
- 
+  // openModals() {
+  //   ($('.bd-example-modal-sm') as any).
+  //   ('show');
+  // }
+ openModals() {
+  ($('.bd-example-modal-sm') as any).modal('show');
+}
+
   loadRole(){
     this.masterSrv.getAllRole().subscribe({
       next : (res: roleResponse) => {
-        this.count.set(res.count);
-        this.roleList.set(res.rows);
+        this.count.set(res.data.count);
+        this.roleList.set(res.data.rows);
       },
       error: (err) => {
         this.toastr.error(err.error.error , 'Error')

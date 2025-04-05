@@ -16,7 +16,10 @@ import {
   Validators,
 } from '@angular/forms';
 import { MasterService } from '../../service/master.service';
-import { DealerResponse } from '../../model/interface/master';
+import {
+  DealerResponse,
+  SingleDealerResponse,
+} from '../../model/interface/master';
 import { dealers } from '../../model/class/dealers';
 import { ToastrService } from 'ngx-toastr';
 import { NgbModal, NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
@@ -63,6 +66,7 @@ export class DealerComponent implements OnInit {
   private readonly toastr = inject(ToastrService);
 
   openModal(dealer?: dealers) {
+    console.log('open modal called');
     this.useForm.reset();
     this.isModalVisible = true;
     if (dealer) {
@@ -96,13 +100,15 @@ export class DealerComponent implements OnInit {
   }
 
   getAllDealer() {
+    // debugger;
     this.masterSrv.getAllDealer().subscribe(
       (res: DealerResponse) => {
-        this.dealerList.set(res.dealer.rows);
-        this.totalDealer.set(res.dealer.count);
+        console.log('Dealer list updated:', res.data.dealer.rows); // Log response to verify
+        this.dealerList.set(res.data.dealer.rows); // Set the dealer list
+        this.totalDealer.set(res.data.dealer.count);
       },
       (error) => {
-        this.toastr.error('You Are ', 'Unauthorized Error');
+        this.toastr.error('Error fetching dealers', 'Error');
       }
     );
   }
@@ -119,12 +125,27 @@ export class DealerComponent implements OnInit {
   //   console.log('form is valid . proceeding with API call');
   // }
 
+  // onSave() {
+  //   if (this.useForm.invalid) {
+  //     this.useForm.markAllAsTouched();
+  //     return; // Don't proceed if the form is invalid
+  //   }
+
+  //   if (this.isEditMode) {
+  //     this.onUpdate(); // Update existing dealer
+  //   } else {
+  //     this.createNewDealer(); // Create new dealer
+  //   }
+
+  //   this.closeModal();
+  // }
   onSave() {
     if (this.useForm.invalid) {
-      this.useForm.markAllAsTouched();
+      this.useForm.markAllAsTouched(); // Mark all fields as touched
       return; // Don't proceed if the form is invalid
     }
 
+    // Proceed with creating or updating the dealer based on the mode
     if (this.isEditMode) {
       this.onUpdate(); // Update existing dealer
     } else {
@@ -134,11 +155,22 @@ export class DealerComponent implements OnInit {
     this.closeModal();
   }
 
+  // createNewDealer() {
+  //   this.masterSrv.createDealer(this.dealerObj).subscribe(
+  //     (res: dealers) => {
+  //       this.toastr.success('Dealer created successfully!', 'Success');
+  //       this.getAllDealer(); // Reload dealers list after creation
+  //     },
+  //     (error) => {
+  //       this.toastr.error('Error creating dealer', 'Error');
+  //     }
+  //   );
+  // }
   createNewDealer() {
     this.masterSrv.createDealer(this.dealerObj).subscribe(
       (res: dealers) => {
         this.toastr.success('Dealer created successfully!', 'Success');
-        this.getAllDealer(); // Reload dealers list after creation
+        this.getAllDealer(); // Reload the dealers list after creation
       },
       (error) => {
         this.toastr.error('Error creating dealer', 'Error');
@@ -174,26 +206,95 @@ export class DealerComponent implements OnInit {
   //   );
   // }
 
-  onUpdate() {
-    this.masterSrv.updateDealer(this.dealerObj).subscribe(
-      (res: dealers) => {
-        this.toastr.success('Dealer updated successfully!', 'Success');
-        this.getAllDealer(); // Reload dealers list after update
+  // onUpdate() {
+  //   this.masterSrv.updateDealer(this.dealerObj).subscribe(
+  //     (res: dealers) => {
+  //       this.toastr.success('Dealer updated successfully!', 'Success');
+  //       this.getAllDealer(); // Reload dealers list after update
+  //     },
+  //     (error) => {
+  //       this.toastr.error('Error updating dealer', 'Error');
+  //     }
+  //   );
+  // }
+onUpdate() {
+    if (this.useForm.valid) {
+      this.dealerObj = { ...this.dealerObj, ...this.useForm.value };
+
+      console.log('🚀 Updated Payload before API call:', this.dealerObj);
+
+      this.masterSrv.updateDealer(this.dealerObj).subscribe(
+        (res: any) => {
+          console.log('✅ API Response:', res); // ✅ Check API response
+
+          if (res.status === 200) {
+            this.toastr.success(res.message, 'Success');
+
+            // 🔄 Ensure we fetch updated data after updating
+            setTimeout(() => {
+              this.getAllDealer();
+            }, 500);
+          } else {
+            this.toastr.error('Update failed, no data received', 'Error');
+          }
+        },
+        (error) => {
+          console.error('❌ API Error:', error);
+          this.toastr.error('Failed to update customer', 'Error');
+        }
+      );
+    } else {
+      this.toastr.error('Invalid form data. Please check inputs.', 'Error');
+    }
+  }
+  // onEdit(data: dealers) {
+  //   // this.dealerObj = data;
+  //   this.useForm.patchValue({
+  //     dealer_id: data.dealer_id || '',
+  //     dealer_name: data.dealer_name || '',
+  //     dealer_code: data.dealer_code || Number,
+  //   }),
+  //     console.log(this.dealerObj, 'trueeee----');
+  // }
+  onEdit(dealerId: string) {
+    console.log('Edit button clicked. Dealer ID:', dealerId); // ✅ Debug log
+    this.isEditMode = true; // Enable edit mode
+
+    this.masterSrv.getDealerById(dealerId).subscribe(
+      (res: SingleDealerResponse) => {
+        console.log('API Response:', res); // ✅ Debug log
+
+        if (res?.data.dealer) {
+          console.log('Dealer Found:', res.data.dealer); // ✅ Ensure dealer data is present
+
+          // STORE DEALER DATA IMP PART TO BE FOLLOWED WHEREVER DEALER CODE IS THERE .. TO SET IT BY DEAFULT AND NOT TO EDIT 
+          this.dealerObj = {
+            ...res.data.dealer,
+            dealer_code: Number(res.data.dealer.dealer_code), // ✅ Convert to number
+          };
+
+          this.useForm.patchValue({
+            dealer_name: res.data.dealer.dealer_name,
+            dealer_code: Number(res.data.dealer.dealer_code), // ✅ Convert to number
+          });
+
+          console.log('Dealer data set, opening modal...'); // ✅ Log before modal opens
+
+          // ✅ Ensure modal opens manually
+          setTimeout(() => {
+            ($(`#exampleModalCenter`) as any).modal('show'); // ✅ Suppresses TypeScript error
+          }, 0);
+          // Small delay to ensure DOM updates
+        } else {
+          console.error('Dealer data is missing in response:', res);
+          this.toastr.error('Dealer data not found', 'Error');
+        }
       },
-      (error) => {
-        this.toastr.error('Error updating dealer', 'Error');
+      (error: any) => {
+        console.error('Error fetching dealer details:', error);
+        this.toastr.error('Error fetching dealer details', 'Error');
       }
     );
-  }
-
-  onEdit(data: dealers) {
-    // this.dealerObj = data;
-    this.useForm.patchValue({
-      dealer_id: data.dealer_id || '',
-      dealer_name: data.dealer_name || '',
-      dealer_code: data.dealer_code || Number,
-    }),
-      console.log(this.dealerObj, 'trueeee----');
   }
 
   selectedDealerForDeletion: dealers | null = null;

@@ -20,8 +20,8 @@ import {
   ɵɵdefineInjectable,
   ɵɵinvalidFactory
 } from "./chunk-63WYWNJW.js";
-import "./chunk-IXUSS67I.js";
 import "./chunk-O6VDDHVS.js";
+import "./chunk-IXUSS67I.js";
 import "./chunk-BONRK7YY.js";
 import "./chunk-WDMUDEB6.js";
 
@@ -54,7 +54,7 @@ var AsyncAnimationRendererFactory = class _AsyncAnimationRendererFactory {
    * @internal
    */
   loadImpl() {
-    const loadFn = () => this.moduleImpl ?? import("./browser-UEMKBWZA.js").then((m) => m);
+    const loadFn = () => this.moduleImpl ?? import("./browser-VOGEEJNM.js").then((m) => m);
     let moduleImplPromise;
     if (this.loadingSchedulerFn) {
       moduleImplPromise = this.loadingSchedulerFn(loadFn);

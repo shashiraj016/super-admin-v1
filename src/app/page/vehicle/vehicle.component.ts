@@ -10,8 +10,12 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { VehicleResponse } from '../../model/interface/master';
-import { Vehicles } from '../../model/class/vehicle';
+import {
+  MultivehicleResponse,
+  SingleVehicleResponse,
+  VehicleResponse,
+} from '../../model/interface/master';
+import { Vehicle } from '../../model/class/vehicle';
 import { MasterService } from '../../service/master.service';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -44,7 +48,8 @@ import { AleartSrvService } from '../../service/aleart-srv.service';
 export class VehicleComponent implements OnInit {
   // Signals for reactive state management
   count = signal<number>(0);
-  vehicleList = signal<Vehicles[]>([]);
+  vehicleList = signal<Vehicle[]>([]);
+  totalVehicle = signal<number>(0);
 
   // Dependency Injections
   private masterSrv = inject(MasterService);
@@ -52,7 +57,7 @@ export class VehicleComponent implements OnInit {
   private modalService = inject(NgbModal);
 
   // Component State Variables
-  vehicleObj: Vehicles = new Vehicles();
+  vehicleObj: Vehicle = new Vehicle();
   // dtOptions: Config = {};
   isModalVisible = false;
   isEditMode = false;
@@ -84,6 +89,8 @@ export class VehicleComponent implements OnInit {
       ]),
       type: new FormControl('', [Validators.required]),
       YOM: new FormControl('', [Validators.required]),
+      // chasis_number: new FormControl('', [Validators.required]), // Ensure this is correct
+      chasis_number: new FormControl('', [Validators.required]),
     });
   }
 
@@ -91,8 +98,8 @@ export class VehicleComponent implements OnInit {
   private loadVehicles(): void {
     this.masterSrv.getAllVehicle().subscribe({
       next: (res: VehicleResponse) => {
-        this.count.set(res.count);
-        this.vehicleList.set(res.rows);
+        this.count.set(res.data.count);
+        this.vehicleList.set(res.data.rows);
       },
       error: (err) => {
         this.toastr.error('Failed to load vehicles', 'Error');
@@ -102,35 +109,75 @@ export class VehicleComponent implements OnInit {
   }
 
   // Open Modal for Add/Edit
-  openModal(vehicle?: Vehicles): void {
-    // Reset form and mode
-    this.useForm.reset();
-    this.isEditMode = !!vehicle;
+  // openModal(vehicle?: Vehicle) {
+  //   // Reset form and mode
+  //   this.useForm.reset();
+  //   this.isEditMode = !!vehicle;
 
+  //   if (vehicle) {
+  //     // Populate form for edit
+  //     this.vehicleObj = { ...vehicle };
+
+  //     this.useForm.patchValue({
+  //       vehicle_name: vehicle.vehicle_name,
+  //       VIN: vehicle.VIN,
+  //       type: vehicle.type,
+  //       YOM: this.formatDate(vehicle.YOM),
+  //       chasis_number: vehicle.chasis_number,
+  //       // vehicle_id: vehicle.vehicle_id,
+  //     });
+  //     console.log('Edit Mode: Vechile Object ->', this.vehicleObj);
+  //   } else {
+  //     // ✅ Reset customerObj for creating a new user
+  //     this.vehicleObj = new Vehicle();
+  //     (this.vehicleObj as any).vehicle_id = undefined; // ❗ Use type assertion
+  //     console.log('New vehicle Mode: Reset vehhicleobj', this.vehicleObj);
+  //   }
+  // }
+  openModal(vehicle?: Vehicle) {
+    console.log('✅ openModal() function called');
+
+    // Reset form and set edit mode
+    this.useForm.reset();
+    this.isEditMode = !!vehicle; // ✅ Set edit mode flag
+
+    console.log('hello');
     if (vehicle) {
-      // Populate form for edit
+      // ✅ Editing an existing vehicle
       this.vehicleObj = { ...vehicle };
-      this.previousValue = vehicle.vehicle_name;
 
       this.useForm.patchValue({
-        vehicle_name: vehicle.vehicle_name,
-        VIN: vehicle.VIN,
-        type: vehicle.type,
-        YOM: this.formatDate(vehicle.YOM),
+        vehicle_name: vehicle.vehicle_name || '',
+        VIN: vehicle.VIN || '',
+        type: vehicle.type || '',
+        YOM: this.formatDate(vehicle.YOM) || '',
+        // chasis_number: vehicle.chasis_number || '',
+        // chasis_number: vehicle.chasis_number?.toString() || '',
+        // chasis_number: vehicle.chasis_number
+        //   ? vehicle.chasis_number.toString()
+        //   : '',
+        chasis_number: vehicle.chasis_number || '',
       });
-
-      // Disable VIN for edit mode
-      this.useForm.get('VIN')?.disable();
-      this.useForm.get('YOM')?.disable();
     } else {
-      // Reset for add mode
-      this.vehicleObj = new Vehicles();
-      this.useForm.get('VIN')?.enable();
-      this.useForm.get('YOM')?.enable();
-    }
+      // ✅ Creating a new vehicle
+      this.vehicleObj = new Vehicle();
+      (this.vehicleObj as any).vehicle_id = undefined; // ❗ Use type assertion
 
-    this.isModalVisible = true;
+      console.log('🆕 New Vehicle Mode: Reset vehicleObj', this.vehicleObj);
+    }
   }
+
+  // Disable VIN for edit mode
+  // this.useForm.get('VIN')?.disable();
+  // this.useForm.get('YOM')?.disable();
+  // } else {
+  //   // Reset for add mode
+  //   this.vehicleObj = new vehicleList();
+  //   this.useForm.get('VIN')?.enable();
+  //   this.useForm.get('YOM')?.enable();
+  // }
+
+  // this.isModalVisible = true;
 
   // Close Modal
 
@@ -138,14 +185,148 @@ export class VehicleComponent implements OnInit {
     ($('.bd-example-modal-lg') as any).modal('hide');
   }
 
-  openModals(){
+  openModals() {
     ($('.bd-example-modal-sm') as any).modal('show');
   }
 
   // Save New Vehicle
-  onSave(): void {
+  // onSave(): void {
+  //   console.log('Form values before submit: ', this.useForm.value);
+  //   if (this.useForm.invalid) {
+  //     this.markFormGroupTouched(this.useForm);
+  //     this.toastr.warning(
+  //       'Please fill all required fields correctly',
+  //       'Validation'
+  //     );
+  //     return;
+  //   }
+
+  //   // Prepare submission data
+  //   const formData = this.useForm.value;
+  //   console.log('Form Data being sent to API:', formData);
+
+  //   console.log('Calling createNewVehicle method...');
+  //   this.masterSrv.createNewVehicle(formData).subscribe({
+  //     next: () => {
+  //       this.toastr.success('Vehicle Created Successfully!', 'Success');
+  //       this.loadVehicles();
+  //       this.closeModal();
+  //     },
+  //     error: (err) => {
+  //       this.toastr.error(err.error.error, 'Error');
+  //       console.error('Vehicle creation error:', err);
+  //     },
+  //   });
+  // }
+  // onSave() {
+  //   // console.log('onSave method triggered');
+  //   console.log('Form Values:', this.useForm.value); // Log the form values for debugging
+
+  //   if (this.useForm.invalid) {
+  //     this.markFormGroupTouched(this.useForm);
+  //     console.log('Form Values:', this.useForm.value); // Log form values to check role_name
+
+  //     this.toastr.warning(
+  //       'Please fill all required fields correctly',
+  //       'Validation'
+  //     );
+  //     return;
+  //   }
+  // onSave() {
+  //   if (this.useForm.invalid) {
+  //     this.markFormGroupTouched(this.useForm);
+  //     console.log('Form Values:', this.useForm.value); // Log form values to check role_name
+
+  //     this.toastr.warning(
+  //       'Please fill all required fields correctly',
+  //       'Validation'
+  //     );
+  //     return;
+  //   }
+  // onSave() {
+  //   console.log('on save called');
+  //   if (this.useForm.invalid) {
+  //     this.markFormGroupTouched(this.useForm);
+
+  //     // Log form values to check role_name
+  //     console.log('Form Values:', this.useForm.value);
+  //     console.log('⚠️ Missing Fields:', this.useForm.controls);
+
+  //     // Log the invalid controls
+  //     // Object.keys(this.useForm.controls).forEach((key) => {
+  //     //   if (this.useForm.controls[key].invalid) {
+  //     //     console.log(
+  //     //       `Invalid Field: ${key}`,
+  //     //       this.useForm.controls[key].errors
+  //     //     );
+  //     //   }
+  //     // });
+
+  //     this.toastr.warning(
+  //       'Please fill all required fields correctly',
+  //       'Validation'
+  //     );
+  //     return;
+  //   }
+
+  //   // Continue with saving if form is valid
+
+  //   const formData = this.useForm.value;
+
+  //   console.log('Form Data being sent to API:', formData);
+
+  //   this.masterSrv.createNewVehicle(formData).subscribe({
+  //     next: () => {
+  //       this.toastr.success('Vehicle Created Successfully!', 'Success');
+  //       this.loadVehicles();
+  //       this.closeModal();
+  //     },
+  //     error: (err) => {
+  //       this.toastr.error(err.error.error, 'Error');
+  //       console.error('Vehicle creation error:', err);
+  //     },
+  //   });
+  // }
+  // onSave() {
+  //   console.log('onsave called');
+  //   if (this.useForm.invalid) {
+  //     this.markFormGroupTouched(this.useForm);
+  //     console.log('Form Values:', this.useForm.value); // Log form values to check role_name
+
+  //     this.toastr.warning(
+  //       'Please fill all required fields correctly',
+  //       'Validation'
+  //     );
+  //     return;
+  //   }
+
+  //   const formData = this.useForm.value;
+  //   console.log('Form Data being sent to API:', formData);
+
+  //   this.masterSrv.createNewVehicle(formData).subscribe({
+  //     next: () => {
+  //       this.toastr.success('User created successfully!', 'Success');
+  //       this.getAllVehicle();
+  //       this.closeModal();
+  //     },
+  //     error: (err) => {
+  //       console.error('User creation error:', err);
+  //       this.toastr.error(
+  //         err.message || 'Failed to create user',
+  //         'Creation Error'
+  //       );
+  //     },
+  //   });
+  // }
+
+  onSave() {
+    console.log('onsave being called');
+    console.log(this.useForm.value);
+
     if (this.useForm.invalid) {
       this.markFormGroupTouched(this.useForm);
+      console.log('Form Values:', this.useForm.value); // Log form values to check role_name
+
       this.toastr.warning(
         'Please fill all required fields correctly',
         'Validation'
@@ -153,70 +334,169 @@ export class VehicleComponent implements OnInit {
       return;
     }
 
-    // Prepare submission data
-    const submitData = this.useForm.getRawValue();
+    const formData = this.useForm.value;
+    console.log('Form Data being sent to API:', formData);
 
-    this.masterSrv.createNewVehicle(submitData).subscribe({
+    this.masterSrv.createNewVehicle(formData).subscribe({
       next: () => {
-        this.toastr.success('Vehicle Created Successfully!', 'Success');
-        this.loadVehicles();
+        this.toastr.success('User created successfully!', 'Success');
+        this.getAllVehicle();
         this.closeModal();
       },
       error: (err) => {
-        this.toastr.error(err.error.error, 'Error');
-        console.error('Vehicle creation error:', err);
+        console.error('User creation error:', err);
+        this.toastr.error(
+          err.message || 'Failed to create user',
+          'Creation Error'
+        );
       },
     });
   }
 
+  // onSave() {
+  //   if (this.useForm.invalid) {
+  //     this.markFormGroupTouched(this.useForm);
+  //     console.log('Form Values:', this.useForm.value); // Log form values to check role_name
+
+  //     this.toastr.warning(
+  //       'Please fill all required fields correctly',
+  //       'Validation'
+  //     );
+  //     return;
+  //   }
+  //   console.log('hi');
+  //   const formData = this.useForm.value;
+  //   console.log('Form Data being sent to API:', formData);
+
+  //   console.log('Before API Call');
+
+  //   this.masterSrv.createNewVehicle(formData).subscribe({
+  //     next: (response) => {
+  //       console.log('API Response:', response);
+  //       this.toastr.success('Vehicle created successfully!', 'Success');
+  //       this.getAllVehicle(); // Ensure this method exists
+  //       this.closeModal();
+  //     },
+  //     error: (err) => {
+  //       console.error('API Error:', err);
+  //       this.toastr.error('Failed to create vehicle', 'Error');
+  //     },
+  //   });
+  // }
+  getAllVehicle() {
+    this.masterSrv.getAllVehicle().subscribe({
+      next: (res: VehicleResponse) => {
+        if (res && res.data.rows) {
+          this.totalVehicle.set(res.data.count);
+          this.vehicleList.set(res.data.rows);
+        } else {
+          this.toastr.warning('No users found', 'Information');
+        }
+      },
+      error: (err) => {
+        console.error('Users fetch error:', err);
+        this.toastr.error(err.message || 'Failed to fetch users', 'Error');
+      },
+    });
+  }
   // Update Existing Vehicle
-  onUpdate(): void {
-    if (this.useForm.invalid) {
-      this.markFormGroupTouched(this.useForm);
-      this.toastr.warning('Please correct the form errors', 'Validation');
+  // onUpdate() {
+
+  //   console.log('Vehicle object to update:', this.vehicleObj);
+
+  //   this.masterSrv.updateVehicle(this.vehicleObj).subscribe(
+  //     (res: MultivehicleResponse) => {
+  //       this.toastr.success('Vehicle Updated Successfully!', 'Success');
+  //       this.loadVehicles();
+  //     },
+  //     (error) => {
+  //       this.toastr.error('Error updating vehicle', 'Error');
+  //     }
+  //   );
+  // }
+  onUpdate() {
+    if (!this.vehicleObj || !this.vehicleObj.vehicle_id) {
+      this.toastr.warning('No vehicle selected for update!', 'Warning');
       return;
     }
 
-    // Prepare update data
-    const updateData = {
-      ...this.useForm.getRawValue(),
-      vehicle_id: this.vehicleObj.vehicle_id,
+    // ✅ Update vehicleObj from form values
+    this.vehicleObj = {
+      ...this.vehicleObj,
+      ...this.useForm.value,
     };
 
-    this.masterSrv.updateVehicle(updateData).subscribe({
-      next: () => {
-        this.toastr.success('Vehicle Updated Successfully!', 'Success');
-        this.loadVehicles();
-        this.closeModal();
+    console.log('Updating vehicle:', this.vehicleObj);
+
+    this.masterSrv.updateVehicle(this.vehicleObj).subscribe(
+      (res: any) => {
+        if (res && res.status === 200) {
+          this.toastr.success(
+            res.message || 'Vehicle updated successfully',
+            'Success'
+          );
+          this.loadVehicles();
+          this.closeModal();
+        } else {
+          this.toastr.warning('Update failed, check data.', 'Warning');
+        }
       },
-      error: (err) => {
-        this.toastr.error(err.error.error, 'Error');
-        console.error('Vehicle update error:', err);
-      },
-    });
+      (error) => {
+        this.toastr.error('Error updating vehicle', 'Error');
+      }
+    );
   }
 
   // Delete Vehicle
-  selectedVehicleForDeletion: Vehicles | null = null;
+  selectedVehicleForDeletion: Vehicle | null = null;
 
-  selectVehicleForDeletion(vehicle: Vehicles) {
+  selectVehicleForDeletion(vehicle: Vehicle) {
     this.selectedVehicleForDeletion = vehicle;
   }
 
+  // deleteVehicleId() {
+  //   if (
+  //     this.selectedVehicleForDeletion &&
+  //     this.selectedVehicleForDeletion.vehicle_id
+  //   ) {
+  //     this.masterSrv
+  //       .deleteVehicle(this.selectedVehicleForDeletion.vehicle_id)
+  //       .subscribe(
+  //         (res: VehicleResponse) => {
+  //           this.loadVehicles();
+  //           this.toastr.success('Vehicle Delete Successfully!', 'Success');
+  //         },
+  //         (error) => {
+  //           alert(error.error.error || 'Failed to delete vehicle');
+  //         }
+  //       );
+  //   } else {
+  //     alert('No vehicle selected for deletion');
+  //   }
+  // }
   deleteVehicleId() {
-    if (
-      this.selectedVehicleForDeletion &&
-      this.selectedVehicleForDeletion.vehicle_id
-    ) {
+    console.log(
+      'Selected vehicle for deletion:',
+      this.selectedVehicleForDeletion
+    );
+
+    if (this.selectedVehicleForDeletion?.vehicle_id) {
       this.masterSrv
         .deleteVehicle(this.selectedVehicleForDeletion.vehicle_id)
         .subscribe(
           (res: VehicleResponse) => {
-            this.loadVehicles();
-            this.toastr.success('Vehicle Delete Successfully!', 'Success');
+            if (res?.status === 200) {
+              this.toastr.success('Vehicle deleted successfully', 'Success');
+              this.getAllVehicle(); // Refresh the vehicle list
+            } else {
+              this.toastr.error(
+                res.message || 'Failed to delete vehicle',
+                'Error'
+              );
+            }
           },
           (error) => {
-            alert(error.error.error || 'Failed to delete vehicle');
+            this.toastr.error(error?.message || 'Server Error', 'Error');
           }
         );
     } else {
@@ -225,15 +505,98 @@ export class VehicleComponent implements OnInit {
   }
 
   // Edit Single Vehicle
-  onEdit(id: string): void {
-    this.masterSrv.getSingleVehicle(id).subscribe({
-      next: (vehicle: Vehicles) => {
-        this.openModal(vehicle);
+  // onEdit(id: string): void {
+  //   console.log('onEdit called with id:', id); // This will confirm the method is being triggered
+
+  //   this.masterSrv.getSingleVehicle(id).subscribe({
+  //     next: (vehicle: Vehicles) => {
+  //       console.log('single vechilce');
+  //       this.openModal(vehicle);
+  //     },
+  //     error: (err) => {
+  //       this.toastr.error(err.error.error, 'Error');
+  //     },
+  //   });
+  // }
+  // onEdit(vehicle: Vehicle) {
+  //   console.log('onEdit method triggered'); // Should log to confirm the method is triggered
+
+  //   console.log('onEdit called with id:', vehicle.vehicle_id); // Check if the method is triggered
+
+  //   // this.dealerObj = data;
+  //   const nameParts =
+  //     vehicle.vehicle_name && vehicle.vehicle_name.trim()
+  //       ? vehicle.vehicle_name.split(' ')
+  //       : [];
+  //   console.log('onEdit method triggered'); // This should always log if the method is called
+
+  //   console.log('Chasis number:', vehicle.chasis_number); // Log the chasis_num specifically
+
+  //   this.useForm.patchValue({
+  //     vehicle_name: vehicle.vehicle_name,
+  //     VIN: vehicle.VIN,
+  //     type: vehicle.type,
+  //     YOM: this.formatDate(vehicle.YOM),
+  //     chasis_number: vehicle.chasis_number,
+  //   });
+  //   // console.log(this.userObj, 'trueeee----');
+  // }
+  // onEdit(vehicle: Vehicle) {
+  //   console.log('onEdit triggered', vehicle); // Check if it's being called
+
+  //   // const nameParts = customer.account_name && customer.account_name.trim() ? customer.account_name.split(' ') : [];
+  //   this.isEditMode = true; // Ensure edit mode is set
+  //   console.log('vehicle.vehcile_id before setting:', vehicle?.vehicle_id);
+  //   this.vehicleObj = { ...vehicle }; // Spread operator to ensure reference is copied
+
+  //   this.useForm.patchValue({
+  //     vehicle_name: vehicle.vehicle_name,
+  //     VIN: vehicle.VIN,
+  //     type: vehicle.type,
+  //     YOM: this.formatDate(vehicle.YOM),
+  //     chasis_number: vehicle.chasis_number, // Ensure fallback is safe
+  //   });
+  //   console.log(
+  //     'vehcileobj.account_id after setting:',
+  //     this.vehicleObj?.vehicle_id
+  //   );
+  // }
+
+  onEdit(vehicle: Vehicle) {
+    console.log('Edit button clicked. Team ID:', vehicle?.vehicle_id); // Debug log
+    this.isEditMode = true; // Ensure edit mode is set
+
+    // Set team object to the selected team to preserve data
+    this.vehicleObj = { ...vehicle };
+
+    // Fetch team details by ID (this should be the 'team/id' API call)
+    this.masterSrv.getVehicleById(vehicle.vehicle_id).subscribe(
+      (res: SingleVehicleResponse) => {
+        if (res?.status === 200 && res.data) {
+          const vehicleDetails = res.data;
+
+          this.vehicleObj = { ...vehicleDetails };
+
+          this.useForm.patchValue({
+            vehicle_name: vehicleDetails.vehicle_name,
+            VIN: vehicleDetails.VIN,
+            type: vehicleDetails.type,
+            YOM: this.formatDate(vehicleDetails.YOM),
+            chasis_number: vehicleDetails.chasis_number,
+          });
+
+          console.log('Vehicle data patched successfully:', vehicleDetails);
+        } else {
+          console.warn('No vehicle details found for this ID');
+        }
       },
-      error: (err) => {
-        this.toastr.error(err.error.error, 'Error'); 
-      },
-    });
+      (err) => {
+        console.error('Error fetching vehicle details:', err);
+      }
+    );
+  }
+  isVehicleNameChanged(): boolean {
+    return this.useForm.value.name !== this.previousValue;
   }
 
   // Utility Methods

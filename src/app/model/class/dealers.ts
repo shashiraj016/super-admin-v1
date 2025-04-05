@@ -9,6 +9,7 @@ export class dealers {
   dealer_code: number | null ; 
   corporate_id: string;
 
+
   constructor() {
     this.dealer_id = '';
     this.dealer_name = '';

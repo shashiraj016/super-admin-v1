@@ -19,7 +19,7 @@ export class Accounts {
   billing_state: null;
   billing_zip_code: null;
   billing_country: null;
-  account_name: null;
+  account_name: string;
   parent_account: null;
   company_fleet_size: null;
   website: null;
@@ -59,7 +59,7 @@ export class Accounts {
     this.billing_state = null;
     this.billing_zip_code = null;
     this.billing_country = null;
-    this.account_name = null;
+    this.account_name = '';
     this.parent_account = null;
     this.company_fleet_size = null;
     this.website = null;
@@ -75,3 +75,14 @@ export class Accounts {
     this.no_of_people = null;
   }
 }
+// export interface customerList{
+// account_id: this.customerObj.account_id || '',
+//         account_type: this.customerObj.account_type || '',
+//         fname: this.customerObj.fname || '',
+//         lname: this.customerObj.lname || '',
+//         email: this.customerObj.email || '',
+//         phone: this.customerObj.phone || '',
+//         mobile: this.customerObj.mobile || '',
+//         dealer_code: this.customerObj.dealer_code || '', // Ensure only set once
+//         dealer_id: this.customerObj.dealer_id || '',
+// }

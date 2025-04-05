@@ -1,10 +1,8 @@
-
 import { Injectable } from '@angular/core';
 
 @Injectable({
   providedIn: 'root', // This makes it available throughout your application
 })
-
 export class Role {
   role_id: string;
   role_name: string;

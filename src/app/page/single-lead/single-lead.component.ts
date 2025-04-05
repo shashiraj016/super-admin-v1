@@ -21,7 +21,7 @@ export class SingleLeadComponent implements OnInit {
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-      this.previousRoute = localStorage.getItem('previousRoute');
+    this.previousRoute = localStorage.getItem('previousRoute');
     // Load the lead data from resolver or route parameter
     this.route.data.subscribe((data) => {
       this.leadData = data['leadData'];

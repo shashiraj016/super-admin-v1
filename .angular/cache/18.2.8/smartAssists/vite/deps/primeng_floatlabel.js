@@ -1,10 +1,10 @@
 import {
+  SharedModule
+} from "./chunk-ZHHYBTNM.js";
+import {
   RouterModule
 } from "./chunk-662QSYQ2.js";
 import "./chunk-U2Z7OWEW.js";
-import {
-  SharedModule
-} from "./chunk-ZHHYBTNM.js";
 import "./chunk-COPWUPI4.js";
 import {
   CommonModule
@@ -23,8 +23,8 @@ import {
   ɵɵprojection,
   ɵɵprojectionDef
 } from "./chunk-63WYWNJW.js";
-import "./chunk-IXUSS67I.js";
 import "./chunk-O6VDDHVS.js";
+import "./chunk-IXUSS67I.js";
 import "./chunk-BONRK7YY.js";
 import "./chunk-WDMUDEB6.js";
 

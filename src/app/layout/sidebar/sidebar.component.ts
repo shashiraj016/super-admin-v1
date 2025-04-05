@@ -20,6 +20,10 @@ export class SidebarComponent {
     this.context.onSideBarClick$.next({ role, pageTitle });
   }
 
+   onTeamChange(role: string, pageTitle: string) {
+    this.context.onSideBarClick$.next({ role, pageTitle });
+  }
+
   view(page: any) {
     this.router.navigate(['../Admin/' + page]);
   }

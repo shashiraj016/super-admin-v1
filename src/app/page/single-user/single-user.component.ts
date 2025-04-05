@@ -1,60 +1,84 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { TaskResponse, UserResponse } from '../../model/interface/master';
+import { ActivatedRoute } from '@angular/router';
 import { MasterService } from '../../service/master.service';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { UserResponse } from '../../model/interface/master';
 import { Users } from '../../model/class/users';
+import { RouterModule } from '@angular/router'; // ✅ Import RouterModule
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-single-user',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [RouterModule, CommonModule], // ✅ Add RouterModule here
+
   templateUrl: './single-user.component.html',
   styleUrl: './single-user.component.css',
 })
 export class SingleUserComponent implements OnInit {
-  userList = signal<UserResponse | null>(null); // WritableSignal to hold single TaskResponse
   masterSrv = inject(MasterService);
-  userData: UserResponse | undefined;
-  userLists = signal<Users[]>([]);
-  previousRoute!: string | null; 
+  userData: Users | undefined; // ✅ Store single user data
+  previousRoute!: string | null;
+  userList = signal<Users | null>(null); // ✅ Store only ONE user
 
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
     this.previousRoute = localStorage.getItem('previousRoute');
-    // Load the lead data from resolver or route parameter
+    debugger;
+    // ✅ Load user data from resolver
     this.route.data.subscribe((data) => {
-      this.userData = data['userData'];
-      if (this.userData) {
-        this.singleUserData(this.userData.user_id);
+      console.log('Resolved userData:', data['userData']); // Debugging
+      if (
+        data['userData'] &&
+        Array.isArray(data['userData'].data) &&
+        data['userData'].data.length > 0
+      ) {
+        this.userData = data['userData'].data[0]; // ✅ Store first user
       } else {
-        console.warn('Lead data not available from resolver.');
+        console.warn('User data not available.');
       }
     });
 
-    // Handle any route params for leadId
     this.route.paramMap.subscribe((params) => {
-      const userId = params.get('userId');
+      const userId = params.get('user_id'); // Changed from 'userId' to 'user_id'
       if (userId) {
-        this.singleUserData(userId);
-      } else if (!this.userData) {
-        console.error('Lead ID not found in the URL and no resolver data.');
+        this.fetchSingleUser(userId);
       }
     });
   }
 
-  // Fetch single lead data by ID
-  singleUserData(userId: string): void {
-    console.log('Fetching lead data for leadId:', userId);
+  fetchSingleUser(userId: string): void {
+    console.log('Calling fetchSingleUser with ID:', userId);
+
     this.masterSrv.userById(userId).subscribe({
-      next: (res: UserResponse) => {
-        this.userList.set(res);
-        console.log('Lead data fetched:', res);
+      next: (res: any) => {
+        // Use 'any' for debugging
+        console.log('API Response:', res);
+        debugger;
+        if (
+          res &&
+          res.status === 200 &&
+          res.data &&
+          Array.isArray(res.data) &&
+          res.data.length > 0
+        ) {
+          console.log('User found:', res.data[0]);
+          this.userList.set(res.data[0]);
+          console.log('UserList signal after setting:', this.userList());
+        } else {
+          console.error('Invalid or empty response:', res);
+        }
       },
-      error: (err: any) => {
-        console.error('Error fetching lead data:', err);
+      error: (err) => {
+        console.error('API Error:', err);
+
+        // Try to extract more information about the error
+        if (err.error) console.error('Error details:', err.error);
+        if (err.message) console.error('Error message:', err.message);
+        if (err.status) console.error('Error status:', err.status);
+      },
+      complete: () => {
+        console.log('API call completed');
       },
     });
   }

@@ -6,12 +6,12 @@ import { DealerComponent } from './page/dealer/dealer.component';
 import { VehicleComponent } from './page/vehicle/vehicle.component';
 import { CustomerComponent } from './page/customer/customer.component';
 import { SingleDealerComponent } from './page/single-dealer/single-dealer.component';
-import { Login1Component } from './page/login-1/login-1.component'; 
+import { Login1Component } from './page/login-1/login-1.component';
 import { ProfileComponent } from './page/profile/profile.component';
 import { DealerResolver } from './service/dealar-resolver.service';
 import { UsersComponent } from './page/users/users.component';
 import { SingleEventComponent } from './page/single-event/single-event.component';
-import { SingleLeadComponent } from './page/single-lead/single-lead.component'; 
+import { SingleLeadComponent } from './page/single-lead/single-lead.component';
 import { LeadResolver } from './service/lead-resolver.service';
 import { EventResolver } from './service/event-resolver.service';
 import { UserResolver } from './service/user-resolver.service';
@@ -20,13 +20,14 @@ import { TaskResolver } from './service/task-resolver.service';
 import { SingleTaskComponent } from './page/single-task/single-task.component';
 import { SingleOppComponent } from './page/single-opp/single-opp.component';
 import { OpportunitiesResolver } from './service/opportunities-resolver.service';
-import { AuthGuard } from './component/guard/auth.guard'; 
+import { AuthGuard } from './component/guard/auth.guard';
 import { RoleComponent } from './page/role/role.component';
 import { DatatableComponent } from './page/datatable/datatable.component';
+import { TeamComponent } from './page/team/team/team.component';
 
 // export const routes: Routes = [
 //   { path: '', component: Login1Component, pathMatch: 'full' },
-//   { path: 'login', component: Login1Component }, 
+//   { path: 'login', component: Login1Component },
 //   {
 //     path: 'Admin',
 //     component: OverviewComponent,
@@ -39,16 +40,16 @@ import { DatatableComponent } from './page/datatable/datatable.component';
 //         path: 'dashboard',
 //         component: DashboardComponent,
 //         data: { title: 'Dashboard' },
-       
+
 //       },
 //       { path: 'dealer', component: DealerComponent, data: { title: 'Dealer' } },
-      
+
 //       // { path: 'users', component: DealerComponent, data: { title: 'Dealer' } },
 //       {
 //         path: 'vehicle',
 //         component: VehicleComponent,
 //         data: { title: 'Vehicle' },
-//       }, 
+//       },
 //       {
 //         path: 'user-all',
 //         component: UsersComponent,
@@ -68,43 +69,43 @@ import { DatatableComponent } from './page/datatable/datatable.component';
 //         path: 'profile',
 //         component: ProfileComponent,
 //         data: { title: 'Profile' },
-//       }, 
+//       },
 //       {
 //         path: 'singleUser/:id',
 //         component: SingleDealerComponent,
 //         resolve: { dealerData: DealerResolver },
-//         data: { title: 'Multiple' }, 
+//         data: { title: 'Multiple' },
 //       },
 //       {
 //         path: 'single-events/:eventId',
 //         component: SingleEventComponent,
 //         data: { title: 'Single events' },
 //         resolve: { eventData:  EventResolver}
-       
+
 //       },
 //       {
 //         path: 'single-lead/:leadId',
 //         component: SingleLeadComponent,
 //         data: { title: 'Single Lead Data' },
-//         resolve: { leadData:  LeadResolver}   
+//         resolve: { leadData:  LeadResolver}
 //       },
 //       {
 //         path: 'single-user/:userId',
 //         component: SingleUserComponent,
 //         data: { title: 'Single user Data' },
-//         resolve: { userData:  UserResolver}   
+//         resolve: { userData:  UserResolver}
 //       },
 //       {
 //         path: 'single-task/:taskId',
 //         component: SingleTaskComponent,
 //         data: { title: 'Single Task Data' },
-//         resolve: { taskData:  TaskResolver}   
+//         resolve: { taskData:  TaskResolver}
 //       },
 //       {
 //         path: 'single-oppotunities/:oppId',
 //         component: SingleOppComponent,
 //         data: { title: 'Single Opportunities Data' },
-//         resolve: { oppData:  OpportunitiesResolver}   
+//         resolve: { oppData:  OpportunitiesResolver}
 //       },
 //     ],
 //   },
@@ -139,6 +140,12 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
       },
       {
+        path: 'team',
+        component: TeamComponent,
+        data: { title: 'team' },
+        canActivate: [AuthGuard],
+      },
+      {
         path: 'vehicle',
         component: VehicleComponent,
         data: { title: 'Vehicle' },
@@ -169,7 +176,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
       },
       {
-        path: 'singleUser/:id',
+        path: 'singleUser/:dealer_id', // Ensure it matches exactly
         component: SingleDealerComponent,
         resolve: { dealerData: DealerResolver },
         data: { title: 'Multiple' },
@@ -191,10 +198,12 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
       },
       {
-        path: 'single-user/:userId',
+        path: 'single-user/:user_id',
         component: SingleUserComponent,
         resolve: { userData: UserResolver },
+        // data: { title: 'Single user Data' },
         data: { title: 'Single user Data' },
+
         canActivate: [AuthGuard],
       },
       {
@@ -214,4 +223,3 @@ export const routes: Routes = [
     ],
   },
 ];
-
