@@ -1,109 +1,42 @@
-.main-content {
-  padding: 20px;
-  transition: margin-left 0.3s;
-  margin-left: 200px;
+/* MY STYLE */
+.stat-card {
+  background-color: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 1.2rem rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+  min-height: 130px;
 }
 
-.info-cards-container {
-  display: flex;
-  justify-content: space-between;
-  padding: 20px 0;
-  margin-inline: 1em;
+.stat-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
 }
 
-/* Estilos para cada card de información */
-.info-card {
-  padding: 10px;
-  border-radius: 10px;
-  width: 250px;
-  height: 150px;
-  text-align: center;
-  box-shadow: 0 2px 10px rgba(190, 188, 188, 0.5);
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #32325d;
 }
 
-/* Estilos para la Gráfica de Ventas del Ultimo Mes */
-.canvas-1 {
-  max-height: 420px;
-  width: 100%;
+.stat-change {
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
 }
 
-/* Estilos para los widgets inferiores de la página */
-.widgets {
-  display: flex;
-  justify-content: space-between;
-  padding: 20px 0;
+.text-success {
+  color: #2dce89 !important;
 }
 
-/* Estilos para cada gráfico de los widgets inferiores */
-.pie,
-.expenses,
-.user-experience,
-.income,
-.feedback,
-.sales1,
-.complaints,
-.sales-speculation,
-.growth,
-.sales2 {
-  background-color: #1f1f1f;
-  padding: 10px;
-  border-radius: 10px;
-  width: 250px;
-  height: 320px;
-  text-align: center;
+.text-danger {
+  color: #f5365c !important;
 }
 
-/* Estilos para el pie de página */
-
-/* Estilos para el fondo del pie de página con gradiente */
-
-/* Estilos para las columnas en el pie de página */
-.col {
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 1rem 1rem;
-  width: 20%;
+.text-muted {
+  color: #8898aa !important;
 }
-
-/* Estilos específicos para la segunda, tercera, y cuarta, columna en el pie de página */
-.col2,
-.col3,
-.col4 {
-  background-color: #000000;
-  border-radius: 2rem;
-  text-align: left;
-}
-
-/* Estilos para los íconos sociales en el pie de página */
-.social {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  gap: 1.25rem;
-}
-
-/* Estilos para los enlaces en el pie de página */
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-/* Estilos para el pie de página en pantallas con un ancho máximo de 1000px */
-@media screen and (max-width: 1000px) {
-  .col {
-    padding: 0.9rem 2.4rem;
-  }
-}
-
-/* Estilos para el pie de página en pantallas con un ancho máximo de 700px */
-@media screen and (max-width: 700px) {
-  footer {
-    flex-direction: column;
-    padding: 5rem 20vw;
-  }
-
-  .col {
-    width: 100%;
-  }
+.small-font {
+  font-size: 13px;
 }

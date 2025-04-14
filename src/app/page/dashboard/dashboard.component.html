@@ -1,3 +1,8 @@
+<div class="sidebar">
+  <!-- Sidebar Content Here -->
+</div>
+
+
 <div class="content-body rightside-event">
   <div class="container-fluid">
     <div class="row">
@@ -8,8 +13,7 @@
 
 
           <!-- Contenedor de Gráfica de Ventas del Ultimo Mes -->
-          <div class="sales-chart-container" id="sales-chart-container">
-            <!-- Gráfico de Ventas del Ultimo Mes -->
+          <!-- <div class="sales-chart-container" id="sales-chart-container">
             <div class="sales-line-chart">
               <h2>Sales Last Month</h2>
               <canvas class="canvas-1" id="lineChart"></canvas>
@@ -19,8 +23,8 @@
 
       </div>
     </div>
-  </div>
-  <div class="row" style="margin-left:200px;">
+  </div> -->
+          <!-- <div class="row">
     <div class="col-12">
       <div class="row">
         <div class="col-xl-6 col-lg-12 col-sm-12">
@@ -32,8 +36,8 @@
               <canvas id="barChart_2"></canvas>
             </div>
           </div>
-        </div>
-        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6">
+        </div> -->
+          <!-- <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6">
           <div class="card">
             <div class="card-header">
               <h4 class="card-title">Vehicles </h4>
@@ -42,33 +46,159 @@
               <canvas id="pie_chart"></canvas>
             </div>
           </div>
-        </div>
-        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6">
-          <div class="card">
-            <div class="card-header">
-              <h4 class="card-title">Total Users Chart</h4>
-            </div>
-            <div class="card-body">
-              <div class="chart-point">
-                <div class=" ">
-                  <canvas id="doughnut_chart"></canvas>
+        </div> -->
+          <div class="container mt-5" style="margin-left:60px;">
+            <div class="row g-4">
+              <!-- Enquiries -->
+              <div class="col-12 col-md-3">
+                <div class="stat-card">
+                  <div class="stat-title">Enquiries</div>
+                  <div class="stat-value">{{ totalLeads()}}</div>
+                  <div class="small-font"
+                    [innerHTML]="calculateChange(totalLeads(), prevLeads()) + ' <span class=\'text-muted\' style=\'font-size: 10px;;\'>Since last month</span>'">
+                  </div>
+
                 </div>
-                <ul class="chart-point-list">
-                  <li>
-                    <i class="fa fa-circle text-primary mr-1"></i> 40% Leads
-                  </li>
-                  <li>
-                    <i class="fa fa-circle text-success mr-1"></i> 35% User
-                  </li>
-                  <li>
-                    <i class="fa fa-circle text-warning mr-1"></i> 25% Opportunities
-                  </li>
-                </ul>
               </div>
+
+              <!-- Test Drives -->
+              <div class="col-12 col-md-3">
+                <div class="stat-card">
+                  <div class="stat-title">Test Drives</div>
+                  <div class="stat-value">{{ totalTestDrives()}}</div>
+                  <!-- <div class="stat-change text-danger">▼ 2.1% <span class="text-muted">Since last month</span></div> -->
+                  <div class="small-font"
+                    [innerHTML]="calculateChange(totalTestDrives(), prevTestDrives()) + ' <span class=\'text-muted\' style=\'font-size: 10px;;\'>Since last month</span>'">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Orders -->
+              <div class="col-12 col-md-3">
+                <div class="stat-card">
+                  <div class="stat-title">Orders</div>
+                  <div class="stat-value">{{ totalOrders()}}</div>
+                  <!-- <div class="stat-change text-success">▲ 1.5% <span class="text-muted">Since last week</span></div> -->
+                  <div class="small-font"
+                    [innerHTML]="calculateChange(totalOrders(), prevOrders()) + ' <span class=\'text-muted\' style=\'font-size: 10px;;\'>Since last month</span>'">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Conversion -->
+              <!-- <div class="col-12 col-md-3">
+                <div class="stat-card">
+                  <div class="stat-title">Conversion %</div>
+                  <div class="stat-value">{{ dashboardData?.testDrivesToOrder }}%</div>
+                  <div class="stat-change text-warning">▲ 0.5% <span class="text-muted">Compared to previous</span>
+                  </div>
+                </div>
+              </div> -->
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+
+
+
+          <div class="content-body rightside-event">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-xl-12">
+                  <div class="main-content" id="main-content">
+
+                    <!-- Add the row for Pie Chart and Table -->
+                    <div class="row">
+                      <!-- Pie Chart Column -->
+                      <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12" style="margin-left:-100px;">
+                        <div class="card">
+                          <div class="card-header">
+                            <h4 class="card-title">Total Users Chart</h4>
+                          </div>
+                          <div class="card-body">
+                            <div class="chart-point">
+                              <div>
+                                <canvas id="doughnut_chart"></canvas>
+                              </div>
+                              <ul class="chart-point-list">
+                                <li>
+                                  <i class="fa fa-circle text-success mr-1"></i>
+                                  {{ totalTestDrives() }} Test Drives
+                                </li>
+                                <li>
+                                  <i class="fa fa-circle text-danger mr-1"></i>
+                                  {{ totalOrders() }} Orders
+                                </li>
+                                <!-- <li>
+                                  <i class="fa fa-circle text-warning mr-1"></i> 25% Opportunities
+                                </li> -->
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Table Column -->
+                      <!-- <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12" style="margin-top:50px;">
+                        <div class="card">
+                          <div class="card-header">
+                            <h4 class="card-title">User Data Table</h4>
+                          </div>
+                          <div class="card-body">
+                            <table id="example" class="table table-striped" style="width:100%">
+                              <thead>
+                                <tr>
+                                  <th>Name</th>
+                                  <th>Position</th>
+                                  <th>Office</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td>Tiger Nixon</td>
+                                  <td>System Architect</td>
+                                  <td>Edinburgh</td>
+                                </tr>
+                                <tr>
+                                  <td>Garrett Winters</td>
+                                  <td>Accountant</td>
+                                  <td>Tokyo</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div> -->
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- <table class="table table-striped" style="width:100%">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Office</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of data | slice:0:pageSize">
+                <td>{{ row.name }}</td>
+                <td>{{ row.position }}</td>
+                <td>{{ row.office }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <nav>
+            <ul class="pagination">
+              <li class="page-item">
+                <button class="page-link" (click)="pageSize = 4">1</button>
+              </li>
+              <li class="page-item">
+                <button class="page-link" (click)="pageSize = 8">2</button>
+              </li>
+            </ul>
+          </nav> -->

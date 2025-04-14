@@ -5,15 +5,13 @@
   color: black !important;
 }
 
- 
-
 .is-invalid {
   border: 1px solid red !important;
 }
 
 span {
-    font-size: .8rem;
-    margin-left: .5rem;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
 }
 /* .one{
   border: 1px solid lightgray !important;
@@ -62,7 +60,7 @@ span {
 /* Calendar header */
 :host ::ng-deep .p-datepicker .p-datepicker-header {
   padding: 0.5rem;
-  border-bottom: 1px solid #dee2e6; 
+  border-bottom: 1px solid #dee2e6;
   border-radius: 8px 8px 0 0;
 }
 
@@ -125,14 +123,10 @@ span {
   color: #ffffff;
 }
 
-
-
 /* Placeholder text color */
 :host ::ng-deep .p-calendar .p-inputtext::placeholder {
   color: #6c757d;
 }
-
-
 
 /* Form styling */
 .custom-modal .form-group {
@@ -144,7 +138,6 @@ span {
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
- 
 
 /* Responsive Design */
 @media (min-width: 768px) {
@@ -181,7 +174,6 @@ span {
   }
 }
 
-
 /* General modal styling */
 .custom-modal .modal-dialog {
   max-width: 95%;
@@ -213,12 +205,12 @@ span {
 
 .custom-disabled .p-inputtext {
   background-color: #e0e2e4 !important; /* Target the input field */
-  opacity: 0.8 !important;             /* Ensure input field is dimmed */
-  cursor: not-allowed !important;      /* Ensure proper cursor */
-  pointer-events: none;                /* Disable interactions */
+  opacity: 0.8 !important; /* Ensure input field is dimmed */
+  cursor: not-allowed !important; /* Ensure proper cursor */
+  pointer-events: none; /* Disable interactions */
 }
 
-.custom-disabled  {
+.custom-disabled {
   background-color: #e0e2e4;
   cursor: not-allowed !important; /* Force cursor property */
   pointer-events: none; /* Prevent interactions */
@@ -255,8 +247,13 @@ input.custom-disabled {
   pointer-events: auto !important; /* Allow interactions with the calendar popup */
 }
 
-.x{ 
+.x {
   font-size: 20px !important;
   font-weight: 500;
 }
-
+/* @media screen and (max-width: 1366px) and (max-height: 768px) {
+  .content-body {
+    margin-left: 0px !important;
+    padding: 1rem;
+  }
+} */

@@ -49,6 +49,7 @@ export class DealerComponent implements OnInit {
   isEditMode: boolean = false;
   useForm: FormGroup;
   previousValue: string = '';
+  
 
   constructor(private modalService: NgbModal) {
     this.useForm = new FormGroup({
@@ -217,7 +218,7 @@ export class DealerComponent implements OnInit {
   //     }
   //   );
   // }
-onUpdate() {
+  onUpdate() {
     if (this.useForm.valid) {
       this.dealerObj = { ...this.dealerObj, ...this.useForm.value };
 
@@ -267,7 +268,7 @@ onUpdate() {
         if (res?.data.dealer) {
           console.log('Dealer Found:', res.data.dealer); // ✅ Ensure dealer data is present
 
-          // STORE DEALER DATA IMP PART TO BE FOLLOWED WHEREVER DEALER CODE IS THERE .. TO SET IT BY DEAFULT AND NOT TO EDIT 
+          // STORE DEALER DATA IMP PART TO BE FOLLOWED WHEREVER DEALER CODE IS THERE .. TO SET IT BY DEAFULT AND NOT TO EDIT
           this.dealerObj = {
             ...res.data.dealer,
             dealer_code: Number(res.data.dealer.dealer_code), // ✅ Convert to number

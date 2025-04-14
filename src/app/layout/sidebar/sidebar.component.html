@@ -1,4 +1,4 @@
-<div id="preloader">
+<div id="preloader" class="sidebar">
   <div class="sk-three-bounce">
     <div class="sk-child sk-bounce1"></div>
     <div class="sk-child sk-bounce2"></div>
@@ -6,61 +6,44 @@
   </div>
 </div>
 <div class="deznav">
-  <div
-    class="deznav-scroll"
-    style="
+  <div class="deznav-scroll" style="
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-    "
-  >
+      
+    ">
     <ul class="metismenu" id="menu">
-      <li >
-        <a routerLink="/Admin/dashboard" class="ai-icon"
-        (click)="onRoleChange('dashboard', 'Dashboard')"
-         aria-expanded="false">
+      <li>
+        <a routerLink="/Admin/dashboard" class="ai-icon" (click)="onRoleChange('dashboard', 'Dashboard')"
+          aria-expanded="false">
           <i class="fa fa-dashboard"></i>
           <span class="nav-text"> Dashboard </span>
         </a>
       </li>
       <li>
-        <a
-         style="cursor: pointer;"
-          class="has-arrow ai-icon"
-          
-          aria-expanded="false"
-        >
+        <a style="cursor: pointer;" class="has-arrow ai-icon" aria-expanded="false">
           <i class="fa fa-users"></i>
           <span class="nav-text">Masters</span>
         </a>
         <ul aria-expanded="false">
-          <li
-             
-          >
-            <a  routerLink="/Admin/user-all"   class="ai-icon" aria-expanded="false" 
-            (click)="onRoleChange('user-all', 'User Management')">
-              User Management</a
-            >
+          <li>
+            <a routerLink="/Admin/user-all" class="ai-icon" aria-expanded="false"
+              (click)="onRoleChange('user-all', 'User Management')">
+              User Management</a>
           </li>
-          <li 
-          >
-            <a  routerLink="/Admin/role"   class="ai-icon" aria-expanded="false" 
-            (click)="onRoleChange('user-all', 'Role Management')">Role Management</a>
+          <li>
+            <a routerLink="/Admin/role" class="ai-icon" aria-expanded="false"
+              (click)="onRoleChange('user-all', 'Role Management')">Role Management</a>
           </li>
-          <li 
-          >
-            <a  routerLink="/Admin/team"   class="ai-icon" aria-expanded="false" 
-            (click)="onTeamChange('team-all', 'Team Management')">Team Management</a>
+          <li>
+            <a routerLink="/Admin/team" class="ai-icon" aria-expanded="false"
+              (click)="onTeamChange('team-all', 'Team Management')">Team Management</a>
           </li>
         </ul>
       </li>
 
       <li>
-        <a
-          class="has-arrow ai-icon"
-          href="javascript:void()"
-          aria-expanded="false"
-        >
+        <a class="has-arrow ai-icon" href="javascript:void()" aria-expanded="false">
           <i class="fa fa-route"></i>
           <span class="nav-text">transaction</span>
         </a>
@@ -70,33 +53,28 @@
               User Management</a
             >
           </li> -->
-          <li 
-          >
-            <a  routerLink="/Admin/vehicle" aria-expanded="false" (click)="onRoleChange('Vehicle', 'Vehicle')"> Vehicle Master </a>
+          <li>
+            <a routerLink="/Admin/vehicle" aria-expanded="false" (click)="onRoleChange('Vehicle', 'Vehicle')"> Vehicle
+              Master </a>
           </li>
         </ul>
       </li>
 
       <li>
-        <a
-        style="cursor: pointer;"
-          class="has-arrow ai-icon"
-          
-          aria-expanded="false"
-        >
+        <a style="cursor: pointer;" class="has-arrow ai-icon" aria-expanded="false">
           <i class="fa fa-folder-open"></i>
           <span class="nav-text">Utils</span>
         </a>
         <ul aria-expanded="false">
-          <li 
-          >
-            <a  routerLink="/Admin/customer"  class="ai-icon" aria-expanded="false" (click)="onRoleChange('Accounts', 'Accounts')">
+          <li>
+            <a routerLink="/Admin/customer" class="ai-icon" aria-expanded="false"
+              (click)="onRoleChange('Accounts', 'Accounts')">
               Accounts
             </a>
           </li>
-          <li 
-          >
-            <a  routerLink="/Admin/dealer" aria-expanded="false" (click)="onRoleChange('Dealers', 'Dealers')"> Dealers </a>
+          <li>
+            <a routerLink="/Admin/dealer" aria-expanded="false" (click)="onRoleChange('Dealers', 'Dealers')"> Dealers
+            </a>
           </li>
         </ul>
       </li>

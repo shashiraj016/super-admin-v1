@@ -1,98 +1,110 @@
 /* You can add global styles to this file, and also import other style files */
 /* You can add global styles to this file, and also import other style files */
-/* @import "node_modules/datatables.net-dt/css/jquery.dataTables.min.css"; */ 
+/* @import "node_modules/datatables.net-dt/css/jquery.dataTables.min.css"; */
 
-.cursor-pointer{
-    cursor: pointer;
+.cursor-pointer {
+  cursor: pointer;
 }
-.sidebar-right .sidebar-right-trigger{
-    display: none !important;
+.sidebar-right .sidebar-right-trigger {
+  display: none !important;
 }
-.required{
-    color: red;
+.required {
+  color: red;
 }
 .file-input {
-    height: auto !important;
-    border: 1px solid #ccc !important;
-    border-radius: 10px !important;
-    width: 300px !important;
-    color: #000 !important;
+  height: auto !important;
+  border: 1px solid #ccc !important;
+  border-radius: 10px !important;
+  width: 300px !important;
+  color: #000 !important;
 }
 .eye_view_btn {
-    padding: 5px 7px;
-    color: #fff;
-    border-radius: 5px;
-    background-color: #222fb9;
+  padding: 5px 7px;
+  color: #fff;
+  border-radius: 5px;
+  background-color: #222fb9;
 }
 
 .eye_view_btn:hover {
-    background-color: #0a0f47;
-    color: #fff;
+  background-color: #0a0f47;
+  color: #fff;
 }
-.dataTables_wrapper .dataTables_paginate .paginate_button{
-    padding: 10px 0px !important;
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  padding: 10px 0px !important;
 }
-div.dataTables_wrapper div.dataTables_info{
-    float: left !important;
+div.dataTables_wrapper div.dataTables_info {
+  float: left !important;
 }
-div.dataTables_wrapper div.dataTables_paginate{
-    float: right !important;
-    border: none!important;
+div.dataTables_wrapper div.dataTables_paginate {
+  float: right !important;
+  border: none !important;
 }
 .dataTables_wrapper .dataTables_paginate .pagination li:hover {
-    background: none !important;
+  background: none !important;
 }
 
-.dropdownmultiselect input{
-    color: #c9c9c9!important;
-    height: 20px !important;
+.dropdownmultiselect input {
+  color: #c9c9c9 !important;
+  height: 20px !important;
 }
-.dropdownmultiselect .dropdown-btn{ 
-    height: 60px !important;
-    border:1px solid #c9c9c9 !important;
-    border-radius: 18px !important;
-    padding-left: 20px !important;
-    padding: 16px 12px !important;
-    color: #c9c9c9 !important;
-    background: #fff !important;
-}
-
-.showPassword{
-    position:absolute; right:15px;bottom:20%;
+.dropdownmultiselect .dropdown-btn {
+  height: 60px !important;
+  border: 1px solid #c9c9c9 !important;
+  border-radius: 18px !important;
+  padding-left: 20px !important;
+  padding: 16px 12px !important;
+  color: #c9c9c9 !important;
+  background: #fff !important;
 }
 
+.showPassword {
+  position: absolute;
+  right: 15px;
+  bottom: 20%;
+}
 
 /* src/app/dealer/dealer.component.css or global styles */
 .custom-alert {
-    background-color: #d4f7d4;
-    color: #28a745;
-    border-radius: 12px;
-    padding: 10px 20px;
-    width: 50%;
-    position: absolute;
-    bottom: 50px;
-    right: 10px;
-  }
-  
-  .custom-alert .alert-icon {
-    margin-right: 10px;
-  }
-  
-  .custom-alert svg {
-    color: #28a745;
-    width: 20px;
-    height: 20px;
-  }
-  
-  .custom-alert strong {
-    font-weight: 600;
-    color: #28a745;
-  }
-  
-  .custom-alert .close {
-    color: #28a745;
-    opacity: 0.8;
-  }
-  
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+  background-color: #d4f7d4;
+  color: #28a745;
+  border-radius: 12px;
+  padding: 10px 20px;
+  width: 50%;
+  position: absolute;
+  bottom: 50px;
+  right: 10px;
+}
+
+.custom-alert .alert-icon {
+  margin-right: 10px;
+}
+
+.custom-alert svg {
+  color: #28a745;
+  width: 20px;
+  height: 20px;
+}
+
+.custom-alert strong {
+  font-weight: 600;
+  color: #28a745;
+}
+
+.custom-alert .close {
+  color: #28a745;
+  opacity: 0.8;
+}
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+/* * {
+  outline: 1px solid red !important;
+} */
+
+/*  */
