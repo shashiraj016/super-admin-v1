@@ -18,7 +18,6 @@ import { ToastrService } from 'ngx-toastr';
 //   message?: string;
 // }
 
-
 interface LoginResponse {
   status: number;
   message: string;
@@ -70,7 +69,7 @@ export class Login1Component {
   countdown = 0;
   private countdownInterval: any;
 
-  private readonly API_BASE_URL = 'https://api.smartassistapp.in/api/';
+  private readonly API_BASE_URL = 'https://uat.smartassistapp.in/api/';
   private readonly SESSION_TIMEOUT = 60 * 60 * 1000;
 
   private readonly http = inject(HttpClient);
@@ -208,15 +207,21 @@ export class Login1Component {
 
   onLogin() {
     if (!this.validateLoginInput()) return;
-  
+
     this.http
-      .post<LoginResponse>(`${this.API_BASE_URL}login/super-admin`, this.loginObj)
+      .post<LoginResponse>(
+        `${this.API_BASE_URL}login/super-admin`,
+        this.loginObj
+      )
       .subscribe({
         next: (response) => {
           if (response.status === 200 && response.data?.token) {
             this.handleSuccessfulLogin(response.data.token);
           } else {
-            this.toastr.error(response.message || 'Invalid credentials', 'Error');
+            this.toastr.error(
+              response.message || 'Invalid credentials',
+              'Error'
+            );
           }
         },
         error: (error) => {
@@ -249,7 +254,7 @@ export class Login1Component {
         error: (error) => {
           // console.error('Email verification error:', error);
           console.log(error.error.error);
-          const errorMessage = error.error.error
+          const errorMessage = error.error.error;
           this.toastr.error(errorMessage, 'Error');
         },
       });
@@ -359,8 +364,7 @@ export class Login1Component {
           } else if (error.status === 404) {
             this.toastr.error('User not found', 'Error');
           } else {
-            const errorMessage =
-              error.error.error;
+            const errorMessage = error.error.error;
             this.toastr.error(errorMessage, 'Error');
           }
         },

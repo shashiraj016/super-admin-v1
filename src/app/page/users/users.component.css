@@ -1,152 +1,72 @@
-.buttons:hover {
-  color: white !important;
-}
-.buttons {
-  color: black !important;
-}
-
-.custom-disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
+/* In your main CSS file (e.g., styles.css or app.component.css) */
+body {
+  /* Or a top-level wrapper div that contains both sidebar and content */
+  display: flex; /* Makes its direct children (sidebar, content-body) arrange in a row */
+  min-height: 100vh; /* Ensures the page takes at least full viewport height */
+  margin: 0; /* Remove default browser margin */
+  padding: 0; /* Remove default browser padding */
 }
 
-.is-invalid {
-  border: 1px solid red !important;
-}
-span {
-  font-size: 0.8rem;
-  margin-left: 0.5rem;
-}
-
-/* Modal general styling */
-.custom-modal .modal-dialog {
-  max-width: 90%; /* Default width */
-  margin: 1.5rem auto;
+.sidebar {
+  width: 250px;
+  flex-shrink: 0; /* IMPORTANT: Prevents the sidebar from shrinking below 250px */
+  /* Remove position: fixed, top, left, height: 100% if body is display: flex */
+  /* If you absolutely need position: fixed for other reasons, then the solution is different (see option 2 below) */
+  background-color: #f8f9fa;
+  z-index: 1000; /* Ensure it stays on top */
 }
 
-.custom-modal .modal-content {
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.content-body {
+  flex-grow: 1; /* IMPORTANT: Allows content-body to take all remaining space */
+  /* REMOVE margin-left: 250px; when using this flexbox approach */
+  padding: 20px; /* Your desired padding for the content */
+  box-sizing: border-box; /* Ensures padding is included in the element's total width/height */
+  overflow-x: hidden; /* Prevents scrollbar on content-body itself if inner content overflows */
 }
 
-/* Form styling */
-.custom-modal .form-group {
-  flex: 1;
-  margin-bottom: 1rem;
-}
-
-.custom-modal .form-label {
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-/* Responsive Design */
-/* @media screen and (min-width: 768px) and (max-device-width: 1366px) {
-  .custom-modal .modal-dialog {
-    max-width: 700px;
+/* This media query is good for small screens to hide the sidebar */
+@media (max-width: 768px) {
+  body {
+    /* Or your top-level wrapper */
+    flex-direction: column; /* Stacks items vertically on small screens */
   }
 
-  .custom-modal .modal-content {
-    padding: 2rem;
+  .sidebar {
+    width: 100%; /* Sidebar takes full width */
+    height: auto; /* Height adapts to content */
+    position: static; /* No longer fixed on small screens */
   }
 
-  .custom-modal .form-group {
-    margin-right: 1rem;
-  }
-} */
-@media screen and (min-width: 768px) and (max-width: 1366px) {
-  .custom-modal .modal-dialog {
-    max-width: 200px;
-  }
-
-  .custom-modal .modal-content {
-    padding: 2rem;
-  }
-
-  .custom-modal .form-group {
-    margin-right: 1rem;
-  }
-}
-@media screen and (min-width: 1024px) and (max-width: 1440px) {
-  .custom-modal .modal-dialog {
-    max-width: 800px;
-    width: 90%;
-    margin: auto;
-  }
-
-  .custom-modal .modal-content {
-    padding: 2rem;
-  }
-
-  .custom-modal .form-group {
-    margin-right: 1rem;
-  }
-}
-/* @media (max-width: 767px) {
-  .custom-modal .modal-dialog {
-    max-width: 100%;
-  }
-
-  .custom-modal .form-group {
-    width: 100%;
-    margin-bottom: 1rem;
-  }
-
-  .custom-modal .modal-footer {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .custom-modal .modal-footer button {
-    margin-bottom: 0.5rem;
-  }
-} */
-
-/* General modal styling */
-.custom-modal .modal-dialog {
-  max-width: 95%;
-  margin: 1.5rem auto;
-}
-
-.custom-modal .modal-content {
-  padding: 1.5rem;
-  border-radius: 8px;
-}
-
-/* Responsive adjustments */
-/* @media (min-width: 768px) {
-  .custom-modal .modal-dialog {
-    max-width: 700px;
+  .content-body {
+    margin-left: 0; /* No margin needed when stacked */
+    width: 100%; /* Takes full width */
+    padding: 10px; /* Adjust padding for mobile */
   }
 }
 
-@media (max-width: 767px) {
-  .custom-modal .modal-footer {
-    flex-direction: column;
-    align-items: stretch;
+/* MY OLD CSS CODE */
+.sidebar {
+  width: 250px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #f8f9fa;
+}
+
+.content-body {
+  margin-left: 14%;
+  padding: 20px;
+  flex-grow: 1;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
   }
 
-  .custom-modal .modal-footer button {
-    margin-bottom: 0.5rem;
+  .content-body {
+    margin-left: 0;
+    padding: 10px;
   }
-} */
-
-.x {
-  font-size: 20px !important;
-  font-weight: 500;
-}
-.custom-modal .modal-dialog {
-  max-width: 700px; /* Adjust the width */
-  width: 80%; /* Adjust to the desired width */
-}
-
-.custom-modal .modal-content {
-  padding: 15px; /* Adjust padding if necessary */
-}
-
-.custom-modal .modal-body {
-  max-height: none; /* Remove the max-height to avoid scrolling */
-  height: auto; /* Allow the body to grow based on content */
-  overflow-y: visible; /* Ensure no scrolling */
 }

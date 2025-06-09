@@ -26,7 +26,7 @@ export class UserList {
   lname: string;
 
   team?: Teams;
-  role: any;
+  role: string;
 
   constructor() {
     this.user_id = '';
@@ -44,8 +44,11 @@ export class UserList {
     this.dealer_id = '';
     this.role_id = '';
     this.role_name = '';
-    (this.team_id = ''), (this.team_name = '');
+    this.team_id = '';
+    this.team_name = '';
     this.fname = '';
     this.lname = '';
+
+    this.role = '';
   }
 }

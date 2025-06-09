@@ -42,6 +42,17 @@ export interface TeamsResponse {
   };
 }
 
+export interface DashboardResponse {
+  status: number;
+  message: string;
+  data: {
+    leads: {
+      current: number;
+      previous: number;
+    };
+  };
+}
+
 // FOR TEAM MANG UPDATE (API)
 export interface TeamssResponse {
   data: {
@@ -175,6 +186,8 @@ export interface UserResponse {
     dealer_code: string | number; // Depending on how it's returned (string or number)
     dealer_name: string;
     password?: string;
+    fname: string;
+    lname: string;
   }>;
 }
 
@@ -229,6 +242,48 @@ export interface MultiTeamResponse {
     totalPages: number;
     currentPage: number;
     rows: Teams[];
+  };
+}
+export interface Lead {
+  dealer_id: string;
+  dealer_name: string;
+  value: number;
+  dealer_code: number;
+  location: string;
+  mobile: string;
+  phone: string;
+  rank: number;
+}
+export interface DashboardData {
+  status: number;
+  message: string;
+  data: {
+    leads: { [key: string]: { value: number } };
+    testDrives: { [key: string]: { value: number } };
+    orders: { [key: string]: { value: number } };
+    rankings: {
+      leads: Array<{
+        dealer_id: string;
+        dealer_name: string;
+        value: number;
+        dealer_code: number;
+        location: string;
+        mobile: string;
+        phone: string;
+        rank: number;
+      }>;
+      testDrives: Array<{
+        dealer_id: string;
+        dealer_name: string;
+        value: number;
+        dealer_code: number;
+        location: string;
+        mobile: string;
+        phone: string;
+        rank: number;
+      }>;
+      orders: any[]; // Define a more specific type if possible
+    };
   };
 }
 

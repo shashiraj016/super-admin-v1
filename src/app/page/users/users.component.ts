@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { SharedModule } from '../../shared/shared.module';
 import {
   FormControl,
@@ -71,7 +77,10 @@ export class UsersComponent implements OnInit {
   previousValue: any;
   user_id: string = ''; // Ensure this is properly initialized with the user ID
 
-  constructor(private aleartsrv: AleartSrvService) {
+  constructor(
+    private aleartsrv: AleartSrvService,
+    private cdr: ChangeDetectorRef
+  ) {
     this.initializeForm();
   }
 
@@ -120,12 +129,13 @@ export class UsersComponent implements OnInit {
         Validators.maxLength(50),
       ]),
       // role: new FormControl('', [Validators.required]),
-      user_role: new FormControl('', [Validators.required]),
+      // user_role: new FormControl('', [Validators.required]),
       email: new FormControl('', [
         Validators.required,
         Validators.email,
         Validators.maxLength(100),
       ]),
+
       phone: new FormControl(Number, [
         Validators.required,
         Validators.pattern(/^\d{10}$/),
@@ -136,12 +146,15 @@ export class UsersComponent implements OnInit {
       //   Validators.pattern(/^\d{10}$/),
       //   Validators.maxLength(10),
       // ]),
-      role_id: new FormControl(null, [Validators.required]),
+      // role_id: new FormControl(null, [Validators.required]),
 
       dealer_id: new FormControl(null, [Validators.required]),
       team_id: new FormControl(null, [Validators.required]),
       // team_id: new FormControl(null, [Validators.required]),
       // dealer_id: new FormControl(null),
+      // team_name: new FormControl(null, [Validators.required]),
+      user_role: new FormControl(null, [Validators.required]),
+      role_id: new FormControl(null, [Validators.required]),
     });
   }
 
@@ -244,18 +257,17 @@ export class UsersComponent implements OnInit {
   loadRole() {
     this.masterSrv.getAllRole().subscribe({
       next: (res: roleResponse) => {
-        if (res && res.data.rows && res.data.rows) {
-          this.roleList.set(res.data.rows); // Set the dealer list from response
-          console.log('Fetched role:', this.roleList()); // Log the dealer list
-
-          this.totalrole.set(res.data.count); // Set the total dealer count
+        if (res && res.data && Array.isArray(res.data)) {
+          this.roleList.set(res.data);
+          console.log('Fetched roles:', this.roleList());
+          this.totalrole.set(res.data.length); // Assuming count is length of array
         } else {
-          this.toastr.warning('No role found', 'Information');
+          this.toastr.warning('No roles found', 'Information');
         }
       },
       error: (err) => {
         console.error('Error fetching roles:', err);
-        this.toastr.error(err.error.error, 'Error');
+        this.toastr.error(err.error?.error || 'Error fetching roles', 'Error');
       },
     });
   }
@@ -316,6 +328,7 @@ export class UsersComponent implements OnInit {
   // }
   openModal(user?: UserList) {
     console.log('✅ openModal() function calledm of user');
+    console.log('User object received in openModal:', user);
 
     // Reset the form to clear previous data, but only reset the userObj in create mode
     if (!user) {
@@ -336,12 +349,14 @@ export class UsersComponent implements OnInit {
         account_id: user.account_id || '',
         email: user.email || '',
         phone: user.phone || '',
-        role_id: user.role ? user.role.role_id : '', // Accessing role_id from the role object
-        user_role: user.role ? user.role.role_name : '', // Accessing role_name from the role object
+        role_id: user.role_id || '',
+        user_role: user.role_name || '',
         dealer_code: user.dealer_code || '',
         dealer_id: user.dealer_id || null,
-        team_id: user.team ? user.team.team_id : null,
-        team_name: user.team ? user.team.team_name : null,
+        team_id: user.team_id || null,
+        team_name: user.team_name || '',
+        fname: user.fname || null,
+        lname: user.lname || '',
       });
 
       // Store previous email for comparison
@@ -554,6 +569,10 @@ export class UsersComponent implements OnInit {
 
     const formData = this.useForm.value;
     console.log('Form Data being sent to API:', formData);
+    const selectedRole = this.roleList().find(
+      (role) => role.role_id === formData.role_id
+    );
+    formData.user_role = selectedRole?.role_name || '';
 
     this.masterSrv.createNewUser(formData).subscribe({
       next: () => {
@@ -570,6 +589,56 @@ export class UsersComponent implements OnInit {
       },
     });
   }
+
+  // onSave() {
+  //   if (this.useForm.invalid) {
+  //     this.markFormGroupTouched(this.useForm);
+  //     console.log('Form Values:', this.useForm.value); // Log form values to check role_name
+
+  //     this.toastr.warning(
+  //       'Please fill all required fields correctly',
+  //       'Validation'
+  //     );
+  //     return;
+  //   }
+
+  //   const formData = this.useForm.value;
+  //   console.log('Form Data being sent to API:', formData);
+
+  //   // Ensure role_id exists
+  //   const selectedRole = this.roleList().find(
+  //     (role) => role.role_id === formData.role_id
+  //   );
+
+  //   // Log the selected role for debugging
+  //   console.log('Selected Role:', selectedRole);
+
+  //   // If no role is selected or not found, display an error and stop submission
+  //   if (!selectedRole) {
+  //     this.toastr.error('Please select a valid role.', 'Error');
+  //     return;
+  //   }
+
+  //   // Ensure user_role is set from the selected role
+  //   formData.user_role = selectedRole.role_name;
+
+  //   console.log('Final Form Data before sending:', formData);
+
+  //   this.masterSrv.createNewUser(formData).subscribe({
+  //     next: () => {
+  //       this.toastr.success('User created successfully!', 'Success');
+  //       this.displayAllUser();
+  //       this.closeModal();
+  //     },
+  //     error: (err) => {
+  //       console.error('User creation error:', err);
+  //       this.toastr.error(
+  //         err.message || 'Failed to create user',
+  //         'Creation Error'
+  //       );
+  //     },
+  //   });
+  // }
 
   // // Update existing user
   // onUpdate() {
@@ -593,69 +662,106 @@ export class UsersComponent implements OnInit {
   //       this.toastr.error('Error updating User', 'Error');
   //     }
   //   );
-  // onUpdate() {
-  //   console.log('onUpdate func called');
-  //   if (!this.userObj || !this.userObj.user_id) {
-  //     this.toastr.warning('No user selected for update!', 'Warning');
-  //     console.error('Update failed: Missing user ID', this.userObj);
-  //     return;
-  //   }
-
-  //   console.log('Updating user:', this.userObj);
-
-  //   this.masterSrv.updateUser(this.userObj).subscribe(
-  //     (res: any) => {
-  //       console.log('API Response:', res); // ✅ Log API response
-  //       this.toastr.success('User updated successfully', 'Success');
-  //       this.displayAllUser(); // Call to refresh the list after update
-  //       this.closeModal(); // Close the modal after updating the user
-  //     },
-  //     (error) => {
-  //       this.toastr.error('Error updating User', 'Error');
-  //     }
-  //   );
   onUpdate() {
-    if (this.useForm.valid) {
-      this.userObj = { ...this.userObj, ...this.useForm.value };
+    console.log('on update');
+    console.log('Form Values:', this.useForm.value);
 
+    if (this.useForm.valid) {
+      this.userObj = { ...this.userObj, ...this.useForm.value }; // Update the user object with the form values
+      console.log('🔍 Form Status:', this.useForm.status);
       console.log('🚀 Updated Payload before API call:', this.userObj);
 
+      // Call the updateUser API with the updated user object
       this.masterSrv.updateUser(this.userObj).subscribe(
         (res: any) => {
-          console.log('✅ API Response:', res); // ✅ Check API response
-
           if (res.status === 200) {
+            console.log('API Response:', res); // Log full response
+
+            console.log('✅ Update Success:', res);
             this.toastr.success(res.message, 'Success');
 
-            // 🔄 Ensure we fetch updated data after updating
+            this.displayAllUser(); // Fetch and display all users again after update
+            this.closeModal(); // Close the modal
+
+            // Update the UI immediately
+            this.userList.set(
+              this.userList().map((user) =>
+                user.user_id === this.userObj.user_id
+                  ? { ...user, ...this.userObj }
+                  : user
+              )
+            );
+
             setTimeout(() => {
-              this.displayAllUser();
-            }, 500);
+              this.cdr.detectChanges(); // Force UI update
+              this.cdr.markForCheck(); // Mark for change detection if using OnPush
+            }, 0);
+
+            // Reset the form after successful update
+            this.useForm.reset();
           } else {
-            this.toastr.error('Update failed, no data received', 'Error');
+            this.toastr.error('Update failed', 'Error');
           }
         },
         (error) => {
           console.error('❌ API Error:', error);
-          this.toastr.error('Failed to update customer', 'Error');
+          if (error.response) {
+            this.toastr.error(error.response.data.message, 'Error');
+          } else {
+            this.toastr.error('Failed to update user', 'Error');
+          }
         }
       );
     } else {
       this.toastr.error('Invalid form data. Please check inputs.', 'Error');
     }
-
-    // this.masterSrv.updateUser(this.useForm.value).subscribe({
-    //   next: () => {
-    //     this.toastr.success('User updated successfully!', 'Success');
-    //     this.displayAllUser();
-    //     this.closeModal();
-    //   },
-    //   error: (err) => {
-    //     console.error('User update error:', err);
-    //     this.toastr.error('Update the E-mail and AccountId', 'Update Error');
-    //   },
-    // });
   }
+
+  // closeModal() {
+  //   ($('.bd-example-modal-lg') as any).modal('hide');
+  // }
+  // onUpdate() {
+  //   if (this.useForm.valid) {
+  //     this.userObj = { ...this.userObj, ...this.useForm.value };
+
+  //     console.log('🚀 Updated Payload before API call:', this.userObj);
+
+  //     this.masterSrv.updateUser(this.userObj).subscribe(
+  //       (res: any) => {
+  //         console.log('✅ API Response:', res); // ✅ Check API response
+
+  //         if (res.status === 200) {
+  //           this.toastr.success(res.message, 'Success');
+
+  //           // 🔄 Ensure we fetch updated data after updating
+  //           setTimeout(() => {
+  //             this.displayAllUser();
+  //           }, 500);
+  //         } else {
+  //           this.toastr.error('Update failed, no data received', 'Error');
+  //         }
+  //       },
+  //       (error) => {
+  //         console.error('❌ API Error:', error);
+  //         this.toastr.error('Failed to update customer', 'Error');
+  //       }
+  //     );
+  //   } else {
+  //     this.toastr.error('Invalid form data. Please check inputs.', 'Error');
+  //   }
+
+  // this.masterSrv.updateUser(this.useForm.value).subscribe({
+  //   next: () => {
+  //     this.toastr.success('User updated successfully!', 'Success');
+  //     this.displayAllUser();
+  //     this.closeModal();
+  //   },
+  //   error: (err) => {
+  //     console.error('User update error:', err);
+  //     this.toastr.error('Update the E-mail and AccountId', 'Update Error');
+  //   },
+  // });
+
   // onUpdate() {
   //   if (!this.userObj || !this.userObj.user_id) {
   //     this.toastr.warning('No vehicle selected for update!', 'Warning');
@@ -736,12 +842,15 @@ export class UsersComponent implements OnInit {
       account_id: user.account_id || '',
       email: user.email || '',
       phone: user.phone || '',
-      role_id: user.role ? user.role.role_id : '',
-      user_role: user.role ? user.role.role_name : '',
+      role_id: user.role_id || '',
       dealer_code: user.dealer_code || '',
       dealer_id: user.dealer_id || null,
-      team_id: user.team ? user.team.team_id : null,
-      team_name: user.team ? user.team.team_name : null,
+      team_id: user.team_id || null,
+      team_name: user.team_name || '',
+      fname: user.fname || '',
+      lname: user.lname || '',
+      // user_role: user.role_name || '',
+      user_role: user.user_role || '',
     });
 
     console.log('userObj.user_id after setting:', this.userObj?.user_id);
