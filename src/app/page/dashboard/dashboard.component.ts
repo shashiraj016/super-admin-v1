@@ -91,14 +91,33 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   mtdOrders = signal<number>(0);
   qtdOrders = signal<number>(0);
   ytdOrders = signal<number>(0);
+  selectedFilter: string = 'MTD'; // Default filter
 
   mtdLeads = signal<number>(0);
   qtdLeads = signal<number>(0);
+  currentLeads: number = 0;
+  previousLeads: number = 0;
+  changeLeads: number = 0;
+  testDriveChange: number = 0;
+  testDriveProgressValue: number = 0;
+  testDriveStrokeColor: string = '#4CAF50';
 
+  orderChange: number = 0;
+  orderProgressValue: number = 0;
+  orderStrokeColor: string = '#4CAF50';
+  currentTestDrives: number = 0;
+  previousTestDrives: number = 0;
+
+  orders: number = 0;
+  currentOrders: number = 0;
+  previousOrders: number = 0;
   ytdLeads = signal<number>(0);
   selectedPeriod: string = 'MTD'; // default selected period
   dashboardData: any = {}; // empty at start
-
+  leads: number = 0;
+  // testDrives: number = 0;
+  // orders: number = 0;
+  rankings: any = {};
   sidebarTestDrives = signal<number>(0);
   sidebarOrders = signal<number>(0);
   sidebarLeads = signal<number>(0);
@@ -120,8 +139,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // selectedOption: string = 'leads'; // Default selected option to show 'leads' data
   maxValue: number = 0;
 
-  currentLeads: number = 0;
-  previousLeads: number = 0;
+  // currentLeads: number = 0;
+  // previousLeads: number = 0;
   changeDisplay: number = 0;
   progressValue: number = 0;
   strokeColor: string = '#4CAF50'; // green by default
@@ -138,24 +157,20 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.maxValue =
       Math.max(...this.displayedData.map((item) => item.value)) || 1;
     this.fetchData();
-    console.log('Selected Period:', this.selectedPeriod); // Log the selected period
-
-    this.updateDataBasedOnSelection(); // Load initial data for default dropdown
+    console.log('Selected Period:', this.selectedPeriod);
     this.updateDataBasedOnSelection();
+    this.applyFilter(this.selectedFilter); // Load today's data initially
 
     setTimeout(() => {
       this.animatedValue = this.progressValue;
-    }, 100); // Delay ensures CSS transition is triggered
+    }, 100);
 
-    //
     const token = sessionStorage.getItem('token');
-
     if (!token) {
       console.error('Token not found!');
       return;
     }
 
-    // Simple headers setup
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     this.http
@@ -165,37 +180,60 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       )
       .subscribe({
         next: (res) => {
-          // Access leads data from the nested structure
           const leads = res?.data?.leads || {};
-          console.log('Leads object:', leads); // Log the 'leads' object to check its structure
+          const data = res?.data || {};
 
-          // Extract the values from the leads object
+          // 📨 Enquiries
           this.currentLeads = leads?.current || 0;
           this.previousLeads = leads?.previous || 0;
           this.changeDisplay = leads?.change || 0;
 
-          // Optional: Calculate progress
-          this.progressValue = Math.abs(this.changeDisplay); // You can refine this if needed
+          // 🚗 Test Drives
+          this.currentTestDrives = data.currentTestDrives || 0;
+          this.previousTestDrives = data.previousTestDrives || 0;
+          this.testDriveChange = data.testDriveChange || 0;
 
-          // Set color based on positive/negative change
-          if (this.changeDisplay > 0) {
-            this.strokeColor = '#4CAF50'; // Green
-          } else if (this.changeDisplay < 0) {
-            this.strokeColor = '#F44336'; // Red
-          } else {
-            this.strokeColor = '#9E9E9E'; // Gray for no change
-          }
+          // 🛒 Orders
+          this.currentOrders = data.currentOrders || 0;
+          this.previousOrders = data.previousOrders || 0;
+          this.orderChange = data.orderChange || 0;
 
-          console.log('Leads values:', {
+          // ✅ Enquiries Progress & Stroke Color
+          this.progressValue = Math.abs(this.changeDisplay);
+          this.strokeColor = this.getStrokeColor(this.changeDisplay);
+
+          // ✅ Test Drives Progress & Stroke Color
+          this.testDriveProgressValue = Math.abs(this.testDriveChange);
+          this.testDriveStrokeColor = this.getStrokeColor(this.testDriveChange);
+
+          // ✅ Orders Progress & Stroke Color
+          this.orderProgressValue = Math.abs(this.orderChange);
+          this.orderStrokeColor = this.getStrokeColor(this.orderChange);
+
+          console.log('Leads:', {
             current: this.currentLeads,
             previous: this.previousLeads,
-            change: this.changeDisplay,
+          });
+          console.log('Test Drives:', {
+            current: this.currentTestDrives,
+            previous: this.previousTestDrives,
+          });
+          console.log('Orders:', {
+            current: this.currentOrders,
+            previous: this.previousOrders,
           });
         },
         error: (err) => {
           console.error('API error:', err);
         },
       });
+  }
+
+  // 🔁 Reusable color logic
+  getStrokeColor(change: number): string {
+    if (change > 0) return '#4CAF50'; // Green
+    if (change < 0) return '#F44336'; // Red
+    return '#9E9E9E'; // Grey
   }
 
   ngAfterViewInit() {
@@ -350,6 +388,26 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //       }
   //     );
   // }
+  formatChangeValue(change: number): string {
+    if (change === 0 || Object.is(change, -0)) {
+      return '0%'; // Always show -0%
+    } else if (change > 0) {
+      return `+${change}%`;
+    } else {
+      return `${change}%`;
+    }
+  }
+
+  getChangeColor(change: number): string {
+    if (change > 0) {
+      return 'text-success'; // green
+    } else if (change < 0) {
+      return 'text-danger'; // red
+    } else {
+      return 'text-danger'; // grey
+    }
+  }
+
   fetchDashboardData(filter: string = 'leads', period: string = 'MTD') {
     const token = sessionStorage.getItem('token');
 
@@ -818,47 +876,61 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // }
 
   getFilteredLeads(): number {
-    console.log('Selected Period:', this.selectedPeriod); // Log the selected period
-
     switch (this.selectedPeriod) {
       case 'MTD':
-        return this.mtdLeads();
       case 'QTD':
-        return this.qtdLeads();
       case 'YTD':
-        return this.ytdLeads();
+        return this.leads;
       default:
-        return 0;
+        return this.leads;
     }
   }
 
+  // getFilteredTestDrives(): number {
+  //   switch (this.selectedPeriod) {
+  //     case 'MTD':
+  //       return this.mtdTestDrives();
+  //     case 'QTD':
+  //       return this.qtdTestDrives();
+  //     case 'YTD':
+  //       return this.ytdTestDrives();
+  //     default:
+  //       return 0;
+  //   }
+  // }
   getFilteredTestDrives(): number {
     switch (this.selectedPeriod) {
       case 'MTD':
-        return this.mtdTestDrives();
       case 'QTD':
-        return this.qtdTestDrives();
       case 'YTD':
-        return this.ytdTestDrives();
+        return this.testDrives;
       default:
-        return 0;
+        return this.testDrives;
     }
   }
-
   // Logic to get filtered orders based on selected filter
+  // getFilteredOrders(): number {
+  //   switch (this.selectedPeriod) {
+  //     case 'MTD':
+  //       return this.mtdOrders();
+  //     case 'QTD':
+  //       return this.qtdOrders();
+  //     case 'YTD':
+  //       return this.ytdOrders();
+  //     default:
+  //       return 0;
+  //   }
+  // }
   getFilteredOrders(): number {
     switch (this.selectedPeriod) {
       case 'MTD':
-        return this.mtdOrders();
       case 'QTD':
-        return this.qtdOrders();
       case 'YTD':
-        return this.ytdOrders();
+        return this.orders;
       default:
-        return 0;
+        return this.orders;
     }
   }
-
   // getColor(value: number): string {
   //   return '#007bff'; // Always return blue
   // }
@@ -947,6 +1019,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         }
       );
   }
+
   createDoughnutChart(totalTestDrives: number, totalOrders: number) {
     // Get the canvas element
     const ctx = document.getElementById('doughnutChart') as HTMLCanvasElement;
@@ -1058,48 +1131,48 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   updateDataBasedOnSelection(): void {
     const [type, range] = this.selectedOption.split('-'); // e.g., "leads", "MTD"
 
-    // Retrieve the token from sessionStorage
     const token = sessionStorage.getItem('token');
     if (!token) {
       console.error('No token found!');
       return;
     }
 
-    // Set up headers with Authorization token
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
 
-    // Make the HTTP GET request to fetch data based on selected filter
     this.http
       .get<any>(
-        `https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd/?type=${type}&range=${range}`,
+        `https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd?type=${range}`,
         { headers }
       )
       .subscribe(
         (response) => {
-          console.log('Response received:', response); // Log the full response
+          console.log('Filtered API response:', response);
 
-          // Check if response contains data
-          if (response && response.data) {
-            // Handle the response based on type (leads, testDrives, or orders)
-            if (type === 'testDrives') {
-              this.displayedData = response.data.rankings.testDrives || [];
-            } else if (type === 'leads') {
-              this.displayedData = response.data.rankings.leads || [];
-            } else if (type === 'orders') {
-              this.displayedData = response.data.rankings.orders || [];
-            }
-          } else {
-            console.error('No data found in response!');
-            this.displayedData = [];
-          }
+          const rankings = response?.data?.rankings || {};
+
+          // Dynamic access based on type
+          this.displayedData = rankings[type] || [];
+
+          // Set max value for progress bar
+          this.maxValue =
+            Math.max(...this.displayedData.map((item) => item.value)) || 1;
+
+          console.log('Selected Type:', type);
+          console.log('Displayed Data:', this.displayedData);
         },
         (error) => {
-          console.error('Error fetching data:', error);
-          this.displayedData = []; // Handle error gracefully
+          console.error('Error fetching filtered data:', error);
+          this.displayedData = [];
         }
       );
+  }
+  getFormattedChange(change: number): string {
+    if (Object.is(change, -0)) {
+      return '-0%';
+    }
+    return `${change >= 0 ? '+' : ''}${change}%`;
   }
 
   // Calculate progress percentage based on value
@@ -1225,6 +1298,63 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // Apply the filter and update the selected period
   applyFilter(period: string): void {
     this.selectedPeriod = period;
+    this.selectedFilter = period; // ✅ ADD THIS LINE to highlight the correct button
+
+    const token = sessionStorage.getItem('token');
+    if (!token) return;
+
+    let url =
+      'https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd';
+    if (period && period !== 'today') {
+      url += `?type=${period}`;
+    }
+
+    const headers = { Authorization: `Bearer ${token}` };
+
+    this.http.get<any>(url, { headers }).subscribe({
+      next: (res) => {
+        const data = res.data;
+
+        // ✅ Assign KPI values
+        this.leads = data.leads ?? 0;
+        this.currentLeads = data.current ?? 0;
+        this.previousLeads = data.previous ?? 0;
+        this.changeLeads = data.change ?? 0;
+
+        this.testDrives = data.testDrives ?? 0;
+        this.currentTestDrives = data.currentTestDrives ?? 0;
+        this.previousTestDrives = data.previousTestDrives ?? 0;
+        this.testDriveChange = data.testDriveChange ?? 0;
+
+        this.orders = data.orders ?? 0;
+        this.currentOrders = data.currentOrders ?? 0;
+        this.previousOrders = data.previousOrders ?? 0;
+        this.orderChange = data.orderChange ?? 0;
+
+        // ✅ Show Doughnut Chart for MTD, QTD, YTD
+        if (['MTD', 'QTD', 'YTD'].includes(period)) {
+          const totalTestDrives = data.totalTestDrives ?? 0;
+          const totalOrders = data.totalOrders ?? 0;
+          this.createDoughnutChart(totalTestDrives, totalOrders);
+        } else {
+          // ❌ Destroy chart for other filters (e.g., 'today')
+          if (this.doughnutChart) {
+            this.doughnutChart.destroy();
+            this.doughnutChart = null;
+          }
+        }
+
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('API error:', err);
+      },
+    });
+  }
+
+  loadTodayData(): void {
+    this.selectedPeriod = ''; // ensure no filter is highlighted
+    this.applyFilter('today');
   }
 
   // Logic for calculating the color (green for positive, red for negative)
