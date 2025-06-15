@@ -51,24 +51,39 @@
                 Since last month
               </span>
             </div>
-            <!-- 
+
             <div class="position-absolute tooltip-container"
-              style="top: 20%; right: 50px; transform: translateY(-50%);">
-              <div class="tooltip-content">
+              style="top: 20%; right: 50px; transform: translateY(-50%); width: 90px; height: 90px;">
+
+              <div class="tooltip-content" style="margin-bottom: 10px;">
                 <strong>Current:</strong> {{ currentLeads }}<br />
                 <strong>Previous:</strong> {{ previousLeads }}<br />
                 <strong>Change:</strong> {{ changeDisplay }}
               </div>
+
               <svg width="90" height="90" viewBox="0 0 36 36" class="circular-chart" style="transform: rotate(-90deg);">
                 <path class="circle-background" fill="none" stroke="#e6e6e6" stroke-width="3"
                   d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
                 <path class="circle-fill" fill="none" [attr.stroke]="strokeColor" stroke-width="3"
-                  [attr.stroke-dasharray]="progressValue + ', 100'" d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
+                  [attr.stroke-dasharray]="progressValue + ', 100'"
+                  [attr.stroke-dashoffset]="getDashOffset(progressValue)"
+                  d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
               </svg>
-              <div class="progress-count">
-                {{ progressValue }}%
+              <!-- Percentage number centered inside the circle -->
+              <div style="
+                  position: absolute;
+                  top: 50%;
+                  left: 50%;
+                  transform: translate(-50%, -50%);
+                  font-weight: bold;
+                  font-size: 1.3rem;
+                  color: #4e73df;
+                  white-space: nowrap;">
+                {{ formatChangeValue(changeLeads) }}
               </div>
-            </div> -->
+
+
+            </div>
           </div>
         </div>
       </div>
@@ -91,7 +106,7 @@
               <span class="text-muted" style="font-size: 18px;">Since last month</span>
             </div>
 
-            <!-- <div class="position-absolute tooltip-container"
+            <div class="position-absolute tooltip-container"
               style="top: 52%; right: 50px; transform: translateY(-50%);">
               <div class="tooltip-content">
                 <strong>Current:</strong> {{ currentTestDrives }}<br />
@@ -106,13 +121,26 @@
               <svg width="90" height="90" viewBox="0 0 36 36" class="circular-chart" style="transform: rotate(-90deg);">
                 <path class="circle-background" fill="none" stroke="#e6e6e6" stroke-width="3"
                   d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
-                <path class="circle-fill" fill="none" stroke="#4caf50" stroke-width="3"
-                  [attr.stroke-dasharray]="animatedValue + ', 100'" d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
+                <!-- <path class="circle-fill" fill="none" stroke="#4caf50" stroke-width="3"
+                  [attr.stroke-dasharray]="animatedValue + ', 100'" d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" /> -->
+                <path class="circle-fill" fill="none" [attr.stroke]="testDriveStrokeColor" stroke-width="3"
+                  [attr.stroke-dasharray]="testDriveProgressValue + ', 100'"
+                  d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
+
               </svg>
-              <div class="progress-count">
-                {{ progressValue }}%
+              <div style="
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            font-weight: bold;
+                            font-size: 1.3rem;
+                            color: #4e73df;
+                            white-space: nowrap;">
+                {{ formatChangeValue(testDriveChange) }}
               </div>
-            </div> -->
+
+            </div>
           </div>
         </div>
       </div>
@@ -121,45 +149,51 @@
       <div class="col-lg-4 col-sm-6 mb-4">
         <div class="card">
           <div class="card-header">
-            <h4 class="card-title" style="padding-top:20px;"><i class="fas fa-shopping-cart"></i> ORDERS</h4>
+            <h4 class="card-title" style="padding-top:20px;">
+              <i class="fas fa-shopping-cart"></i> ORDERS
+            </h4>
           </div>
           <div class="card-body">
             <div class="d-flex flex-column align-items-start" style="margin-left:30px;">
               <h3 style="font-size: 2.5rem; font-weight: bold; margin-top:-22px;margin-left:30px;">
-                {{ getFilteredOrders() }}
+                {{ currentOrders }}
               </h3>
               <span [ngClass]="getChangeColor(orderChange)" style="margin-left: 28px;">
                 {{ formatChangeValue(orderChange) }}
               </span>
               <span class="text-muted" style="font-size: 18px;">Since last month</span>
             </div>
-            <!-- <div class="position-absolute tooltip-container"
+
+            <!-- Circular Progress for Orders -->
+            <div class="position-absolute tooltip-container"
               style="top: 52%; right: 50px; transform: translateY(-50%);">
               <div class="tooltip-content">
-                <strong>Current:</strong> {{ mtdOrders() }}<br />
-                <strong>Previous:</strong> {{ prevOrders() }}<br />
+                <strong>Current:</strong> {{ currentOrders }}<br />
+                <strong>Previous:</strong> {{ previousOrders }}<br />
                 <strong>Change:</strong>
-                <span [ngClass]="{'text-success': orderChange >= 0, 'text-danger': orderChange < 0}">
-                  {{ orderChange >= 0 ? '+' : ''}}{{ orderChange }}%
+                <span [ngClass]="{ 'text-success': orderChange >= 0, 'text-danger': orderChange < 0 }">
+                  {{ orderChange === 0 ? '0%' : orderProgressValue + '%' }}
                 </span>
-
               </div>
 
               <svg width="90" height="90" viewBox="0 0 36 36" class="circular-chart" style="transform: rotate(-90deg);">
                 <path class="circle-background" fill="none" stroke="#e6e6e6" stroke-width="3"
                   d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
-                <path class="circle-fill" fill="none" stroke="#4caf50" stroke-width="3"
-                  [attr.stroke-dasharray]="animatedValue + ', 100'" d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
+                <path class="circle-fill" fill="none" [attr.stroke]="orderStrokeColor" stroke-width="3"
+                  [attr.stroke-dasharray]="orderProgressValue + ', 100'"
+                  d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
+
+
               </svg>
+
               <div class="progress-count">
-                {{ progressValue }}%
+                {{ orderChange }}%
               </div>
-            </div> -->
+            </div>
           </div>
         </div>
       </div>
     </div>
-
     <!-- Doughnut Chart and Data Table Section -->
     <div class="row">
       <!-- Doughnut Chart -->

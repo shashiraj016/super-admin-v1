@@ -143,7 +143,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // previousLeads: number = 0;
   changeDisplay: number = 0;
   progressValue: number = 0;
-  strokeColor: string = '#4CAF50'; // green by default
+  strokeColor: string = 'red'; // green by default
   // selectedPeriod: string = 'MTD'; // for MTD, QTD, YTD dropdown
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
   data: any; // To hold your data
@@ -152,89 +152,30 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   dealersData: any[] = []; // Array to hold the dealer data
   ngOnInit() {
+    this.selectedFilter = 'MTD';
     this.fetchDashboardData('MTD');
-    this.fetchDashboardData();
+
     this.maxValue =
       Math.max(...this.displayedData.map((item) => item.value)) || 1;
     this.fetchData();
-    console.log('Selected Period:', this.selectedPeriod);
     this.updateDataBasedOnSelection();
-    this.applyFilter(this.selectedFilter); // Load today's data initially
+    this.applyFilter(this.selectedFilter);
 
     setTimeout(() => {
       this.animatedValue = this.progressValue;
     }, 100);
-
-    const token = sessionStorage.getItem('token');
-    if (!token) {
-      console.error('Token not found!');
-      return;
-    }
-
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    this.http
-      .get<any>(
-        'https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd',
-        { headers }
-      )
-      .subscribe({
-        next: (res) => {
-          const leads = res?.data?.leads || {};
-          const data = res?.data || {};
-
-          // 📨 Enquiries
-          this.currentLeads = leads?.current || 0;
-          this.previousLeads = leads?.previous || 0;
-          this.changeDisplay = leads?.change || 0;
-
-          // 🚗 Test Drives
-          this.currentTestDrives = data.currentTestDrives || 0;
-          this.previousTestDrives = data.previousTestDrives || 0;
-          this.testDriveChange = data.testDriveChange || 0;
-
-          // 🛒 Orders
-          this.currentOrders = data.currentOrders || 0;
-          this.previousOrders = data.previousOrders || 0;
-          this.orderChange = data.orderChange || 0;
-
-          // ✅ Enquiries Progress & Stroke Color
-          this.progressValue = Math.abs(this.changeDisplay);
-          this.strokeColor = this.getStrokeColor(this.changeDisplay);
-
-          // ✅ Test Drives Progress & Stroke Color
-          this.testDriveProgressValue = Math.abs(this.testDriveChange);
-          this.testDriveStrokeColor = this.getStrokeColor(this.testDriveChange);
-
-          // ✅ Orders Progress & Stroke Color
-          this.orderProgressValue = Math.abs(this.orderChange);
-          this.orderStrokeColor = this.getStrokeColor(this.orderChange);
-
-          console.log('Leads:', {
-            current: this.currentLeads,
-            previous: this.previousLeads,
-          });
-          console.log('Test Drives:', {
-            current: this.currentTestDrives,
-            previous: this.previousTestDrives,
-          });
-          console.log('Orders:', {
-            current: this.currentOrders,
-            previous: this.previousOrders,
-          });
-        },
-        error: (err) => {
-          console.error('API error:', err);
-        },
-      });
   }
 
-  // 🔁 Reusable color logic
   getStrokeColor(change: number): string {
-    if (change > 0) return '#4CAF50'; // Green
-    if (change < 0) return '#F44336'; // Red
-    return '#9E9E9E'; // Grey
+    const value = Number(change); // Ensure type
+    if (value > 0) return '#4CAF50'; // green
+    if (value < 0) return '#F44336'; // red
+    return '#9E9E9E'; // grey
   }
+
+  // get progressValue(): number {
+  //   return Math.min(Math.abs(this.changeLeads), 100);
+  // }
 
   ngAfterViewInit() {
     // Ensure pie chart is created only once on initial load or when data changes
@@ -244,6 +185,29 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.initLineChart();
   }
 
+  // ✅ Dynamically updates values
+
+  updateProgressAndColor(change: number) {
+    this.changeDisplay = change;
+    this.progressValue = this.getProgressFromChange(change);
+    this.strokeColor = this.getStrokeColor(change);
+    this.cdr.detectChanges(); // ✅ trigger update
+  }
+  // ✅ Maps change to 0–100%
+  getProgressFromChange(change: number): number {
+    const maxValue = 500;
+    return Math.min((Math.abs(change) / maxValue) * 100, 100);
+  }
+
+  getDashOffset(progressValue: number): number {
+    return 100 - progressValue;
+  }
+
+  // getStrokeColor(change: number): string {
+  //   if (change > 0) return '#4CAF50'; // Green
+  //   if (change < 0) return '#F44336'; // Red
+  //   return '#9E9E9E'; // Grey
+  // }
   // applyFilter(filter: string) {
   //   this.selectedFilter.set(filter);
   //   // this.fetchDashboardDataForTable(filter); // fetch table data if needed
@@ -408,96 +372,75 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     }
   }
 
-  fetchDashboardData(filter: string = 'leads', period: string = 'MTD') {
+  fetchDashboardData(type: string = 'MTD') {
     const token = sessionStorage.getItem('token');
-
     if (!token) {
-      console.error('No token found!');
+      console.error('Token not found!');
       return;
     }
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     this.http
-      .get(
-        `https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd?filter=${filter}&period=${period}`,
+      .get<any>(
+        `https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd?type=${type}`,
         { headers }
       )
-      .subscribe(
-        (response: any) => {
-          console.log('API Response:', response);
+      .subscribe({
+        next: (res) => {
+          console.log(`API response for type=${type}:`, res);
+          const data = res?.data || {};
 
-          // Safe access with fallback values
-          const leads = response.leads || {};
-          const testDrives = response.testDrives || {};
-          const orders = response.orders || {};
-
-          console.log('Leads:', leads);
-          this.change = leads.change; // Make sure this is set correctly
-
-          this.currentLeads = leads.current || 0;
-          this.previousLeads = leads.previous || 0;
-
-          if (response && response.status === 200 && response.data) {
-            const data = response.data;
-            const rankings = data.rankings || {};
-
-            this.mtdLeads.set(data.leads?.MTD?.value || 0);
-            this.qtdLeads.set(data.leads?.QTD?.value || 0);
-            this.ytdLeads.set(data.leads?.YTD?.value || 0);
-
-            this.mtdTestDrives.set(data.testDrives?.MTD?.value || 0);
-            this.qtdTestDrives.set(data.testDrives?.QTD?.value || 0);
-            this.ytdTestDrives.set(data.testDrives?.YTD?.value || 0);
-
-            this.mtdOrders.set(data.orders?.MTD?.value || 0);
-            this.qtdOrders.set(data.orders?.QTD?.value || 0);
-            this.ytdOrders.set(data.orders?.YTD?.value || 0);
-
-            this.prevLeads.set(data.leads?.previous || 0);
-            this.prevTestDrives.set(data.testDrives?.previous || 0);
-            this.prevOrders.set(data.orders?.previous || 0);
-
-            const totalTestDrives = data.totalTestDrives || 0;
-            const totalOrders = data.totalOrders || 0;
-            const totalLeads = data.leads?.current || 0;
-
-            this.sidebarTestDrives.set(totalTestDrives);
-            this.sidebarOrders.set(totalOrders);
-            this.sidebarLeads.set(totalLeads);
-
-            this.updatePieChart(totalTestDrives, totalOrders);
-
-            if (filter === 'testDrives') {
-              this.displayedData = rankings.testDrives || [];
-            } else if (filter === 'leads') {
-              this.displayedData = rankings.leads || [];
-            } else if (filter === 'orders') {
-              this.displayedData = rankings.orders || [];
-            } else {
-              this.displayedData = data.tableData || [];
+          const cleanChange = (val: any): number => {
+            if (typeof val === 'string') {
+              return parseFloat(val.replace('%', '').trim());
             }
+            return Number(val) || 0;
+          };
 
-            console.log('Displayed Data:', this.displayedData);
+          this.currentLeads = Number(data.current) || 0;
+          this.previousLeads = Number(data.previous) || 0;
+          this.changeDisplay = cleanChange(data.change);
 
-            this.maxValue = Math.max(
-              ...this.displayedData.map((item) => item.value)
-            );
-            console.log('Max Value:', this.maxValue);
+          this.currentTestDrives = Number(data.currentTestDrives) || 0;
+          this.previousTestDrives = Number(data.previousTestDrives) || 0;
+          this.testDriveChange = cleanChange(data.testDriveChange);
 
-            this.renderChart(data);
-            this.cdr.detectChanges();
-          } else {
-            console.error(
-              'Error fetching data:',
-              response.message || 'Unknown error'
-            );
-          }
+          this.currentOrders = Number(data.currentOrders) || 0;
+          this.previousOrders = Number(data.previousOrders) || 0;
+          this.orderChange = cleanChange(data.orderChange);
+
+          this.progressValue = Math.abs(this.changeDisplay);
+          this.strokeColor = this.getStrokeColor(this.changeDisplay);
+
+          this.testDriveProgressValue = Math.abs(this.testDriveChange);
+          this.testDriveStrokeColor = this.getStrokeColor(this.testDriveChange);
+
+          this.orderProgressValue = Math.abs(this.orderChange);
+          this.orderStrokeColor = this.getStrokeColor(this.orderChange);
+
+          console.log('✅ Final Parsed Data:', {
+            leads: {
+              current: this.currentLeads,
+              previous: this.previousLeads,
+              change: this.changeDisplay,
+            },
+            testDrives: {
+              current: this.currentTestDrives,
+              previous: this.previousTestDrives,
+              change: this.testDriveChange,
+            },
+            orders: {
+              current: this.currentOrders,
+              previous: this.previousOrders,
+              change: this.orderChange,
+            },
+          });
         },
-        (error) => {
-          console.error('Error fetching data:', error);
-        }
-      );
+        error: (err) => {
+          console.error('Dashboard API error:', err);
+        },
+      });
   }
 
   initLineChart() {

@@ -313,3 +313,12 @@ a:hover {
     /* If in portrait, the layout is likely stacked, so vertical margins are more relevant */
   }
 }
+.custom-container {
+  margin-left: 180px;
+}
+
+@media (max-width: 768px) {
+  .custom-container {
+    margin-left: 0 !important;
+  }
+}
