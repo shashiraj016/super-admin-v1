@@ -1,0 +1,317 @@
+<div class="container-fluid">
+  <div class="content-body">
+    <div class="page-titles">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="javascript:void(0)" style="cursor: auto">Utils</a>
+        </li>
+        <li class="breadcrumb-item active">
+          <a href="javascript:void(0)" style="cursor: auto; font-weight: 700 !important; color: black">Accounts</a>
+        </li>
+      </ol>
+    </div>
+    <div class="row mb-5 align-items-center">
+      <div class="col-xl-2 col-md-4 col-sm-4 mb-4 mb-xl-0">
+        <a style="cursor: pointer; color: white !important" (click)="openModal(customerObj)"
+          data-target=".bd-example-modal-lg" data-toggle="modal"
+          class="btn btn-primary light btn-lg btn-block rounded shadow px-2 buttons"><i class="fa fa-plus mr-1"></i>Add
+          Account</a>
+      </div>
+      <div class="col-xl-2 col-sm-4 col-md-4 mb-4 mb-xl-0">
+        <div class="media-body ml-1">
+          <p class="mb-1 fs-14 text-center">Total Account</p>
+          <h3 class="mb-0 text-black font-w600 fs-20 text-center">
+            {{ totalCustomer() }}
+          </h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Api integration work start here -->
+
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="table-responsive">
+          <table id="example5" class="table display mb-4 table-responsive-xl dataTablesCard fs-14">
+            <thead>
+              <tr>
+                <th>Sr No</th>
+                <th>Account Name</th>
+                <th>Last Name</th>
+                <th>E-mail</th>
+                <th>Phone</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if(customerList().length === 0){
+              <tr>
+                <td colspan="6" class="text-center">
+                  <p>No Accounts Found</p>
+                </td>
+              </tr>
+              }@else {
+              <!-- @for (customer of customerList(); track $index) { -->
+              <tr *ngFor="let customer of customerList(); let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ customer.fname }}</td>
+                <td>{{ customer.lname }}</td>
+                <td>{{ customer.email }}</td>
+                <td>{{ customer.phone }}</td>
+
+                <td class="d-flex">
+                  <a href="javascript:void(0);" type="button" data-target=".bd-example-modal-lg" data-toggle="modal"
+                    (click)="onEdit(customer.account_id)" class="btn btn-primary shadow btn-xs sharp mr-1"><i
+                      class="fa fa-pencil"></i></a>
+
+                  <a href="javascript:void(0);" type="button" class="btn btn-primary mb-2" data-toggle="modal"
+                    data-target=".bd-example-modal-sm" class="btn btn-danger shadow btn-xs sharp"
+                    (click)="selectCustomerForDeletion(customer)"><i class="fa fa-trash"></i></a>
+                  <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-sm">
+                      <div class="modal-content">
+                        <div class="modal-header text-center" style="margin-inline: auto">
+                          <h5 class="modal-title text-center">Delete User</h5>
+                        </div>
+                        <div class="modal-body">HEY ARE YOU SURE TO DELETE..!</div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-outline-danger" data-dismiss="modal">
+                            Cancel
+                          </button>
+                          <button type="button" class="btn btn-outline-primary" (click)="closeModal()"
+                            (click)="deleteCustomerId()">
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              }
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade bd-example-modal-lg custom-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" style="align-items: center; margin-inline: auto">
+          Add New Account
+        </h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span class="x">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body" [formGroup]="useForm">
+        <div class="row">
+          <div class="form-group col-md-6">
+            <label for="account_type" class="form-label">Account Type</label>
+            <select class="form-control form-control-lg" formControlName="account_type" [ngClass]="{
+                'is-invalid':
+                  useForm.get('account_type')?.touched &&
+                  useForm.get('account_type')?.invalid
+              }">
+              <option value="null" disabled>Select Account Type</option>
+              <option value="Individual">Individual</option>
+              <option value="Corporate">Corporate</option>
+              <option value="Retailer">Retailer</option>
+            </select>
+            <div class="text-danger" *ngIf="
+                useForm.get('account_type')?.touched &&
+                useForm.get('account_type')?.invalid
+              ">
+              <span>Account Type is required.</span>
+            </div>
+          </div>
+
+
+
+          <div class="form-group col-md-6">
+            <label for="fname" class="form-label">First Name</label>
+            <input class="form-control form-control-lg" type="text" placeholder="First Name" formControlName="fname"
+              [ngClass]="{
+                'is-invalid':
+                  useForm.get('fname')?.touched && useForm.get('fname')?.invalid
+              }" />
+            <div class="text-danger" *ngIf="
+                useForm.get('fname')?.touched && useForm.get('fname')?.invalid
+              ">
+              <span *ngIf="useForm.get('fname')?.errors?.['required']">First Name is required.</span>
+              <span *ngIf="useForm.get('fname')?.errors?.['minlength']">First Name must be at least 3 characters
+                long.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="form-group col-md-6">
+            <label for="name" class="form-label">Last Name</label>
+            <input class="form-control form-control-lg" type="text" placeholder="Last Name" formControlName="lname"
+              [ngClass]="{
+                'is-invalid':
+                  useForm.get('lname')?.touched && useForm.get('lname')?.invalid
+              }" />
+            <div class="text-danger" *ngIf="
+                useForm.get('lname')?.touched && useForm.get('lname')?.invalid
+              ">
+              <span *ngIf="useForm.get('lname')?.errors?.['required']">Last Name is required.</span>
+              <span *ngIf="useForm.get('lname')?.errors?.['minlength']">Last Name must be at least 3 characters
+                long.</span>
+            </div>
+          </div>
+
+          <div class="form-group col-md-6">
+            <label for="dealer_code" class="form-label">Dealer Code</label>
+            <select id="dealer_code" class="form-select form-control form-control-lg" formControlName="dealer_code"
+              [disabled]="useForm.get('account_id')?.value" [ngClass]="{
+                'is-invalid':
+                  useForm.get('dealer_code')?.touched &&
+                  useForm.get('dealer_code')?.invalid
+              }" (change)="onDealerChange()">
+              <option value="null" disabled>Select Dealer</option>
+
+              <!-- Use the signal to get dealer list -->
+              <option *ngFor="let dealer of dealerList()" [value]="dealer.dealer_code">
+                {{ dealer.dealer_code }}
+              </option>
+
+              <!-- Static list fallback (if required) -->
+              <option *ngFor="let dealer of staticDealerList" [value]="dealer.dealer_code">
+                {{ dealer.dealer_code }}
+              </option>
+            </select>
+
+            <div class="text-danger" *ngIf="
+                useForm.get('dealer_code')?.touched &&
+                useForm.get('dealer_code')?.invalid
+              ">
+              <span>Dealer is required.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="form-group col-md-6">
+            <label for="email" class="form-label">E-mail</label>
+            <input class="form-control form-control-lg" type="email" placeholder="E-mail" formControlName="email"
+              [ngClass]="{
+                'is-invalid':
+                  useForm.get('email')?.touched && useForm.get('email')?.invalid
+              }" />
+            <div class="text-danger" *ngIf="
+                useForm.get('email')?.touched && useForm.get('email')?.invalid
+              ">
+              <span *ngIf="useForm.get('email')?.errors?.['required']">Email is required.</span>
+              <span *ngIf="useForm.get('email')?.errors?.['email']">Please enter a valid email.</span>
+            </div>
+          </div>
+
+          <div class="form-group col-md-6">
+            <label for="phone" class="form-label">Phone</label>
+            <input class="form-control form-control-lg" type="text" placeholder="Phone" formControlName="phone"
+              [ngClass]="{
+                'is-invalid':
+                  useForm.get('phone')?.touched && useForm.get('phone')?.invalid
+              }" />
+            <div class="text-danger" *ngIf="
+                useForm.get('phone')?.touched && useForm.get('phone')?.invalid
+              ">
+              <span *ngIf="useForm.get('phone')?.errors?.['required']">Phone is required.</span>
+              <span *ngIf="useForm.get('phone')?.errors?.['minlength']">Phone must be at least 3 characters long.</span>
+              <span *ngIf="useForm.get('phone')?.errors?.['pattern']">Phone must contain only numbers.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="form-group col-md-6">
+            <label for="mobile" class="form-label">Mobile</label>
+            <input class="form-control form-control-lg" type="text" placeholder="Mobile" formControlName="mobile"
+              [ngClass]="{
+                'is-invalid':
+                  useForm.get('mobile')?.touched &&
+                  useForm.get('mobile')?.invalid
+              }" />
+            <div class="text-danger" *ngIf="
+                useForm.get('mobile')?.touched && useForm.get('mobile')?.invalid
+              ">
+              <span *ngIf="useForm.get('mobile')?.errors?.['required']">Mobile is required.</span>
+              <span *ngIf="useForm.get('mobile')?.errors?.['minlength']">Mobile must be at least 3 characters
+                long.</span>
+              <span *ngIf="useForm.get('mobile')?.errors?.['pattern']">Mobile must contain only numbers.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- model footer buttons  -->
+      <!-- <div class="modal-footer">
+        <ng-container *ngIf="customerObj.account_id; else saveButton">
+          <button type="button" class="btn btn-outline-primary" data-dismiss="modal" (click)="onUpdate()"
+            [disabled]="!isCustomerNameChanged()">
+            Edit
+          </button>
+        </ng-container>
+        <button type="button" class="btn btn-outline-danger" data-dismiss="modal" (click)="closeModal()">
+          Close
+        </button>
+
+        <ng-template #saveButton>
+          <button type="button" class="btn btn-outline-primary" (click)="onSave()"
+            [attr.data-dismiss]="useForm.valid ? 'modal' : null">
+            Save
+          </button>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div> -->
+      <!-- <div class="modal-footer">
+        <ng-container *ngIf="customerObj.account_id !== null && customerObj.account_id !== undefined; else saveButton">
+          <button type="button" class="btn btn-outline-primary" data-dismiss="modal" (click)="onUpdate()"
+            [disabled]="!isCustomerNameChanged()">
+            Edit
+          </button>
+        </ng-container>
+
+        <button type="button" class="btn btn-outline-danger" data-dismiss="modal" (click)="closeModal()">
+          Close
+        </button>
+
+        <ng-template #saveButton>
+          <button type="button" class="btn btn-outline-primary" (click)="onSave()"
+            [attr.data-dismiss]="useForm.valid ? 'modal' : null">
+            Save
+          </button>
+        </ng-template>
+      </div> -->
+      <div class="modal-footer">
+        <ng-container *ngIf="customerObj.account_id; else saveButton">
+          <button type="button" class="btn btn-outline-primary" data-dismiss="modal" (click)="onUpdate()"
+            [disabled]="!isCustomerNameChanged()">
+            Edit
+          </button>
+        </ng-container>
+        <button type="button" class="btn btn-outline-danger" data-dismiss="modal" (click)="closeModal()">
+          Close
+        </button>
+        <ng-template #saveButton>
+          <button type="button" class="btn btn-outline-primary" (click)="onSave()"
+            [attr.data-dismiss]="useForm.valid ? 'modal' : null">
+            save
+          </button>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+</div>

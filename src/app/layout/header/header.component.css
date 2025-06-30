@@ -1,0 +1,28 @@
+.logo-abbr{
+    display: none;
+}
+.brand-title{
+    display: block;
+    max-width: 170px !important;
+    margin-left: 0px;
+}
+.menu-toggle .logo-abbr{
+    display: block;
+}
+.menu-toggle .brand-title{
+    display: none;
+}
+
+@media (max-width:1400px ){
+    .nav-control{
+        top: 40% !important;
+    } 
+}
+@media (max-width: 767px){
+.brand-title {
+    display: none !important;
+}
+.logo-abbr{
+    display: block !important;
+}
+}

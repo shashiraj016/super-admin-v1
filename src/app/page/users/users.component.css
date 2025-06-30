@@ -1,0 +1,148 @@
+/* In your main CSS file (e.g., styles.css or app.component.css) */
+body {
+  /* Or a top-level wrapper div that contains both sidebar and content */
+  display: flex; /* Makes its direct children (sidebar, content-body) arrange in a row */
+  min-height: 100vh; /* Ensures the page takes at least full viewport height */
+  margin: 0; /* Remove default browser margin */
+  padding: 0; /* Remove default browser padding */
+}
+
+.sidebar {
+  width: 250px;
+  flex-shrink: 0; /* IMPORTANT: Prevents the sidebar from shrinking below 250px */
+  /* Remove position: fixed, top, left, height: 100% if body is display: flex */
+  /* If you absolutely need position: fixed for other reasons, then the solution is different (see option 2 below) */
+  background-color: #f8f9fa;
+  z-index: 1000; /* Ensure it stays on top */
+}
+
+.content-body {
+  flex-grow: 1; /* IMPORTANT: Allows content-body to take all remaining space */
+  /* REMOVE margin-left: 250px; when using this flexbox approach */
+  padding: 20px; /* Your desired padding for the content */
+  box-sizing: border-box; /* Ensures padding is included in the element's total width/height */
+  overflow-x: hidden; /* Prevents scrollbar on content-body itself if inner content overflows */
+}
+
+/* This media query is good for small screens to hide the sidebar */
+@media (max-width: 768px) {
+  body {
+    /* Or your top-level wrapper */
+    flex-direction: column; /* Stacks items vertically on small screens */
+  }
+
+  .sidebar {
+    width: 100%; /* Sidebar takes full width */
+    height: auto; /* Height adapts to content */
+    position: static; /* No longer fixed on small screens */
+  }
+
+  .content-body {
+    margin-left: 0; /* No margin needed when stacked */
+    width: 100%; /* Takes full width */
+    padding: 10px; /* Adjust padding for mobile */
+  }
+}
+
+/* MY OLD CSS CODE */
+.sidebar {
+  width: 250px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #f8f9fa;
+}
+
+.content-body {
+  /* margin-left: 14%; */
+  padding: 20px;
+  flex-grow: 1;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .content-body {
+    margin-left: 0;
+    padding: 10px;
+  }
+}
+@media (max-width: 576px) {
+  /* Bootstrap's xs breakpoint */
+  .search-input {
+    margin-left: 0 !important; /* Remove large margin on small screens */
+    width: 100% !important; /* Make input full width on small screens */
+  }
+}
+.card-box {
+  background-color: #ffffff;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+}
+/* Add this to your styles.css or component styles */
+/* .modal-backdrop {
+  z-index: 1040 !important;
+}
+
+.modal {
+  z-index: 1050 !important;
+} */
+/* Base (Desktop) */
+.search-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+.modal-backdrop {
+  z-index: 1040 !important;
+}
+
+.modal {
+  z-index: 1051 !important;
+  position: fixed !important;
+  pointer-events: auto !important;
+}
+
+.search-input {
+  width: 200px;
+  max-width: 100%;
+}
+
+/* Tablet and below */
+@media (max-width: 991.98px) {
+  .search-input {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+/* .modal-backdrop {
+  display: none !important;
+} */
+
+@media only screen and (max-width: 1600px) {
+  .content-body {
+    margin-left: 0;
+  }
+}
+.searchbar {
+  display: flex;
+  float: right;
+}
+/* Remove the red ❌ icon from .is-invalid fields */
+input.is-invalid {
+  background-image: none !important;
+  padding-right: 0.75rem !important; /* optional: adjust spacing after icon removal */
+}
+/* Remove the background ❌ icon from invalid select fields */
+select.form-control.is-invalid {
+  background-image: none !important;
+  padding-right: 0.75rem !important; /* optional spacing */
+}
+@media (min-width: 760px) and (max-width: 820px) {
+  .delete-btn-ipad {
+    margin-top: 5px !important;
+  }
+}

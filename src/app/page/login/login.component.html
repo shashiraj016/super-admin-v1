@@ -1,0 +1,92 @@
+<div class="authincation h-100">
+    <div class="container h-100">
+        <div class="row justify-content-center h-100 mt-5 align-items-center">
+            <div class="col-md-6">
+                <div class="authincation-content">
+                    <div class="row no-gutters">
+                        <div class="col-xl-12">
+                            <div class="auth-form" *ngIf="this.loginScreen === true">
+                                <h4 class="text-center mb-4">Sign in your account</h4>
+                                <form #loginForm="ngForm">
+                                    <div class="form-group">
+                                        <label class="mb-1"><strong>Email</strong></label>
+                                        <input type="text" class="form-control" [(ngModel)]="emailTxt" name="email"
+                                            required placeholder="Your Email">
+                                    </div>
+                                    <div class="form-group" style="position: relative !important;">
+                                        <label class="mb-1"><strong>Password</strong></label>
+                                        <input type="password" id="inputPassword" class="form-control"
+                                            [(ngModel)]="passwordTxt" name="password" required placeholder="Password">
+                                        <span class="showPassword" (click)="viewPassword()"
+                                            [ngClass]="showPassword != true ? 'fa fa-eye eye': 'fa fa-eye-slash'"></span>
+                                    </div>
+                                    <div class="form-group mt-4 mb-2 float-right">
+                                        <a href="javascript:void(0)" (click)="forgotPasswordC()">Forgot Password?</a>
+                                    </div>
+                                    <div class="text-center">
+                                        <!-- <button type="submit" class="btn btn-primary btn-block" [disabled]="!loginForm.valid" (click)="signIn()" >{{this.SignIn}}</button> -->
+                                        <button type="submit" class="btn btn-primary btn-block"
+                                            (click)="signIn()">{{this.SignIn}}</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="auth-form" *ngIf="this.forgotPassword === true">
+                                <h4 class="text-center mb-4">Forgot Password</h4>
+                                <form #loginForm="ngForm">
+                                    <div class="form-group">
+                                        <label class="mb-1"><strong>Email</strong></label>
+                                        <input type="text" class="form-control" [(ngModel)]="emailTxt" name="email"
+                                            required placeholder="Your Email">
+                                    </div>
+                                    <p class="mb-4"><a href="javascript:void(0)" (click)="backToLogin()">Back to
+                                            Login</a></p>
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-primary btn-block"
+                                            [disabled]="!loginForm.valid" (click)="forgotPasswordSubmit()">
+                                            Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="auth-form" *ngIf="this.resetPassword === true">
+                                <h4 class="text-center mb-4">Reset Password</h4>
+                                <form #loginForm="ngForm">
+                                    <h2 class="text-center">{{ this.countdown === 0 ?'Timeout, Resend
+                                        OTP':this.countdown}}</h2>
+                                    <div class="form-group">
+                                        <label class="mb-1"><strong>OTP</strong></label>
+                                        <input type="text" class="form-control" [(ngModel)]="otpTxt" name="otp" required
+                                            placeholder="Enter OTP">
+                                    </div>
+                                    <div class="form-group" style="position: relative !important;">
+                                        <label class="mb-1"><strong>Password</strong></label>
+                                        <input type="password" id="inputPassword" class="form-control"
+                                            [(ngModel)]="passwordTxt" name="password" required
+                                            placeholder="Enter Password">
+                                        <span class="showPassword" (click)="viewPassword()"
+                                            [ngClass]="showPassword != true ? 'fa fa-eye': 'fa fa-eye-slash'"></span>
+                                    </div>
+                                    <div class="form-group" style="position: relative !important;">
+                                        <label class="mb-1"><strong>Confirm Password</strong></label>
+                                        <input type="password" id="inputPassword2" class="form-control"
+                                            [(ngModel)]="confirmPasswordTxt" name="cpassword" required
+                                            placeholder="Enter Confirm  Password">
+                                        <span class="showPassword" (click)="viewPassword2()"
+                                            [ngClass]="showPassword2 != true ? 'fa fa-eye': 'fa fa-eye-slash'"></span>
+                                    </div>
+                                    <p><a href="javascript:void(0)" (click)="backToLogin()">Back to Login</a> <a
+                                            href="javascript:void(0)" (click)="forgotPasswordSubmit()"
+                                            style="float: right;">Resend OTP</a></p>
+
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-primary btn-block"
+                                            [disabled]="!loginForm.valid" (click)="resetPasswordSub()"> Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

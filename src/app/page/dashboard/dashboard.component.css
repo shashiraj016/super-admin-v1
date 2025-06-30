@@ -1,0 +1,196 @@
+.wrapper {
+  display: flex;
+}
+
+.sidebar {
+  width: 250px; /* Adjust based on sidebar width */
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #f8f9fa;
+}
+
+.dashboard-container {
+  width: 100%;
+  /* max-width: 1200px; */
+  margin: 0 auto;
+  position: relative;
+}
+
+
+
+.content-body {
+  /* margin-left: 350px; */
+  padding: 20px;
+  flex-grow: 1;
+}
+.card-header {
+  display: flex;
+  justify-content: flex-start; /* Align content to the left */
+  align-items: center; /* Vertically center the content */
+}
+
+.card-header .card-title {
+  margin-left: 10px; /* Optional: adds a slight margin between icon and text */
+}
+.card {
+  border-radius: 6px !important; /* or 4px if you want even sharper corners */
+}
+.custom-btn {
+  background-color: #f8f9fa; /* light grey bg */
+  color: #6c757d; /* light grey text */
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.custom-btn:hover {
+  background-color: #007bff; /* blue bg on hover */
+  color: white; /* white text on hover */
+}
+#dataTable,
+#dataTable thead,
+#dataTable tbody,
+#dataTable th,
+#dataTable td,
+#dataTable tr {
+  border: none !important;
+}
+#doughnutChart {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+
+/* POP OUT */
+/* .card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px); 
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); 
+  z-index: 2;
+} */
+
+/* PROGREES CIRCLE */
+.progress-circle {
+  --size: 50px;
+  --progress: 70%;
+  --color: #28a745;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: conic-gradient(var(--color) var(--progress), #e6e6e6 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.custom-btn {
+  border: none;
+  background-color: #f0f0f0;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.custom-btn:hover {
+  background-color: #dcdcdc;
+}
+
+.selected-btn {
+  background-color: #1e88e5 !important; /* Blue for selected */
+  color: white !important;
+}
+
+.circle-text {
+  font-weight: bold;
+  color: #333;
+}
+.position-absolute {
+  position: absolute;
+}
+
+.circular-chart {
+  transition: transform 0.3s ease;
+}
+
+.progress-count {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #4caf50;
+  opacity: 1; /* Always visible */
+}
+.circular-chart .circle-fill {
+  transition: stroke-dasharray 1s ease-out;
+}
+
+.progress-count {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+.tooltip-container {
+  /* position: relative;  */
+}
+
+.tooltip-content {
+  position: absolute;
+  bottom: 110%; /* Adjust this value for tooltip position */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 5px;
+  white-space: nowrap;
+  font-size: 13px;
+  z-index: 10;
+  opacity: 0; /* Hide by default */
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* Add an arrow to the tooltip */
+.tooltip-content::after {
+  content: "";
+  position: absolute;
+  top: 100%; /* Position the arrow below the tooltip */
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent; /* Arrow color */
+}
+
+/* Show tooltip on hover */
+.tooltip-container:hover .tooltip-content {
+  opacity: 1; /* Show on hover */
+}
+
+.no-scrollbar {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+

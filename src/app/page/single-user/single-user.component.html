@@ -1,0 +1,119 @@
+<div class="container-fluid">
+  <div class="content-body">
+
+    <div class=" page-titles">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="javascript:void(0)" style="cursor: auto;">Utils</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/Admin/dealer']">Dealer</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/Admin/singleUser', previousRoute]">Single Dealer</a>
+        </li>
+        <li class="breadcrumb-item active">
+          <a href="javascript:void(0)" style="font-weight: 700 !important; color: black;">{{userList()?.name}}</a>
+        </li>
+      </ol>
+    </div>
+    <!-- <div class="row">
+      <div class="col-lg-12"> 
+        <div class="table-responsive">
+          <table
+            id="example5"
+            class="table display mb-4 table-responsive-xl dataTablesCard fs-14"
+          >
+            <thead>
+              <tr>
+                <th>Account ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Dealer Code</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="userList()">
+                <td>
+                  {{ userList()?.account_id }}
+                </td>
+                <td>
+                  {{ userList()?.name }}
+                </td>
+                <td>
+                  {{ userList()?.email }}
+                </td>
+                <td>
+                  {{ userList()?.phone }}
+                </td>
+                <td>
+                  {{ userList()?.role }}
+                </td>
+                <td>
+                  {{ userList()?.dealer_code }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div> -->
+
+    <div style="width: 80%" class="card" style="
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+      ">
+      <div class="card-header text-center" style="background-color: #0276fe; color: white; padding: 15px">
+        <h5 class="card-title m-0" style="color: white !important">
+          {{ userList()?.name }} Details
+        </h5>
+      </div>
+      <div *ngIf="userList()" class="card-body" style="background-color: #f9f9f9; padding: 20px">
+        <!-- First section: Basic Information -->
+        <div class="row mb-4">
+          <div class="col-md-6 mb-3">
+            <h4 class="text-muted">Name</h4>
+            <h5 class="mb-0">{{ userList()?.name }}</h5>
+          </div>
+          <div class="col-md-6 mb-3">
+            <h4 class="text-muted">Account ID</h4>
+            <h5 class="mb-0">{{ userList()?.account_id }}</h5>
+          </div>
+        </div>
+
+        <!-- Second section: Contact Information -->
+        <div class="row mb-4">
+          <div class="col-md-6 mb-3">
+            <h4 class="text-muted">Email</h4>
+            <h5 class="mb-0">{{ userList()?.email }}</h5>
+          </div>
+          <div class="col-md-6 mb-3">
+            <h4 class="text-muted">Phone</h4>
+            <h5 class="mb-0">{{ userList()?.phone }}</h5>
+          </div>
+        </div>
+
+        <!-- Third section: Additional Information -->
+        <div class="row mb-4">
+          <div class="col-md-6 mb-3">
+            <h4 class="text-muted">Role</h4>
+            <h5 class="mb-0">{{ userList()?.user_role }}</h5>
+          </div>
+          <div class="col-md-6 mb-3">
+            <h4 class="text-muted">Dealer Code</h4>
+            <h5 class="mb-0">{{ userList()?.dealer_code }}</h5>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <a [routerLink]="['/Admin/singleUser', previousRoute]" class="btn btn-primary light btn-card"
+            style="background-color: #0276fe !important">Go Back</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

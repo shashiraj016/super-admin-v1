@@ -1,0 +1,316 @@
+<div class="dashboard-container">
+  <!-- Main Container -->
+  <!-- <div class="container-fluid"> -->
+
+  <!-- Filters Section (MTD, QTD, YTD) -->
+  <div class="row mb-4" style="margin-top: 50px">
+    <div class="col-12">
+      <div class="card p-2"
+        style="background: white; display: inline-flex; flex-direction: row; align-items: center; gap: 30px; min-width: 200px; border-radius: 6px; padding-left:30px;">
+
+        <!-- <button class="custom-btn" [ngClass]="{ 'selected-btn': selectedFilter === 'today' }"
+            (click)="applyFilter('today')">Today</button> -->
+
+        <button class="custom-btn" [ngClass]="{ 'selected-btn': selectedFilter === 'MTD' }"
+          (click)="applyFilter('MTD')">MTD</button>
+
+        <button class="custom-btn" [ngClass]="{ 'selected-btn': selectedFilter === 'QTD' }"
+          (click)="applyFilter('QTD')">QTD</button>
+
+        <button class="custom-btn" [ngClass]="{ 'selected-btn': selectedFilter === 'YTD' }"
+          (click)="applyFilter('YTD')">YTD</button>
+
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Top Three Cards Section -->
+  <div class="row">
+    <!-- Enquiries Card -->
+    <div class="col-lg-4 col-sm-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title" style="padding-top:20px;">
+            <i class="fas fa-envelope"></i> ENQUIRIES
+          </h4>
+        </div>
+        <div class="card-body position-relative">
+          <div class="d-flex flex-column align-items-start">
+            <!-- Displaying dynamic leads count -->
+            <h3 style="font-size: 2.5rem; font-weight: bold; margin-top:-22px;margin-left:30px;">
+              {{ getFilteredLeads() }}
+            </h3>
+            <!-- Dynamically show the percentage change -->
+            <span [ngClass]="getChangeColor(changeLeads)" style="margin-left: 28px;">
+              {{ formatChangeValue(changeLeads) }}
+            </span>
+
+            <span class="text-muted" style="font-size: 18px; display: inline;">
+              Since last month
+            </span>
+          </div>
+
+          <div class="position-absolute tooltip-container"
+            style="top: 20%; right: 50px; transform: translateY(-50%); width: 90px; height: 90px;">
+
+            <div class="tooltip-content" style="margin-bottom: 10px;">
+              <strong>Current:</strong> {{ currentLeads }}<br />
+              <strong>Previous:</strong> {{ previousLeads }}<br />
+              <strong>Change:</strong> {{ changeDisplay }}
+            </div>
+
+            <svg width="90" height="90" viewBox="0 0 36 36" class="circular-chart" style="transform: rotate(-90deg);">
+              <path class="circle-background" fill="none" stroke="#e6e6e6" stroke-width="3"
+                d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
+              <path class="circle-fill" fill="none" [attr.stroke]="strokeColor" stroke-width="3"
+                [attr.stroke-dasharray]="progressValue + ', 100'"
+                [attr.stroke-dashoffset]="getDashOffset(progressValue)"
+                d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
+            </svg>
+            <!-- Percentage number centered inside the circle -->
+            <div style="
+                  position: absolute;
+                  top: 50%;
+                  left: 50%;
+                  transform: translate(-50%, -50%);
+                  font-weight: bold;
+                  font-size: 1.3rem;
+                  color: #4e73df;
+                  white-space: nowrap;">
+              {{ formatChangeValue(changeLeads) }}
+            </div>
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Test Drives Card -->
+    <div class="col-lg-4 col-sm-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title" style="padding-top:20px;"><i class="fas fa-car"></i> TEST DRIVES</h4>
+        </div>
+        <div class="card-body">
+          <div class="d-flex flex-column align-items-start" style="margin-left:30px;">
+            <!-- Displaying dynamic leads count -->
+            <h3 style="font-size: 2.5rem; font-weight: bold; margin-top:-22px;margin-left:30px;">
+              {{ getFilteredTestDrives() }}
+            </h3>
+            <span [ngClass]="getChangeColor(testDriveChange)">
+              {{ formatChangeValue(testDriveChange) }}
+            </span>
+            <span class="text-muted" style="font-size: 18px;">Since last month</span>
+          </div>
+
+          <div class="position-absolute tooltip-container" style="top: 52%; right: 50px; transform: translateY(-50%);">
+            <div class="tooltip-content">
+              <strong>Current:</strong> {{ currentTestDrives }}<br />
+              <strong>Previous:</strong> {{ previousTestDrives }}<br />
+              <strong>Change:</strong>
+              <span [ngClass]="{'text-success': testDriveChange >= 0, 'text-danger': testDriveChange < 0}">
+                {{ getFormattedChange(testDriveChange) }}
+              </span>
+
+
+            </div>
+            <svg width="90" height="90" viewBox="0 0 36 36" class="circular-chart" style="transform: rotate(-90deg);">
+              <path class="circle-background" fill="none" stroke="#e6e6e6" stroke-width="3"
+                d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
+              <!-- <path class="circle-fill" fill="none" stroke="#4caf50" stroke-width="3"
+                  [attr.stroke-dasharray]="animatedValue + ', 100'" d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" /> -->
+              <path class="circle-fill" fill="none" [attr.stroke]="testDriveStrokeColor" stroke-width="3"
+                [attr.stroke-dasharray]="testDriveProgressValue + ', 100'"
+                d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
+
+            </svg>
+            <div style="
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            font-weight: bold;
+                            font-size: 1.3rem;
+                            color: #4e73df;
+                            white-space: nowrap;">
+              {{ formatChangeValue(testDriveChange) }}
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Card -->
+    <div class="col-lg-4 col-sm-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title" style="padding-top:20px;">
+            <i class="fas fa-shopping-cart"></i> ORDERS
+          </h4>
+        </div>
+        <div class="card-body">
+          <div class="d-flex flex-column align-items-start" style="margin-left:30px;">
+            <h3 style="font-size: 2.5rem; font-weight: bold; margin-top:-22px;margin-left:30px;">
+              {{ currentOrders }}
+            </h3>
+            <span [ngClass]="getChangeColor(orderChange)" style="margin-left: 28px;">
+              {{ formatChangeValue(orderChange) }}
+            </span>
+            <span class="text-muted" style="font-size: 18px;">Since last month</span>
+          </div>
+
+          <!-- Circular Progress for Orders -->
+          <div class="position-absolute tooltip-container" style="top: 52%; right: 50px; transform: translateY(-50%);">
+            <div class="tooltip-content">
+              <strong>Current:</strong> {{ currentOrders }}<br />
+              <strong>Previous:</strong> {{ previousOrders }}<br />
+              <strong>Change:</strong>
+              <span [ngClass]="{ 'text-success': orderChange >= 0, 'text-danger': orderChange < 0 }">
+                {{ orderChange === 0 ? '0%' : orderProgressValue + '%' }}
+              </span>
+            </div>
+
+            <svg width="90" height="90" viewBox="0 0 36 36" class="circular-chart" style="transform: rotate(-90deg);">
+              <path class="circle-background" fill="none" stroke="#e6e6e6" stroke-width="3"
+                d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
+              <path class="circle-fill" fill="none" [attr.stroke]="orderStrokeColor" stroke-width="3"
+                [attr.stroke-dasharray]="orderProgressValue + ', 100'" d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
+
+
+            </svg>
+
+            <div class="progress-count">
+              {{ orderChange }}%
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Doughnut Chart and Data Table Section -->
+  <div class="row">
+    <!-- Doughnut Chart -->
+    <div class="col-lg-5 col-12 mb-4">
+      <div class="card card-height">
+        <div class="card-header">
+          <h4 class="card-title"><i class="fas fa-chart-pie"></i> Doughnut Chart</h4>
+        </div>
+        <div class="card-body d-flex justify-content-center align-items-center" style="height: 100%;">
+            <canvas id="doughnutChart"></canvas>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="col-lg-7 col-12">
+      <div class="card w-100" style="min-height: 500px;background-color: #ffffff; ">
+        <div class="card-header d-flex justify-content-between">
+          <h4 class="card-title" style="white-space: nowrap;">Dealership Ranking</h4>
+          <select class="form-control" style="max-width: 150px;" [(ngModel)]="selectedOption"
+            (ngModelChange)="updateDataBasedOnSelection()">
+            <option value="leads-MTD">Leads - MTD</option>
+            <option value="leads-QTD">Leads - QTD</option>
+            <option value="leads-YTD">Leads - YTD</option>
+            <option value="testDrives-MTD">Test Drives - MTD</option>
+            <option value="testDrives-QTD">Test Drives - QTD</option>
+            <option value="testDrives-YTD">Test Drives - YTD</option>
+            <option value="orders-MTD">Orders - MTD</option>
+            <option value="orders-QTD">Orders - QTD</option>
+            <option value="orders-YTD">Orders - YTD</option>
+          </select>
+        </div>
+        <div class="card-body table-responsive" style="padding: 20px; border: none;">
+          <table id="example" class="table table-striped" style="width: 100%; border: none; margin: 0;">
+            <thead>
+              <tr>
+                <th>Dealer Name</th>
+                <th>Dealer Code</th>
+                <th>Location</th>
+                <th>Phone</th>
+                <th>Count</th>
+                <th>Rank</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of displayedData">
+                <td>{{ row.dealer_name }}</td>
+                <td>{{ row.dealer_code }}</td>
+                <td>{{ row.location }}</td>
+                <td>{{ row.phone }}</td>
+                <td>{{ row.value }}</td>
+                <td>{{row.rank}}</td>
+                <!-- <td>
+                    <div class="progress" style="height: 20px;">
+                      <div class="progress-bar" role="progressbar"
+                        [style.width.%]="getProgressPercentage(row.value, maxValue)"
+                        [style.background-color]="'#28a745'" [attr.aria-valuenow]="row.value"
+                        [attr.aria-valuemax]="maxValue">
+                        {{ getProgressPercentage(row.value, maxValue) | number: '1.0-0' }}%
+                      </div>
+                    </div>
+                  </td> -->
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- </div> -->
+
+  <!-- Chart.js Script -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const ctx = document.getElementById('doughnutChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Red', 'Blue', 'Yellow'],
+        datasets: [{
+          data: [300, 50, 100],
+          backgroundColor: ['#ff0000', '#0000ff', '#ffff00'],
+          hoverOffset: 4
+        }]
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      fetch('https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd') // Replace with your actual API endpoint
+        .then(response => response.json())
+        .then(data => {
+          populateTable(data.data.rankings.leads); // Assuming the structure is data.data.rankings.leads
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+          // Optionally display an error message in the table
+        });
+
+      function populateTable(leadsData) {
+        const tableBody = document.querySelector('#dataTable tbody');
+        tableBody.innerHTML = ''; // Clear any existing rows
+
+        leadsData.forEach(dealer => {
+          const row = tableBody.insertRow();
+          const nameCell = row.insertCell();
+          const codeCell = row.insertCell();
+          const locationCell = row.insertCell();
+          const phoneCell = row.insertCell();
+          const countCell = row.insertCell();
+          const rankCell = row.insertCell();
+
+          nameCell.textContent = dealer.dealer_name;
+          codeCell.textContent = dealer.dealer_code;
+          locationCell.textContent = dealer.location;
+          phoneCell.textContent = dealer.phone || dealer.mobile || ''; // Use phone if available, otherwise mobile
+          countCell.textContent = dealer.value;
+          rankCell.textContent = dealer.rank;
+        });
+      }
+    });
+  </script>
+</div>
