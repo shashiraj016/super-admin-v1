@@ -2324,7 +2324,7 @@ pre code {
 
 @media (max-width: 1199.98px) {
   .table-responsive-xl {
-    display: block;
+    /* display: block; */
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -8877,6 +8877,7 @@ button.bg-dark:focus {
 .mb-5,
 .my-5 {
   margin-bottom: 3rem !important;
+  margin-top: 3rem;
 }
 
 .ml-5,
@@ -59604,9 +59605,9 @@ html:not([dir=rtl]) .noUi-horizontal .noUi-handle {
   background: #fff;
   padding: 20px 40px;
   /* margin-left: 12px; */
-  margin-left: -20px;
-  margin-right: -40px;
-  margin-top: -40px;
+  /* margin-left: -20px; */
+  /* margin-right: -40px; */
+  /* margin-top: -40px; */
   border-bottom: 1px solid #f4f4f4;
 }
 
