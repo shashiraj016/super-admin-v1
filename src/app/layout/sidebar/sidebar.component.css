@@ -1,0 +1,21 @@
+.ai-icon {
+  display: flex;
+  align-items: center;
+}
+
+.metismenu a {
+  display: flex;
+  align-items: center;
+}
+.icon-responsive{
+  display: flex;
+  justify-content: center;
+}
+.menu{
+  margin-top: 10px;
+}
+/* .deznav-scroll{
+  scroll-behavior: none !important;
+} */
+
+

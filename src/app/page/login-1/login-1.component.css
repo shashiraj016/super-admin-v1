@@ -15,6 +15,12 @@ body {
 .fas {
   color: #3b86e9 !important;
 }
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
 
 .wave {
   position: fixed;
@@ -26,9 +32,9 @@ body {
 
 .container {
   width: 100%;
-  height: 97vh;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  /* height: 97vh; */
+  /* display: grid; */
+  /* grid-template-columns: repeat(2, 1fr); */
   grid-gap: 7rem;
   padding: 0 2rem;
 }
@@ -41,9 +47,10 @@ body {
 
 .login-content {
   display: flex;
-  justify-content: flex-start;
+  justify-content:center;
   align-items: center;
   text-align: center;
+  height: 97vh;
 }
 
 .img img {
@@ -137,6 +144,11 @@ form {
   /* color: #38d39f; */
   color: #5298ee;
 }
+.input-div .focus h5 {
+  top: -5px;
+  font-size: 15px;
+  color: #7e7e7e;
+}
 
 .input-div > div > input {
   position: absolute;
@@ -166,8 +178,6 @@ form {
   width: 90% !important;
 }
 .icon11 {
-  /* border: 2px solid black; */
-  /* text-align: end; */
   margin-left: 18em;
   margin-top: 0.7em;
 }
@@ -278,24 +288,19 @@ a:hover {
 
 /*  */
 /*
-    Media Query for iPad Pro (and similar large tablets)
-    This covers both landscape (min-width: 1024px) and portrait (max-width: 1024px with min-width: 768px for most tablets)
-  */
+  Media Query for iPad Pro (and similar large tablets)
+  This covers both landscape (min-width: 1024px) and portrait (max-width: 1024px with min-width: 768px for most tablets)
+*/
 
 /* For large tablets like iPad Pro (landscape) and smaller laptops */
 @media (min-width: 1024px) and (max-width: 1366px) {
   .login-content {
     /*
-          To move the form upwards, you can use:
-          1. margin-top: A negative value will pull it up.
-          2. transform: translateY(): More precise for visual adjustments, can be combined with other transforms.
-          3. Adjusting align-items or justify-content of its flex/grid parent: If its parent is a flex/grid container.
-        */
-
-    /* Option 1: Using margin-top (simplest for this scenario) */
-    margin-top: -350px; /* Adjust this value as needed. A negative value moves it up. */
-    /* If the parent is a flex container and you want to push it to the start: */
-    /* align-self: flex-start; */
+        To move the form upwards, you can use:
+        1. margin-top: A negative value will pull it up.
+        2. transform: translateY(): More precise for visual adjustments, can be combined with other transforms.
+        3. Adjusting align-items or justify-content of its flex/grid parent: If its parent is a flex/grid container.
+      */
   }
 
   /* You might also need to adjust the illustration if it now looks too low */
@@ -308,17 +313,80 @@ a:hover {
 /* For iPad Pro (portrait) and smaller tablets */
 @media (min-width: 768px) and (max-width: 1023px) {
   .login-content {
-    /* Apply similar or different adjustments for portrait mode */
-    margin-top: -50px; /* Maybe a smaller upward shift than landscape */
-    /* If in portrait, the layout is likely stacked, so vertical margins are more relevant */
+    position: absolute;
+    top: 50%;
+    left: 50%; /* ✅ Center horizontally */
+    transform: translate(-50%, -50%); /* ✅ Perfect centering */
+    margin-top: 0;
+    justify-content: center;
   }
 }
+
 .custom-container {
-  margin-left: 180px;
+  /* margin-left: 180px; */
 }
 
 @media (max-width: 768px) {
   .custom-container {
     margin-left: 0 !important;
   }
+}
+/* Hide the browser native password toggle icon */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+input[type="password"]::-webkit-password-toggle-button,
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none !important;
+}
+
+/* For Chrome (WebKit-based) */
+input[type="password"]::-webkit-inner-spin-button,
+input[type="password"]::-webkit-search-decoration,
+input[type="password"]::-webkit-search-cancel-button,
+input[type="password"]::-webkit-search-results-button,
+input[type="password"]::-webkit-search-results-decoration {
+  display: none !important;
+}
+
+/* Firefox */
+input[type="password"] {
+  -moz-appearance: textfield;
+}
+
+.new-custom{
+  display: flex;
+  justify-content: center;
+}
+
+.div h5 {
+  position: absolute;
+  top: 12px;
+  left: 10px;
+  font-size: 16px;
+  color: #9ca3af; 
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.div h5.floating {
+  top: -10px;
+  left: 5px;
+  font-size: 12px;
+  color: #3b86e9;
+  background: white;
+  padding: 0 5px;
+  z-index: 10;
+}
+.icon11 {
+  z-index: 10;
+  position: relative;
+  pointer-events: auto;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }

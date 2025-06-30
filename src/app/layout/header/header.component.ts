@@ -16,6 +16,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Token } from '@angular/compiler';
 import { filter, map } from 'rxjs';
 import { ContextService } from '../../service/context.service';
+import { SidebarService } from '../../service/sidebar.service';
 
 @Component({
   selector: 'app-header',
@@ -35,8 +36,9 @@ export class HeaderComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object,
     private activatedRoute: ActivatedRoute,
     private context: ContextService,
-    private cdr: ChangeDetectorRef
-  ) {}
+    private cdr: ChangeDetectorRef,
+    private sidebarService: SidebarService
+  ) { }
 
   ngOnInit() {
     this.context.onSideBarClick$.subscribe(({ pageTitle }) => {
@@ -51,6 +53,12 @@ export class HeaderComponent implements OnInit {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe(() => this.updateTitle());
+  }
+
+  onToggleClick() {
+    console.log('Hamburger clicked'); // 👈 test log
+    // this.sidebarToggle.emit();
+    this.sidebarService.toggleSidebar();
   }
 
   private updateTitle(): void {

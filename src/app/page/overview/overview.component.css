@@ -1,0 +1,110 @@
+/* Adjust layout spacing based on sidebar */
+#main-wrapper {
+  display: flex;
+}
+
+.sidebar-collapsed .content-body {
+  margin-left: 7rem;
+}
+
+/* Responsive mini tablet*/
+@media (min-width: 768px) and (max-width: 819px) {
+  .content-body {
+    margin-left: 42px !important;
+  }
+}
+
+
+#main-wrapper.sidebar-collapsed .deznav {
+  width: 80px;
+}
+
+#main-wrapper.sidebar-collapsed .nav-text {
+  display: none;
+}
+
+@media (min-width: 2560px) {
+  .sidebar-collapsed .content-body {
+    margin-left: 336px !important;
+  }
+}
+
+@media screen and (min-width: 1920px) {
+   .content-body[_ngcontent-ng-c826715629] {
+    margin-left: 336px;
+  }
+}
+
+@media screen and (width: 1366px) {
+  .content-body {
+    margin-left: 4rem;
+  }
+}
+
+
+/* Adjust layout spacing based on sidebar */
+#main-wrapper {
+  display: flex;
+}
+
+.content-body {
+  margin-left: 250px ;
+  transition: margin-left 0.3s ease;
+  width: 100%;
+}
+
+@media (min-width: 1601px) {
+  .content-body {
+    margin-left: 336px;
+  }
+}
+
+@media only screen and (min-width: 820px) and (max-width: 1279px) {
+  .content-body {
+    margin-left: 5rem;
+  }
+}
+
+/* .sidebar-collapsed .content-body {
+  margin-left: 80px;
+} */
+
+/* Responsive */
+
+.content-section {
+  padding: 20px;
+  margin-top: 70px;
+}
+
+.nav-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.performance-panels {
+  display: flex;
+  gap: 2rem;
+  margin-top: 20px;
+}
+
+.performance-panel {
+  flex: 1;
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  height: 300px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.metric-box {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
