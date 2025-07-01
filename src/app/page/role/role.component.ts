@@ -111,14 +111,28 @@ export class RoleComponent implements OnInit {
     });
   }
 
+  // private loadRole(): void {
+  //   this.masterSrv.getAllRole().subscribe({
+  //     next: (res: roleResponse) => {
+  //       this.roleList.set(res.data.rows);
+  //       this.count.set(res.data.count);
+
+  //       this.applyFilterAndPagination();
+  //     },
+  //     error: (err) => {
+  //       this.toastr.error('Failed to load role', 'Error');
+  //       console.error('role load error:', err);
+  //     },
+  //   });
+  // }
   private loadRole(): void {
     this.masterSrv.getAllRole().subscribe({
       next: (res: roleResponse) => {
-        this.roleList.set(res.data.rows);
-        this.count.set(res.data.count);
+        this.roleList.set(res.data);
+        this.count.set(res.data.length);
 
         // Apply filter & pagination on load
-        // this.filteredRoles = res.data;
+        this.filteredRoles = res.data;
         this.applyFilterAndPagination();
       },
       error: (err) => {
@@ -186,13 +200,29 @@ export class RoleComponent implements OnInit {
     this.applyFilterAndPagination();
   }
 
+  // applyFilterAndPagination(): void {
+  //   const allRoles = this.roleList();
+
+  //   this.filteredRoles = allRoles.filter(
+  //     (role) =>
+  //       role.role_name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+  //       role.description?.toLowerCase().includes(this.searchTerm.toLowerCase())
+  //   );
+
+  //   this.totalPages = Math.ceil(this.filteredRoles.length / this.itemsPerPage);
+  //   this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+
+  //   this.paginateRoles();
+  // }
   applyFilterAndPagination(): void {
     const allRoles = this.roleList();
 
+    const search = (this.searchTerm ?? '').toLowerCase();
+
     this.filteredRoles = allRoles.filter(
       (role) =>
-        role.role_name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        role.description?.toLowerCase().includes(this.searchTerm.toLowerCase())
+        (role.role_name ?? '').toLowerCase().includes(search) ||
+        (role.description ?? '').toLowerCase().includes(search)
     );
 
     this.totalPages = Math.ceil(this.filteredRoles.length / this.itemsPerPage);

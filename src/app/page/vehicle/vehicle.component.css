@@ -22,3 +22,35 @@
     padding: 10px; /* Adjust padding for mobile */
   }
 }
+.search-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+.search-input {
+  width: 200px;
+  max-width: 100%;
+}
+
+/* Remove ❌ icon from invalid text inputs */
+input.form-control.is-invalid,
+input.form-control.form-control-lg.is-invalid {
+  background-image: none !important;
+  padding-right: 0.75rem !important;
+}
+
+/* Remove ❌ icon from invalid select boxes */
+select.form-control.is-invalid,
+select.form-control.form-control-lg.is-invalid {
+  background-image: none !important;
+  padding-right: 0.75rem !important;
+}
+
+/* Optional: Remove browser clear (X) buttons in inputs */
+input[type="text"]::-ms-clear,
+input[type="text"]::-ms-reveal,
+input[type="text"]::-webkit-clear-button,
+input[type="text"]::-webkit-search-cancel-button {
+  display: none;
+  -webkit-appearance: none;
+}

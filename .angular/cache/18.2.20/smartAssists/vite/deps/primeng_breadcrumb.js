@@ -8,16 +8,16 @@ import {
 } from "./chunk-RS2F2CQB.js";
 import "./chunk-BUGEQH7Q.js";
 import {
-  PrimeTemplate,
-  SharedModule,
-  UniqueComponentId
-} from "./chunk-2ALH76FN.js";
-import {
   Router,
   RouterLink,
   RouterLinkActive,
   RouterModule
 } from "./chunk-Y6UA5LFW.js";
+import {
+  PrimeTemplate,
+  SharedModule,
+  UniqueComponentId
+} from "./chunk-2ALH76FN.js";
 import "./chunk-36N7IJ4B.js";
 import "./chunk-TE3D7VPS.js";
 import {

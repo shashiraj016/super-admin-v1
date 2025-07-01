@@ -40,7 +40,9 @@ export class TeamComponent {
   count = signal<number>(0);
   userObj: Teams = new Teams();
   previousValue: string = '';
-
+  totalPages: number = 0;
+  // paginatedTeams: any[] = []; // your current paginated users (already existing)
+  isModalOpen = false;
   // Dependency injection
   masterSrv = inject(MasterService);
   private readonly toastr = inject(ToastrService);
@@ -50,7 +52,24 @@ export class TeamComponent {
   isEditMode: boolean = false;
   previousEmail: string = '';
   // count: number;
+  // teamObj: any = {}; // For editing
+  // userObj: any = {}; // Used for modal title condition
+  // searchTerm: string = '';
+  // currentPage: number = 1;
+  // itemsPerPage: number = 5;
+  // paginatedTeams: any[] = []; // your current paginated users (already existing)
+  allUsers: any[] = []; // Complete list
+  pages: number[] = [];
+  filteredTeams: Teams[] = []; // Filtered list after search
 
+  searchTerm: string = '';
+  itemsPerPage: number = 10;
+  currentPage: number = 1;
+  filteredTeam: any[] = [];
+  isDeleteModalOpen = false;
+
+  paginatedTeams: any[] = [];
+  filteredTeamList: any[] = [];
   constructor(
     private aleartsrv: AleartSrvService,
     private cdr: ChangeDetectorRef
@@ -63,6 +82,9 @@ export class TeamComponent {
     // this.getAllDealer();
     this.getAllTeams();
     this.displayAllTeams();
+    this.filteredTeams = this.teamList(); // make sure userList() returns an array
+    this.paginateTeams();
+    this.filterTeams(); // initializes filtered list
   }
   initializeForm() {
     this.useForm = new FormGroup({
@@ -79,11 +101,11 @@ export class TeamComponent {
       //   Validators.minLength(2),
       //   Validators.maxLength(50),
       // ]),
-      team_lead_email: new FormControl('', [
-        Validators.required,
-        Validators.minLength(2),
-        Validators.maxLength(50),
-      ]),
+      // team_lead_email: new FormControl('', [
+      //   Validators.required,
+      //   Validators.minLength(2),
+      //   Validators.maxLength(50),
+      // ]),
 
       // role: new FormControl('', [Validators.required]),
     });
@@ -140,6 +162,8 @@ export class TeamComponent {
   openModal(team?: Teams) {
     console.log('✅ openModal() function called');
 
+    this.isModalOpen = true; // ✅ Required to show modal via *ngIf
+
     // Reset form and set edit mode
     this.useForm.reset();
     this.isEditMode = !!team; // ✅ Set edit mode flag
@@ -165,6 +189,7 @@ export class TeamComponent {
       console.log('🆕 New Vehicle Mode: Reset vehicleObj', this.teamObj);
     }
   }
+
   // onEdit(team: Teams) {
   //   // const nameParts = customer.account_name && customer.account_name.trim() ? customer.account_name.split(' ') : [];
   //   this.isEditMode = true; // Ensure edit mode is set
@@ -183,6 +208,7 @@ export class TeamComponent {
   onEdit(team: Teams) {
     console.log('Edit button clicked. Team ID:', team?.team_id); // Debug log
     this.isEditMode = true; // Ensure edit mode is set
+    this.isModalOpen = true; // ✅ Add this line to open the modal
 
     // Set team object to the selected team to preserve data
     this.teamObj = { ...team };
@@ -221,14 +247,25 @@ export class TeamComponent {
     );
   }
 
+  // isTeamNameChanged(): boolean {
+  //   return this.useForm.value.name !== this.previousValue;
+  // }
+
   isTeamNameChanged(): boolean {
-    return this.useForm.value.name !== this.previousValue;
+    return (
+      this.useForm.dirty && this.useForm.value.team_name !== this.previousValue
+    );
   }
 
   selectedteamForDeletion: Teams | null = null;
 
   selectteamForDeletion(user: Teams) {
     this.selectedteamForDeletion = user;
+    this.isDeleteModalOpen = true;
+  }
+
+  closeDeleteModal() {
+    this.isDeleteModalOpen = false;
   }
   //  deleteUserId() {
   //     console.log(
@@ -293,6 +330,10 @@ export class TeamComponent {
       }
     }
   }
+  openDeleteModal(team: any) {
+    this.selectedteamForDeletion = team;
+    this.isDeleteModalOpen = true;
+  }
   //  displayAllTeams() {
   //     console.log('getAllTeams() function called'); // Debugging Log
 
@@ -332,18 +373,128 @@ export class TeamComponent {
     this.masterSrv.getMultipleUser().subscribe({
       next: (res: MultiuserResponse) => {
         if (res && res.data.rows) {
-          this.totalUser.set(res.data.count);
-          this.userList.set(res.data.rows);
+          this.allUsers = res.data.rows;
         } else {
-          this.toastr.warning('No users found', 'Information');
+          this.toastr.warning('No teams found', 'Information');
         }
       },
       error: (err) => {
-        console.error('Users fetch error:', err);
+        console.error('teams fetch error:', err);
         this.toastr.error(err.message || 'Failed to fetch users', 'Error');
       },
     });
   }
+  // paginateTeams() {
+  //   const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+  //   const endIndex = startIndex + this.itemsPerPage;
+  //   this.paginatedTeams = this.filteredTeams.slice(startIndex, endIndex);
+  //   this.totalPages = Math.ceil(this.filteredTeams.length / this.itemsPerPage);
+  //   this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  // }
+
+  // onSearchChange(): void {
+  //   const term = this.searchTerm?.toLowerCase() || '';
+  //   this.filteredTeams = this.teamList().filter(
+  //     (team) => team.team_name?.toLowerCase().includes(term)
+  //     // Add more fields if needed
+  //   );
+  //   this.currentPage = 1;
+  //   this.updatePagination();
+  // }
+
+  // onItemsPerPageChange(event: any): void {
+  //   this.itemsPerPage = +event.target.value;
+  //   this.currentPage = 1;
+  //   this.updatePagination();
+  // }
+
+  updatePagination(): void {
+    const filtered = this.filteredTeams; // ✅ correct
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    this.paginatedTeams = filtered.slice(start, end);
+    this.totalPages = Math.ceil(filtered.length / this.itemsPerPage);
+    this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  // filteredTeams(): any[] {
+  //   if (!this.searchTerm) return [...this.allUsers];
+  //   const lowerTerm = this.searchTerm.toLowerCase();
+  //   return this.allUsers.filter(
+  //     (user) =>
+  //       user.name?.toLowerCase().includes(lowerTerm) ||
+  //       user.email?.toLowerCase().includes(lowerTerm) ||
+  //       user.user_role?.toLowerCase().includes(lowerTerm)
+  //   );
+  // }
+
+  // totalUser(): number {
+  //   return this.filteredUsers().length;
+  // }
+
+  onSearchChange() {
+    this.currentPage = 1;
+    this.filterTeams();
+  }
+  getShowingTo(): number {
+    return Math.min(
+      this.currentPage * this.itemsPerPage,
+      this.filteredTeam.length
+    );
+  }
+  onItemsPerPageChange(event: any) {
+    this.itemsPerPage = +event.target.value;
+    this.currentPage = 1;
+
+    this.filterTeams(); // ✅ this ensures filteredTeamList is updated first
+  }
+
+  filterTeams() {
+    this.filteredTeamList = this.teamList().filter((team) =>
+      team.team_name.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+    this.paginateTeams();
+  }
+
+  paginateTeams() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedTeams = this.filteredTeamList.slice(startIndex, endIndex);
+    this.totalPages = Math.ceil(
+      this.filteredTeamList.length / this.itemsPerPage
+    );
+    this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.paginateTeams();
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.paginateTeams();
+    }
+  }
+
+  goToPage(page: number) {
+    this.currentPage = page;
+    this.paginateTeams();
+  }
+
+  // openModal(): void {
+  //   this.useForm.reset();
+  //   this.teamObj = {};
+  //   this.userObj = {};
+  // }
+
+  // closeModal(): void {
+  //   this.useForm.reset();
+  //   this.teamObj = {};
+  // }
 
   deleteTeamid() {
     console.log(
@@ -351,38 +502,53 @@ export class TeamComponent {
       this.selectteamForDeletion,
       this.selectedteamForDeletion
     );
+
     if (this.selectedteamForDeletion && this.selectedteamForDeletion.team_id) {
       this.masterSrv.deleteTeam(this.selectedteamForDeletion.team_id).subscribe(
         (res: TeamsResponse) => {
-          this.toastr.success('User deleted successfully', 'Success');
+          this.toastr.success('Team deleted successfully', 'Success');
+
+          // ✅ Close the modal before refreshing the data
+          this.isDeleteModalOpen = false;
+
+          // ✅ Refresh team list
           this.displayAllTeams();
         },
         (error) => {
-          // alert(error.message || 'Failed to delete users'); comment for server side error not come
           this.toastr.error('Server Error', 'Error');
         }
       );
     } else {
-      alert('No users selected for deletion');
+      alert('No Team selected for deletion');
     }
   }
 
   displayAllTeams() {
-    console.log('data fetched ');
+    console.log('Fetching all teams...');
     this.masterSrv.getMultipleTeams().subscribe({
       next: (res: TeamsResponse) => {
         if (res && res.data.rows) {
-          this.totalUser.set(res.data.count);
           this.teamList.set(res.data.rows);
+          this.filteredTeams = res.data.rows;
+
+          // ✅ Set totalteam count here
+          this.totalteam.set(res.data.rows.length);
+
+          this.updatePagination();
         } else {
-          this.toastr.warning('No users found', 'Information');
+          this.toastr.warning('No team found', 'Information');
+          this.totalteam.set(0); // optional: reset count to 0
         }
       },
       error: (err) => {
-        console.error('Users fetch error:', err);
-        this.toastr.error(err.message || 'Failed to fetch users', 'Error');
+        console.error('team fetch error:', err);
+        this.toastr.error(err.message || 'Failed to fetch team', 'Error');
+        this.totalteam.set(0); // optional: reset count to 0 on error
       },
     });
+  }
+  min(a: number, b: number): number {
+    return Math.min(a, b);
   }
 
   // onUpdate() {
@@ -486,9 +652,8 @@ export class TeamComponent {
       this.toastr.error('Invalid form data. Please check inputs.', 'Error');
     }
   }
-
   closeModal() {
-    ($('.bd-example-modal-lg') as any).modal('hide');
+    this.isModalOpen = false;
   }
 
   // Utility method to mark all form controls as touched
@@ -542,25 +707,33 @@ export class TeamComponent {
       this.toastr.warning(
         'Please fill all required fields correctly',
         'Validation'
-      ); // Mark all fields as touched
-      return; // Don't proceed if the form is invalid
+      );
+      return;
     }
     console.log('📦 Payload Before API Call:', this.useForm.value);
 
     const formData = this.useForm.value;
     console.log('Form Data being sent to API:', formData);
     this.masterSrv.createNewTeam(formData).subscribe({
-      next: () => {
-        this.toastr.success('team created successfully!', 'Success');
-        this.getAllTeams();
+      next: (response) => {
+        this.toastr.success('Team created successfully!', 'Success');
+        // Use displayAllTeams() instead of getAllTeams() to update the table immediately
+        this.displayAllTeams();
         this.closeModal();
+
+        // Force change detection to ensure UI updates
+        setTimeout(() => {
+          this.cdr.detectChanges();
+          this.cdr.markForCheck();
+        }, 0);
       },
       error: (err) => {
-        console.error('User creation error:', err);
-        this.toastr.error(
-          err.message || 'Failed to create user',
-          'Creation Error'
-        );
+        console.error('Team creation error:', err);
+
+        // Extracting the backend message if available
+        const backendMessage = err?.error?.message || 'Failed to create team';
+
+        this.toastr.error(backendMessage, 'Creation Error');
       },
     });
   }

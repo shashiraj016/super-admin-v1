@@ -6,6 +6,7 @@ import { Events } from '../class/event';
 import { Leads } from '../class/leads';
 import { UserList } from '../class/multiuser';
 import { Opportunities } from '../class/opportunities';
+import { Profile } from '../class/profile';
 import { Role } from '../class/role';
 import { Tasks } from '../class/tasks';
 import { Teams } from '../class/team';
@@ -351,21 +352,30 @@ export interface SingleVehicleResponse {
   data: Vehicle; // 👈 instead of TeamDetails or rows
 }
 
+// export interface roleResponse {
+//   data: {
+//     count: number;
+//     rows: Role[];
+//   };
+// }
 export interface roleResponse {
-  data: {
-    count: number;
-    rows: Role[];
-  };
+  status: number;
+  message: string;
+  data: Role[]; // data is an array of Role objects
 }
 
+// export interface ProfileResponse {
+//   corporate_id: string;
+//   name: string;
+//   email: string;
+//   role: string;
+//   password: string;
+// }
 export interface ProfileResponse {
-  corporate_id: string;
-  name: string;
-  email: string;
-  role: string;
-  password: string;
+  status: number;
+  message: string;
+  data: Profile;
 }
-
 export interface ForgotPasswordRequest {
   email: string;
 }

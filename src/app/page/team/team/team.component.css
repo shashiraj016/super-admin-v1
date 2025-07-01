@@ -12,6 +12,15 @@
   padding: 20px;
   flex-grow: 1;
 }
+.search-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+.search-input {
+  width: 200px;
+  max-width: 100%;
+}
 
 @media (max-width: 768px) {
   .sidebar {
@@ -22,4 +31,9 @@
     margin-left: 0; /* Remove margin to use full width */
     padding: 10px; /* Adjust padding for mobile */
   }
+}
+input.form-control.is-invalid,
+input.form-control.form-control-lg.is-invalid {
+  background-image: none !important;
+  padding-right: 0.75rem !important; /* optional: clean spacing after icon removal */
 }

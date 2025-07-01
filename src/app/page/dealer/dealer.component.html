@@ -12,8 +12,8 @@
     </div>
     <div class="row mb-5 align-items-center">
       <div class="col-xl-2 mb-4 mb-xl-0">
-        <a style="cursor: pointer; color: white !important" (click)="openModal()" data-target="#exampleModalCenter"
-          data-toggle="modal" class="btn btn-primary light btn-lg btn-block rounded shadow px-2 buttons">
+        <a style="cursor: pointer; color: white !important" (click)="openModal()"
+          class="btn btn-primary light btn-lg btn-block rounded shadow px-2 buttons">
           <i class="fa fa-plus mr-1"></i>
           Add Dealer</a>
       </div>
@@ -26,124 +26,172 @@
         </div>
       </div>
     </div>
-
-    <!-- Api integration work start here -->
-
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="table-responsive">
-          <table id="example5" class="table display mb-4 table-responsive-xl dataTablesCard fs-14">
-            <thead>
-              <tr>
-                <th>Sr No</th>
-                <th>Dealer Name</th>
-                <th>Dealer Code</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              @if(dealerList().length === 0){
-              <tr>
-                <td colspan="6" class="text-center">
-                  <p>No Dealer Found</p>
-                </td>
-              </tr>
-              }@else(){
-
-              <tr *ngFor="let dealer of dealerList(); let i = index">
-                <td>
-                  <a [routerLink]="[
-                        '/Admin/singleUser',
-                        dealer.dealer_id,
-                        dealer.dealer_name
-                      ]">
-                    {{ i + 1 }}
-                  </a>
-                </td>
-                <td>
-                  <a [routerLink]="['/Admin/singleUser', dealer.dealer_id]">
-                    {{ dealer.dealer_name }}
-                  </a>
-                </td>
-                <td>
-                  <a [routerLink]="['/Admin/singleUser', dealer.dealer_code]">
-                    {{ dealer.dealer_code }}
-                  </a>
-                </td>
+    <div class="card-box p-4 mb-5"
+      style="background-color: #fff; box-shadow: 0 0 15px rgba(0, 0, 0, 0.08); border-radius: 10px;">
+      <div class="row mb-4 align-items-center">
 
 
-                <!-- <td>
-                  <a [routerLink]="['/Admin/singleUser', dealer.dealer_email]">
-                    {{ dealer.dealer_email }}
-                  </a>
-                </td> -->
-                <td class="d-flex">
-                  <!-- <a href="javascript:void(0);" data-target="#exampleModalCenter" data-toggle="modal"
-                    (click)="openModal(dealer)" class="btn btn-primary shadow btn-xs sharp mr-1"><i
-                      class="fa fa-pencil"></i></a> -->
-                  <a href="javascript:void(0);" class="btn btn-primary shadow btn-xs sharp mr-1"
-                    (click)="onEdit(dealer.dealer_id)">
-                    <i class="fa fa-pencil text-white"></i>
-                  </a>
+        <div class="col-12">
+          <!-- Items per page selector -->
+          <div class="row mb-3">
+            <div class="col-md-6 d-flex align-items-center">
+              <label class="mr-2"></label>
+              <select class="form-control" style="width: 80px; display: inline-block; border-radius: 5px;height:45px;"
+                (change)="onItemsPerPageChange($event)">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+              <label class="ml-2">records per page</label>
+            </div>
 
-                  <a href="javascript:void(0);" type="button" class="btn btn-primary mb-2 mr-1"
-                    style="margin-right: 0.2rem" data-toggle="modal" data-target=".bd-example-modal-sm"
-                    class="btn btn-danger shadow btn-xs sharp" (click)="selectDealerForDeletion(dealer)"><i
-                      class="fa fa-trash"></i></a>
 
-                  <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
-                    <div class="modal-dialog modal-sm">
-                      <div class="modal-content">
-                        <div class="modal-header text-center" style="margin-inline: auto">
-                          <h5 class="modal-title text-center">Delete Dealer</h5>
-                        </div>
-                        <div class="modal-body">HEY ARE YOU OKAY..!</div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-outline-danger" data-dismiss="modal">
-                            Cancel
-                          </button>
-                          <button type="button" class="btn btn-outline-primary" (click)="deleteDealerId()"
-                            data-dismiss="modal">
-                            Delete
-                          </button>
-                        </div>
-                      </div>
+            <!-- <div class="col-md-6 d-flex justify-content-end align-items-center">
+                <input type="text" class="form-control search-input" style="width: 250px;" placeholder="Search users..."
+                  [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+              </div> -->
+            <div class="col-md-6 d-flex justify-content-end align-items-center">
+              <div class="search-wrapper">
+                <input type="text" class="form-control search-input" placeholder="Search dealers..."
+                  [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+              </div>
+            </div>
+
+
+          </div>
+
+          <!-- Api integration work start here -->
+          <div class="table-responsive">
+            <table id="example5" class="table display mb-4 dataTablesCard fs-14 w-100">
+              <thead>
+                <tr>
+                  <th>Sr No</th>
+                  <th>Dealer Name</th>
+                  <th>Dealer Code</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="paginatedDealers.length === 0">
+                  <td colspan="5" class="text-center">
+                    <p>No Dealers Found</p>
+                  </td>
+                </tr>
+                <tr *ngFor="let dealer of paginatedDealers; let i = index">
+                  <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+                  <td>{{ dealer.dealer_name }}</td>
+                  <td>{{ dealer.dealer_code }}</td>
+                  <td>
+                    <div class="d-flex">
+                      <a href="javascript:void(0);" class="btn btn-primary shadow btn-xs sharp mr-1"
+                        (click)="onEdit(dealer.dealer_id)">
+                        <i class="fa fa-pencil"></i>
+                      </a>
+                      <!-- <a href="javascript:void(0);" class="btn btn-danger shadow btn-xs sharp delete-btn-ipad"
+                        (click)="openDeleteModal(dealer)">
+                        <i class="fa fa-trash"></i>
+                      </a> -->
+                      <a href="javascript:void(0);" class="btn btn-danger shadow btn-xs sharp delete-btn-ipad"
+                        (click)="openDeleteModal(dealer)">
+                        <i class="fa fa-trash"></i>
+                      </a>
+
+                      <a href="javascript:void(0);" class="btn btn-success shadow btn-xs sharp"
+                        [routerLink]="['/Admin/singleUser', dealer.dealer_id]" style="margin-left:5px">
+                        <span class="" style="margin-left: 0 !important">
+                          <i class="fa fa-eye"></i>
+                        </span>
+                      </a>
+
                     </div>
-                  </div>
 
-                  <a href="javascript:void(0);" class="btn btn-success shadow btn-xs sharp"
-                    [routerLink]="['/Admin/singleUser', dealer.dealer_id]">
-                    <span class="" style="margin-left: 0 !important">
-                      <i class="fa fa-eye"></i>
-                    </span>
-                  </a>
-                </td>
-              </tr>
-              }
-            </tbody>
-          </table>
+                  </td>
+
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="row" style="margin-top:20px;">
+            <div class="col-md-6">
+              <!-- <div class="dataTables_info">
+                Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to
+                {{ min(currentPage * itemsPerPage, userList().length) }} of
+                {{ userList().length }} entries
+              </div> -->
+              <div class="dataTables_info">
+                Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to
+                {{ min(currentPage * itemsPerPage, dealerList().length) }} of
+                {{ dealerList().length }} entries
+              </div>
+
+
+            </div>
+
+            <div class="col-md-6">
+              <div class="dataTables_paginate paging_simple_numbers float-right">
+                <ul class="pagination">
+                  <li class="paginate_button page-item previous" [class.disabled]="currentPage === 1">
+                    <a class="page-link" (click)="previousPage()">Previous</a>
+                  </li>
+
+                  <li class="paginate_button page-item" *ngFor="let page of pages"
+                    [class.active]="page === currentPage">
+                    <a class="page-link" (click)="goToPage(page)">{{ page }}</a>
+                  </li>
+
+                  <li class="paginate_button page-item next" [class.disabled]="currentPage === totalPages">
+                    <a class="page-link" (click)="nextPage()">Next</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+</div>
+<div *ngIf="isDeleteModalOpen" class="modal d-block" tabindex="-1"
+  style="background: rgba(0, 0, 0, 0.5); z-index: 1050;">
+  <div class="modal-dialog modal-sm" style="top: 20%;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-center w-100">Delete Dealer</h5>
+      </div>
+      <div class="modal-body text-center">Are you sure you want to delete this dealer?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-primary" (click)="closeDeleteModal()">Cancel</button>
+        <button type="button" class="btn btn-outline-danger" (click)="deleteDealerId()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <!-- Modal -->
-  <div class="modal fade" id="exampleModalCenter" style="margin-block: 2em">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" style="align-items: center; margin-inline: auto">
-            {{ dealerObj.dealer_id ? "Edit Dealer" : "Add New Dealer" }}
-          </h5>
-          <button type="button" class="close" data-dismiss="modal">
-            <span>&times;</span>
-          </button>
-        </div>
+
+<!-- Modal -->
+<!-- <div class="modal fade" id="exampleModalCenter" style="margin-block: 2em"> -->
+<div *ngIf="isModalOpen" class="modal d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5); z-index: 1050;">
+
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" style="align-items: center; margin-inline: auto">
+          {{ dealerObj.dealer_id ? "Edit Dealer" : "Add New Dealer" }}
+        </h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
 
 
-        <div [formGroup]="useForm" class="form-group" style="margin-inline: 1em">
-          <label for="dealer_name" class="form-label">Dealer Name*</label>
-          <!-- <input
+      <div [formGroup]="useForm" class="form-group" style="margin-inline: 1em">
+        <label for="dealer_name" class="form-label">
+          Dealer Name<span style="color: red;">*</span>
+        </label>
+        <!-- <input
             class="form-control form-control-lg"
             type="text"
             placeholder="Dealer Name"
@@ -156,23 +204,23 @@
             }"
           /> -->
 
-          <input class="form-control form-control-lg" type="text" placeholder="Dealer Name"
-            formControlName="dealer_name" formControlName="dealer_name" [(ngModel)]="dealerObj.dealer_name" [ngClass]="{
+        <input class="form-control form-control-lg" type="text" placeholder="Dealer Name" formControlName="dealer_name"
+          formControlName="dealer_name" [(ngModel)]="dealerObj.dealer_name" [ngClass]="{
               'is-invalid':
                 useForm.get('dealer_name')?.touched &&
                 useForm.get('dealer_name')?.invalid
             }" />
-          <div class="text-danger" *ngIf="
+        <div class="text-danger" *ngIf="
               useForm.get('dealer_name')?.touched &&
               useForm.get('dealer_name')?.invalid
             ">
-            <span>Dealer Name is required.</span>
-          </div>
+          <span>Dealer Name is required.</span>
         </div>
+      </div>
 
-        <div [formGroup]="useForm" class="form-group" style="margin-inline: 1em">
-          <label for="dealer_code" class="form-label">Dealer Code*</label>
-          <!-- <input
+      <div [formGroup]="useForm" class="form-group" style="margin-inline: 1em">
+        <label for="dealer_code" class="form-label">
+          Dealer Code<span class="text-danger">*</span></label> <!-- <input
 
             class="form-control form-control-lg"
             type="text"
@@ -186,7 +234,7 @@
                 useForm.get('dealer_code')?.invalid
             }"
           /> -->
-          <!-- <input
+        <!-- <input
             class="form-control form-control-lg custom-disabled"
             type="text"
             placeholder="Dealer Code"
@@ -200,39 +248,44 @@
             }"
             [readOnly]="!!dealerObj.dealer_id"
           /> -->
-          <input class="form-control form-control-lg " type="text" placeholder="Dealer Code"
-            formControlName="dealer_code" [(ngModel)]="dealerObj.dealer_code" [ngClass]="{
+        <input class="form-control form-control-lg " type="text" placeholder="Dealer Code" formControlName="dealer_code"
+          [(ngModel)]="dealerObj.dealer_code" [ngClass]="{
               'is-invalid':
                 useForm.get('dealer_code')?.touched &&
                 useForm.get('dealer_code')?.invalid
             }" />
 
-          <div class="text-danger" *ngIf="
+        <div class="text-danger" *ngIf="
               useForm.get('dealer_code')?.touched &&
               useForm.get('dealer_code')?.invalid
             ">
-            <span>Dealer Code is required.</span>
-          </div>
+          <span>Dealer Code is required.</span>
         </div>
+      </div>
 
-        <!-- model footer buttons  -->
-        <div class="modal-footer">
-          <ng-container *ngIf="dealerObj.dealer_id; else saveButton">
-            <button type="button" class="btn btn-outline-primary" data-dismiss="modal" (click)="onUpdate()"
-              [disabled]="!isDealerNameChanged()">
-              Edit
-            </button>
-          </ng-container>
-          <button type="button" class="btn btn-outline-danger" data-dismiss="modal" (click)="closeModal()">
-            Close
+      <!-- model footer buttons  -->
+      <div class="modal-footer">
+        <!-- <ng-container *ngIf="dealerObj.dealer_id; else saveButton">
+          <button type="button" class="btn btn-outline-primary" data-dismiss="modal" (click)="onUpdate()"
+            [disabled]="!isDealerNameChanged()">
+            Edit
           </button>
-          <ng-template #saveButton>
-            <button type="button" class="btn btn-outline-primary" (click)="onSave()"
-              [attr.data-dismiss]="useForm.valid ? 'modal' : null">
-              save
-            </button>
-          </ng-template>
-        </div>
+        </ng-container> -->
+        <ng-container *ngIf="dealerObj?.dealer_id; else saveButton">
+          <button type="button" class="btn btn-outline-primary" data-dismiss="modal" (click)="onUpdate()"
+            [disabled]="!isDealerNameChanged()">
+            Edit
+          </button>
+        </ng-container>
+        <button type="button" class="btn btn-outline-danger" data-dismiss="modal" (click)="closeModal()">
+          Close
+        </button>
+        <ng-template #saveButton>
+          <button type="button" class="btn btn-outline-primary" (click)="onSave()"
+            [attr.data-dismiss]="useForm.valid ? 'modal' : null">
+            save
+          </button>
+        </ng-template>
       </div>
     </div>
   </div>

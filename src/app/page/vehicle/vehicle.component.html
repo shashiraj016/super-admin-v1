@@ -1,229 +1,425 @@
 <div class="container-fluid">
-  <div class="dashboard-container">
+  <div class="content-section active">
     <div class="page-titles">
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
           <a href="javascript:void(0)" style="cursor: auto">Transaction</a>
         </li>
         <li class="breadcrumb-item active">
-          <a href="javascript:void(0)" style="cursor: auto; font-weight: 700 !important; color: black">Vehicle</a>
+          <a href="javascript:void(0)" style="cursor: auto; font-weight: 700 !important; color: black">Vehicle
+            Master</a>
         </li>
       </ol>
     </div>
     <div class="row mb-5 align-items-center">
       <div class="col-xl-2 mb-4 mb-xl-0 mt-10">
-        <a style="cursor: pointer; color: white !important" (click)="openModal()" type="button" data-toggle="modal"
+        <!-- <a style="cursor: pointer; color: white !important" (click)="openModal()" type="button" data-toggle="modal"
           data-target=".bd-example-modal-lg"
           class="btn btn-primary light btn-lg btn-block rounded shadow px-2 buttons"><i class="fa fa-plus mr-1"></i>Add
-          Vehicle</a>
+          Vehicle</a> -->
+        <a style="cursor: pointer; color: white !important" (click)="openModal()" type="button" data-toggle="modal"
+          data-target=".bd-example-modal-lg" data-backdrop="false"
+          class="btn btn-primary light btn-lg btn-block rounded shadow px-2 buttons">
+          <i class="fa fa-plus mr-1"></i>Add Vehicle
+        </a>
       </div>
-      <div class="col-xl-2 mb-4 mb-xl-0">
+      <!-- <div class="col-xl-2 mb-4 mb-xl-0">
         <div class="media-body ml-1">
           <p class="mb-1 fs-14 text-center">Total Vehicle</p>
           <h3 class="mb-0 text-black font-w600 fs-20 text-center">
             {{ count() }}
           </h3>
         </div>
+      </div> -->
+      <div class="col-xl-2 mb-4 mb-xl-0" style="margin-left: -2%;">
+        <div class="media-body text-center">
+          <p class="mb-1 fs-14">Total Vehicle</p>
+          <h3 class="mb-0 text-black font-w600 fs-20">
+            {{ count() }}
+          </h3>
+        </div>
       </div>
+
     </div>
+    <div class="card-box p-4 mb-5"
+      style="background-color: #fff; box-shadow: 0 0 15px rgba(0, 0, 0, 0.08); border-radius: 10px;">
+      <div class="row mb-4 align-items-center">
 
-    <!-- Api integration work start here -->
 
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="table-responsive">
-          <table id="example5" class="table display mb-4 table-responsive-xl dataTablesCard fs-14">
-            <thead>
-              <tr>
-                <th>Sr No</th>
-                <th>Vehicle Name</th>
-                <th>Yrs Of Mfg</th>
-                <th>Vehicle Types</th>
-                <th>VIN</th>
-                <th>chasis_number</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              @if (vehicleList().length === 0) {
-              <tr>
-                <td colspan="6" class="text-center">
-                  <p>No Vehicle Found</p>
-                </td>
-              </tr>
-              } @else(){
-              <tr *ngFor="let vehicle of vehicleList(); let i = index">
-                <td>{{ i + 1 }}</td>
-                <td>{{ vehicle.vehicle_name }}</td>
-                <td>{{ vehicle.YOM }}</td>
-                <td>{{ vehicle.type }}</td>
-                <td>{{ vehicle.VIN }}</td>
-                <td>{{vehicle.chasis_number}}</td>
+        <div class="col-12">
+          <!-- Items per page selector -->
+          <div class="row mb-3">
 
-                <td class="d-flex">
-                  <a href="javascript:void(0);" type="button" data-toggle="modal" data-target=".bd-example-modal-lg"
-                    (click)="onEdit(vehicle)" class="btn btn-primary shadow btn-xs sharp mr-1"><i
-                      class="fa fa-pencil"></i></a>
-                  <a href="javascript:void(0);" type="button" class="btn btn-primary mb-2"
-                    class="btn btn-danger shadow btn-xs sharp" (click)="openModals()"
-                    (click)="selectVehicleForDeletion(vehicle)"><i class="fa fa-trash"></i></a>
+            <div class="col-md-6 d-flex align-items-center">
+              <label class="mr-2"></label>
+              <select class="form-control" style="width: 80px; display: inline-block; border-radius: 5px;height:45px;"
+                (change)="onItemsPerPageChange($event)">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+              <label class="ml-2">records per page</label>
+            </div>
 
-                  <!-- <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
-                    <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
-                      <div class="modal-dialog modal-sm">
-                        <div class="modal-content">
-                          <div class="modal-header text-center" style="margin-inline: auto">
-                            <h5 class="modal-title text-center">
-                              Delete Vehicle
-                            </h5>
-                          </div>
-                          <div class="modal-body">HEY ARE YOU Sure..!</div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-primary" data-dismiss="modal">
-                              cancel
-                            </button>
-                            <button type="button" class="btn btn-outline-danger" data-dismiss="modal"
-                              (click)="deleteVehicleId()">
-                              Delete
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+
+            <div class="col-md-6 d-flex justify-content-end align-items-center">
+              <div class="search-wrapper">
+                <input type="text" class="form-control search-input" placeholder="Search Vehicles..."
+                  [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table id="example5" class="table display mb-4 dataTablesCard fs-14 w-100">
+              <thead>
+                <tr>
+                  <th>Sr No</th>
+                  <th>Vehicle Name</th>
+                  <th>YOM</th>
+                  <th>Type</th>
+                  <th>VIN</th>
+                  <th>Chasis number</th>
+                  <th>Demo start date</th>
+                  <th>Demo end date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="paginatedVehicles.length === 0">
+                  <td colspan="9" class="text-center">
+                    <p>No Vehicles Found</p>
+                  </td>
+                </tr>
+                <tr *ngFor="let vehicle of paginatedVehicles; let i = index">
+                  <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+                  <td>{{ vehicle.vehicle_name }}</td>
+                  <td>{{ vehicle.YOM }}</td>
+                  <td>{{ vehicle.type }}</td>
+                  <td>{{ vehicle.VIN }}</td>
+                  <td>{{ vehicle.chasis_number }}</td>
+                  <td>{{ vehicle.demo_start_date }}</td>
+                  <td>{{ vehicle.demo_end_date }}</td>
+                  <td>
+                    <div class="d-flex">
+                      <a href="javascript:void(0);" data-target=".bd-example-modal-lg" data-toggle="modal"
+                        class="btn btn-primary shadow btn-xs sharp mr-1" data-backdrop="false"
+                        (click)="onEdit(vehicle)">
+                        <i class="fa fa-pencil"></i>
+                      </a>
+                      <!-- <a href="javascript:void(0);" type="button" class="btn btn-danger shadow btn-xs sharp"
+                        data-toggle="modal" data-backdrop="false" data-target=".bd-example-modal-sm"
+                        (click)="selectVehicleForDeletion(vehicle)">
+                        <i class="fa fa-trash"></i> 
+                      </a> -->
+                      <!-- <a href="javascript:void(0);" type="button" class="btn btn-danger shadow btn-xs sharp"
+                        data-toggle="modal" data-target="#deleteUserModal" (click)="selectVehicleForDeletion(vehicle)">
+                        <i class="fa fa-trash"></i>
+                      </a> -->
+                      <!-- <a href="javascript:void(0);" type="button" class="btn btn-danger shadow btn-xs sharp"
+                        (click)="openDeleteModal(vehicle)">
+                        <i class="fa fa-trash"></i>
+                      </a> -->
+                      <a href="javascript:void(0);" type="button"
+                        class="btn btn-danger shadow btn-xs sharp delete-btn-ipad" (click)="openDeleteModal(vehicle)">
+                        <i class="fa fa-trash"></i>
+                      </a>
+
                     </div>
-                    
-                  </div>
-                </td>
-              </tr>
-              } }
-            </tbody>
-          </table>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="row" style="margin-top:20px;">
+            <div class="col-md-6">
+              <div class="dataTables_info">
+                Showing {{ getShowingFrom() }} to {{ getShowingTo() }} of {{ filteredVehicles.length }} entries
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="dataTables_paginate paging_simple_numbers float-right">
+                <ul class="pagination">
+                  <li class="paginate_button page-item previous" [class.disabled]="currentPage === 1">
+                    <a class="page-link" (click)="previousPage()">Previous</a>
+                  </li>
+
+                  <li class="paginate_button page-item" *ngFor="let page of pages"
+                    [class.active]="page === currentPage">
+                    <a class="page-link" (click)="goToPage(page)">{{ page }}</a>
+                  </li>
+
+                  <li class="paginate_button page-item next" [class.disabled]="currentPage === totalPages">
+                    <a class="page-link" (click)="nextPage()">Next</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div> -->
+  <!-- Api integration work start here -->
+  <!-- 
+  <div class="modal fade bd-example-modal-sm delete-box" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-center w-100">Delete User</h5>
+        </div>
+        <div class="modal-body text-center">Are you sure you want to delete this user?</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-primary" data-dismiss="modal">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-outline-danger" (click)="deleteVehicleId()" data-dismiss="modal">
+            Delete
+          </button>
+        </div>
+      </div>
+       
+    </div>
+      
+  </div> -->
+
+  <div *ngIf="isDeleteModalOpen" class="modal d-block" tabindex="-1"
+    style="background: rgba(0, 0, 0, 0.5); z-index: 1050;">
+    <div class="modal-dialog modal-sm" style="top: 20%;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-center w-100">Delete User</h5>
+        </div>
+        <div class="modal-body text-center">Are you sure you want to delete this user?</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-primary" (click)="closeDeleteModal()">Cancel</button>
+          <button type="button" class="btn btn-outline-danger" (click)="deleteVehicleId()">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 
+  <!-- Modal -->
+  <div *ngIf="isModalOpen" class="modal d-block" style="background-color: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" style="top: 6%;">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" style="align-items: center; margin-inline: auto;font-size:18px;">
+              {{ vehicleObj.vehicle_id ? "Edit Vehicle" : "Add New Vehicle" }}
+            </h5>
+            <!-- <button type="button" class="close" (click)="closeModal()" data-dismiss="modal">
+            <span class="x">&times;</span>
+          </button> -->
+            <button type="button" class="close" (click)="closeModal()">
+              <span class="x">&times;</span>
+            </button>
+
+          </div>
+
+          <div class="modal-body" [formGroup]="useForm">
+
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label for="vehicle_name" class="form-label" style="display: block; width: 100%; text-align: left;">
+                  Vehicle Name<span style="color: red;">*</span>
+                </label>
 
 
-
-
-                  <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
-                    <div class="modal-dialog modal-sm">
-                      <div class="modal-content">
-                        <div class="modal-header text-center" style="margin-inline: auto">
-                          <h5 class="modal-title text-center">Delete Vehicle</h5>
-                        </div>
-                        <div class="modal-body">HEY ARE YOU OKAY..!</div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-outline-danger" data-dismiss="modal">
-                            Cancel
-                          </button>
-                          <button type="button" class="btn btn-outline-primary" (click)="deleteVehicleId()"
-                            data-dismiss="modal">
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-
-                </td>
-              </tr>
-              }
-
-            </tbody>
-            <!-- Modal -->
-            <div class="modal fade bd-example-modal-lg custom-modal" tabindex="-1" role="dialog" aria-hidden="true">
-              <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" style="align-items: center; margin-inline: auto">
-                      {{ vehicleObj.vehicle_id ? "Edit Vehicle" : "Add New Vehicle" }}
-                    </h5>
-                    <button type="button" class="close" (click)="closeModal()" data-dismiss="modal">
-                      <span class="x">&times;</span>
-                    </button>
-                  </div>
-
-                  <div class="modal-body" [formGroup]="useForm">
-
-                    <div class="row">
-                      <div class="col-md-6 form-group">
-                        <label for="vehicle_name" class="form-label">Vehicle Name*</label>
-                        <input style="cursor: text" id="vehicle_name" class="form-control form-control-lg" type="text"
-                          placeholder="Vehicle Name" formControlName="vehicle_name" [ngClass]="{
+                <input style="cursor: text" id="vehicle_name" class="form-control form-control-lg" type="text"
+                  placeholder="Vehicle Name" formControlName="vehicle_name" [ngClass]="{
                 'is-invalid':
                   useForm.get('vehicle_name')?.touched &&
                   useForm.get('vehicle_name')?.invalid
               }" />
-                        <div class="text-danger" *ngIf="
+                <div class="text-danger" *ngIf="
                 useForm.get('vehicle_name')?.touched &&
                 useForm.get('vehicle_name')?.invalid
               ">
-                          <span>Vehicle name is required.</span>
-                        </div>
-                      </div>
+                  <span>Vehicle name is required.</span>
+                </div>
+              </div>
 
-                      <div class="form-group col-md-6">
-                        <label for="YOM" class="form-label">YOM</label>
-                        <input id="YOM" type="date" class="form-control form-control-lg" formControlName="YOM"
-                          style="cursor: text" />
-                      </div>
-                    </div>
+              <div class="form-group col-md-6">
+                <label for="YOM" class="form-label" style="display: block; width: 100%; text-align: left;">
+                  YOM <span class="text-danger">*</span>
+                </label>
+                <input id="YOM" type="date" class="form-control form-control-lg" formControlName="YOM"
+                  [ngClass]="{ 'is-invalid': useForm.get('YOM')?.touched && useForm.get('YOM')?.invalid }"
+                  style="cursor: text" />
+
+                <!-- Validation message -->
+                <div class="text-danger" *ngIf="useForm.get('YOM')?.touched && useForm.get('YOM')?.invalid">
+                  <span *ngIf="useForm.get('YOM')?.errors?.['required']">YOM is required.</span>
+                </div>
+              </div>
+
+            </div>
 
 
 
 
-                    <div class="row">
-                      <div class="col-md-6 form-group">
-                        <label for="typeSelect" class="form-label">Type*</label>
-                        <select style="cursor: pointer" id="typeSelect" formControlName="type"
-                          class="form-control form-control-lg" [ngClass]="{
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <!-- <label for="typeSelect" class="form-label"
+                          style="display: block; width: 100%; text-align: left;">Type*</label> -->
+                <label for="typeSelect" class="form-label" style="display: block; width: 100%; text-align: left;">
+                  Type<span style="color: red;">*</span>
+                </label>
+                <select style="cursor: pointer" id="typeSelect" formControlName="type"
+                  class="form-control form-control-lg" [ngClass]="{
                 'is-invalid':
                   useForm.get('type')?.touched && useForm.get('type')?.invalid
               }">
-                          <option value="null" disabled>Select Type</option>
-                          <option value="petrol">Petrol</option>
-                          <option value="diesel">Diesel</option>
-                          <option value="EV">EV</option>
-                        </select>
-                        <!-- Error Message -->
-                        <div class="text-danger" *ngIf="
+                  <option value="null" disabled>Select Type</option>
+                  <option value="petrol">Petrol</option>
+                  <option value="diesel">Diesel</option>
+                  <option value="EV">EV</option>
+                </select>
+                <!-- Error Message -->
+                <div class="text-danger" *ngIf="
                 useForm.get('type')?.touched && useForm.get('type')?.invalid
               ">
-                          <span>Type is required.</span>
-                        </div>
-                      </div>
+                  <span>Type is required.</span>
+                </div>
 
-                      <div class="col-md-6 form-group">
-                        <label for="VIN" class="form-label">VIN ID</label>
-                        <input id="VIN" class="form-control form-control-lg" type="text" placeholder="VIN"
-                          formControlName="VIN" [ngClass]="{
+                <!-- <div class="col-md-6 form-group">
+              
+              <label for="VIN" class="form-label" style="display: block; width: 100%; text-align: left;">
+                Vehicle Name<span style="color: red;">*</span>
+              </label>
+              <input id="VIN" class="form-control form-control-lg" type="text" placeholder="VIN" formControlName="VIN"
+                [ngClass]="{
                 'is-invalid':
                   useForm.get('VIN')?.touched && useForm.get('VIN')?.invalid
               }" />
 
-                        <div class="text-danger" *ngIf="useForm.get('VIN')?.touched && useForm.get('VIN')?.invalid">
-                          <span>VIN is required.</span>
-                        </div>
+              <div class="text-danger" *ngIf="useForm.get('VIN')?.touched && useForm.get('VIN')?.invalid">
+                <span>VIN is required.</span>
+              </div>
 
-                      </div>
-                    </div>
+            </div> -->
+              </div>
 
-
-                    <div class="col-md-6 form-group">
+              <!-- MY CODE -->
+              <!-- <div class="col-md-6 form-group">
                       <label for="chasis_number" class="form-label">Chasis Number</label>
                       <input id="chasis_number" class="form-control form-control-lg" type="text"
                         placeholder="Enter Chassis Number" formControlName="chasis_number"
                         [ngClass]="{'is-invalid': useForm.get('chasis_number')?.touched && useForm.get('chasis_number')?.invalid}" />
 
-                      <!-- <div class="text-danger"
-                                              *ngIf="useForm.get('chasis_number')?.touched && useForm.get('chasis_number')?.invalid">
-                                              <span>chasis_number is required.</span> -->
-                    </div>
+
+                    </div> -->
+
+              <div class="col-md-6 form-group">
+                <label for="chasis_number" class="form-label" style="display: block; width: 100%; text-align: left;">
+                  Chasis Number <span class="text-danger">*</span>
+                </label>
+
+                <input id="chasis_number" class="form-control form-control-lg" type="text"
+                  placeholder="Enter Chassis Number" formControlName="chasis_number" [ngClass]="{
+                                              'is-invalid':
+                                                useForm.get('chasis_number')?.touched && useForm.get('chasis_number')?.invalid
+                                            }" />
+
+                <!-- Error Message -->
+                <div class="text-danger"
+                  *ngIf="useForm.get('chasis_number')?.touched && useForm.get('chasis_number')?.invalid">
+                  <span *ngIf="useForm.get('chasis_number')?.errors?.['required']">Chasis number is required.</span>
+                </div>
+              </div>
+
+
+
+              <div class="row" style="margin-left:-3px !important;">
+                <div class="col-md-6 form-group">
+                  <label for="demo_start_date" class="form-label"
+                    style="display: block; width: 100%; text-align: left;">
+                    Start date <span class="text-danger">*</span>
+                  </label>
+
+                  <input id="demo_start_date" class="form-control form-control-lg" type="date" placeholder="start date"
+                    formControlName="demo_start_date" [ngClass]="{
+                                    'is-invalid':
+                                      useForm.get('demo_start_date')?.touched && useForm.get('demo_start_date')?.invalid
+                                  }" style="width:350px;" />
+
+                  <div class="text-danger"
+                    *ngIf="useForm.get('demo_start_date')?.touched && useForm.get('demo_start_date')?.invalid">
+                    <span>Start date is required.</span>
                   </div>
+
+                </div>
+                <!-- 
+              <div class="col-md-6 form-group">
+                <label for="demo_end_date" class="form-label" style="display: block; width: 100%; text-align: left;">
+                  End date <span class="text-danger">*</span>
+                </label>
+
+                <input id="demo_end_date" class="form-control form-control-lg" type="date" placeholder="end date"
+                  style="margin-left:-10px;" formControlName="demo_end_date" [ngClass]="{
+                                                                        'is-invalid':
+                                                                          useForm.get('end_date')?.touched && useForm.get('end_date')?.invalid
+                                                                      }" />
+
+                <div class="text-danger"
+                  *ngIf="useForm.get('demo_end_date')?.touched && useForm.get('demo_end_date')?.invalid">
+                  <span>End date is required.</span>
+                </div>
+
+              </div> -->
+                <div class="col-md-6 form-group">
+                  <label for="demo_end_date" class="form-label"
+                    style="display: block; width: 100%; text-align: left;margin-left:-2px">
+                    End date <span class="text-danger">*</span>
+                  </label>
+
+                  <input id="demo_end_date" class="form-control form-control-lg" type="date" placeholder="end date"
+                    formControlName="demo_end_date" [ngClass]="{
+                                                  'is-invalid':
+                                                    useForm.get('demo_end_date')?.touched && useForm.get('demo_end_date')?.invalid
+                                                }" style="width:350px;" />
+
+                  <div class="text-danger"
+                    *ngIf="useForm.get('demo_end_date')?.touched && useForm.get('demo_end_date')?.invalid">
+                    <span>End date is required.</span>
+                  </div>
+
+                </div>
+                <div class="col-md-6 form-group" style="margin-left:5px;">
+                  <label for="vin" class="form-label" style="display: block; width: 100%; text-align: left;">
+                    VIN <span class="text-danger">*</span>
+                  </label>
+
+                  <input id="vin" class="form-control form-control-lg" type="text" placeholder="VIN"
+                    style="margin-left:-5px;" formControlName="VIN" [ngClass]="{
+                    'is-invalid':
+                      useForm.get('VIN')?.touched && useForm.get('VIN')?.invalid
+                  }" />
+
+                  <!-- Error Message -->
+                  <div class="text-danger" *ngIf="useForm.get('VIN')?.touched && useForm.get('VIN')?.invalid">
+                    <span *ngIf="useForm.get('VIN')?.errors?.['required']">VIN is required.</span>
+                  </div>
+
+
+
+                  <!-- <div class="col-md-6 form-group" style="margin-top:-30px;">
+                    <label for="end_date" class="form-label">End date</label>
+                    <input id="end_date" class="form-control form-control-lg" type="date" placeholder="end date"
+                      formControlName="end_date"
+                      [ngClass]="{'is-invalid': useForm.get('end_date')?.touched && useForm.get('end_date')?.invalid}" />
+
+
+                  </div> -->
+
+                  <!-- MY CODE -->
+
                   <!-- ADDED ONE MORE FIELD -->
                   <!-- <div class="form-group col-md-6">
                       <label for="chasis_number" class="form-label">Chasis number</label>
@@ -272,24 +468,39 @@
                   </div>
                 </div>
               </div> -->
-                  <div class="modal-footer">
-                    <!-- Ensure Edit button appears only if vehicle_id is defined -->
-                    <ng-container
-                      *ngIf="vehicleObj.vehicle_id !== null && vehicleObj.vehicle_id !== undefined; else saveButton">
-                      <button type="button" class="btn btn-outline-primary" (click)="onUpdate()"
-                        [disabled]="!isVehicleNameChanged()">
-                        Edit
-                      </button>
-                    </ng-container>
+                </div>
+              </div>
+            </div>
 
-                    <button type="button" class="btn btn-outline-danger" (click)="closeModal()" data-dismiss="modal">
-                      Close
-                    </button>
+            <div class="modal-footer">
+              <!-- Ensure Edit button appears only if vehicle_id is defined -->
+              <ng-container
+                *ngIf="vehicleObj.vehicle_id !== null && vehicleObj.vehicle_id !== undefined; else saveButton">
+                <button type="button" class="btn btn-outline-primary" (click)="onUpdate()"
+                  [disabled]="!isVehicleNameChanged()">
+                  Edit
+                </button>
+              </ng-container>
 
-                    <ng-template #saveButton>
-                      <button type="button" class="btn btn-outline-primary" (click)="onSave()"
-                        [attr.data-dismiss]="useForm.valid ? 'modal' : null">
-                        Save
-                      </button>
-                    </ng-template>
-                  </div>
+              <button type="button" class="btn btn-outline-danger" (click)="closeModal()">
+                Close
+              </button>
+
+              <!-- <ng-template #saveButton>
+            <button type="button" class="btn btn-outline-primary" (click)="onSave()"
+              [attr.data-dismiss]="useForm.valid ? 'modal' : null">
+              Save
+            </button>
+          </ng-template> -->
+              <ng-template #saveButton>
+                <button type="button" class="btn btn-outline-primary" (click)="onSave()">
+                  Save
+                </button>
+              </ng-template>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

@@ -38,7 +38,7 @@ export class HeaderComponent implements OnInit {
     private context: ContextService,
     private cdr: ChangeDetectorRef,
     private sidebarService: SidebarService
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.context.onSideBarClick$.subscribe(({ pageTitle }) => {

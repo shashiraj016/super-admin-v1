@@ -46,11 +46,21 @@ export class DealerComponent implements OnInit {
   selectedRowCount = 3;
   isLoading = false;
   isModalVisible = false;
+  isModalOpen = false;
   isEditMode: boolean = false;
   useForm: FormGroup;
   previousValue: string = '';
-  
+  isDeleteModalOpen = false;
+  itemsPerPage = 10;
+  originalDealerName: string = '';
+  originalDealerC: string = ''; // 👈 Add this
 
+  currentPage = 1;
+  searchTerm: string = '';
+  filteredDealers: any[] = []; // will hold the filtered user list
+  paginatedDealers: any[] = []; // your current paginated users (already existing)
+  totalPages: number = 0;
+  pages: number[] = [];
   constructor(private modalService: NgbModal) {
     this.useForm = new FormGroup({
       dealer_name: new FormControl(this.dealerObj.dealer_name, [
@@ -67,6 +77,8 @@ export class DealerComponent implements OnInit {
   private readonly toastr = inject(ToastrService);
 
   openModal(dealer?: dealers) {
+    this.isModalOpen = true;
+
     console.log('open modal called');
     this.useForm.reset();
     this.isModalVisible = true;
@@ -87,31 +99,153 @@ export class DealerComponent implements OnInit {
     }
   }
 
+  // isDealerNameChanged(): boolean {
+  //   return this.useForm.value.dealer_name !== this.previousValue;
+  // }
   isDealerNameChanged(): boolean {
-    return this.useForm.value.dealer_name !== this.previousValue;
+    return this.useForm.get('dealer_name')?.value !== this.originalDealerName;
   }
 
   closeModal() {
-    ($('#exampleModalCenter') as any).modal('hide');
-    this.isModalVisible = false;
+    ($('.bd-example-modal-lg') as any).modal('hide');
+    this.isModalOpen = false; // optional, if you use isModalOpen conditionally in HTML
   }
-
   ngOnInit(): void {
     this.getAllDealer();
   }
 
+  // getAllDealer() {
+  //   this.masterSrv.getAllDealer().subscribe(
+  //     (res: DealerResponse) => {
+  //       console.log('Dealer list updated:', res.data.dealer.rows); // Log response to verify
+  //       this.dealerList.set(res.data.dealer.rows); // Set the dealer list
+  //       this.totalDealer.set(res.data.dealer.count);
+  //     },
+  //     (error) => {
+  //       this.toastr.error('Error fetching dealers', 'Error');
+  //     }
+  //   );
+  // }
   getAllDealer() {
-    // debugger;
     this.masterSrv.getAllDealer().subscribe(
       (res: DealerResponse) => {
-        console.log('Dealer list updated:', res.data.dealer.rows); // Log response to verify
-        this.dealerList.set(res.data.dealer.rows); // Set the dealer list
+        console.log('Dealer list updated:', res.data.dealer.rows);
+
+        this.dealerList.set(res.data.dealer.rows); // signal data
+
         this.totalDealer.set(res.data.dealer.count);
+
+        // ✅ Immediately apply filter + pagination
+        this.applyFilterAndPagination();
       },
       (error) => {
         this.toastr.error('Error fetching dealers', 'Error');
       }
     );
+  }
+  applyFilterAndPagination() {
+    const allDealers = this.dealerList();
+
+    const filtered = allDealers.filter(
+      (dealer) =>
+        dealer.dealer_name
+          ?.toLowerCase()
+          .includes(this.searchTerm.toLowerCase()) ||
+        dealer.dealer_code
+          ?.toString()
+          .toLowerCase()
+          .includes(this.searchTerm.toLowerCase())
+    );
+
+    this.filteredDealers = filtered;
+
+    // 🔥 Fix: set totalPages and pages
+    this.totalPages = Math.ceil(filtered.length / this.itemsPerPage);
+    this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    this.paginatedDealers = filtered.slice(start, end);
+  }
+
+  // dealerList(): any[] {
+  //   return this.filteredDealers || [];
+  // }
+
+  onSearchChange() {
+    this.filterUsers();
+    this.currentPage = 1; // reset to first page after search
+    this.paginateDealers();
+  }
+  filterUsers() {
+    if (!this.searchTerm) {
+      this.filteredDealers = this.dealerList();
+    } else {
+      const term = this.searchTerm.toLowerCase();
+      this.filteredDealers = this.dealerList().filter((user) => {
+        return user.dealer_name.toLowerCase().includes(term);
+      });
+    }
+    this.currentPage = 1; // Reset to first page after search
+    this.paginateDealers();
+  }
+  min(a: number, b: number): number {
+    return Math.min(a, b);
+  }
+
+  // paginateDealers() {
+  //   const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+  //   const endIndex = startIndex + this.itemsPerPage;
+  //   this.paginatedDealers = this.filteredDealers.slice(startIndex, endIndex);
+  //   this.totalPages = Math.ceil(
+  //     this.filteredDealers.length / this.itemsPerPage
+  //   );
+  //   this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  // }
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.applyFilterAndPagination();
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.applyFilterAndPagination();
+    }
+  }
+
+  goToPage(page: number) {
+    if (page !== this.currentPage) {
+      this.currentPage = page;
+      this.applyFilterAndPagination();
+    }
+  }
+
+  paginateDealers(): void {
+    const allDealers = this.dealerList();
+
+    const filtered = allDealers.filter(
+      (dealer) =>
+        dealer.dealer_name
+          ?.toLowerCase()
+          .includes(this.searchTerm.toLowerCase()) ||
+        dealer.dealer_code
+          ?.toString()
+          .toLowerCase()
+          .includes(this.searchTerm.toLowerCase())
+    );
+
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+
+    this.paginatedDealers = filtered.slice(start, end);
+  }
+  openDeleteModal(dealer: any) {
+    console.log('🗑️ Delete button clicked', dealer); // ✅ debug log
+    this.selectedDealerForDeletion = dealer;
+    this.isDeleteModalOpen = true;
   }
 
   // onSave() {
@@ -140,10 +274,37 @@ export class DealerComponent implements OnInit {
 
   //   this.closeModal();
   // }
+  //  deleteDealerId() {
+  //     console.log('Deleting User ID:', this.selectedUserForDeletion?.user_id);
+
+  //     if (this.selectedUserForDeletion && this.selectedUserForDeletion.user_id) {
+  //       this.masterSrv.deleteUser(this.selectedUserForDeletion.user_id).subscribe(
+  //         (res: MultiuserResponse) => {
+  //           this.toastr.success('User deleted successfully', 'Success');
+  //           this.displayAllUser();
+
+  //           // ✅ Close modal
+  //           this.isDeleteModalOpen = false;
+  //         },
+  //         (error) => {
+  //           this.toastr.error('Server Error', 'Error');
+  //         }
+  //       );
+  //     } else {
+  //       alert('No users selected for deletion');
+  //     }
+  //   }
+  closeDeleteModal() {
+    this.isDeleteModalOpen = false;
+  }
   onSave() {
     if (this.useForm.invalid) {
-      this.useForm.markAllAsTouched(); // Mark all fields as touched
-      return; // Don't proceed if the form is invalid
+      this.useForm.markAllAsTouched(); // ✅ This ensures validation errors are shown
+      this.toastr.warning(
+        'Please fill all required fields correctly',
+        'Validation'
+      );
+      return;
     }
 
     // Proceed with creating or updating the dealer based on the mode
@@ -178,7 +339,26 @@ export class DealerComponent implements OnInit {
       }
     );
   }
+  // onItemsPerPageChange(event: any) {
+  //   this.itemsPerPage = parseInt(event.target.value, 10);
+  //   this.currentPage = 1;
+  //   console.log('Dropdown changed to:', this.itemsPerPage);
+  //   this.paginateDealers();
+  // }
+  onItemsPerPageChange(event: any) {
+    this.itemsPerPage = parseInt(event.target.value, 10);
+    this.currentPage = 1;
+    console.log('Dropdown changed to:', this.itemsPerPage);
+    this.applyFilterAndPagination(); // ✅ instead of paginateDealers()
+  }
 
+  // paginateUsers() {
+  //   const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+  //   const endIndex = startIndex + this.itemsPerPage;
+  //   this.paginatedUsers = this.filteredUsers.slice(startIndex, endIndex);
+  //   this.totalPages = Math.ceil(this.filteredUsers.length / this.itemsPerPage);
+  //   this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  // }
   // createNewDealer() {
   //   this.getAllDealer();
   //   this.masterSrv.createDealer(this.dealerObj).subscribe(
@@ -218,7 +398,7 @@ export class DealerComponent implements OnInit {
   //     }
   //   );
   // }
-  onUpdate() {
+  onUpdate(): void {
     if (this.useForm.valid) {
       this.dealerObj = { ...this.dealerObj, ...this.useForm.value };
 
@@ -226,12 +406,19 @@ export class DealerComponent implements OnInit {
 
       this.masterSrv.updateDealer(this.dealerObj).subscribe(
         (res: any) => {
-          console.log('✅ API Response:', res); // ✅ Check API response
+          console.log('✅ API Response:', res);
 
           if (res.status === 200) {
             this.toastr.success(res.message, 'Success');
 
-            // 🔄 Ensure we fetch updated data after updating
+            // ✅ Close modal
+            this.isModalOpen = false;
+
+            // ✅ Reset original tracking fields
+            this.originalDealerName = '';
+            this.originalDealerC = '';
+
+            // ✅ Refresh list
             setTimeout(() => {
               this.getAllDealer();
             }, 500);
@@ -248,6 +435,7 @@ export class DealerComponent implements OnInit {
       this.toastr.error('Invalid form data. Please check inputs.', 'Error');
     }
   }
+
   // onEdit(data: dealers) {
   //   // this.dealerObj = data;
   //   this.useForm.patchValue({
@@ -257,44 +445,80 @@ export class DealerComponent implements OnInit {
   //   }),
   //     console.log(this.dealerObj, 'trueeee----');
   // }
-  onEdit(dealerId: string) {
-    console.log('Edit button clicked. Dealer ID:', dealerId); // ✅ Debug log
-    this.isEditMode = true; // Enable edit mode
+  // onEdit(dealerId: string): void {
+  //   console.log('Edit button clicked. Dealer ID:', dealerId);
+  //   this.isEditMode = true;
+
+  //   this.masterSrv.getDealerById(dealerId).subscribe(
+  //     (res: SingleDealerResponse) => {
+  //       console.log('API Response:', res);
+
+  //       if (res?.data?.dealer) {
+  //         const dealer = res.data.dealer;
+  //         console.log('Dealer Found:', dealer);
+
+  //         this.dealerObj = {
+  //           ...dealer,
+  //           dealer_code: Number(dealer.dealer_code),
+  //         };
+
+  //         this.useForm.patchValue({
+  //           dealer_name: dealer.dealer_name,
+  //           dealer_code: Number(dealer.dealer_code),
+  //         });
+
+  //         this.isModalOpen = true; // ✅ Angular-way: show modal
+  //       } else {
+  //         this.toastr.error('Dealer data not found', 'Error');
+  //       }
+  //     },
+  //     (error) => {
+  //       this.toastr.error('Error fetching dealer details', 'Error');
+  //       console.error('Error fetching dealer:', error);
+  //     }
+  //   );
+  // }
+  onEdit(dealerId: string): void {
+    console.log('Edit button clicked. Dealer ID:', dealerId);
+    this.isEditMode = true;
 
     this.masterSrv.getDealerById(dealerId).subscribe(
       (res: SingleDealerResponse) => {
-        console.log('API Response:', res); // ✅ Debug log
+        console.log('API Response:', res);
 
-        if (res?.data.dealer) {
-          console.log('Dealer Found:', res.data.dealer); // ✅ Ensure dealer data is present
+        if (res?.data?.dealer) {
+          const dealer = res.data.dealer;
+          console.log('Dealer Found:', dealer);
 
-          // STORE DEALER DATA IMP PART TO BE FOLLOWED WHEREVER DEALER CODE IS THERE .. TO SET IT BY DEAFULT AND NOT TO EDIT
           this.dealerObj = {
-            ...res.data.dealer,
-            dealer_code: Number(res.data.dealer.dealer_code), // ✅ Convert to number
+            ...dealer,
+            dealer_code: Number(dealer.dealer_code),
           };
 
+          this.originalDealerName = dealer.dealer_name;
+          this.originalDealerC = dealer.dealer_code; // 👈 Save original dealer_c
+
           this.useForm.patchValue({
-            dealer_name: res.data.dealer.dealer_name,
-            dealer_code: Number(res.data.dealer.dealer_code), // ✅ Convert to number
+            dealer_name: dealer.dealer_name,
+            dealer_code: Number(dealer.dealer_code),
+            dealer_c: dealer.dealer_code, // 👈 Add this
           });
 
-          console.log('Dealer data set, opening modal...'); // ✅ Log before modal opens
-
-          // ✅ Ensure modal opens manually
-          setTimeout(() => {
-            ($(`#exampleModalCenter`) as any).modal('show'); // ✅ Suppresses TypeScript error
-          }, 0);
-          // Small delay to ensure DOM updates
+          this.isModalOpen = true;
         } else {
-          console.error('Dealer data is missing in response:', res);
           this.toastr.error('Dealer data not found', 'Error');
         }
       },
-      (error: any) => {
-        console.error('Error fetching dealer details:', error);
+      (error) => {
         this.toastr.error('Error fetching dealer details', 'Error');
+        console.error('Error fetching dealer:', error);
       }
+    );
+  }
+  isFormChanged(): boolean {
+    return (
+      this.useForm.get('dealer_name')?.value !== this.originalDealerName ||
+      this.useForm.get('dealer_c')?.value !== this.originalDealerC
     );
   }
 
