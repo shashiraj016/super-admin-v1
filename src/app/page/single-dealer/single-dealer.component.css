@@ -8,7 +8,15 @@
 }
 
 .content-body {
-  margin-left: 350px; /* Match sidebar width */
   padding: 20px;
   flex-grow: 1;
+}
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.custom-scroll-wrapper {
+  overflow-x: auto;
+  display: block;
+  width: 100%;
 }

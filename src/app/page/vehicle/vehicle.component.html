@@ -1,12 +1,13 @@
 <div class="container-fluid">
-  <div class="dashboard-container">
+  <div class="content-section active">
     <div class="page-titles">
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
           <a href="javascript:void(0)" style="cursor: auto">Transaction</a>
         </li>
         <li class="breadcrumb-item active">
-          <a href="javascript:void(0)" style="cursor: auto; font-weight: 700 !important; color: black">Vehicle</a>
+          <a href="javascript:void(0)" style="cursor: auto; font-weight: 700 !important; color: black">Vehicle
+            Master</a>
         </li>
       </ol>
     </div>
@@ -15,7 +16,12 @@
         <a style="cursor: pointer; color: white !important" (click)="openModal()" type="button" data-toggle="modal"
           data-target=".bd-example-modal-lg"
           class="btn btn-primary light btn-lg btn-block rounded shadow px-2 buttons"><i class="fa fa-plus mr-1"></i>Add
-          Vehicle</a>
+          Vehicle</a> -->
+        <a style="cursor: pointer; color: white !important" (click)="openModal()" type="button" data-toggle="modal"
+          data-target=".bd-example-modal-lg" data-backdrop="false"
+          class="btn btn-primary light btn-lg btn-block rounded shadow px-2 buttons">
+          <i class="fa fa-plus mr-1"></i>Add Vehicle
+        </a>
       </div>
       <div class="col-xl-2 col-lg-3 col-md-4 mb-4 mb-md-0">
         <div class="media-body ml-1">
@@ -24,7 +30,16 @@
             {{ count() }}
           </h3>
         </div>
+      </div> -->
+      <div class="col-xl-2 mb-4 mb-xl-0" style="margin-left: -2%;">
+        <div class="media-body text-center">
+          <p class="mb-1 fs-14">Total Vehicle</p>
+          <h3 class="mb-0 text-black font-w600 fs-20">
+            {{ count() }}
+          </h3>
+        </div>
       </div>
+
     </div>
     <div class="card-box p-4 mb-5"
       style="background-color: #fff; box-shadow: 0 0 15px rgba(0, 0, 0, 0.08); border-radius: 10px;">

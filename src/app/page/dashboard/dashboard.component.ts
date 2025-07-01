@@ -27,6 +27,7 @@ import {
 } from 'chart.js';
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { HeaderComponent } from '../../layout/header/header.component';
+import { ContextService } from '../../service/context.service';
 // Register all chart components
 Chart.register(...registerables);
 Chart.register(
@@ -145,13 +146,36 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   progressValue: number = 0;
   strokeColor: string = 'red'; // green by default
   // selectedPeriod: string = 'MTD'; // for MTD, QTD, YTD dropdown
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef,
+    private context: ContextService
+  ) {}
   data: any; // To hold your data
   apiUrl: string =
     'https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd';
 
   dealersData: any[] = []; // Array to hold the dealer data
+  // ngOnInit() {
+  //   this.selectedFilter = 'MTD';
+  //   this.fetchDashboardData('MTD');
+
+  //   this.maxValue =
+  //     Math.max(...this.displayedData.map((item) => item.value)) || 1;
+  //   this.fetchData();
+  //   this.updateDataBasedOnSelection();
+  //   this.applyFilter(this.selectedFilter);
+
+  //   setTimeout(() => {
+  //     this.animatedValue = this.progressValue;
+  //   }, 100);
+  // }
   ngOnInit() {
+    this.context.onSideBarClick$.next({
+      role: 'dashboard',
+      pageTitle: 'Dashboard',
+    });
+
     this.selectedFilter = 'MTD';
     this.fetchDashboardData('MTD');
 

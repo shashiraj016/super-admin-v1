@@ -42,7 +42,11 @@ export class TeamComponent {
   previousValue: string = '';
   totalPages: number = 0;
   // paginatedTeams: any[] = []; // your current paginated users (already existing)
+<<<<<<< HEAD
 
+=======
+  isModalOpen = false;
+>>>>>>> 8d04eae0 (updated code)
   // Dependency injection
   masterSrv = inject(MasterService);
   private readonly toastr = inject(ToastrService);
@@ -66,6 +70,10 @@ export class TeamComponent {
   itemsPerPage: number = 10;
   currentPage: number = 1;
   filteredTeam: any[] = [];
+<<<<<<< HEAD
+=======
+  isDeleteModalOpen = false;
+>>>>>>> 8d04eae0 (updated code)
 
   paginatedTeams: any[] = [];
   filteredTeamList: any[] = [];
@@ -161,6 +169,8 @@ export class TeamComponent {
   openModal(team?: Teams) {
     console.log('✅ openModal() function called');
 
+    this.isModalOpen = true; // ✅ Required to show modal via *ngIf
+
     // Reset form and set edit mode
     this.useForm.reset();
     this.isEditMode = !!team; // ✅ Set edit mode flag
@@ -186,6 +196,7 @@ export class TeamComponent {
       console.log('🆕 New Vehicle Mode: Reset vehicleObj', this.teamObj);
     }
   }
+
   // onEdit(team: Teams) {
   //   // const nameParts = customer.account_name && customer.account_name.trim() ? customer.account_name.split(' ') : [];
   //   this.isEditMode = true; // Ensure edit mode is set
@@ -204,6 +215,7 @@ export class TeamComponent {
   onEdit(team: Teams) {
     console.log('Edit button clicked. Team ID:', team?.team_id); // Debug log
     this.isEditMode = true; // Ensure edit mode is set
+    this.isModalOpen = true; // ✅ Add this line to open the modal
 
     // Set team object to the selected team to preserve data
     this.teamObj = { ...team };
@@ -242,14 +254,25 @@ export class TeamComponent {
     );
   }
 
+  // isTeamNameChanged(): boolean {
+  //   return this.useForm.value.name !== this.previousValue;
+  // }
+
   isTeamNameChanged(): boolean {
-    return this.useForm.value.name !== this.previousValue;
+    return (
+      this.useForm.dirty && this.useForm.value.team_name !== this.previousValue
+    );
   }
 
   selectedteamForDeletion: Teams | null = null;
 
   selectteamForDeletion(user: Teams) {
     this.selectedteamForDeletion = user;
+    this.isDeleteModalOpen = true;
+  }
+
+  closeDeleteModal() {
+    this.isDeleteModalOpen = false;
   }
   //  deleteUserId() {
   //     console.log(
@@ -313,6 +336,10 @@ export class TeamComponent {
         console.warn('Team not found:', teamNameControl.value);
       }
     }
+  }
+  openDeleteModal(team: any) {
+    this.selectedteamForDeletion = team;
+    this.isDeleteModalOpen = true;
   }
   //  displayAllTeams() {
   //     console.log('getAllTeams() function called'); // Debugging Log
@@ -416,6 +443,7 @@ export class TeamComponent {
     this.currentPage = 1;
     this.filterTeams();
   }
+<<<<<<< HEAD
   getShowingFrom(): number {
     return this.filteredTeamList.length === 0
       ? 0
@@ -450,6 +478,25 @@ export class TeamComponent {
     }
 
     this.currentPage = 1; // Reset to first page after filtering
+=======
+  getShowingTo(): number {
+    return Math.min(
+      this.currentPage * this.itemsPerPage,
+      this.filteredTeam.length
+    );
+  }
+  onItemsPerPageChange(event: any) {
+    this.itemsPerPage = +event.target.value;
+    this.currentPage = 1;
+
+    this.filterTeams(); // ✅ this ensures filteredTeamList is updated first
+  }
+
+  filterTeams() {
+    this.filteredTeamList = this.teamList().filter((team) =>
+      team.team_name.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+>>>>>>> 8d04eae0 (updated code)
     this.paginateTeams();
   }
 
@@ -499,14 +546,22 @@ export class TeamComponent {
       this.selectteamForDeletion,
       this.selectedteamForDeletion
     );
+
     if (this.selectedteamForDeletion && this.selectedteamForDeletion.team_id) {
       this.masterSrv.deleteTeam(this.selectedteamForDeletion.team_id).subscribe(
         (res: TeamsResponse) => {
           this.toastr.success('Team deleted successfully', 'Success');
+<<<<<<< HEAD
+=======
+
+          // ✅ Close the modal before refreshing the data
+          this.isDeleteModalOpen = false;
+
+          // ✅ Refresh team list
+>>>>>>> 8d04eae0 (updated code)
           this.displayAllTeams();
         },
         (error) => {
-          // alert(error.message || 'Failed to delete users'); comment for server side error not come
           this.toastr.error('Server Error', 'Error');
         }
       );
@@ -538,6 +593,9 @@ export class TeamComponent {
         this.totalteam.set(0); // optional: reset count to 0 on error
       },
     });
+  }
+  min(a: number, b: number): number {
+    return Math.min(a, b);
   }
 
   // onUpdate() {
@@ -641,9 +699,8 @@ export class TeamComponent {
       this.toastr.error('Invalid form data. Please check inputs.', 'Error');
     }
   }
-
   closeModal() {
-    ($('.bd-example-modal-lg') as any).modal('hide');
+    this.isModalOpen = false;
   }
 
   // Utility method to mark all form controls as touched
@@ -719,10 +776,18 @@ export class TeamComponent {
       },
       error: (err) => {
         console.error('Team creation error:', err);
+<<<<<<< HEAD
         this.toastr.error(
           err.message || 'Failed to create team',
           'Creation Error'
         );
+=======
+
+        // Extracting the backend message if available
+        const backendMessage = err?.error?.message || 'Failed to create team';
+
+        this.toastr.error(backendMessage, 'Creation Error');
+>>>>>>> 8d04eae0 (updated code)
       },
     });
   }

@@ -8,18 +8,32 @@ import {
 } from "./chunk-5QDNSMVE.js";
 import "./chunk-BUGEQH7Q.js";
 import {
+<<<<<<< HEAD
   PrimeTemplate,
   SharedModule,
   UniqueComponentId
 } from "./chunk-LSQG3WLJ.js";
 import {
+=======
+>>>>>>> 8d04eae0 (updated code)
   Router,
   RouterLink,
   RouterLinkActive,
   RouterModule
+<<<<<<< HEAD
 } from "./chunk-JH7RAIWY.js";
 import "./chunk-YXWAPH6D.js";
 import "./chunk-OCCYK2DZ.js";
+=======
+} from "./chunk-Y6UA5LFW.js";
+import {
+  PrimeTemplate,
+  SharedModule,
+  UniqueComponentId
+} from "./chunk-2ALH76FN.js";
+import "./chunk-36N7IJ4B.js";
+import "./chunk-TE3D7VPS.js";
+>>>>>>> 8d04eae0 (updated code)
 import {
   CommonModule,
   NgClass,

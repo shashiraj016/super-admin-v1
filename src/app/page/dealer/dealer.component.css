@@ -8,7 +8,38 @@
 }
 
 .content-body {
-  margin-left: 350px; /* Match sidebar width */
+  /* margin-left: 350px; Match sidebar width */
   padding: 20px;
   flex-grow: 1;
+}
+.search-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+.search-input {
+  width: 200px;
+  max-width: 100%;
+}
+/* ✅ Hide Chrome red X (clear/invalid icons) */
+input::-webkit-clear-button,
+input::-webkit-inner-spin-button,
+input::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* ✅ Remove red shadow in Chrome on :invalid */
+input:invalid {
+  box-shadow: none !important;
+}
+
+/* ✅ Remove red shadow in Firefox */
+input:-moz-ui-invalid {
+  box-shadow: none !important;
+}
+input.form-control.is-invalid,
+input.form-control.form-control-lg.is-invalid {
+  background-image: none !important;
+  padding-right: 0.75rem !important; /* optional: clean spacing after icon removal */
 }

@@ -71,6 +71,11 @@ export class VehicleComponent implements OnInit {
   isModalVisible = false;
   isEditMode = false;
   previousValue: string = '';
+<<<<<<< HEAD
+=======
+  isModalOpen = false;
+
+>>>>>>> 8d04eae0 (updated code)
   filteredVehicle: any[] = [];
   // vehicles: Vehicle[] = []; // All vehicle records
   // filteredVehicles: Vehicle[] = []; // Filtered by search
@@ -83,6 +88,10 @@ export class VehicleComponent implements OnInit {
   itemsPerPage: number = 5;
   totalPages: number = 0;
   pages: number[] = [];
+<<<<<<< HEAD
+=======
+  isDeleteModalOpen = false;
+>>>>>>> 8d04eae0 (updated code)
 
   // Form Group
   useForm: FormGroup = new FormGroup({});
@@ -106,11 +115,7 @@ export class VehicleComponent implements OnInit {
         Validators.minLength(2),
         Validators.maxLength(50),
       ]),
-      VIN: new FormControl('', [
-        Validators.required,
-        Validators.minLength(5),
-        Validators.maxLength(20),
-      ]),
+      VIN: new FormControl('', [Validators.required]),
       type: new FormControl('', [Validators.required]),
       YOM: new FormControl('', [Validators.required]),
       // chasis_number: new FormControl('', [Validators.required]), // Ensure this is correct
@@ -168,6 +173,7 @@ export class VehicleComponent implements OnInit {
   // }
   openModal(vehicle?: Vehicle) {
     console.log('✅ openModal() function called');
+    this.isModalOpen = true;
 
     // Reset form and set edit mode
     this.useForm.reset();
@@ -375,10 +381,17 @@ export class VehicleComponent implements OnInit {
       },
       error: (err) => {
         console.error('Vehicle creation error:', err);
+<<<<<<< HEAD
         this.toastr.error(
           err.message || 'Failed to create user',
           'Creation Error'
         );
+=======
+
+        const backendMessage = err.error?.message || 'Failed to create vehicle';
+
+        this.toastr.error(backendMessage, 'Creation Error');
+>>>>>>> 8d04eae0 (updated code)
       },
     });
   }
@@ -413,22 +426,49 @@ export class VehicleComponent implements OnInit {
   //     },
   //   });
   // }
+  // getAllVehicle() {
+  //   this.masterSrv.getAllVehicle().subscribe({
+  //     next: (res: VehicleResponse) => {
+  //       if (res && res.data.rows) {
+  //         this.totalVehicle.set(res.data.count);
+  //         this.vehicleList.set(res.data.rows);
+  //       } else {
+  //         this.toastr.warning('No Vehicle found', 'Information');
+  //       }
+  //     },
+  //     error: (err) => {
+  //       console.error('Vehicle fetch error:', err);
+  //       this.toastr.error(err.message || 'Failed to fetch users', 'Error');
+  //     },
+  //   });
+  // }
   getAllVehicle() {
     this.masterSrv.getAllVehicle().subscribe({
       next: (res: VehicleResponse) => {
         if (res && res.data.rows) {
           this.totalVehicle.set(res.data.count);
           this.vehicleList.set(res.data.rows);
+
+          // ✅ Update paginatedVehicles after setting vehicleList
+          this.paginatedVehicles = this.vehicleList().slice(
+            (this.currentPage - 1) * this.itemsPerPage,
+            this.currentPage * this.itemsPerPage
+          );
         } else {
           this.toastr.warning('No Vehicle found', 'Information');
         }
       },
       error: (err) => {
         console.error('Vehicle fetch error:', err);
+<<<<<<< HEAD
         this.toastr.error(err.message || 'Failed to fetch users', 'Error');
+=======
+        this.toastr.error(err.message || 'Failed to fetch vehicles', 'Error');
+>>>>>>> 8d04eae0 (updated code)
       },
     });
   }
+
   // Update Existing Vehicle
   // onUpdate() {
 
@@ -444,6 +484,13 @@ export class VehicleComponent implements OnInit {
   //     }
   //   );
   // }
+<<<<<<< HEAD
+=======
+
+  // closeDeleteModal() {
+  //   this.isDeleteModalOpen = false;
+  // }
+>>>>>>> 8d04eae0 (updated code)
   getShowingFrom(): number {
     if (this.filteredVehicles.length === 0) return 0;
     return (this.currentPage - 1) * this.itemsPerPage + 1;
@@ -456,7 +503,10 @@ export class VehicleComponent implements OnInit {
       this.filteredVehicles.length
     );
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8d04eae0 (updated code)
   onUpdate() {
     if (!this.vehicleObj || !this.vehicleObj.vehicle_id) {
       this.toastr.warning('No vehicle selected for update!', 'Warning');
@@ -608,8 +658,16 @@ export class VehicleComponent implements OnInit {
 
   selectVehicleForDeletion(vehicle: Vehicle) {
     this.selectedVehicleForDeletion = vehicle;
+    this.isDeleteModalOpen = true;
   }
 
+  openDeleteModal(vehicle: any) {
+    this.selectedVehicleForDeletion = vehicle;
+    this.isDeleteModalOpen = true;
+  }
+  closeDeleteModal() {
+    this.isDeleteModalOpen = false;
+  }
   // deleteVehicleId() {
   //   console.log(
   //     'this is the selected vehicle',
@@ -802,6 +860,7 @@ export class VehicleComponent implements OnInit {
   //     $('.modal-backdrop').remove();
   //   }, 150);
   // }
+<<<<<<< HEAD
 
   deleteVehicleId() {
     console.log(
@@ -830,6 +889,91 @@ export class VehicleComponent implements OnInit {
             this.toastr.error('Server Error', 'Error');
           }
         );
+=======
+  // deleteVehicleId() {
+  //   console.log(
+  //     'Deleting Vehicle ID:',
+  //     this.selectedVehicleForDeletion?.vehicle_id
+  //   );
+
+  //   if (this.selectedVehicleForDeletion?.vehicle_id) {
+  //     this.masterSrv
+  //       .deleteVehicle(this.selectedVehicleForDeletion.vehicle_id)
+  //       .subscribe(
+  //         (res: VehicleResponse) => {
+  //           this.toastr.success('Vehicle deleted successfully', 'Success');
+  //           this.getAllVehicle();
+
+  //           // ✅ Close modal BEFORE fetching fresh data
+  //           this.isDeleteModalOpen = false;
+
+  //           // Now refresh the vehicle list
+  //         },
+  //         (error) => {
+  //           this.toastr.error('Server Error', 'Error');
+  //         }
+  //       );
+  //   } else {
+  //     alert('No Vehicle selected for deletion');
+  //   }
+  // }
+  // deleteVehicleId() {
+  //   const vehicle = this.selectedVehicleForDeletion;
+
+  //   if (vehicle && vehicle.vehicle_id) {
+  //     const vehicleId = vehicle.vehicle_id;
+
+  //     this.masterSrv.deleteVehicle(vehicleId).subscribe(
+  //       (res: VehicleResponse) => {
+  //         this.toastr.success('Vehicle deleted successfully', 'Success');
+
+  //         // ✅ Close the modal
+  //         this.isDeleteModalOpen = false;
+
+  //         // ✅ Update the signal (remove the deleted vehicle)
+  //         const updatedList = this.vehicleList().filter(
+  //           (v) => v.vehicle_id !== vehicleId
+  //         );
+  //         this.vehicleList.set(updatedList); // Update the signal
+  //       },
+  //       (error) => {
+  //         this.toastr.error('Server Error', 'Error');
+  //       }
+  //     );
+  //   } else {
+  //     alert('No Vehicle selected for deletion');
+  //   }
+  // }
+  deleteVehicleId() {
+    const vehicle = this.selectedVehicleForDeletion;
+
+    if (vehicle && vehicle.vehicle_id) {
+      const vehicleId = vehicle.vehicle_id;
+
+      this.masterSrv.deleteVehicle(vehicleId).subscribe(
+        (res: VehicleResponse) => {
+          this.toastr.success('Vehicle deleted successfully', 'Success');
+
+          // ✅ Close the modal
+          this.isDeleteModalOpen = false;
+
+          // ✅ Update the signal
+          const updatedList = this.vehicleList().filter(
+            (v) => v.vehicle_id !== vehicleId
+          );
+          this.vehicleList.set(updatedList);
+
+          // ✅ Update filteredVehicles to reflect the updated list
+          this.filteredVehicles = [...updatedList];
+
+          // ✅ Recalculate pagination
+          this.paginateVehicles();
+        },
+        (error) => {
+          this.toastr.error('Server Error', 'Error');
+        }
+      );
+>>>>>>> 8d04eae0 (updated code)
     } else {
       alert('No Vehicle selected for deletion');
     }
@@ -838,7 +982,13 @@ export class VehicleComponent implements OnInit {
   // Close modal
   closeModal() {
     ($('.bd-example-modal-lg') as any).modal('hide');
+<<<<<<< HEAD
   }
+=======
+    this.isModalOpen = false; // optional, if you use isModalOpen conditionally in HTML
+  }
+
+>>>>>>> 8d04eae0 (updated code)
   // onEdit(vehicle: Vehicle) {
   //   console.log('Edit button clicked. Team ID:', vehicle?.vehicle_id); // Debug log
   //   this.isEditMode = true; // Ensure edit mode is set
@@ -882,6 +1032,7 @@ export class VehicleComponent implements OnInit {
 
   onEdit(vehicle: Vehicle) {
     this.isEditMode = true; // Set the edit mode flag
+<<<<<<< HEAD
     console.log('user.userObj before setting:', vehicle?.vehicle_id);
 
     // Copy user data to userObj
@@ -904,13 +1055,42 @@ export class VehicleComponent implements OnInit {
       //   : '',
     });
 
+=======
+    this.isModalOpen = true; // ✅ Add this line to open the modal
+
+    console.log('user.userObj before setting:', vehicle?.vehicle_id);
+
+    // Copy user data to userObj
+    this.vehicleObj = { ...vehicle }; // Spread operator to avoid reference issues
+
+    // Store the previous name for comparison
+    this.previousValue = vehicle.vehicle_name;
+
+    // Initialize the form with current user data
+    this.useForm.patchValue({
+      vehicle_name: vehicle.vehicle_name,
+      VIN: vehicle.VIN,
+      type: vehicle.type,
+      YOM: this.formatDate(vehicle.YOM),
+      chasis_number: vehicle.chasis_number,
+      demo_start_date: vehicle.demo_start_date,
+      demo_end_date: vehicle.demo_end_date,
+      // end_date: vehicle.end_date
+      //   ? this.formatDateForInput(vehicle.end_date)
+      //   : '',
+    });
+
+>>>>>>> 8d04eae0 (updated code)
     console.log(
       'vehicleobj.vehicle_id after setting:',
       this.vehicleObj?.vehicle_id
     );
   }
+  // isVehicleNameChanged(): boolean {
+  //   return this.useForm.value.name !== this.previousValue;
+  // }
   isVehicleNameChanged(): boolean {
-    return this.useForm.value.name !== this.previousValue;
+    return this.useForm.dirty && this.useForm.value.name !== this.previousValue;
   }
 
   // Utility Methods
