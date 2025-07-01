@@ -5,6 +5,8 @@ import {
   OnInit,
   PLATFORM_ID,
   ChangeDetectorRef,
+  Output,
+  EventEmitter,
 } from '@angular/core';
 import {
   ActivatedRoute,
@@ -27,6 +29,7 @@ import { SidebarService } from '../../service/sidebar.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent implements OnInit {
+  @Output() sidebarToggle = new EventEmitter<void>();
   guestDetails: any;
   // pageTitle: string = 'Dashboard';
   currentHeading: string = 'Dashboard';
@@ -70,10 +73,19 @@ export class HeaderComponent implements OnInit {
     return route.firstChild ? this.getDeepestChild(route.firstChild) : route;
   }
 
-  logout() {
-    // if (isPlatformBrowser(this.platformId)) {
-    // }
+  // logout() {
+  //   // if (isPlatformBrowser(this.platformId)) {
+  //   // }
+  //   sessionStorage.removeItem('token');
+  //   this.guestDetails = null;
+  // }
+
+  logout(): void {
+    console.log('Logging out...'); // Debug log
+
     sessionStorage.removeItem('token');
     this.guestDetails = null;
+
+    this.router.navigate(['/']); // Navigate to home or login after logout
   }
 }

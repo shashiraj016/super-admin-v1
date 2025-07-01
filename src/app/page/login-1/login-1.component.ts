@@ -148,16 +148,13 @@ export class Login1Component {
   private validateLoginInput(): boolean {
     if (!this.loginObj.email || !this.loginObj.password) {
       this.toastr.error(
-        'Please enter both email and password',
+        'Please enter valid email and password',
         'Validation Error'
       );
       return false;
     }
     if (!this.isValidEmail(this.loginObj.email)) {
-      this.toastr.error(
-        'Please enter a valid email address',
-        'Validation Error'
-      );
+      this.toastr.error('Please enter a valid password', 'Validation Error');
       return false;
     }
     return true;
@@ -252,9 +249,8 @@ export class Login1Component {
           this.startCountdown();
         },
         error: (error) => {
-          // console.error('Email verification error:', error);
-          console.log(error.error.error);
-          const errorMessage = error.error.error;
+          console.error('Login error:', error);
+          const errorMessage = error.error?.message || 'An error occurred';
           this.toastr.error(errorMessage, 'Error');
         },
       });

@@ -70,17 +70,33 @@
         </div> -->
         <div class="div relative">
           <h5>Password</h5>
+          <!-- <input [(ngModel)]="loginObj.password" [type]="showPassword ? 'text' : 'password'" name="password" required
+                    class="inputt  focus:outline-none focus:border-none border-transparent focus:ring-0 py-2 px-4 bg-transparent text-gray-800"
+                    #inputElement style="padding-left: 1px !important;" />
+                  <i [class]="showPassword ? 'fas fa-eye-slash eye' : 'fas fa-eye eye'"
+                    class="icon11 absolute right-8 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                    (click)="togglePassword('password')"></i> -->
           <input [(ngModel)]="loginObj.password" [type]="showPassword ? 'text' : 'password'" name="password" required
-            class="inputt  focus:outline-none focus:border-none border-transparent focus:ring-0 py-2 px-4 bg-transparent text-gray-800"
+            autocomplete="new-password"
+            class="inputt focus:outline-none focus:border-none border-transparent focus:ring-0 py-2 px-4 bg-transparent text-gray-800"
             #inputElement style="padding-left: 1px !important;" />
-          <i [class]="showPassword ? 'fas fa-eye-slash eye' : 'fas fa-eye eye'"
-            class="icon11 absolute right-8 top-1/2 transform -translate-y-1/2 cursor-pointer"
+          <i [class]="'icon11 absolute right-8 top-1/2 transform -translate-y-1/2 cursor-pointer ' + (showPassword ? 'fas fa-eye-slash eye' : 'fas fa-eye eye')"
             (click)="togglePassword('password')"></i>
+
+
         </div>
       </div>
 
       <a href="javascript:void(0)" class="forgot-password" (click)="showVerifyEmail()">Forgot Password?</a>
-      <input type="submit" class="btn" value="Login" (click)="onLogin()" />
+      <!-- <input type="submit" class="btn" value="Login" (click)="onLogin()" /> -->
+      <input
+      type="submit"
+      class="btn"
+      value="Login"
+      [disabled]="!loginObj.email || !loginObj.password"
+      [ngClass]="{ 'opacity-50 cursor-not-allowed': !loginObj.email || !loginObj.password }"
+      (click)="onLogin()" />
+    
     </form>
 
     <!-- Verify Email Form -->

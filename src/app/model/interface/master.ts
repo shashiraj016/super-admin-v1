@@ -351,11 +351,17 @@ export interface SingleVehicleResponse {
   data: Vehicle; // 👈 instead of TeamDetails or rows
 }
 
+// export interface roleResponse {
+//   data: {
+//     count: number;
+//     rows: Role[];
+//   };
+// }
+// }
 export interface roleResponse {
-  data: {
-    count: number;
-    rows: Role[];
-  };
+  status: number;
+  message: string;
+  data: Role[]; // data is an array of Role objects
 }
 
 export interface ProfileResponse {

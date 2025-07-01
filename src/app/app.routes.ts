@@ -222,6 +222,13 @@ export const routes: Routes = [
         data: { title: 'Single Opportunities Data' },
         canActivate: [AuthGuard],
       },
+      {
+        path: 'admin/singleDealer/:id',
+        component: SingleDealerComponent,
+        resolve: { dealerData: DealerResolver },
+        data: { title: 'Single dealer Data' },
+        canActivate: [AuthGuard],
+      },
     ],
   },
 ];

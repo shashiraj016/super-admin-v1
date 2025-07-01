@@ -34,6 +34,10 @@ import { dealers } from '../../model/class/dealers';
 import { Teams } from '../../model/class/team'; // ✅ Import the correct interface
 import { Role } from '../../model/class/role';
 import { error } from 'node:console';
+import { HttpHeaders } from '@angular/common/http';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+
+declare var $: any;
 
 @Component({
   selector: 'app-users',
@@ -46,6 +50,7 @@ import { error } from 'node:console';
     FloatLabelModule,
     ReactiveFormsModule,
     NgbModalModule,
+    NgxDatatableModule,
   ],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css'],
@@ -57,6 +62,8 @@ export class UsersComponent implements OnInit {
   dealerList = signal<dealers[]>([]);
   totalDealer = signal<number>(0);
   // teamData: Team[] = [];
+  isModalOpen = false;
+
   teamList = signal<Teams[]>([]);
   totalteam = signal<number>(0);
   dealerObj: dealers = new dealers();
@@ -65,7 +72,13 @@ export class UsersComponent implements OnInit {
   // Service injections
   masterSrv = inject(MasterService);
   private readonly toastr = inject(ToastrService);
-
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalItems = 0;
+  // searchTerm: string = '';
+  searchTerm: string = '';
+  filteredUsers: any[] = []; // will hold the filtered user list
+  paginatedUsers: any[] = []; // your current paginated users (already existing)
   // Form and user management properties
   useForm: FormGroup = new FormGroup({});
   userObj: UserList = new UserList();
@@ -76,7 +89,12 @@ export class UsersComponent implements OnInit {
   totalrole: any;
   previousValue: any;
   user_id: string = ''; // Ensure this is properly initialized with the user ID
+  dataTable: any;
+  totalPages: number = 0;
+  pages: number[] = [];
+  isDeleteModalOpen = false;
 
+  columns: any[] = [];
   constructor(
     private aleartsrv: AleartSrvService,
     private cdr: ChangeDetectorRef
@@ -87,9 +105,11 @@ export class UsersComponent implements OnInit {
   ngOnInit() {
     // Call your existing functions
     this.displayAllUser();
-    this.getAllDealer();
+    // this.getAllDealer();
     this.getAllTeams();
     this.loadRole();
+    this.filteredUsers = this.userList(); // make sure userList() returns an array
+    this.paginateUsers();
 
     // Add this to subscribe to the role_id field's value changes
     this.useForm.get('role_id')?.valueChanges.subscribe((roleId) => {
@@ -148,9 +168,9 @@ export class UsersComponent implements OnInit {
       // ]),
       // role_id: new FormControl(null, [Validators.required]),
 
-      dealer_id: new FormControl(null, [Validators.required]),
-      team_id: new FormControl(null, [Validators.required]),
+      // dealer_id: new FormControl(null, [Validators.required]),
       // team_id: new FormControl(null, [Validators.required]),
+      team_id: new FormControl(null, [Validators.required]),
       // dealer_id: new FormControl(null),
       // team_name: new FormControl(null, [Validators.required]),
       user_role: new FormControl(null, [Validators.required]),
@@ -201,23 +221,23 @@ export class UsersComponent implements OnInit {
   // Fetch all dealers
   // Fetch all dealers
 
-  getAllDealer() {
-    this.masterSrv.getAllDealer().subscribe({
-      next: (res: DealerResponse) => {
-        if (res && res.data.dealer && res.data.dealer.rows) {
-          this.dealerList.set(res.data.dealer.rows); // Set the dealer list from response
-          console.log('Fetched dealers:', this.dealerList()); // Log the dealer list
-          this.totalDealer.set(res.data.dealer.count); // Set the total dealer count
-        } else {
-          this.toastr.warning('No dealers found', 'Information');
-        }
-      },
-      error: (err) => {
-        console.error('Dealer fetch error:', err);
-        this.toastr.error(err.message || 'Failed to fetch dealers', 'Error');
-      },
-    });
-  }
+  // getAllDealer() {
+  //   this.masterSrv.getAllDealer().subscribe({
+  //     next: (res: DealerResponse) => {
+  //       if (res && res.data.dealer && res.data.dealer.rows) {
+  //         this.dealerList.set(res.data.dealer.rows); // Set the dealer list from response
+  //         console.log('Fetched dealers:', this.dealerList()); // Log the dealer list
+  //         this.totalDealer.set(res.data.dealer.count); // Set the total dealer count
+  //       } else {
+  //         this.toastr.warning('No dealers found', 'Information');
+  //       }
+  //     },
+  //     error: (err) => {
+  //       console.error('Dealer fetch error:', err);
+  //       this.toastr.error(err.message || 'Failed to fetch dealers', 'Error');
+  //     },
+  //   });
+  // }
 
   // getAllTeams() {
   //   this.masterSrv.getAllTeams().subscribe({
@@ -253,6 +273,25 @@ export class UsersComponent implements OnInit {
       },
     });
   }
+
+  //   loadRole() {
+  //     this.masterSrv.getAllRole().subscribe({
+  //       next: (res: roleResponse) => {
+  //         if (res && res.data.rows && res.data.rows) {
+  //           this.roleList.set(res.data.rows);
+  //           console.log('Fetched role:', this.roleList());
+
+  //           this.totalrole.set(res.data.count);
+  // =        } else {
+  //           this.toastr.warning('No role found', 'Information');
+  //         }
+  //       },
+  //       error: (err) => {
+  //         console.error('Error fetching roles:', err);
+  //         this.toastr.error(err.error.error, 'Error');
+  //       },
+  //     });
+  //   }
 
   loadRole() {
     this.masterSrv.getAllRole().subscribe({
@@ -326,9 +365,104 @@ export class UsersComponent implements OnInit {
   //     console.log('🆕 New user Mode: Reset userObj', this.userObj);
   //   }
   // }
+  onSearchChange() {
+    this.filterUsers();
+    this.currentPage = 1; // reset to first page after search
+    this.paginateUsers();
+  }
+
+  filterUsers() {
+    if (!this.searchTerm) {
+      this.filteredUsers = this.userList();
+    } else {
+      const term = this.searchTerm.toLowerCase();
+      this.filteredUsers = this.userList().filter((user) => {
+        return (
+          user.name.toLowerCase().includes(term) ||
+          user.email.toLowerCase().includes(term) ||
+          (user.user_role?.toLowerCase().includes(term) ?? false)
+        );
+      });
+    }
+    this.currentPage = 1; // Reset to first page after search
+    this.paginateUsers();
+  }
+
+  paginateUsers() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedUsers = this.filteredUsers.slice(startIndex, endIndex);
+    this.totalPages = Math.ceil(this.filteredUsers.length / this.itemsPerPage);
+    this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  updatePages() {
+    this.totalPages = Math.ceil(this.filteredUsers.length / this.itemsPerPage);
+    this.pages = Array(this.totalPages)
+      .fill(0)
+      .map((x, i) => i + 1);
+  }
+
+  // Call this in ngOnInit or after fetching user data initially
+  initializeUsers() {
+    this.filteredUsers = this.userList();
+    this.paginateUsers();
+  }
+  // get paginatedUsers() {
+  //   const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+  //   const endIndex = startIndex + this.itemsPerPage;
+  //   return this.userList().slice(startIndex, endIndex);
+  // }
+
+  // get totalPages() {
+  //   return Math.ceil(this.userList().length / this.itemsPerPage);
+  // }
+
+  // get pages() {
+  //   const pages = [];
+  //   for (let i = 1; i <= this.totalPages; i++) {
+  //     pages.push(i);
+  //   }
+  //   return pages;
+  // }
+
+  // Pagination methods
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.paginateUsers(); // Update paginated users for new page
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.paginateUsers(); // Update paginated users for new page
+    }
+  }
+
+  goToPage(page: number) {
+    if (page !== this.currentPage) {
+      this.currentPage = page;
+      this.paginateUsers(); // Update paginated users for new page
+    }
+  }
+  onItemsPerPageChange(event: any) {
+    this.itemsPerPage = parseInt(event.target.value, 10);
+    this.currentPage = 1;
+    console.log('Dropdown changed to:', this.itemsPerPage);
+    this.paginateUsers();
+  }
+
+  min(a: number, b: number): number {
+    return Math.min(a, b);
+  }
   openModal(user?: UserList) {
     console.log('✅ openModal() function calledm of user');
     console.log('User object received in openModal:', user);
+
+    // Show the modal
+    this.isModalOpen = true;
 
     // Reset the form to clear previous data, but only reset the userObj in create mode
     if (!user) {
@@ -351,11 +485,11 @@ export class UsersComponent implements OnInit {
         phone: user.phone || '',
         role_id: user.role_id || '',
         user_role: user.role_name || '',
-        dealer_code: user.dealer_code || '',
-        dealer_id: user.dealer_id || null,
+        // dealer_code: user.dealer_code || '',
+        // dealer_id: user.dealer_id || null,
         team_id: user.team_id || null,
         team_name: user.team_name || '',
-        fname: user.fname || null,
+        fname: user.fname || '',
         lname: user.lname || '',
       });
 
@@ -518,13 +652,20 @@ export class UsersComponent implements OnInit {
         if (res && res.data.rows) {
           this.totalUser.set(res.data.count);
           this.userList.set(res.data.rows);
+
+          // ✅ Call this AFTER the data is available
+          this.initializeUsers();
         } else {
+          this.userList.set([]);
           this.toastr.warning('No users found', 'Information');
+          this.initializeUsers(); // still initialize empty state
         }
       },
       error: (err) => {
         console.error('Users fetch error:', err);
         this.toastr.error(err.message || 'Failed to fetch users', 'Error');
+        this.userList.set([]);
+        this.initializeUsers(); // optional fallback
       },
     });
   }
@@ -555,11 +696,72 @@ export class UsersComponent implements OnInit {
   //     },
   //   });
   // }
+  // onSave() {
+  //   if (this.useForm.invalid) {
+  //     this.markFormGroupTouched(this.useForm);
+  //     this.toastr.warning(
+  //       'Please fill all required fields correctly',
+  //       'Validation'
+  //     );
+  //     return;
+  //   }
+
+  //   const formData = this.useForm.value;
+  //   const selectedRole = this.roleList().find(
+  //     (role) => role.role_id === formData.role_id
+  //   );
+  //   formData.user_role = selectedRole?.role_name || '';
+
+  //   this.masterSrv.createNewUser(formData).subscribe({
+  //     next: () => {
+  //       this.toastr.success('User created successfully!', 'Success');
+  //       this.displayAllUser();
+  //       this.useForm.reset();
+  //       this.userObj = new UserList();
+
+  //       this.closeModal(); // ✅ Should hide modal if isModalOpen = false
+  //     },
+  //     error: (err) => {
+  //       this.toastr.error(
+  //         err.message || 'Failed to create user',
+  //         'Creation Error'
+  //       );
+  //     },
+  //   });
+  // }
+  // onSave() {
+  //   if (this.useForm.invalid) {
+  //     this.markFormGroupTouched(this.useForm);
+  //     this.toastr.warning(
+  //       'Please fill all required fields correctly',
+  //       'Validation'
+  //     );
+  //     return;
+  //   }
+
+  //   const formData = this.useForm.value;
+  //   const selectedRole = this.roleList().find(
+  //     (role) => role.role_id === formData.role_id
+  //   );
+  //   formData.user_role = selectedRole?.role_name || '';
+
+  //   this.masterSrv.createNewUser(formData).subscribe({
+  //     next: () => {
+  //       this.toastr.success('User created successfully!', 'Success');
+  //       this.displayAllUser();
+  //       this.useForm.reset();
+  //       this.userObj = new UserList();
+  //       this.closeModal();
+  //     },
+  //     error: (err) => {
+  //       const backendMessage = err.error?.message || 'Failed to create user';
+  //       this.toastr.error(backendMessage, 'Creation Error');
+  //     },
+  //   });
+  // }
   onSave() {
     if (this.useForm.invalid) {
-      this.markFormGroupTouched(this.useForm);
-      console.log('Form Values:', this.useForm.value); // Log form values to check role_name
-
+      this.useForm.markAllAsTouched(); // ✅ This ensures validation errors are shown
       this.toastr.warning(
         'Please fill all required fields correctly',
         'Validation'
@@ -568,7 +770,7 @@ export class UsersComponent implements OnInit {
     }
 
     const formData = this.useForm.value;
-    console.log('Form Data being sent to API:', formData);
+
     const selectedRole = this.roleList().find(
       (role) => role.role_id === formData.role_id
     );
@@ -578,18 +780,23 @@ export class UsersComponent implements OnInit {
       next: () => {
         this.toastr.success('User created successfully!', 'Success');
         this.displayAllUser();
+        this.useForm.reset();
+        this.userObj = new UserList();
         this.closeModal();
       },
       error: (err) => {
-        console.error('User creation error:', err);
-        this.toastr.error(
-          err.message || 'Failed to create user',
-          'Creation Error'
-        );
+        const backendMessage = err.error?.message || 'Failed to create user';
+        this.toastr.error(backendMessage, 'Creation Error');
       },
     });
   }
 
+  onSaveAndClose() {
+    if (this.useForm.valid) {
+      this.onSave();
+      this.closeModal(); // Close modal after successful save
+    }
+  }
   // onSave() {
   //   if (this.useForm.invalid) {
   //     this.markFormGroupTouched(this.useForm);
@@ -667,7 +874,20 @@ export class UsersComponent implements OnInit {
     console.log('Form Values:', this.useForm.value);
 
     if (this.useForm.valid) {
-      this.userObj = { ...this.userObj, ...this.useForm.value }; // Update the user object with the form values
+      const formValues = this.useForm.value;
+
+      // Create the formatted name with proper space
+      const formattedName = `${(formValues.fname || '').trim()} ${(
+        formValues.lname || ''
+      ).trim()}`.replace(/\s+/g, ' ');
+
+      // Set the name property correctly
+      formValues.name = formattedName;
+
+      // Update the userObj with all properties including the formatted name
+      this.userObj = { ...this.userObj, ...formValues };
+      console.log('📤 Payload sent to backend:', this.userObj);
+
       console.log('🔍 Form Status:', this.useForm.status);
       console.log('🚀 Updated Payload before API call:', this.userObj);
 
@@ -680,14 +900,15 @@ export class UsersComponent implements OnInit {
             console.log('✅ Update Success:', res);
             this.toastr.success(res.message, 'Success');
 
-            this.displayAllUser(); // Fetch and display all users again after update
-            this.closeModal(); // Close the modal
-
-            // Update the UI immediately
+            // Update the UI immediately with the correctly formatted name
             this.userList.set(
               this.userList().map((user) =>
                 user.user_id === this.userObj.user_id
-                  ? { ...user, ...this.userObj }
+                  ? {
+                      ...user,
+                      ...this.userObj,
+                      name: formattedName, // Ensure the name is correctly set with space
+                    }
                   : user
               )
             );
@@ -696,6 +917,12 @@ export class UsersComponent implements OnInit {
               this.cdr.detectChanges(); // Force UI update
               this.cdr.markForCheck(); // Mark for change detection if using OnPush
             }, 0);
+
+            // Fetch all users after update
+            this.displayAllUser();
+
+            // Close the modal
+            this.closeModal();
 
             // Reset the form after successful update
             this.useForm.reset();
@@ -827,6 +1054,7 @@ export class UsersComponent implements OnInit {
   // Method to handle the Edit button click
   onEdit(user: UserList) {
     this.isEditMode = true; // Set the edit mode flag
+    this.isModalOpen = true; // ✅ Add this line to open the modal
     console.log('user.userObj before setting:', user?.user_id);
 
     // Copy user data to userObj
@@ -835,52 +1063,84 @@ export class UsersComponent implements OnInit {
     // Store the previous name for comparison
     this.previousValue = user.name;
 
+    // Create formatted name (ensure exactly one space between fname and lname)
+    const formattedName = `${user.fname || ''} ${user.lname || ''}`
+      .trim()
+      .replace(/\s+/g, ' ');
+
+    console.log('Formatted name onEdit:', formattedName); // Log the formatted name to check
+
     // Initialize the form with current user data
     this.useForm.patchValue({
       user_id: user.user_id,
-      name: user.name || '',
+      name: formattedName, // Use the formatted name here
       account_id: user.account_id || '',
       email: user.email || '',
       phone: user.phone || '',
       role_id: user.role_id || '',
-      dealer_code: user.dealer_code || '',
-      dealer_id: user.dealer_id || null,
       team_id: user.team_id || null,
       team_name: user.team_name || '',
       fname: user.fname || '',
       lname: user.lname || '',
-      // user_role: user.role_name || '',
       user_role: user.user_role || '',
     });
 
     console.log('userObj.user_id after setting:', this.userObj?.user_id);
+    setTimeout(() => {
+      // Manually trigger modal if needed
+      ($('#myModal') as any).modal({ backdrop: false });
+    }, 100); // Slight delay ensures modal and form are ready
   }
 
   // Check if the name field has been changed
+
+  // Check if the name field has been changed
+  // isUserNameChanged(): boolean {
+  //   return this.useForm.value.name !== this.previousValue; // Compare the current name to the previous value
+  // }
   isUserNameChanged(): boolean {
-    return this.useForm.value.name !== this.previousValue; // Compare the current name to the previous value
+    return (
+      this.useForm.dirty &&
+      (this.useForm.value.name !== this.previousValue ||
+        this.useForm.value.email !== this.userObj.email ||
+        this.useForm.value.phone !== this.userObj.phone ||
+        this.useForm.value.role_id !== this.userObj.role_id ||
+        this.useForm.value.team_id !== this.userObj.team_id ||
+        this.useForm.value.fname !== this.userObj.fname ||
+        this.useForm.value.lname !== this.userObj.lname)
+    );
   }
 
   selectedUserForDeletion: UserList | null = null;
 
+  // selectUserForDeletion(user: UserList) {
+  //   this.selectedUserForDeletion = user;
+  // }
   selectUserForDeletion(user: UserList) {
     this.selectedUserForDeletion = user;
+    this.isDeleteModalOpen = true;
+  }
+  setUserToDelete(user: any) {
+    this.selectedUserForDeletion = user;
+  }
+  openDeleteModal(user: any) {
+    this.selectedUserForDeletion = user;
+    this.isDeleteModalOpen = true;
   }
 
   deleteUserId() {
-    console.log(
-      'this is the select user',
-      this.selectUserForDeletion,
-      this.selectedUserForDeletion
-    );
+    console.log('Deleting User ID:', this.selectedUserForDeletion?.user_id);
+
     if (this.selectedUserForDeletion && this.selectedUserForDeletion.user_id) {
       this.masterSrv.deleteUser(this.selectedUserForDeletion.user_id).subscribe(
         (res: MultiuserResponse) => {
           this.toastr.success('User deleted successfully', 'Success');
           this.displayAllUser();
+
+          // ✅ Close modal
+          this.isDeleteModalOpen = false;
         },
         (error) => {
-          // alert(error.message || 'Failed to delete users'); comment for server side error not come
           this.toastr.error('Server Error', 'Error');
         }
       );
@@ -889,9 +1149,13 @@ export class UsersComponent implements OnInit {
     }
   }
 
+  closeDeleteModal() {
+    this.isDeleteModalOpen = false;
+  }
   // Close modal
   closeModal() {
     ($('.bd-example-modal-lg') as any).modal('hide');
+    this.isModalOpen = false; // optional, if you use isModalOpen conditionally in HTML
   }
 
   // Utility method to mark all form controls as touched

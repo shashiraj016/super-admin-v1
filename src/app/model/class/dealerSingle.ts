@@ -5,6 +5,7 @@ export class SingleDealer {
     created_at: string
     updated_at: string
     corporate_id: string
+    dealer_email:string;
 
     constructor(){
         this.dealer_id = ''
@@ -13,5 +14,6 @@ export class SingleDealer {
         this.created_at = ''
         this.updated_at = ''
         this.corporate_id = ''
+        this.dealer_email=''
     }
   }
