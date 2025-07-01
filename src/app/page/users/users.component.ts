@@ -669,7 +669,6 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  // Save new user
   // onSave() {
   //   if (this.useForm.invalid) {
   //     this.markFormGroupTouched(this.useForm);
@@ -769,7 +768,6 @@ export class UsersComponent implements OnInit {
     }
 
     const formData = this.useForm.value;
-
     const selectedRole = this.roleList().find(
       (role) => role.role_id === formData.role_id
     );

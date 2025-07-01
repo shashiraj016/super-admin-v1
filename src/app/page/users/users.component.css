@@ -55,7 +55,11 @@ body {
 }
 
 .content-body {
+<<<<<<< HEAD
   /* margin-left: 14%; */
+=======
+  margin-left: 14%;
+>>>>>>> d161f25ddbace2a28255c32c20a6b84997a1bc42
   padding: 20px;
   flex-grow: 1;
 }
@@ -70,6 +74,7 @@ body {
     padding: 10px;
   }
 }
+<<<<<<< HEAD
 @media (max-width: 576px) {
   /* Bootstrap's xs breakpoint */
   .search-input {
@@ -146,3 +151,5 @@ select.form-control.is-invalid {
     margin-top: 5px !important;
   }
 }
+=======
+>>>>>>> d161f25ddbace2a28255c32c20a6b84997a1bc42

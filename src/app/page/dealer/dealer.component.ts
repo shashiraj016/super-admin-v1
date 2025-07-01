@@ -435,7 +435,6 @@ export class DealerComponent implements OnInit {
       this.toastr.error('Invalid form data. Please check inputs.', 'Error');
     }
   }
-
   // onEdit(data: dealers) {
   //   // this.dealerObj = data;
   //   this.useForm.patchValue({
