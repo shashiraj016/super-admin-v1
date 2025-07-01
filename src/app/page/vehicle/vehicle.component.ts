@@ -71,11 +71,8 @@ export class VehicleComponent implements OnInit {
   isModalVisible = false;
   isEditMode = false;
   previousValue: string = '';
-<<<<<<< HEAD
-=======
   isModalOpen = false;
 
->>>>>>> 8d04eae0 (updated code)
   filteredVehicle: any[] = [];
   // vehicles: Vehicle[] = []; // All vehicle records
   // filteredVehicles: Vehicle[] = []; // Filtered by search
@@ -88,10 +85,7 @@ export class VehicleComponent implements OnInit {
   itemsPerPage: number = 5;
   totalPages: number = 0;
   pages: number[] = [];
-<<<<<<< HEAD
-=======
   isDeleteModalOpen = false;
->>>>>>> 8d04eae0 (updated code)
 
   // Form Group
   useForm: FormGroup = new FormGroup({});
@@ -381,17 +375,10 @@ export class VehicleComponent implements OnInit {
       },
       error: (err) => {
         console.error('Vehicle creation error:', err);
-<<<<<<< HEAD
-        this.toastr.error(
-          err.message || 'Failed to create user',
-          'Creation Error'
-        );
-=======
 
         const backendMessage = err.error?.message || 'Failed to create vehicle';
 
         this.toastr.error(backendMessage, 'Creation Error');
->>>>>>> 8d04eae0 (updated code)
       },
     });
   }
@@ -460,11 +447,7 @@ export class VehicleComponent implements OnInit {
       },
       error: (err) => {
         console.error('Vehicle fetch error:', err);
-<<<<<<< HEAD
-        this.toastr.error(err.message || 'Failed to fetch users', 'Error');
-=======
         this.toastr.error(err.message || 'Failed to fetch vehicles', 'Error');
->>>>>>> 8d04eae0 (updated code)
       },
     });
   }
@@ -484,13 +467,10 @@ export class VehicleComponent implements OnInit {
   //     }
   //   );
   // }
-<<<<<<< HEAD
-=======
 
   // closeDeleteModal() {
   //   this.isDeleteModalOpen = false;
   // }
->>>>>>> 8d04eae0 (updated code)
   getShowingFrom(): number {
     if (this.filteredVehicles.length === 0) return 0;
     return (this.currentPage - 1) * this.itemsPerPage + 1;
@@ -503,10 +483,6 @@ export class VehicleComponent implements OnInit {
       this.filteredVehicles.length
     );
   }
-<<<<<<< HEAD
-
-=======
->>>>>>> 8d04eae0 (updated code)
   onUpdate() {
     if (!this.vehicleObj || !this.vehicleObj.vehicle_id) {
       this.toastr.warning('No vehicle selected for update!', 'Warning');
@@ -860,36 +836,6 @@ export class VehicleComponent implements OnInit {
   //     $('.modal-backdrop').remove();
   //   }, 150);
   // }
-<<<<<<< HEAD
-
-  deleteVehicleId() {
-    console.log(
-      'this is the select user',
-      this.selectVehicleForDeletion,
-      this.selectedVehicleForDeletion
-    );
-    console.log(
-      'Deleting User ID:',
-      this.selectedVehicleForDeletion?.vehicle_id
-    );
-
-    if (
-      this.selectedVehicleForDeletion &&
-      this.selectedVehicleForDeletion.vehicle_id
-    ) {
-      this.masterSrv
-        .deleteVehicle(this.selectedVehicleForDeletion.vehicle_id)
-        .subscribe(
-          (res: VehicleResponse) => {
-            this.toastr.success('Vehicle deleted successfully', 'Success');
-            this.getAllVehicle();
-          },
-          (error) => {
-            // alert(error.message || 'Failed to delete users'); comment for server side error not come
-            this.toastr.error('Server Error', 'Error');
-          }
-        );
-=======
   // deleteVehicleId() {
   //   console.log(
   //     'Deleting Vehicle ID:',
@@ -973,7 +919,6 @@ export class VehicleComponent implements OnInit {
           this.toastr.error('Server Error', 'Error');
         }
       );
->>>>>>> 8d04eae0 (updated code)
     } else {
       alert('No Vehicle selected for deletion');
     }
@@ -982,13 +927,9 @@ export class VehicleComponent implements OnInit {
   // Close modal
   closeModal() {
     ($('.bd-example-modal-lg') as any).modal('hide');
-<<<<<<< HEAD
-  }
-=======
     this.isModalOpen = false; // optional, if you use isModalOpen conditionally in HTML
   }
 
->>>>>>> 8d04eae0 (updated code)
   // onEdit(vehicle: Vehicle) {
   //   console.log('Edit button clicked. Team ID:', vehicle?.vehicle_id); // Debug log
   //   this.isEditMode = true; // Ensure edit mode is set
@@ -1032,30 +973,6 @@ export class VehicleComponent implements OnInit {
 
   onEdit(vehicle: Vehicle) {
     this.isEditMode = true; // Set the edit mode flag
-<<<<<<< HEAD
-    console.log('user.userObj before setting:', vehicle?.vehicle_id);
-
-    // Copy user data to userObj
-    this.vehicleObj = { ...vehicle }; // Spread operator to avoid reference issues
-
-    // Store the previous name for comparison
-    this.previousValue = vehicle.vehicle_name;
-
-    // Initialize the form with current user data
-    this.useForm.patchValue({
-      vehicle_name: vehicle.vehicle_name,
-      VIN: vehicle.VIN,
-      type: vehicle.type,
-      YOM: this.formatDate(vehicle.YOM),
-      chasis_number: vehicle.chasis_number,
-      demo_start_date: vehicle.demo_start_date,
-      demo_end_date: vehicle.demo_end_date,
-      // end_date: vehicle.end_date
-      //   ? this.formatDateForInput(vehicle.end_date)
-      //   : '',
-    });
-
-=======
     this.isModalOpen = true; // ✅ Add this line to open the modal
 
     console.log('user.userObj before setting:', vehicle?.vehicle_id);
@@ -1080,7 +997,6 @@ export class VehicleComponent implements OnInit {
       //   : '',
     });
 
->>>>>>> 8d04eae0 (updated code)
     console.log(
       'vehicleobj.vehicle_id after setting:',
       this.vehicleObj?.vehicle_id
