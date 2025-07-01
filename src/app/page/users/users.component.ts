@@ -683,7 +683,6 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  // Save new user
   // onSave() {
   //   if (this.useForm.invalid) {
   //     this.markFormGroupTouched(this.useForm);
@@ -742,9 +741,39 @@ export class UsersComponent implements OnInit {
   //     },
   //   });
   // }
+  // onSave() {
+  //   if (this.useForm.invalid) {
+  //     this.markFormGroupTouched(this.useForm);
+  //     this.toastr.warning(
+  //       'Please fill all required fields correctly',
+  //       'Validation'
+  //     );
+  //     return;
+  //   }
+
+  //   const formData = this.useForm.value;
+  //   const selectedRole = this.roleList().find(
+  //     (role) => role.role_id === formData.role_id
+  //   );
+  //   formData.user_role = selectedRole?.role_name || '';
+
+  //   this.masterSrv.createNewUser(formData).subscribe({
+  //     next: () => {
+  //       this.toastr.success('User created successfully!', 'Success');
+  //       this.displayAllUser();
+  //       this.useForm.reset();
+  //       this.userObj = new UserList();
+  //       this.closeModal();
+  //     },
+  //     error: (err) => {
+  //       const backendMessage = err.error?.message || 'Failed to create user';
+  //       this.toastr.error(backendMessage, 'Creation Error');
+  //     },
+  //   });
+  // }
   onSave() {
     if (this.useForm.invalid) {
-      this.markFormGroupTouched(this.useForm);
+      this.useForm.markAllAsTouched(); // ✅ This ensures validation errors are shown
       this.toastr.warning(
         'Please fill all required fields correctly',
         'Validation'
@@ -782,68 +811,6 @@ export class UsersComponent implements OnInit {
   //     );
   //     return;
   //   }
-
-  //   const formData = this.useForm.value;
-  //   console.log('📋 Form Dealer Code:', formData.dealer_code);
-  //   console.log('📦 Available Dealers:', this.dealerList());
-
-  //   // 🔍 Debug: Log full form data
-  //   console.log('✅ Raw Form Data:', formData);
-
-  //   // 🔍 Check if any field is null or undefined
-  //   for (const key in formData) {
-  //     if (
-  //       formData[key] === null ||
-  //       formData[key] === undefined ||
-  //       formData[key] === ''
-  //     ) {
-  //       console.warn(`⚠️ Field "${key}" is missing or empty:`, formData[key]);
-  //     }
-  //   }
-
-  //   // ✅ Step 1: Lookup dealer_id using dealer_code
-  //   const matchedDealer = this.dealerList().find(
-  //     (dealer) =>
-  //       String(dealer.dealer_code).trim() ===
-  //       String(formData.dealer_code).trim()
-  //   );
-
-  //   console.log('🔍 Matched Dealer:', matchedDealer);
-
-  //   if (!matchedDealer) {
-  //     this.toastr.error('Invalid Dealer Code', 'Validation Error');
-  //     return;
-  //   }
-
-  //   formData.dealer_id = matchedDealer.dealer_id;
-
-  //   // ✅ Step 2: Map user_role from role_id
-  //   const selectedRole = this.roleList().find(
-  //     (role) => role.role_id === formData.role_id
-  //   );
-
-  //   console.log('🔍 Selected Role:', selectedRole);
-  //   formData.user_role = selectedRole?.role_name || '';
-
-  //   // 🔍 Final payload before API call
-  //   console.log('📦 Final Payload to API:', formData);
-
-  //   // ✅ Step 3: Send to API
-  //   this.masterSrv.createNewUser(formData).subscribe({
-  //     next: () => {
-  //       this.toastr.success('User created successfully!', 'Success');
-  //       this.displayAllUser();
-  //       this.useForm.reset();
-  //       this.userObj = new UserList();
-  //       this.closeModal();
-  //     },
-  //     error: (err) => {
-  //       console.error('❌ API Error:', err);
-  //       const backendMessage = err.error?.message || 'Failed to create user';
-  //       this.toastr.error(backendMessage, 'Creation Error');
-  //     },
-  //   });
-  // }
 
   onSaveAndClose() {
     if (this.useForm.valid) {

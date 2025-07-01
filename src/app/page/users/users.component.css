@@ -70,6 +70,7 @@ body {
     padding: 10px;
   }
 }
+
 @media (max-width: 576px) {
   /* Bootstrap's xs breakpoint */
   .search-input {

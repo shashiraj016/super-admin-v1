@@ -908,7 +908,6 @@ export class VehicleComponent implements OnInit {
             (v) => v.vehicle_id !== vehicleId
           );
           this.vehicleList.set(updatedList);
-          this.count.set(updatedList.length);
 
           // ✅ Update filteredVehicles to reflect the updated list
           this.filteredVehicles = [...updatedList];

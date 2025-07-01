@@ -1,9 +1,11 @@
 <!-- <img class="wave" src="assets/admin-img/Untitled-1.png" alt="Wave Image" /> -->
 <div class=" custom-container">
-  
+
   <div class="login-content">
     <!-- Login Form -->
-    <form *ngIf="currentStep === 'login'">
+    <!-- <form *ngIf="currentStep === 'login'"> -->
+    <form *ngIf="currentStep === 'login'" #loginForm="ngForm">
+
       <!-- <img class="mx-auto inline-flex items-center justify-center" src="../../../assets/admin-img/avatar (1).png"
         alt="Avatar Image" /> -->
       <img class="mx-auto inline-flex items-center justify-center" src="../../../assets/admin-img/jlr logo.svg"
@@ -89,6 +91,7 @@
 
       <a href="javascript:void(0)" class="forgot-password" (click)="showVerifyEmail()">Forgot Password?</a>
       <!-- <input type="submit" class="btn" value="Login" (click)="onLogin()" /> -->
+<<<<<<< HEAD
       <input
       type="submit"
       class="btn"
@@ -97,6 +100,10 @@
       [ngClass]="{ 'opacity-50 cursor-not-allowed': !loginObj.email || !loginObj.password }"
       (click)="onLogin()" />
     
+=======
+      <input type="submit" class="btn" value="Login" [disabled]="!loginForm.form.valid" (click)="onLogin()" />
+
+>>>>>>> 6911ff6734c133560aa4009cbbce1e08bc2fae1f
     </form>
 
     <!-- Verify Email Form -->

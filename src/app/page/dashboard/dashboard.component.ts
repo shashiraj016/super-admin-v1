@@ -146,11 +146,15 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   progressValue: number = 0;
   strokeColor: string = 'red'; // green by default
   // selectedPeriod: string = 'MTD'; // for MTD, QTD, YTD dropdown
+<<<<<<< HEAD
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private context: ContextService
   ) {}
+=======
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef,private context: ContextService) {}
+>>>>>>> 6911ff6734c133560aa4009cbbce1e08bc2fae1f
   data: any; // To hold your data
   apiUrl: string =
     'https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd';
@@ -176,12 +180,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       pageTitle: 'Dashboard',
     });
 
+<<<<<<< HEAD
     this.selectedFilter = 'MTD';
     this.fetchDashboardData('MTD');
+=======
+>>>>>>> 6911ff6734c133560aa4009cbbce1e08bc2fae1f
 
-    this.maxValue =
-      Math.max(...this.displayedData.map((item) => item.value)) || 1;
-    this.fetchData();
     this.updateDataBasedOnSelection();
     this.applyFilter(this.selectedFilter);
 

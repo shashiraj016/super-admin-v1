@@ -1,5 +1,6 @@
 import { createRequire } from 'module';const require = createRequire(import.meta.url);
 import {
+<<<<<<< HEAD
   BaseIcon,
   ChevronRightIcon
 } from "./chunk-UO5B45ZU.js";
@@ -13,12 +14,30 @@ import {
   SharedModule,
   UniqueComponentId
 } from "./chunk-MAWA6GWC.js";
+=======
+  Tooltip,
+  TooltipModule
+} from "./chunk-56J533RP.js";
+>>>>>>> 6911ff6734c133560aa4009cbbce1e08bc2fae1f
 import {
   Router,
   RouterLink,
   RouterLinkActive,
   RouterModule
 } from "./chunk-UB77SA2Y.js";
+<<<<<<< HEAD
+=======
+import {
+  BaseIcon,
+  ChevronRightIcon
+} from "./chunk-UO5B45ZU.js";
+import "./chunk-BVSBAIWK.js";
+import {
+  PrimeTemplate,
+  SharedModule,
+  UniqueComponentId
+} from "./chunk-MAWA6GWC.js";
+>>>>>>> 6911ff6734c133560aa4009cbbce1e08bc2fae1f
 import "./chunk-TLZC2Y3Y.js";
 import "./chunk-VE4VKEY2.js";
 import {

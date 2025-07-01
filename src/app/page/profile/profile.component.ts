@@ -29,6 +29,13 @@ export class ProfileComponent implements OnInit {
 
     this.getProfileData();
     this.getProfileImage();
+<<<<<<< HEAD
+=======
+  }
+
+  isCustomProfileImage(): boolean {
+    return this.profileImageUrl !== '/assets/public/images/profile/default.png';
+>>>>>>> 6911ff6734c133560aa4009cbbce1e08bc2fae1f
   }
 
   isCustomProfileImage(): boolean {
@@ -38,7 +45,11 @@ export class ProfileComponent implements OnInit {
     this.masterSrv.getProfileData().subscribe({
       next: (res: ProfileResponse) => {
         console.log('Fetched Profile Data:', res);
+<<<<<<< HEAD
         this.profile.set(res.data); // ✅ You NEED this line
+=======
+        this.profile.set(res.data);
+>>>>>>> 6911ff6734c133560aa4009cbbce1e08bc2fae1f
       },
       error: (err) => {
         console.error('Error fetching profile data:', err);
