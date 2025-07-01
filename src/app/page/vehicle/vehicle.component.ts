@@ -5,7 +5,7 @@ import { DataTablesModule } from 'angular-datatables';
 import { Modal } from 'bootstrap';
 import { ChangeDetectorRef } from '@angular/core';
 
-import { Config } from 'datatables.net';
+// import { Config } from 'datatables.net';
 import {
   FormControl,
   FormGroup,

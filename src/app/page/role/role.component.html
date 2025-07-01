@@ -1,5 +1,5 @@
 <div class="container-fluid">
-  <div class="content-body">
+  <div class="content-section active">
     <!-- Breadcrumb -->
     <div class="page-titles">
       <ol class="breadcrumb">
@@ -15,15 +15,29 @@
     <!-- Add Button + Stats -->
     <div class="row mb-5 align-items-center">
       <div class="col-xl-2 col-lg-3 col-md-4 mb-4 mb-md-0">
-        <a (click)="openModals()" type="button"
+        <!-- <a (click)="openModals()" type="button"
           class="btn btn-primary light btn-lg btn-block rounded shadow px-2 buttons" style="color:white;">
           <i class="fa fa-plus mr-1" style="color:white"></i>Add Role
+        </a> -->
+        <!-- <a style="cursor: pointer; color: white !important" (click)="openModals()" type="button"
+          class="btn btn-primary light btn-lg btn-block rounded shadow px-2 buttons">
+          <i class="fa fa-plus mr-1"></i>Add Role
+        </a> -->
+
+        <a style="cursor: pointer; color: white !important" (click)="openModal()"
+          class="btn btn-primary light btn-lg btn-block rounded shadow px-2 buttons">
+          <i class="fa fa-plus mr-1"></i>Add Roles
         </a>
+
+
+
       </div>
-      <div class="col-xl-2 col-lg-3 col-md-4 mb-4 mb-md-0">
-        <div class="media-body ml-1">
-          <p class="mb-1 fs-14 text-center">Total Roles</p>
-          <h3 class="mb-0 text-black font-w600 fs-20 text-center">{{ filteredRoles.length }}</h3>
+      <div class="col-xl-2 mb-4 mb-xl-0" style="margin-left: -2%;">
+        <div class="media-body text-center">
+          <p class="mb-1 fs-14">Total Roles</p>
+          <h3 class="mb-0 text-black font-w600 fs-20">
+            {{filteredRoles.length }}
+          </h3>
         </div>
       </div>
     </div>
@@ -36,7 +50,7 @@
         <div class="col-12">
           <!-- Items per page selector and Search -->
           <div class="row mb-3">
-            <div class="col-md-6 d-flex align-items-center">
+            <!-- <div class="col-md-6 d-flex align-items-center">
               <label class="mr-2"></label>
               <select class="form-control" style="width: 70px; display: inline-block; border-radius: 5px;"
                 (change)="onItemsPerPageChange($event)">
@@ -46,12 +60,15 @@
                 <option value="50">50</option>
               </select>
               <label class="ml-2">records per page</label>
-            </div>
+            </div> -->
 
             <div class="col-md-6 d-flex justify-content-end align-items-center">
-              <input type="text" class="form-control search-input" style="width: 250px; margin-left: 500px;"
-                placeholder="Search roles..." [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+              <!-- <div class="search-wrapper">
+                <input type="text" class="form-control search-input" placeholder="Search roles..."
+                  [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+              </div> -->
             </div>
+
           </div>
         </div>
       </div>
@@ -93,13 +110,13 @@
       <!-- Pagination -->
       <div class="row mt-3">
         <div class="col-md-6">
-          <div class="dataTables_info">
+          <!-- <div class="dataTables_info">
             Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to
             {{ getShowingTo() }} of {{ filteredRoles.length }} entries
-          </div>
+          </div> -->
 
         </div>
-        <div class="col-md-6">
+        <!-- <div class="col-md-6">
           <div class="dataTables_paginate paging_simple_numbers float-right">
             <ul class="pagination">
               <li class="paginate_button page-item previous" [class.disabled]="currentPage === 1">
@@ -113,20 +130,25 @@
               </li>
             </ul>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
-  <div class="modal fade bd-example-modal-lg custom-modal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+
+  <div *ngIf="isModalOpen" class="modal d-block" style="background-color: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog modal-lg" style="top:18%;">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" style="text-align: center; width: 100%">
-            {{ roleObj.role_name || roleObj.description ? "Edit User" : "Add New User" }}
+          <h5 class="modal-title" style="text-align: center; width: 100%;font-size:18px;">
+            {{ roleObj.role_name || roleObj.description ? "Edit User" : "Add New Role" }}
           </h5>
-          <button type="button" class="close" data-dismiss="modal">
+          <!-- <button type="button" class="close" data-dismiss="modal">
+            <span class="x">&times;</span>
+          </button> -->
+          <button type="button" class="close" (click)="closeModal()">
             <span class="x">&times;</span>
           </button>
+
         </div>
 
         <div class="modal-body">
@@ -134,22 +156,35 @@
             <div class="row">
               <!-- Name -->
               <div class="col-md-6 form-group">
-                <label for="role_name" class="form-label">role Name</label>
-                <input id="role_name" class="form-control form-control-lg" type="text" formControlName="role_name"
-                  placeholder="Role Name" [ngClass]="{
-                  'is-invalid':
-                    useForm.get('role_name')?.touched &&
-                    useForm.get('role_name')?.invalid
-                }" required />
+                <label for="role_name" class="form-label">
+                  Role Name <span class="text-danger">*</span>
+                </label>
+
+                <select id="role_name" class="form-control form-control-lg" formControlName="role_name" [ngClass]="{
+                                  'is-invalid':
+                                    useForm.get('role_name')?.touched &&
+                                    useForm.get('role_name')?.invalid
+                                }" required>
+                  <option [ngValue]="null" disabled hidden>Select Role</option>
+                  <option *ngFor="let role of staticDealerList" [value]="role.dealer_code">
+                    {{ role.dealer_code }}
+                  </option>
+                </select>
+
                 <div class="text-danger" *ngIf="
-                  useForm.get('role_name')?.invalid && useForm.get('role_name')?.touched
-                ">
-                  <span *ngIf="useForm.get('role_name')?.errors?.['required']">role Name is required.</span>
+                                  useForm.get('role_name')?.invalid &&
+                                  useForm.get('role_name')?.touched
+                                ">
+                  <span *ngIf="useForm.get('role_name')?.errors?.['required']">
+                    Role Name is required.
+                  </span>
                 </div>
               </div>
-              <div class="col-md-6 form-group">
-                <label for="description" class="form-label">description</label>
-                <input id="description" class="form-control form-control-lg" type="text" formControlName="description"
+
+              <!-- <div class="col-md-6 form-group">
+                <label for="role_name" class="form-label">
+                  Description <span class="text-danger">*</span> </label> <input id="description"
+                  class="form-control form-control-lg" type="text" formControlName="description"
                   placeholder=" Description" [ngClass]="{
                                 'is-invalid':
                                   useForm.get('description')?.touched &&
@@ -158,12 +193,22 @@
                 <div class="text-danger" *ngIf="
                                 useForm.get('description')?.invalid && useForm.get('description')?.touched
                               ">
-                  <span *ngIf="useForm.get('description')?.errors?.['required']">description is required.</span>
+                  <span *ngIf="useForm.get('description')?.errors?.['required']">Description is required.</span>
                 </div>
+              </div> -->
+              <div class="col-md-6 form-group">
+                <label for="role_name" class="form-label">
+                  Description
+                </label>
+                <input id="description" class="form-control form-control-lg" type="text" formControlName="description"
+                  placeholder="Description" />
               </div>
 
-              <!-- LAST NAME -->
-              <!-- <div class="col-md-6 form-group">
+            </div>
+
+
+            <!-- LAST NAME -->
+            <!-- <div class="col-md-6 form-group">
               <label for="team_lead_email" class="form-label">Team Lead</label>
               <select id="team_lead_email" class="form-control form-control-lg" formControlName="team_lead_email"
                 (change)="onTeamChange()" [ngClass]="{
@@ -187,27 +232,29 @@
             </div> -->
 
 
-              <!-- ROLE -->
+            <!-- ROLE -->
 
 
-              <div class="modal-footer">
-                <ng-container *ngIf="roleObj.role_id; else saveButton">
-                  <button type="button" class="btn btn-outline-primary" data-dismiss="modal"
-                    [disabled]="!isRoleNameChanged()">
-                    Edit
-                  </button>
-                </ng-container>
-                <button type="button" class="btn btn-outline-danger" data-dismiss="modal" (click)="closeModal()">
-                  Close
+            <div class="modal-footer">
+              <ng-container *ngIf="roleObj.role_id; else saveButton">
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal"
+                  [disabled]="!isRoleNameChanged()">
+                  Edit
                 </button>
-                <ng-template #saveButton>
-                  <button type="button" class="btn btn-outline-primary" (click)="onSave()"
-                    [attr.data-dismiss]="useForm.valid ? 'modal' : null">
-                    save
-                  </button>
-                </ng-template>
-              </div>
+              </ng-container>
+              <button type="button" class="btn btn-outline-danger" data-dismiss="modal" (click)="closeModal()">
+                Close
+              </button>
+              <ng-template #saveButton>
+                <!-- <button type="button" class="btn btn-outline-primary" (click)="onSave()"
+                  [attr.data-dismiss]="useForm.valid ? 'modal' : null">
+                  save
+                </button> -->
+                <button type="button" class="btn btn-outline-primary" (click)="onSave()">
+                  Save
+                </button>
 
+                <!-- <button type="button" class="btn btn-outline-primary" (click)="onSaveAndClose()">
+                    save </button> -->
+              </ng-template>
             </div>
-            <!-- Add/Edit Role Modal (same as yours) -->
-            <!-- Keep your modal code here as-is -->
