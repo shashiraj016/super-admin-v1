@@ -103,6 +103,12 @@ export class UsersComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log('📦 Loaded Dealer List:', this.dealerList());
+
+    if (this.dealerList().length && this.dealerList()[0]) {
+      console.log('🔍 Sample dealer:', this.dealerList()[0]);
+    }
+
     // Call your existing functions
     this.displayAllUser();
     // this.getAllDealer();
@@ -110,6 +116,7 @@ export class UsersComponent implements OnInit {
     this.loadRole();
     this.filteredUsers = this.userList(); // make sure userList() returns an array
     this.paginateUsers();
+    this.getAllDealer();
 
     // Add this to subscribe to the role_id field's value changes
     this.useForm.get('role_id')?.valueChanges.subscribe((roleId) => {
@@ -171,6 +178,9 @@ export class UsersComponent implements OnInit {
       // dealer_id: new FormControl(null, [Validators.required]),
       // team_id: new FormControl(null, [Validators.required]),
       team_id: new FormControl(null, [Validators.required]),
+      // dealer_code: new FormControl(null, [Validators.required]),
+      dealer_id: new FormControl(null, [Validators.required]),
+
       // dealer_id: new FormControl(null),
       // team_name: new FormControl(null, [Validators.required]),
       user_role: new FormControl(null, [Validators.required]),
@@ -221,23 +231,26 @@ export class UsersComponent implements OnInit {
   // Fetch all dealers
   // Fetch all dealers
 
-  // getAllDealer() {
-  //   this.masterSrv.getAllDealer().subscribe({
-  //     next: (res: DealerResponse) => {
-  //       if (res && res.data.dealer && res.data.dealer.rows) {
-  //         this.dealerList.set(res.data.dealer.rows); // Set the dealer list from response
-  //         console.log('Fetched dealers:', this.dealerList()); // Log the dealer list
-  //         this.totalDealer.set(res.data.dealer.count); // Set the total dealer count
-  //       } else {
-  //         this.toastr.warning('No dealers found', 'Information');
-  //       }
-  //     },
-  //     error: (err) => {
-  //       console.error('Dealer fetch error:', err);
-  //       this.toastr.error(err.message || 'Failed to fetch dealers', 'Error');
-  //     },
-  //   });
-  // }
+  getAllDealer() {
+    this.masterSrv.getAllDealer().subscribe({
+      next: (res: DealerResponse) => {
+        console.log('🌐 Full Dealer API Response:', res);
+
+        if (res && res.data?.dealer?.rows?.length > 0) {
+          this.dealerList.set(res.data.dealer.rows);
+          this.totalDealer.set(res.data.dealer.count);
+          console.log('✅ Loaded Dealers:', this.dealerList());
+        } else {
+          console.warn('⚠️ Dealer list empty or improperly structured');
+          this.toastr.warning('No dealers found', 'Information');
+        }
+      },
+      error: (err) => {
+        console.error('❌ Dealer fetch error:', err);
+        this.toastr.error(err.message || 'Failed to fetch dealers', 'Error');
+      },
+    });
+  }
 
   // getAllTeams() {
   //   this.masterSrv.getAllTeams().subscribe({
@@ -729,39 +742,9 @@ export class UsersComponent implements OnInit {
   //     },
   //   });
   // }
-  // onSave() {
-  //   if (this.useForm.invalid) {
-  //     this.markFormGroupTouched(this.useForm);
-  //     this.toastr.warning(
-  //       'Please fill all required fields correctly',
-  //       'Validation'
-  //     );
-  //     return;
-  //   }
-
-  //   const formData = this.useForm.value;
-  //   const selectedRole = this.roleList().find(
-  //     (role) => role.role_id === formData.role_id
-  //   );
-  //   formData.user_role = selectedRole?.role_name || '';
-
-  //   this.masterSrv.createNewUser(formData).subscribe({
-  //     next: () => {
-  //       this.toastr.success('User created successfully!', 'Success');
-  //       this.displayAllUser();
-  //       this.useForm.reset();
-  //       this.userObj = new UserList();
-  //       this.closeModal();
-  //     },
-  //     error: (err) => {
-  //       const backendMessage = err.error?.message || 'Failed to create user';
-  //       this.toastr.error(backendMessage, 'Creation Error');
-  //     },
-  //   });
-  // }
   onSave() {
     if (this.useForm.invalid) {
-      this.useForm.markAllAsTouched(); // ✅ This ensures validation errors are shown
+      this.markFormGroupTouched(this.useForm);
       this.toastr.warning(
         'Please fill all required fields correctly',
         'Validation'
@@ -770,7 +753,6 @@ export class UsersComponent implements OnInit {
     }
 
     const formData = this.useForm.value;
-
     const selectedRole = this.roleList().find(
       (role) => role.role_id === formData.role_id
     );
@@ -790,6 +772,78 @@ export class UsersComponent implements OnInit {
       },
     });
   }
+  // onSave() {
+  //   if (this.useForm.invalid) {
+  //     this.useForm.markAllAsTouched();
+  //     console.warn('⛔ Form is invalid. Current values:', this.useForm.value);
+  //     this.toastr.warning(
+  //       'Please fill all required fields correctly',
+  //       'Validation'
+  //     );
+  //     return;
+  //   }
+
+  //   const formData = this.useForm.value;
+  //   console.log('📋 Form Dealer Code:', formData.dealer_code);
+  //   console.log('📦 Available Dealers:', this.dealerList());
+
+  //   // 🔍 Debug: Log full form data
+  //   console.log('✅ Raw Form Data:', formData);
+
+  //   // 🔍 Check if any field is null or undefined
+  //   for (const key in formData) {
+  //     if (
+  //       formData[key] === null ||
+  //       formData[key] === undefined ||
+  //       formData[key] === ''
+  //     ) {
+  //       console.warn(`⚠️ Field "${key}" is missing or empty:`, formData[key]);
+  //     }
+  //   }
+
+  //   // ✅ Step 1: Lookup dealer_id using dealer_code
+  //   const matchedDealer = this.dealerList().find(
+  //     (dealer) =>
+  //       String(dealer.dealer_code).trim() ===
+  //       String(formData.dealer_code).trim()
+  //   );
+
+  //   console.log('🔍 Matched Dealer:', matchedDealer);
+
+  //   if (!matchedDealer) {
+  //     this.toastr.error('Invalid Dealer Code', 'Validation Error');
+  //     return;
+  //   }
+
+  //   formData.dealer_id = matchedDealer.dealer_id;
+
+  //   // ✅ Step 2: Map user_role from role_id
+  //   const selectedRole = this.roleList().find(
+  //     (role) => role.role_id === formData.role_id
+  //   );
+
+  //   console.log('🔍 Selected Role:', selectedRole);
+  //   formData.user_role = selectedRole?.role_name || '';
+
+  //   // 🔍 Final payload before API call
+  //   console.log('📦 Final Payload to API:', formData);
+
+  //   // ✅ Step 3: Send to API
+  //   this.masterSrv.createNewUser(formData).subscribe({
+  //     next: () => {
+  //       this.toastr.success('User created successfully!', 'Success');
+  //       this.displayAllUser();
+  //       this.useForm.reset();
+  //       this.userObj = new UserList();
+  //       this.closeModal();
+  //     },
+  //     error: (err) => {
+  //       console.error('❌ API Error:', err);
+  //       const backendMessage = err.error?.message || 'Failed to create user';
+  //       this.toastr.error(backendMessage, 'Creation Error');
+  //     },
+  //   });
+  // }
 
   onSaveAndClose() {
     if (this.useForm.valid) {

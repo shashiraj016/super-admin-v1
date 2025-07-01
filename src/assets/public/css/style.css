@@ -56940,10 +56940,11 @@ input[type="checkbox"]:checked:after {
 
 .form-control.is-invalid {
   border-color: #ff2625 !important;
-  border-right: 0px !important;
 }
 
+
 .form-control.is-invalid:focus {
+
   box-shadow: none;
 }
 

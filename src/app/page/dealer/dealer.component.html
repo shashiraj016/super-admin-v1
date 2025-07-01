@@ -202,8 +202,11 @@
         <h5 class="modal-title" style="align-items: center; margin-inline: auto">
           {{ dealerObj.dealer_id ? "Edit Dealer" : "Add New Dealer" }}
         </h5>
-        <button type="button" class="close" data-dismiss="modal">
+        <!-- <button type="button" class="close" data-dismiss="modal">
           <span>&times;</span>
+        </button> -->
+        <button type="button" class="close" (click)="closeModal()">
+          <span class="x">&times;</span>
         </button>
       </div>
 
