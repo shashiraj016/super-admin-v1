@@ -50,20 +50,6 @@ export class DealerComponent implements OnInit {
   isEditMode: boolean = false;
   useForm: FormGroup;
   previousValue: string = '';
-<<<<<<< HEAD
-  // previousValue: string = '';
-  allDealers: dealers[] = [];
-  filteredDealers: dealers[] = [];
-  paginatedDealers: dealers[] = [];
-  searchTerm: string = '';
-
-  currentPage: number = 1;
-  itemsPerPage: number = 10;
-  totalPages: number = 0;
-  pages: number[] = [];
-  // currentPage = 1;
-  // itemsPerPage = 10;
-=======
   isDeleteModalOpen = false;
   itemsPerPage = 10;
   originalDealerName: string = '';
@@ -75,7 +61,6 @@ export class DealerComponent implements OnInit {
   paginatedDealers: any[] = []; // your current paginated users (already existing)
   totalPages: number = 0;
   pages: number[] = [];
->>>>>>> 8d04eae0 (updated code)
   constructor(private modalService: NgbModal) {
     this.useForm = new FormGroup({
       dealer_name: new FormControl(this.dealerObj.dealer_name, [
@@ -133,18 +118,6 @@ export class DealerComponent implements OnInit {
   ngOnInit(): void {
     this.getAllDealer();
   }
-<<<<<<< HEAD
-  getAllDealer() {
-    this.masterSrv.getAllDealer().subscribe(
-      (res: DealerResponse) => {
-        console.log('Dealer list fetched:', res); // Verify the response
-        if (res && res.data && res.data.dealer && res.data.dealer.rows) {
-          // Update the signal with the fetched data
-          this.dealerList.set(res.data.dealer.rows);
-          this.filterDealers(); // Apply filter logic after the data is set
-          this.paginateDealers(); // Paginate after setting the dealer list
-        }
-=======
 
   // getAllDealer() {
   //   this.masterSrv.getAllDealer().subscribe(
@@ -169,7 +142,6 @@ export class DealerComponent implements OnInit {
 
         // ✅ Immediately apply filter + pagination
         this.applyFilterAndPagination();
->>>>>>> 8d04eae0 (updated code)
       },
       (error) => {
         this.toastr.error('Error fetching dealers', 'Error');
@@ -308,95 +280,6 @@ export class DealerComponent implements OnInit {
 
   //   this.closeModal();
   // }
-<<<<<<< HEAD
-  onSearchChange(): void {
-    this.currentPage = 1; // Reset to page 1 when search term changes
-    this.filterDealers(); // Apply the filter logic based on the searchTerm
-  }
-
-  // Filter the dealers based on the search term
-  filterDealers(): void {
-    const term = this.searchTerm.toLowerCase().trim();
-
-    // If no search term, use the full dealer list from the signal
-    if (!term) {
-      this.filteredDealers = this.dealerList(); // Access the dealer list from the signal
-    } else {
-      // Apply filter based on name, code, or email
-      this.filteredDealers = this.dealerList().filter(
-        (dealer) =>
-          dealer.dealer_name?.toLowerCase().includes(term) ||
-          dealer.dealer_email?.toLowerCase().includes(term) ||
-          dealer.dealer_code?.toString().toLowerCase().includes(term)
-      );
-    }
-
-    // After filtering, apply pagination
-    this.paginateDealers();
-  }
-
-  // filterDealers(): void {
-  //   const term = this.searchTerm.toLowerCase().trim();
-
-  //   // If no search term, use the full dealer list
-  //   if (!term) {
-  //     this.filteredDealers = this.dealerList(); // Access the signal's value
-  //   } else {
-  //     // Apply filter based on name, code, or email
-  //     this.filteredDealers = this.dealerList().filter(
-  //       (dealer) =>
-  //         dealer.dealer_name?.toLowerCase().includes(term) ||
-  //         dealer.dealer_email?.toLowerCase().includes(term) ||
-  //         dealer.dealer_code?.toString().toLowerCase().includes(term)
-  //     );
-  //   }
-  //   // After filtering, apply pagination
-  //   this.paginateDealers();
-  // }
-
-  paginateDealers(): void {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-
-    this.paginatedDealers = this.filteredDealers.slice(startIndex, endIndex);
-
-    // Calculate total pages
-    this.totalPages = Math.ceil(
-      this.filteredDealers.length / this.itemsPerPage
-    );
-    this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  // Change items per page and recalculate pagination
-  onItemsPerPageChange(event: any): void {
-    this.itemsPerPage = +event.target.value; // Get the selected number of items per page
-    this.currentPage = 1; // Reset to the first page
-    this.paginateDealers(); // Recalculate pagination after items per page change
-  }
-
-  // Go to previous page
-  previousPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.paginateDealers();
-    }
-  }
-
-  // Go to next page
-  nextPage() {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.paginateDealers();
-    }
-  }
-
-  // Go to specific page
-  goToPage(page: number) {
-    this.currentPage = page;
-    this.paginateDealers();
-  }
-
-=======
   //  deleteDealerId() {
   //     console.log('Deleting User ID:', this.selectedUserForDeletion?.user_id);
 
@@ -420,7 +303,6 @@ export class DealerComponent implements OnInit {
   closeDeleteModal() {
     this.isDeleteModalOpen = false;
   }
->>>>>>> 8d04eae0 (updated code)
   onSave() {
     if (this.useForm.invalid) {
       this.useForm.markAllAsTouched(); // ✅ This ensures validation errors are shown
@@ -623,15 +505,9 @@ export class DealerComponent implements OnInit {
           this.originalDealerC = dealer.dealer_code; // 👈 Save original dealer_c
 
           this.useForm.patchValue({
-<<<<<<< HEAD
-            dealer_name: res.data.dealer.dealer_name,
-            dealer_code: Number(res.data.dealer.dealer_code), // ✅ Convert to number
-            dealer_email: res.data.dealer.dealer_email,
-=======
             dealer_name: dealer.dealer_name,
             dealer_code: Number(dealer.dealer_code),
             dealer_c: dealer.dealer_code, // 👈 Add this
->>>>>>> 8d04eae0 (updated code)
           });
 
           this.isModalOpen = true;

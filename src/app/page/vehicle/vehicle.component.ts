@@ -1036,4 +1036,5 @@ export class VehicleComponent implements OnInit {
   isVehicleName(): boolean {
     return this.useForm.value.vehicle_name !== this.previousValue;
   }
+  
 }

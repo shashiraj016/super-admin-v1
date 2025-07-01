@@ -42,11 +42,7 @@ export class TeamComponent {
   previousValue: string = '';
   totalPages: number = 0;
   // paginatedTeams: any[] = []; // your current paginated users (already existing)
-<<<<<<< HEAD
-
-=======
   isModalOpen = false;
->>>>>>> 8d04eae0 (updated code)
   // Dependency injection
   masterSrv = inject(MasterService);
   private readonly toastr = inject(ToastrService);
@@ -70,10 +66,7 @@ export class TeamComponent {
   itemsPerPage: number = 10;
   currentPage: number = 1;
   filteredTeam: any[] = [];
-<<<<<<< HEAD
-=======
   isDeleteModalOpen = false;
->>>>>>> 8d04eae0 (updated code)
 
   paginatedTeams: any[] = [];
   filteredTeamList: any[] = [];
@@ -443,42 +436,6 @@ export class TeamComponent {
     this.currentPage = 1;
     this.filterTeams();
   }
-<<<<<<< HEAD
-  getShowingFrom(): number {
-    return this.filteredTeamList.length === 0
-      ? 0
-      : (this.currentPage - 1) * this.itemsPerPage + 1;
-  }
-
-  getShowingTo(): number {
-    if (this.filteredTeamList.length === 0) {
-      return 0; // Return 0 if there are no items
-    }
-
-    const endIndex = this.currentPage * this.itemsPerPage;
-
-    // Ensure the end index does not exceed the total number of items
-    return Math.min(endIndex, this.filteredTeamList.length);
-  }
-
-  onItemsPerPageChange(event: any) {
-    this.itemsPerPage = +event.target.value;
-    this.currentPage = 1;
-    this.paginateTeams();
-  }
-  filterTeams() {
-    const term = this.searchTerm?.toLowerCase().trim();
-
-    if (!term) {
-      this.filteredTeamList = this.teamList(); // show all teams if search is empty
-    } else {
-      this.filteredTeamList = this.teamList().filter((team) =>
-        team.team_name.toLowerCase().includes(term)
-      );
-    }
-
-    this.currentPage = 1; // Reset to first page after filtering
-=======
   getShowingTo(): number {
     return Math.min(
       this.currentPage * this.itemsPerPage,
@@ -496,7 +453,6 @@ export class TeamComponent {
     this.filteredTeamList = this.teamList().filter((team) =>
       team.team_name.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
->>>>>>> 8d04eae0 (updated code)
     this.paginateTeams();
   }
 
@@ -551,14 +507,11 @@ export class TeamComponent {
       this.masterSrv.deleteTeam(this.selectedteamForDeletion.team_id).subscribe(
         (res: TeamsResponse) => {
           this.toastr.success('Team deleted successfully', 'Success');
-<<<<<<< HEAD
-=======
 
           // ✅ Close the modal before refreshing the data
           this.isDeleteModalOpen = false;
 
           // ✅ Refresh team list
->>>>>>> 8d04eae0 (updated code)
           this.displayAllTeams();
         },
         (error) => {
@@ -776,18 +729,11 @@ export class TeamComponent {
       },
       error: (err) => {
         console.error('Team creation error:', err);
-<<<<<<< HEAD
-        this.toastr.error(
-          err.message || 'Failed to create team',
-          'Creation Error'
-        );
-=======
 
         // Extracting the backend message if available
         const backendMessage = err?.error?.message || 'Failed to create team';
 
         this.toastr.error(backendMessage, 'Creation Error');
->>>>>>> 8d04eae0 (updated code)
       },
     });
   }

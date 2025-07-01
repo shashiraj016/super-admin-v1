@@ -13,13 +13,8 @@
     </div>
 
     <div class="row mb-5 align-items-center">
-<<<<<<< HEAD
-      <div class="col-xl-2 col-lg-3 col-md-4 mb-4 mb-md-0">
-        <a style="cursor: pointer; color: white !important" (click)="openModal()" type="button" data-toggle="modal"
-=======
       <div class="col-xl-2 mb-4 mb-xl-0">
         <!-- <a style="cursor: pointer; color: white !important" (click)="openModal()" type="button" data-toggle="modal"
->>>>>>> 8d04eae0 (updated code)
           data-target=".bd-example-modal-lg"
           class="btn btn-primary light btn-lg btn-block rounded shadow px-2 buttons"><i class="fa fa-plus mr-1"></i>Add
           Team</a> -->
@@ -34,17 +29,10 @@
         </a>
 
       </div>
-<<<<<<< HEAD
-      <div class="col-xl-2 col-lg-3 col-md-4 mb-4 mb-md-0">
-        <div class="media-body ml-1">
-          <p class="mb-1 fs-14 text-center">Total Team</p>
-          <h3 class="mb-0 text-black font-w600 fs-20 text-center">
-=======
       <div class="col-xl-2 mb-4 mb-xl-0" style="margin-left: -2%;">
         <div class="media-body text-center">
           <p class="mb-1 fs-14">Total Team</p>
           <h3 class="mb-0 text-black font-w600 fs-20">
->>>>>>> 8d04eae0 (updated code)
             {{ totalteam() }}
           </h3>
         </div>
@@ -60,22 +48,6 @@
           <div class="row mb-3">
             <div class="col-md-6 d-flex align-items-center">
               <label class="mr-2"></label>
-<<<<<<< HEAD
-              <select class="form-control" style="width: 70px; display: inline-block; border-radius: 5px;"
-                (change)="onItemsPerPageChange($event)">
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-              </select>
-              <label class="ml-2">records per page</label>
-            </div>
-
-
-            <div class="col-md-6 d-flex justify-content-end align-items-center">
-              <input type="text" class="form-control search-input" style="width: 250px; margin-left: 500px;"
-                placeholder="Search teams..." [(ngModel)]="searchTerm" (input)="onSearchChange()" />
-=======
               <select class="form-control" style="width: 80px; display: inline-block; border-radius: 5px;height:45px;"
                 (change)="onItemsPerPageChange($event)">
                 <option value="5">10</option>
@@ -90,7 +62,6 @@
                 <input type="text" class="form-control search-input" placeholder="Search teams..."
                   [(ngModel)]="searchTerm" (input)="onSearchChange()" />
               </div>
->>>>>>> 8d04eae0 (updated code)
             </div>
 
           </div>
@@ -151,75 +122,6 @@
             
         </div>
 
-<<<<<<< HEAD
-
-          <!-- API integration work starts here -->
-          <div class="table-responsive">
-            <table class="table display mb-4 dataTablesCard fs-14 w-100">
-              <thead>
-                <tr>
-                  <th>Sr No</th>
-                  <th>Team Name</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngIf="paginatedTeams.length === 0">
-                  <td colspan="3" class="text-center">No Teams Found</td>
-                </tr>
-                <tr *ngFor="let team of paginatedTeams; let i = index">
-                  <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
-                  <td>{{ team.team_name }}</td>
-                  <td class="d-flex">
-                    <a href="javascript:void(0);" class="btn btn-primary shadow btn-xs sharp mr-1"
-                      data-target=".bd-example-modal-lg" data-toggle="modal" (click)="onEdit(team)">
-                      <i class="fa fa-pencil"></i>
-                    </a>
-                    <a href="javascript:void(0);" class="btn btn-danger shadow btn-xs sharp" data-toggle="modal"
-                      data-target=".bd-example-modal-sm" (click)="selectteamForDeletion(team)">
-                      <i class="fa fa-trash"></i>
-                    </a>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Pagination -->
-          <div class="row mt-3">
-            <div class="col-md-6">
-              <!-- <div class="dataTables_info">
-                Showing {{ getShowingFrom() }} to {{ getShowingTo() }} of {{ filteredTeam.length }} entries
-              </div> -->
-              <div class="dataTables_info">
-                Showing
-                {{ (currentPage - 1) * itemsPerPage + 1 }} to
-                {{ (currentPage * itemsPerPage) < teamList().length ? currentPage * itemsPerPage : teamList().length }}
-                  of {{ teamList().length }} entries </div>
-
-
-              </div>
-              <div class="col-md-6">
-                <div class="dataTables_paginate paging_simple_numbers float-right">
-                  <ul class="pagination">
-                    <li class="paginate_button page-item previous" [class.disabled]="currentPage === 1">
-                      <a class="page-link" (click)="previousPage()">Previous</a>
-                    </li>
-
-                    <li class="paginate_button page-item" *ngFor="let page of pages"
-                      [class.active]="page === currentPage">
-                      <a class="page-link" (click)="goToPage(page)">{{ page }}</a>
-                    </li>
-
-                    <li class="paginate_button page-item next" [class.disabled]="currentPage === totalPages">
-                      <a class="page-link" (click)="nextPage()">Next</a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-=======
         <!-- API integration work starts here -->
         <div class="table-responsive">
           <table class="table display mb-4 dataTablesCard fs-14 w-100">
@@ -258,7 +160,6 @@
               </tr>
             </tbody>
           </table>
->>>>>>> 8d04eae0 (updated code)
         </div>
 
         <!-- Pagination -->
@@ -295,32 +196,6 @@
 
         </div>
       </div>
-<<<<<<< HEAD
-
-
-      <!-- Modal -->
-      <!-- <div class="modal fade" style="margin-block: 2em"> -->
-      <div class="modal fade bd-example-modal-lg custom-modal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" style="text-align: center; width: 100%">
-                {{ userObj.team_name || userObj.team_lead_email ? "Edit User" : "Add New User" }}
-              </h5>
-              <button type="button" class="close" data-dismiss="modal">
-                <span class="x">&times;</span>
-              </button>
-            </div>
-
-            <div class="modal-body">
-              <form [formGroup]="useForm">
-                <div class="row">
-                  <!-- Name -->
-                  <div class="col-md-6 form-group">
-                    <label for="team_name" class="form-label">Team Name</label>
-                    <input id="team_name" class="form-control form-control-lg" type="text" formControlName="team_name"
-                      placeholder="Team Name" [ngClass]="{
-=======
     </div>
   </div>
 
@@ -368,22 +243,10 @@
                 </label>
                 <input id="team_name" class="form-control form-control-lg" type="text" formControlName="team_name"
                   placeholder="Team Name" [ngClass]="{
->>>>>>> 8d04eae0 (updated code)
                   'is-invalid':
                     useForm.get('team_name')?.touched &&
                     useForm.get('team_name')?.invalid
                 }" required />
-<<<<<<< HEAD
-                    <div class="text-danger" *ngIf="
-                  useForm.get('team_name')?.invalid && useForm.get('team_name')?.touched
-                ">
-                      <span *ngIf="useForm.get('team_name')?.errors?.['required']">Team Name is required.</span>
-                    </div>
-                  </div>
-
-                  <!-- LAST NAME -->
-                  <!-- <div class="col-md-6 form-group">
-=======
                 <div class="text-danger" *ngIf="
                   useForm.get('team_name')?.invalid && useForm.get('team_name')?.touched
                 ">
@@ -396,7 +259,6 @@
 
         <!-- LAST NAME -->
         <!-- <div class="col-md-6 form-group">
->>>>>>> 8d04eae0 (updated code)
               <label for="team_lead_email" class="form-label">Team Lead</label>
               <select id="team_lead_email" class="form-control form-control-lg" formControlName="team_lead_email"
                 (change)="onTeamChange()" [ngClass]="{
@@ -420,30 +282,6 @@
             </div> -->
 
 
-<<<<<<< HEAD
-                  <!-- ROLE -->
-
-
-                  <div class="modal-footer">
-                    <ng-container *ngIf="teamObj.team_id; else saveButton">
-                      <button type="button" class="btn btn-outline-primary" data-dismiss="modal" (click)="onUpdate()"
-                        [disabled]="!isTeamNameChanged()">
-                        Edit
-                      </button>
-                    </ng-container>
-                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal" (click)="closeModal()">
-                      Close
-                    </button>
-                    <ng-template #saveButton>
-                      <button type="button" class="btn btn-outline-primary" (click)="onSave()"
-                        [attr.data-dismiss]="useForm.valid ? 'modal' : null">
-                        save
-                      </button>
-                    </ng-template>
-                  </div>
-
-                </div>
-=======
         <!-- ROLE -->
 
 
@@ -466,4 +304,3 @@
         </div>
 
       </div>
->>>>>>> 8d04eae0 (updated code)

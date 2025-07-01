@@ -28,11 +28,7 @@ export class Vehicle {
     this.updated_at = '';
     this.corporate_id = '';
     this.chasis_number = '';
-<<<<<<< HEAD
-    this.demo_start_date = '';
-=======
     this.demo_start_date = ' ';
->>>>>>> 8d04eae0 (updated code)
     this.demo_end_date = '';
   }
 }

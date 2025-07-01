@@ -35,18 +35,11 @@ import { Injectable } from '@angular/core';
   providedIn: 'root', // This makes it available throughout your application
 })
 export class Profile {
-  dealer_id: string;
-  dealer_name: string;
-  dealer_email: string;
-
-  location: string;
-  mobile: string;
+  name: string;
+  email:string;
 
   constructor() {
-    this.dealer_id = '';
-    this.dealer_email = '';
-    this.dealer_name = '';
-    this.location = '';
-    this.mobile = '';
+    this.name = '';
+    this.email='';
   }
 }
