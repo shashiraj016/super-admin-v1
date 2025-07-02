@@ -54,7 +54,9 @@ export class DealerComponent implements OnInit {
   itemsPerPage = 10;
   originalDealerName: string = '';
   originalDealerC: string = ''; // 👈 Add this
-
+  visiblePages: number[] = [];
+  maxVisiblePages: number = 3;
+  totalItems = 0;
   currentPage = 1;
   searchTerm: string = '';
   filteredDealers: any[] = []; // will hold the filtered user list
@@ -116,6 +118,10 @@ export class DealerComponent implements OnInit {
     this.isModalOpen = false; // optional, if you use isModalOpen conditionally in HTML
   }
   ngOnInit(): void {
+    this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+    this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+    this.updateVisiblePages();
+    this.getAllDealer(); // fetch data for page 1
     this.getAllDealer();
   }
 
@@ -131,24 +137,56 @@ export class DealerComponent implements OnInit {
   //     }
   //   );
   // }
+  // getAllDealer() {
+  //   this.masterSrv.getAllDealer().subscribe(
+  //     (res: DealerResponse) => {
+  //       console.log('Dealer list updated:', res.data.dealer.rows);
+
+  //       this.dealerList.set(res.data.dealer.rows); // signal data
+
+  //       this.totalDealer.set(res.data.dealer.count);
+
+  //       // ✅ Immediately apply filter + pagination
+  //       this.applyFilterAndPagination();
+  //     },
+  //     (error) => {
+  //       this.toastr.error('Error fetching dealers', 'Error');
+  //       console.error('Error fetching dealers:', error);
+  //     }
+  //   );
+  // }
   getAllDealer() {
     this.masterSrv.getAllDealer().subscribe(
       (res: DealerResponse) => {
         console.log('Dealer list updated:', res.data.dealer.rows);
 
-        this.dealerList.set(res.data.dealer.rows); // signal data
-
+        this.dealerList.set(res.data.dealer.rows); // Signal data
+        this.filteredDealers = res.data.dealer.rows; // ✅ Used for search/pagination
         this.totalDealer.set(res.data.dealer.count);
 
-        // ✅ Immediately apply filter + pagination
-        this.applyFilterAndPagination();
+        this.initializeDealerPagination(); // ✅ Setup pagination
       },
       (error) => {
         this.toastr.error('Error fetching dealers', 'Error');
         console.error('Error fetching dealers:', error);
+        this.dealerList.set([]);
+        this.filteredDealers = [];
+        this.totalDealer.set(0);
+        this.initializeDealerPagination(); // fallback even if error
       }
     );
   }
+  initializeDealerPagination() {
+    const totalItems = this.filteredDealers.length;
+    this.totalPages = Math.ceil(totalItems / this.itemsPerPage);
+    this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+
+    if (this.currentPage > this.totalPages) this.currentPage = 1;
+
+    this.updateVisiblePages();
+    this.paginateDealers();
+  }
+
   applyFilterAndPagination() {
     const allDealers = this.dealerList();
 
@@ -208,27 +246,54 @@ export class DealerComponent implements OnInit {
   //   );
   //   this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
   // }
+  // previousPage() {
+  //   if (this.currentPage > 1) {
+  //     this.currentPage--;
+  //     this.applyFilterAndPagination();
+  //   }
+  // }
+
+  // nextPage() {
+  //   if (this.currentPage < this.totalPages) {
+  //     this.currentPage++;
+  //     this.applyFilterAndPagination();
+  //   }
+  // }
+
+  // goToPage(page: number) {
+  //   if (page !== this.currentPage) {
+  //     this.currentPage = page;
+  //     this.applyFilterAndPagination();
+  //   }
+  // }
+  updateVisiblePages() {
+    const start =
+      Math.floor((this.currentPage - 1) / this.maxVisiblePages) *
+      this.maxVisiblePages;
+    this.visiblePages = this.pages.slice(start, start + this.maxVisiblePages);
+  }
+
+  goToPage(page: number) {
+    this.currentPage = page;
+    this.updateVisiblePages();
+    this.paginateDealers(); // 🔥 Add this
+  }
+
   previousPage() {
     if (this.currentPage > 1) {
       this.currentPage--;
-      this.applyFilterAndPagination();
+      this.updateVisiblePages();
+      this.paginateDealers(); // 🔥 Add this
     }
   }
 
   nextPage() {
     if (this.currentPage < this.totalPages) {
       this.currentPage++;
-      this.applyFilterAndPagination();
+      this.updateVisiblePages();
+      this.paginateDealers(); // 🔥 Add this
     }
   }
-
-  goToPage(page: number) {
-    if (page !== this.currentPage) {
-      this.currentPage = page;
-      this.applyFilterAndPagination();
-    }
-  }
-
   paginateDealers(): void {
     const allDealers = this.dealerList();
 
