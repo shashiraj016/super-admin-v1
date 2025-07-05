@@ -31,6 +31,10 @@
   width: 200px;
   max-width: 100%;
 }
+.page-titles {
+  margin-top: 0px;       /* remove extra margin */
+  padding-top: 8px;      /* or adjust as needed */
+}
 
 /* Remove ❌ icon from invalid text inputs */
 input.form-control.is-invalid,

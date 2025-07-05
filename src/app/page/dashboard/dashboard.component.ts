@@ -102,7 +102,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   testDriveChange: number = 0;
   testDriveProgressValue: number = 0;
   testDriveStrokeColor: string = '#4CAF50';
-
+  selectedCategory: string = 'leads';
+  selectedDuration: string = 'MTD';
+  // selectedOption: string = '';
   orderChange: number = 0;
   orderProgressValue: number = 0;
   orderStrokeColor: string = '#4CAF50';
@@ -171,6 +173,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   }, 100);
   // }
   ngOnInit() {
+    this.onDropdownChange(); // Auto-trigger on page load with default values
+
     this.context.onSideBarClick$.next({
       role: 'dashboard',
       pageTitle: 'Dashboard',
@@ -224,6 +228,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     return 100 - progressValue;
   }
 
+  onDropdownChange() {
+    if (this.selectedCategory && this.selectedDuration) {
+      this.selectedOption = `${this.selectedCategory}-${this.selectedDuration}`;
+      this.updateDataBasedOnSelection(); // Trigger your logic
+    }
+  }
   // getStrokeColor(change: number): string {
   //   if (change > 0) return '#4CAF50'; // Green
   //   if (change < 0) return '#F44336'; // Red

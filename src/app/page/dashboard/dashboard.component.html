@@ -61,7 +61,7 @@
               <strong>Change:</strong> {{ changeDisplay }}
             </div>
             <!-- 90 -->
-             
+
             <svg width="99" height="99" viewBox="0 0 36 36" class="circular-chart" style="transform: rotate(-90deg);">
               <path class="circle-background" fill="none" stroke="#e6e6e6" stroke-width="3"
                 d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
@@ -200,7 +200,7 @@
     <div class="col-lg-5 col-12 mb-4">
       <div class="card card-height">
         <div class="card-header">
-          <h4 class="card-title"><i class="fas fa-chart-pie"></i> Doughnut Chart</h4>
+          <h4 class="card-title">Test Drive to Order Conversion</h4>
         </div>
         <div class="card-body d-flex justify-content-center align-items-center"
           style="height: 20% !important;margin-top:-60px;width:98%">
@@ -214,8 +214,8 @@
     <div class="col-lg-7 col-12">
       <div class="card w-100" style="min-height: 500px;background-color: #ffffff; ">
         <div class="card-header d-flex justify-content-between">
-          <h4 class="card-title" style="white-space: nowrap;">Dealership Ranking</h4>
-          <select class="form-control" style="max-width: 150px;" [(ngModel)]="selectedOption"
+          <h4 class="card-title" style="white-space: nowrap;margin-top:-30px">Dealership Ranking</h4>
+          <!-- <select class="form-control" style="max-width: 150px;" [(ngModel)]="selectedOption"
             (ngModelChange)="updateDataBasedOnSelection()">
             <option value="leads-MTD">Leads - MTD</option>
             <option value="leads-QTD">Leads - QTD</option>
@@ -226,7 +226,27 @@
             <option value="orders-MTD">Orders - MTD</option>
             <option value="orders-QTD">Orders - QTD</option>
             <option value="orders-YTD">Orders - YTD</option>
-          </select>
+          </select> -->
+        <!-- CATEGORY Dropdown -->
+      <!-- CATEGORY Dropdown -->
+      <select class="form-control me-2" style="max-width: 150px;" [(ngModel)]="selectedCategory"
+        (ngModelChange)="onDropdownChange()">
+        <!-- <option value="">-- Select Category --</option> -->
+        <option value="leads">Leads</option>
+        <option value="testDrives">Test Drives</option>
+        <option value="orders">Orders</option>
+      </select>
+      
+      <!-- DURATION Dropdown -->
+      <select class="form-control" style="max-width: 150px;" [(ngModel)]="selectedDuration"
+        (ngModelChange)="onDropdownChange()">
+        <!-- <option value="">-- Select Duration --</option> -->
+        <option value="MTD">MTD</option>
+        <option value="QTD">QTD</option>
+        <option value="YTD">YTD</option>
+      </select>
+
+
         </div>
         <div class="card-body table-responsive" style="padding: 20px; border: none;">
           <table id="example" class="table table-striped" style="width: 100%; border: none; margin: 0;">

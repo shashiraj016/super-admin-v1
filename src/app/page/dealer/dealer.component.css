@@ -43,3 +43,7 @@ input.form-control.form-control-lg.is-invalid {
   background-image: none !important;
   padding-right: 0.75rem !important; /* optional: clean spacing after icon removal */
 }
+.page-titles {
+  margin-top: 0px;       /* remove extra margin */
+  padding-top: 8px;      /* or adjust as needed */
+}

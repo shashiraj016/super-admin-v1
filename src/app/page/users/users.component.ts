@@ -182,11 +182,10 @@ export class UsersComponent implements OnInit {
       // ]),
       // role_id: new FormControl(null, [Validators.required]),
 
-      // dealer_id: new FormControl(null, [Validators.required]),
+      dealer_id: new FormControl(null, [Validators.required]),
       // team_id: new FormControl(null, [Validators.required]),
       team_id: new FormControl(null, [Validators.required]),
       // dealer_code: new FormControl(null, [Validators.required]),
-      dealer_id: new FormControl(null, [Validators.required]),
 
       // dealer_id: new FormControl(null),
       // team_name: new FormControl(null, [Validators.required]),
@@ -514,6 +513,13 @@ export class UsersComponent implements OnInit {
       this.updateVisiblePages();
       this.paginateUsers(); // 🔥 Add this
     }
+  }
+  expand(event: any) {
+    event.target.size = 6; // show 6 options
+  }
+
+  collapse(event: any) {
+    event.target.size = 0; // collapse back like a regular dropdown
   }
 
   onItemsPerPageChange(event: any) {
@@ -1177,7 +1183,7 @@ export class UsersComponent implements OnInit {
     // Initialize the form with current user data
     this.useForm.patchValue({
       user_id: user.user_id,
-      name: formattedName, // Use the formatted name here
+      name: formattedName,
       account_id: user.account_id || '',
       email: user.email || '',
       phone: user.phone || '',
@@ -1187,7 +1193,9 @@ export class UsersComponent implements OnInit {
       fname: user.fname || '',
       lname: user.lname || '',
       user_role: user.user_role || '',
+      dealer_id: user.dealer_id || null, // ✅ Add this line
     });
+    
 
     console.log('userObj.user_id after setting:', this.userObj?.user_id);
     setTimeout(() => {
