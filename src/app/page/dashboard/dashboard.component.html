@@ -227,24 +227,30 @@
             <option value="orders-QTD">Orders - QTD</option>
             <option value="orders-YTD">Orders - YTD</option>
           </select> -->
-        <!-- CATEGORY Dropdown -->
-      <!-- CATEGORY Dropdown -->
-      <select class="form-control me-2" style="max-width: 150px;" [(ngModel)]="selectedCategory"
-        (ngModelChange)="onDropdownChange()">
-        <!-- <option value="">-- Select Category --</option> -->
-        <option value="leads">Leads</option>
-        <option value="testDrives">Test Drives</option>
-        <option value="orders">Orders</option>
-      </select>
-      
-      <!-- DURATION Dropdown -->
-      <select class="form-control" style="max-width: 150px;" [(ngModel)]="selectedDuration"
-        (ngModelChange)="onDropdownChange()">
-        <!-- <option value="">-- Select Duration --</option> -->
-        <option value="MTD">MTD</option>
-        <option value="QTD">QTD</option>
-        <option value="YTD">YTD</option>
-      </select>
+          <!-- CATEGORY Dropdown -->
+          <!-- CATEGORY Dropdown -->
+          <div class="row mb-3">
+            <div class="col-auto">
+              <!-- CATEGORY Dropdown -->
+              <select class="form-control" style="width: 150px;" [(ngModel)]="selectedCategory"
+                (ngModelChange)="onDropdownChange()">
+                <option value="leads">Leads</option>
+                <option value="testDrives">Test Drives</option>
+                <option value="orders">Orders</option>
+              </select>
+            </div>
+          
+            <div class="col-auto">
+              <!-- DURATION Dropdown -->
+              <select class="form-control" style="width: 150px;" [(ngModel)]="selectedDuration"
+                (ngModelChange)="onDropdownChange()">
+                <option value="MTD">MTD</option>
+                <option value="QTD">QTD</option>
+                <option value="YTD">YTD</option>
+              </select>
+            </div>
+          </div>
+          
 
 
         </div>
