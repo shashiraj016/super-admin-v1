@@ -351,7 +351,21 @@ export class VehicleComponent implements OnInit {
   onSave() {
     console.log('onsave being called');
     console.log(this.useForm.value);
-    console.log('Form end_date value:', this.useForm.get('end_date')?.value);
+    console.log(
+      'Form end_date value:',
+      this.useForm.get('demo_end_date')?.value
+    );
+
+    const startDate = new Date(this.useForm.get('demo_start_date')?.value);
+    const endDate = new Date(this.useForm.get('demo_end_date')?.value);
+
+    if (endDate < startDate) {
+      this.toastr.error(
+        'End date cannot be before start date.',
+        'Date Validation'
+      );
+      return;
+    }
 
     if (this.useForm.invalid) {
       this.markFormGroupTouched(this.useForm);

@@ -1,5 +1,5 @@
 <div class="container-fluid">
-  <div class="content-body">
+  <div class="content-body" id="user">
     <!-- Breadcrumb -->
     <!-- <div class="page-titles">
       <ol class="breadcrumb">
@@ -97,7 +97,8 @@
               </thead>
               <tbody>
                 <tr *ngIf="paginatedUsers.length === 0">
-                  <td colspan="3" class="text-center" style="display:flex;margin-left:120%;white-space:nowrap">No Users found</td>
+                  <td colspan="3" class="text-center" style="display:flex;margin-left:120%;white-space:nowrap">No Users
+                    found</td>
                 </tr>
                 <tr *ngFor="let user of paginatedUsers; let i = index">
                   <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>

@@ -373,24 +373,31 @@
                 </div>
 
               </div> -->
-                <div class="col-md-6 form-group">
-                  <label for="demo_end_date" class="form-label"
-                    style="display: block; width: 100%; text-align: left;margin-left:-2px">
-                    End date <span class="text-danger">*</span>
-                  </label>
-
-                  <input id="demo_end_date" class="form-control form-control-lg" type="date" placeholder="end date"
-                    formControlName="demo_end_date" [ngClass]="{
+              <div class="col-md-6 form-group">
+                <label for="demo_end_date" class="form-label" style="display: block; width: 100%; text-align: left;margin-left:-2px">
+                  End date <span class="text-danger">*</span>
+                </label>
+              
+                <input id="demo_end_date" class="form-control form-control-lg" type="date" placeholder="end date"
+                  formControlName="demo_end_date" [ngClass]="{
                                                   'is-invalid':
                                                     useForm.get('demo_end_date')?.touched && useForm.get('demo_end_date')?.invalid
                                                 }" style="width:350px;" />
-
-                  <div class="text-danger"
-                    *ngIf="useForm.get('demo_end_date')?.touched && useForm.get('demo_end_date')?.invalid">
-                    <span>End date is required.</span>
-                  </div>
-
+              
+                <div class="text-danger" *ngIf="useForm.get('demo_end_date')?.touched && useForm.get('demo_end_date')?.invalid">
+                  <span>End date is required.</span>
                 </div>
+              
+                <!-- ✅ Custom validation message -->
+                <!-- <div class="text-danger" *ngIf="
+                                                  useForm.get('demo_start_date')?.value &&
+                                                  useForm.get('demo_end_date')?.value &&
+                                                  useForm.get('demo_end_date')?.touched &&
+                                                  useForm.get('demo_end_date')?.value < useForm.get('demo_start_date')?.value
+                                                ">
+                                <span>End date cannot be before start date.</span>
+                              </div> -->
+              </div>
                 <div class="col-md-6 form-group" style="margin-left:5px;">
                   <label for="vin" class="form-label" style="display: block; width: 100%; text-align: left;">
                     VIN <span class="text-danger">*</span>

@@ -18,8 +18,9 @@ body {
   }
 }
 
-
-
+#user {
+  margin-left: 1rem;
+}
 
 .sidebar {
   width: 250px;
