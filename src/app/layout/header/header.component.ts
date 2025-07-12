@@ -19,6 +19,7 @@ import { Token } from '@angular/compiler';
 import { filter, map } from 'rxjs';
 import { ContextService } from '../../service/context.service';
 import { SidebarService } from '../../service/sidebar.service';
+import { UserService } from '../../service/user.service';
 
 @Component({
   selector: 'app-header',
@@ -33,6 +34,7 @@ export class HeaderComponent implements OnInit {
   guestDetails: any;
   // pageTitle: string = 'Dashboard';
   currentHeading: string = 'Dashboard';
+  userName: string = '';
 
   constructor(
     private router: Router,
@@ -40,9 +42,24 @@ export class HeaderComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private context: ContextService,
     private cdr: ChangeDetectorRef,
-    private sidebarService: SidebarService
+    private sidebarService: SidebarService,
+    private userService: UserService // ✅ Inject UserService
   ) {}
 
+  // ngOnInit() {
+  //   this.context.onSideBarClick$.subscribe(({ pageTitle }) => {
+  //     console.log('Current Heading Updated:', pageTitle);
+  //     this.currentHeading = pageTitle;
+  //     this.cdr.markForCheck();
+  //   });
+
+  //   this.updateTitle();
+
+  //   // header name
+  //   this.router.events
+  //     .pipe(filter((event) => event instanceof NavigationEnd))
+  //     .subscribe(() => this.updateTitle());
+  // }
   ngOnInit() {
     this.context.onSideBarClick$.subscribe(({ pageTitle }) => {
       console.log('Current Heading Updated:', pageTitle);
@@ -52,12 +69,26 @@ export class HeaderComponent implements OnInit {
 
     this.updateTitle();
 
-    // header name
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe(() => this.updateTitle());
-  }
 
+    // ✅ Fix: access 'dealer_name' from res.data
+    this.userService.getProfile().subscribe({
+      next: (res) => {
+        console.log('Profile response:', res); // ✅ Check console
+
+        this.userName = res.data?.name || '';
+        console.log('Assigned userName:', this.userName);
+        this.cdr.detectChanges(); // ✅ This is crucial
+      },
+      error: (err) => {
+        console.error('Failed to fetch profile', err);
+        this.userName = '';
+        this.cdr.detectChanges();
+      },
+    });
+  }
   onToggleClick() {
     console.log('Hamburger clicked'); // 👈 test log
     // this.sidebarToggle.emit();
