@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/page/role/role.component.css"],
+  "sourcesContent": [".sidebar {\n  width: 250px; /* Adjust based on sidebar width */\n  position: fixed;\n  top: 0;\n  left: 0;\n  height: 100%;\n  background-color: #f8f9fa;\n}\n\n.content-body {\n  margin-left: 14%; /* Match sidebar width */\n  padding: 20px;\n  flex-grow: 1;\n}\n.table-responsive {\n  width: 100%;\n  overflow-x: auto;\n}\n\ntable {\n  width: 100% !important;\n  table-layout: auto;\n}\nbody {\n  overflow-x: hidden;\n}\n/* Remove \u274C icon from Bootstrap invalid select dropdowns */\nselect.form-control.is-invalid,\nselect.form-control.form-control-lg.is-invalid {\n  background-image: none !important;\n  padding-right: 0.75rem !important; /* optional: adjust spacing if needed */\n}\n.page-titles {\n  margin-top: 0px;       /* remove extra margin */\n  padding-top: 8px;      /* or adjust as needed */\n}\n"],
+  "mappings": ";AAAA,CAAC;AACC,SAAO;AACP,YAAU;AACV,OAAK;AACL,QAAM;AACN,UAAQ;AACR,oBAAkB;AACpB;AAEA,CAAC;AACC,eAAa;AACb,WAAS;AACT,aAAW;AACb;AACA,CAAC;AACC,SAAO;AACP,cAAY;AACd;AAEA;AACE,SAAO;AACP,gBAAc;AAChB;AACA;AACE,cAAY;AACd;AAEA,MAAM,CAAC,YAAY,CAAC;AACpB,MAAM,CADC,YACY,CAAC,eAAe,CADf;AAElB,oBAAkB;AAClB,iBAAe;AACjB;AACA,CAAC;AACC,cAAY;AACZ,eAAa;AACf;",
+  "names": []
+}

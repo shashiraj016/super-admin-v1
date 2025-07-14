@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/layout/sidebar/sidebar.component.css"],
+  "sourcesContent": [".ai-icon {\n  display: flex;\n  align-items: center;\n}\n\n.metismenu a {\n  display: flex;\n  align-items: center;\n}\n.icon-responsive {\n  display: flex;\n  justify-content: center;\n}\n.menu {\n  margin-top: 10px;\n}\n/* .deznav-scroll{\n  scroll-behavior: none !important;\n} */\n\n/* Active link style */\n\n/* Keep the hover effect too */\n.metismenu a:hover {\n  /* background-color: #ffffff; */\n  color: #000;\n}\n"],
+  "mappings": ";AAAA,CAAC;AACC,WAAS;AACT,eAAa;AACf;AAEA,CAAC,UAAU;AACT,WAAS;AACT,eAAa;AACf;AACA,CAAC;AACC,WAAS;AACT,mBAAiB;AACnB;AACA,CAAC;AACC,cAAY;AACd;AAQA,CAlBC,UAkBU,CAAC;AAEV,SAAO;AACT;",
+  "names": []
+}

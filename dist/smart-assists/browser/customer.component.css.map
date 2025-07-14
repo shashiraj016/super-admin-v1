@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/page/customer/customer.component.css"],
+  "sourcesContent": [".sidebar {\n  width: 250px; /* Adjust based on sidebar width */\n  position: fixed;\n  top: 0;\n  left: 0;\n  height: 100%;\n  background-color: #f8f9fa;\n}\n\n.content-body {\n  margin-left: 350px; /* Match sidebar width */\n  padding: 20px;\n  flex-grow: 1;\n}\n"],
+  "mappings": ";AAAA,CAAC;AACC,SAAO;AACP,YAAU;AACV,OAAK;AACL,QAAM;AACN,UAAQ;AACR,oBAAkB;AACpB;AAEA,CAAC;AACC,eAAa;AACb,WAAS;AACT,aAAW;AACb;",
+  "names": []
+}

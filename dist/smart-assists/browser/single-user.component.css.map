@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/page/single-user/single-user.component.css"],
+  "sourcesContent": [".sidebar {\r\n  width: 250px; /* Adjust based on sidebar width */\r\n  position: fixed;\r\n  top: 0;\r\n  left: 0;\r\n  height: 100%;\r\n  background-color: #f8f9fa;\r\n}\r\n\r\n.content-body {\r\n  /* margin-left: 250px; Match sidebar width */\r\n  padding: 20px;\r\n  flex-grow: 1;\r\n}\r\n"],
+  "mappings": ";AAAA,CAAC;AACC,SAAO;AACP,YAAU;AACV,OAAK;AACL,QAAM;AACN,UAAQ;AACR,oBAAkB;AACpB;AAEA,CAAC;AAEC,WAAS;AACT,aAAW;AACb;",
+  "names": []
+}
