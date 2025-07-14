@@ -11800,7 +11800,7 @@ a.active {
 @media only screen and (max-width: 1600px) {
   .content-body .container-fluid {
     padding-top: 30px;
-    padding-right: 30px;
+    padding-right: 70px;
     padding-left: 30px;
   }
 }
