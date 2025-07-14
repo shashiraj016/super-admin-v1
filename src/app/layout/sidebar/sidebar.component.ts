@@ -2,28 +2,39 @@ import {
   Component,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  AfterViewInit,
+  OnDestroy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import {
+  Router,
+  RouterLink,
+  RouterModule,
+  NavigationEnd,
+} from '@angular/router';
 import { ContextService } from '../../service/context.service';
+import { CommonModule } from '@angular/common';
 import { SidebarService } from '../../service/sidebar.service';
+import MetisMenu from 'metismenujs';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, CommonModule, RouterModule],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SidebarComponent {
+export class SidebarComponent implements AfterViewInit, OnDestroy {
   selectedValue: string = '';
   isMastersOpen = false;
   isSidebarOpen: boolean = true;
-  pageTitle: string = '';
-  activeDropdown: string = '';
+  isMasterMenuOpen = false;
 
-  // constructor(private router: Router, private context: ContextService) {}
+  private metis: any;
+  private routerSub!: Subscription;
+
   constructor(
     private router: Router,
     private context: ContextService,
@@ -35,35 +46,47 @@ export class SidebarComponent {
     this.sidebarService.isOpen$.subscribe((open: boolean) => {
       this.isSidebarOpen = open;
       this.cdr.detectChanges();
-      console.log('Sidebar state changed:', this.isSidebarOpen);
     });
   }
 
-  onRoleChange(role: string, pageTitle: string) {
-    this.context.onSideBarClick$.next({ role, pageTitle });
-  }
-  toggleDropdown(menu: string): void {
-    this.activeDropdown = this.activeDropdown === menu ? '' : menu;
-    this.cdr.detectChanges(); // <-- trigger view update manually due to OnPush
+  ngAfterViewInit(): void {
+    this.initMetisMenu();
+
+    this.routerSub = this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        setTimeout(() => this.initMetisMenu(), 100); // Re-init menu on route change
+      }
+    });
   }
 
-  onTeamChange(role: string, pageTitle: string) {
-    this.context.onSideBarClick$.next({ role, pageTitle });
+  ngOnDestroy(): void {
+    if (this.routerSub) this.routerSub.unsubscribe();
+    if (this.metis) this.metis.dispose();
   }
   onProfileChange(path: string, title: string) {
     this.context.setPageTitle(title); // ✅ globally update page title
   }
 
-  view(page: any) {
-    this.router.navigate(['../Admin/' + page]);
+  private initMetisMenu(): void {
+    const el = document.getElementById('menu');
+    if (el) {
+      if (this.metis) {
+        this.metis.dispose(); // Dispose old instance
+      }
+      this.metis = new MetisMenu(el);
+    }
   }
 
-  view2(page: string, status: string, title: string) {
-    this.router
-      .navigate(['../Admin/' + page, { type: status, title: title }])
-      .then(() => {
-        window.scroll({ top: 0, left: 0, behavior: 'smooth' });
-      });
+  onRoleChange(role: string, pageTitle: string) {
+    this.context.onSideBarClick$.next({ role, pageTitle });
+  }
+
+  onTargetChange(role: string, pageTitle: string) {
+    this.context.onSideBarClick$.next({ role, pageTitle });
+  }
+
+  onTeamChange(role: string, pageTitle: string) {
+    this.context.onSideBarClick$.next({ role, pageTitle });
   }
 
   toggleMastersMenu(): void {
@@ -74,12 +97,22 @@ export class SidebarComponent {
     this.isMastersOpen = false;
   }
 
+  view(page: any) {
+    this.router.navigate(['../Admin/' + page]);
+  }
+
   closeMastersMenuAndReopen() {
     this.isMastersOpen = false;
-
-    // ⏳ Wait briefly and re-open
     setTimeout(() => {
       this.isMastersOpen = true;
-    }, 300); // delay in milliseconds (adjust if needed)
+    }, 300);
+  }
+
+  view2(page: string, status: string, title: string) {
+    this.router
+      .navigate(['../Admin/' + page, { type: status, title: title }])
+      .then(() => {
+        window.scroll({ top: 0, left: 0, behavior: 'smooth' });
+      });
   }
 }

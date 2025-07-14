@@ -138,6 +138,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   doughnutChart: any;
   // progressValue: number = 75; // Set a default value (e.g., 75 for 75%)
   animatedValue: number = 0; // Initial value
+  itemsPerPage: number = 10;
+  currentPage: number = 1;
+  paginatedData: any[] = [];
 
   // selectedOption: string = 'leads'; // Default selected option to show 'leads' data
   maxValue: number = 0;
@@ -155,7 +158,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   ) {}
   data: any; // To hold your data
   apiUrl: string =
-    'https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd';
+    'https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboard';
 
   dealersData: any[] = []; // Array to hold the dealer data
   // ngOnInit() {
@@ -228,12 +231,26 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     return 100 - progressValue;
   }
 
+  // onDropdownChange() {
+  //   if (this.selectedCategory && this.selectedDuration) {
+  //     this.selectedOption = `${this.selectedCategory}-${this.selectedDuration}`;
+  //     this.updateDataBasedOnSelection();
+  //   }
+  // }
   onDropdownChange() {
+    console.log('Dropdown changed:');
+    console.log('selectedCategory:', this.selectedCategory);
+    console.log('selectedDuration:', this.selectedDuration);
+
     if (this.selectedCategory && this.selectedDuration) {
+      console.log('✅ Both dropdowns selected. Proceeding to fetch data...');
       this.selectedOption = `${this.selectedCategory}-${this.selectedDuration}`;
-      this.updateDataBasedOnSelection(); // Trigger your logic
+      this.updateDataBasedOnSelection(); // Fetch data
+    } else {
+      console.warn('⚠️ One or both dropdowns not selected. Skipping fetch.');
     }
   }
+
   // getStrokeColor(change: number): string {
   //   if (change > 0) return '#4CAF50'; // Green
   //   if (change < 0) return '#F44336'; // Red
@@ -414,7 +431,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http
       .get<any>(
-        `https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd?type=${type}`,
+        `https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboard?type=${type}`,
         { headers }
       )
       .subscribe({
@@ -550,7 +567,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   fetchData(): void {
     this.http
       .get<any>(
-        'hhttps://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd'
+        'hhttps://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboard'
       )
       .subscribe(
         (response) => {
@@ -934,7 +951,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http
       .get(
-        `https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd?filter=${filter}`,
+        `https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboard?filter=${filter}`,
         { headers }
       )
       .subscribe(
@@ -975,7 +992,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http
       .get(
-        `https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd?filter=${filter}`,
+        `https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboard?filter=${filter}`,
         { headers }
       )
       .subscribe(
@@ -1103,11 +1120,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // }
 
   updateDataBasedOnSelection(): void {
-    const [type, range] = this.selectedOption.split('-'); // e.g., "leads", "MTD"
+    const [type, range] = this.selectedOption.split('-');
+    console.log(`📦 Fetching data for type: ${type}, duration: ${range}`);
 
     const token = sessionStorage.getItem('token');
     if (!token) {
-      console.error('No token found!');
+      console.error('❌ No token found!');
       return;
     }
 
@@ -1117,31 +1135,34 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http
       .get<any>(
-        `https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd?type=${range}`,
+        `https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboard?type=${range}`,
         { headers }
       )
       .subscribe(
         (response) => {
-          console.log('Filtered API response:', response);
+          console.log('✅ Filtered API response:', response);
 
           const rankings = response?.data?.rankings || {};
-
-          // Dynamic access based on type
           this.displayedData = rankings[type] || [];
+          this.paginateData(); // <-- paginate after setting data
 
-          // Set max value for progress bar
           this.maxValue =
             Math.max(...this.displayedData.map((item) => item.value)) || 1;
 
-          console.log('Selected Type:', type);
-          console.log('Displayed Data:', this.displayedData);
+          console.log('📊 Displayed Data:', this.displayedData);
         },
         (error) => {
-          console.error('Error fetching filtered data:', error);
+          console.error('❌ Error fetching filtered data:', error);
           this.displayedData = [];
         }
       );
   }
+  paginateData() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedData = this.displayedData.slice(startIndex, endIndex);
+  }
+
   getFormattedChange(change: number): string {
     if (Object.is(change, -0)) {
       return '-0%';
@@ -1157,6 +1178,21 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // Optionally, you can modify how you color the progress bar based on value
   getColor(rank: number): string {
     return rank <= 3 ? '#28a745' : '#dc3545'; // Green for rank 1, 2, 3, Red for others
+  }
+  changePage(page: number) {
+    if (page < 1 || page > this.totalPages()) return;
+    this.currentPage = page;
+    this.paginateData();
+  }
+
+  totalPages(): number {
+    return Math.ceil(this.displayedData.length / this.itemsPerPage);
+  }
+
+  getPageNumbers(): number[] {
+    return Array(this.totalPages())
+      .fill(0)
+      .map((_, index) => index + 1);
   }
 
   // getLeadChange() {
@@ -1278,7 +1314,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (!token) return;
 
     let url =
-      'https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd';
+      'https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboard';
     if (period && period !== 'today') {
       url += `?type=${period}`;
     }

@@ -52,8 +52,8 @@
             </span>
           </div>
 
-          <div class="position-absolute tooltip-container"
-            style="top: 18%; right: 50px; transform: translateY(-50%); width: 90px; height: 90px;">
+          <div id="first" class="position-absolute tooltip-container"
+            style=" right: 50px; transform: translateY(-50%); width: 90px; height: 90px;">
 
             <div class="tooltip-content" style="margin-bottom: 10px;">
               <strong>Current:</strong> {{ currentLeads }}<br />
@@ -71,7 +71,7 @@
                 d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
             </svg>
             <!-- Percentage number centered inside the circle -->
-            <div style="
+            <div id="num" style="
                   position: absolute;
                   top: 55%;
                   left: 55%;
@@ -108,7 +108,7 @@
             <span class="text-muted" style="font-size: 18px;">Since last month</span>
           </div>
 
-          <div class="position-absolute tooltip-container" style="top: 52%; right: 50px; transform: translateY(-50%);">
+          <div id="sec" class="position-absolute tooltip-container" style="top: 52%; right: 50px; transform: translateY(-50%);">
             <div class="tooltip-content">
               <strong>Current:</strong> {{ currentTestDrives }}<br />
               <strong>Previous:</strong> {{ previousTestDrives }}<br />
@@ -124,8 +124,8 @@
                 d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
               <!-- <path class="circle-fill" fill="none" stroke="#4caf50" stroke-width="3"
                   [attr.stroke-dasharray]="animatedValue + ', 100'" d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" /> -->
-              <path class="circle-fill" fill="none" [attr.stroke]="testDriveStrokeColor" stroke-width="3"
-                [attr.stroke-dasharray]="testDriveProgressValue + ', 100'"
+              <path class="circle-fill" fill="none" [attr.stroke]="testDriveChange >= 0 ? '#28a745' : '#dc3545'"
+                stroke-width="3" [attr.stroke-dasharray]="testDriveProgressValue + ', 100'"
                 d="M18 2 a16 16 0 1 1 0 32 a16 16 0 1 1 0 -32" />
 
             </svg>
@@ -167,7 +167,7 @@
           </div>
 
           <!-- Circular Progress for Orders -->
-          <div class="position-absolute tooltip-container" style="top: 52%; right: 50px; transform: translateY(-50%);">
+          <div id="third" class="position-absolute tooltip-container" style="top: 52%; right: 50px; transform: translateY(-50%);">
             <div class="tooltip-content">
               <strong>Current:</strong> {{ currentOrders }}<br />
               <strong>Previous:</strong> {{ previousOrders }}<br />
@@ -232,28 +232,41 @@
           <div class="row mb-3">
             <div class="col-auto">
               <!-- CATEGORY Dropdown -->
-              <select class="form-control" style="width: 150px;" [(ngModel)]="selectedCategory"
+              <!-- <select class="form-control" style="width: 150px;" [(ngModel)]="selectedCategory"
                 (ngModelChange)="onDropdownChange()">
+                <option value="leads">Leads</option>
+                <option value="testDrives">Test Drives</option>
+                <option value="orders">Orders</option>
+              </select> -->
+              <select class="form-control" [(ngModel)]="selectedCategory" (ngModelChange)="onDropdownChange()">
+                <option [ngValue]="null" disabled selected>Select Category</option>
                 <option value="leads">Leads</option>
                 <option value="testDrives">Test Drives</option>
                 <option value="orders">Orders</option>
               </select>
             </div>
-          
+
             <div class="col-auto">
               <!-- DURATION Dropdown -->
-              <select class="form-control" style="width: 150px;" [(ngModel)]="selectedDuration"
+              <!-- <select class="form-control" style="width: 150px;" [(ngModel)]="selectedDuration"
                 (ngModelChange)="onDropdownChange()">
+                <option value="MTD">MTD</option>
+                <option value="QTD">QTD</option>
+                <option value="YTD">YTD</option>
+              </select> -->
+              <select class="form-control" [(ngModel)]="selectedDuration" (ngModelChange)="onDropdownChange()">
+                <option [ngValue]="null" disabled selected>Select Duration</option>
                 <option value="MTD">MTD</option>
                 <option value="QTD">QTD</option>
                 <option value="YTD">YTD</option>
               </select>
             </div>
           </div>
-          
+
 
 
         </div>
+        <!-- Table Section -->
         <div class="card-body table-responsive" style="padding: 20px; border: none;">
           <table id="example" class="table table-striped" style="width: 100%; border: none; margin: 0;">
             <thead>
@@ -267,80 +280,88 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let row of displayedData">
+              <tr *ngFor="let row of paginatedData">
                 <td>{{ row.dealer_name }}</td>
                 <td>{{ row.dealer_code }}</td>
                 <td>{{ row.location }}</td>
                 <td>{{ row.phone }}</td>
                 <td>{{ row.value }}</td>
-                <td>{{row.rank}}</td>
-                <!-- <td>
-                    <div class="progress" style="height: 20px;">
-                      <div class="progress-bar" role="progressbar"
-                        [style.width.%]="getProgressPercentage(row.value, maxValue)"
-                        [style.background-color]="'#28a745'" [attr.aria-valuenow]="row.value"
-                        [attr.aria-valuemax]="maxValue">
-                        {{ getProgressPercentage(row.value, maxValue) | number: '1.0-0' }}%
-                      </div>
-                    </div>
-                  </td> -->
+                <td>{{ row.rank }}</td>
               </tr>
             </tbody>
           </table>
         </div>
+
+        <!-- ✅ Pagination positioned using Flexbox -->
+        <div class="d-flex justify-content-end px-4 pb-3">
+          <nav>
+            <ul class="pagination mb-0">
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="changePage(currentPage - 1)">Previous</a>
+              </li>
+              <li class="page-item" *ngFor="let page of getPageNumbers()" [class.active]="page === currentPage">
+                <a class="page-link" (click)="changePage(page)">{{ page }}</a>
+              </li>
+              <li class="page-item" [class.disabled]="currentPage === totalPages()">
+                <a class="page-link" (click)="changePage(currentPage + 1)">Next</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+
+        <!-- Pagination aligned to right -->
+
+        <!-- </div> -->
+
+        <!-- Chart.js Script -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+          const ctx = document.getElementById('doughnutChart').getContext('2d');
+          new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: ['Red', 'Blue', 'Yellow'],
+              datasets: [{
+                data: [300, 50, 100],
+                backgroundColor: ['#ff0000', '#0000ff', '#ffff00'],
+                hoverOffset: 4
+              }]
+            }
+          });
+
+          document.addEventListener('DOMContentLoaded', function () {
+            fetch('https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd') // Replace with your actual API endpoint
+              .then(response => response.json())
+              .then(data => {
+                populateTable(data.data.rankings.leads); // Assuming the structure is data.data.rankings.leads
+              })
+              .catch(error => {
+                console.error('Error fetching data:', error);
+                // Optionally display an error message in the table
+              });
+
+            function populateTable(leadsData) {
+              const tableBody = document.querySelector('#dataTable tbody');
+              tableBody.innerHTML = ''; // Clear any existing rows
+
+              leadsData.forEach(dealer => {
+                const row = tableBody.insertRow();
+                const nameCell = row.insertCell();
+                const codeCell = row.insertCell();
+                const locationCell = row.insertCell();
+                const phoneCell = row.insertCell();
+                const countCell = row.insertCell();
+                const rankCell = row.insertCell();
+
+                nameCell.textContent = dealer.dealer_name;
+                codeCell.textContent = dealer.dealer_code;
+                locationCell.textContent = dealer.location;
+                phoneCell.textContent = dealer.phone || dealer.mobile || ''; // Use phone if available, otherwise mobile
+                countCell.textContent = dealer.value;
+                rankCell.textContent = dealer.rank;
+              });
+            }
+          });
+        </script>
       </div>
-    </div>
-  </div>
-  <!-- </div> -->
-
-  <!-- Chart.js Script -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    const ctx = document.getElementById('doughnutChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Red', 'Blue', 'Yellow'],
-        datasets: [{
-          data: [300, 50, 100],
-          backgroundColor: ['#ff0000', '#0000ff', '#ffff00'],
-          hoverOffset: 4
-        }]
-      }
-    });
-
-    document.addEventListener('DOMContentLoaded', function () {
-      fetch('https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd') // Replace with your actual API endpoint
-        .then(response => response.json())
-        .then(data => {
-          populateTable(data.data.rankings.leads); // Assuming the structure is data.data.rankings.leads
-        })
-        .catch(error => {
-          console.error('Error fetching data:', error);
-          // Optionally display an error message in the table
-        });
-
-      function populateTable(leadsData) {
-        const tableBody = document.querySelector('#dataTable tbody');
-        tableBody.innerHTML = ''; // Clear any existing rows
-
-        leadsData.forEach(dealer => {
-          const row = tableBody.insertRow();
-          const nameCell = row.insertCell();
-          const codeCell = row.insertCell();
-          const locationCell = row.insertCell();
-          const phoneCell = row.insertCell();
-          const countCell = row.insertCell();
-          const rankCell = row.insertCell();
-
-          nameCell.textContent = dealer.dealer_name;
-          codeCell.textContent = dealer.dealer_code;
-          locationCell.textContent = dealer.location;
-          phoneCell.textContent = dealer.phone || dealer.mobile || ''; // Use phone if available, otherwise mobile
-          countCell.textContent = dealer.value;
-          rankCell.textContent = dealer.rank;
-        });
-      }
-    });
-  </script>
-</div>

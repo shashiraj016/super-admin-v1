@@ -18,8 +18,6 @@
   position: relative;
 }
 
-
-
 .content-body {
   /* margin-left: 350px; */
   padding: 20px;
@@ -63,7 +61,6 @@
   max-width: 100%;
   max-height: 100%;
 }
-
 
 /* POP OUT */
 /* .card {
@@ -193,4 +190,49 @@
   display: none; /* Chrome, Safari */
 }
 
+/*  */
 
+@media (min-width: 992px) and (max-width: 1250px) {
+  .tooltip-container {
+    right: 15px !important;
+    width: 83px !important;
+    height: 80px !important;
+  }
+
+  .tooltip-container svg {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  .tooltip-container .tooltip-content {
+    font-size: 0.85rem;
+  }
+  #num {
+    right: -53px;
+  }
+
+  .tooltip-container div {
+    font-size: 1.1rem;
+    padding: 10px !important;
+  }
+}
+@media screen and (width: 1024px) and (height: 1366px) {
+  .content-body[_ngcontent-ng-c826715629] {
+    margin-left: 0 !important;
+  }
+}
+
+.tooltip-container {
+  top: 18%;
+}
+@media screen and (min-width: 1024px) and (max-width: 1366px) {
+  #first {
+    top: 10px !important;
+  }
+  #sec {
+    top: 49% !important;
+  }
+  #third {
+    top: 49% !important;
+  }
+}
