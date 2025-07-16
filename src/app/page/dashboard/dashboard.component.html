@@ -58,7 +58,11 @@
             <div class="tooltip-content" style="margin-bottom: 10px;">
               <strong>Current:</strong> {{ currentLeads }}<br />
               <strong>Previous:</strong> {{ previousLeads }}<br />
-              <strong>Change:</strong> {{ changeDisplay }}
+              <strong>Change:</strong>
+              <span [ngClass]="getChangeColor(changeLeads)">
+                {{ formatChangeValue(changeLeads) }}
+              </span>
+
             </div>
             <!-- 90 -->
 
@@ -108,13 +112,14 @@
             <span class="text-muted" style="font-size: 18px;">Since last month</span>
           </div>
 
-          <div id="sec" class="position-absolute tooltip-container" style="top: 52%; right: 50px; transform: translateY(-50%);">
+          <div id="sec" class="position-absolute tooltip-container"
+            style="top: 52%; right: 50px; transform: translateY(-50%);">
             <div class="tooltip-content">
               <strong>Current:</strong> {{ currentTestDrives }}<br />
               <strong>Previous:</strong> {{ previousTestDrives }}<br />
               <strong>Change:</strong>
-              <span [ngClass]="{'text-success': testDriveChange >= 0, 'text-danger': testDriveChange < 0}">
-                {{ getFormattedChange(testDriveChange) }}
+              <span [ngClass]="getChangeColor(testDriveChange)">
+                {{ formatChangeValue(testDriveChange) }}
               </span>
 
 
@@ -167,13 +172,14 @@
           </div>
 
           <!-- Circular Progress for Orders -->
-          <div id="third" class="position-absolute tooltip-container" style="top: 52%; right: 50px; transform: translateY(-50%);">
+          <div id="third" class="position-absolute tooltip-container"
+            style="top: 52%; right: 50px; transform: translateY(-50%);">
             <div class="tooltip-content">
               <strong>Current:</strong> {{ currentOrders }}<br />
               <strong>Previous:</strong> {{ previousOrders }}<br />
               <strong>Change:</strong>
-              <span [ngClass]="{ 'text-success': orderChange >= 0, 'text-danger': orderChange < 0 }">
-                {{ orderChange === 0 ? '0%' : orderProgressValue + '%' }}
+              <span [ngClass]="getChangeColor(orderChange)">
+                {{ formatChangeValue(orderChange) }}
               </span>
             </div>
 

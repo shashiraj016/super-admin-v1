@@ -20,3 +20,30 @@
   display: block;
   width: 100%;
 }
+
+.table-scroll-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.table-wrapper {
+  border: 1px solid #ccc; /* light gray */
+  border-radius: 20px; /* optional: smooth corners */
+  /* padding: 10px;              optional: spacing inside */
+  background-color: #fff; /* optional: white background for clarity */
+}
+.bg-white {
+  background-color: #fff !important;
+}
+
+.shadow-sm {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.rounded {
+  border-radius: 0.5rem;
+}
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}

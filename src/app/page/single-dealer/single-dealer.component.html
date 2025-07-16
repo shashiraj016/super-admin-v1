@@ -109,7 +109,7 @@
                             <div class="media align-items-end">
                                 <div class="media-body">
                                     <!-- <p class="mb-1 fs-14">Table</p> -->
-                                    <h3 class="mb-0 text-black font-w600 fs-20">
+                                    <h3 class="mb-0 " style="background-color: none;">
                                         {{ selectedOption() }}
                                     </h3>
                                 </div>
@@ -136,131 +136,202 @@
         <div class="row">
             <div class="col-lg-12">
                 <!-- <pre>{{ UserList | json }}</pre> -->
+                <div class="p-3 bg-white rounded shadow-sm" *ngIf="selectedOption() === 'users'">
 
-                <div class="table-responsive" *ngIf="selectedOption() === 'users'">
-                    <table class="table display mb-4 table-responsive-xl dataTablesCard fs-14">
-                        <thead>
+                    <div class="table-responsive" *ngIf="selectedOption() === 'users'">
+                        <table class="table display mb-4 table-responsive-xl dataTablesCard fs-14">
+                            <thead>
 
-                            <tr>
-                                <th>Sr No</th>
-                                <th>Account ID</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Role</th>
-                                <th>Dealer Code</th>
-                                <th>Actions</th>
+                                <tr>
+                                    <th>Sr No</th>
+                                    <th>Account ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Role</th>
+                                    <th>Dealer Code</th>
+                                    <!-- <th>Actions</th> -->
 
-                            </tr>
+                                </tr>
 
-                        </thead>
+                            </thead>
 
 
-                        <tbody>
+                            <tbody>
 
-                            <tr *ngIf="!UserList || UserList.length === 0">
+                                <!-- <tr *ngIf="!UserList || UserList.length === 0">
                                 <td colspan="8">
                                     <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
                                 </td>
-                            </tr>
+                            </tr> -->
+                                <tr *ngIf="!paginatedUsers || paginatedUsers.length === 0">
+                                    <td colspan="7">
+                                        <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
+                                    </td>
+                                </tr>
 
+                                <tr *ngFor="let user of paginatedUsers; let i = index">
+                                    <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+                                    <td>{{ user.user_account_id || 'N/A' }}</td>
+                                    <td>{{ user.name || 'N/A' }}</td>
+                                    <td>{{ user.email || 'N/A' }}</td>
+                                    <td>{{ user.phone || 'N/A' }}</td>
+                                    <td>{{ user.user_role || 'N/A' }}</td>
+                                    <td>{{ user.dealer_code || 'N/A' }}</td>
 
-                            <tr *ngFor="let user of UserList; let i = index">
-                                <td>{{ i + 1 }}</td>
-                                <td>{{ user.user_account_id || 'N/A' }}</td>
-                                <td>{{ user.name || 'N/A' }}</td>
-                                <td>{{ user.email || 'N/A' }}</td>
-                                <td>{{ user.phone || 'N/A' }}</td>
-                                <td>{{ user.user_role || 'N/A' }}</td>
-                                <td>{{ user.dealer_code || 'N/A' }}</td>
-
-                                <td>
+                                    <!-- <td>
                                     <a [routerLink]="['/Admin/single-user', user.user_id]"
                                         (click)="logUserId(user.user_id)">
                                         <i class="fa fa-eye"></i>
                                     </a>
-                                </td>
-                            </tr>
+                                </td> -->
+                                </tr>
 
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+
+
+                    </div>
+                    <!-- Pagination Footer -->
+                    <div class="row align-items-center mt-3">
+                        <!-- Left side: Showing entries -->
+                        <div class="col-md-6">
+                            <p class="mb-0 text-muted">
+                                <ng-container
+                                    *ngIf="totalUsers > 0 && (currentPage - 1) * itemsPerPage < totalUsers; else noEntries">
+                                    Showing {{ (currentPage - 1) * itemsPerPage + 1 }} –
+                                    {{ getRangeEnd() }} of {{ totalUsers }} entries
+                                </ng-container>
+                                <ng-template #noEntries>
+                                    No entries available
+                                </ng-template>
+
+                            </p>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-end mb-0">
+                                    <li class="page-item" [class.disabled]="currentPage === 1">
+                                        <button class="page-link" (click)="goToPreviousPage()">Previous</button>
+                                    </li>
+
+                            <li class="page-item" *ngFor="let page of visiblePageNumbers" [class.active]="page === currentPage"
+                                [class.disabled]="!hasDataForPage(page)">
+                                <button class="page-link" (click)="goToPage(page)" [disabled]="!hasDataForPage(page)">
+                                    {{ page }}
+                                </button>
+                            </li>
+
+
+
+                                    <li class="page-item" [class.disabled]="currentPage === totalPages">
+                                        <button class="page-link" (click)="goToNextPage()">Next</button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+
+                    </div>
                 </div>
             </div>
-            <!-- <button (click)="userId()">Something</button> -->
-        </div>
 
-        <!-- table 2 -->
-        <div class="row">
+            <!-- table 2 -->
+
+            <!-- table 2 -->
+            <!-- Table Wrapper -->
+            <!-- Leads Table -->
             <div class="col-lg-12">
-                <div class="table-responsive" *ngIf="selectedOption() === 'leads'">
-                    <table id="example5" class="table display mb-4 table-responsive-xl dataTablesCard fs-14">
-                        <thead>
-                            <tr>
-                                <th>Sr No</th>
-                                <th>Lead Code</th>
-                                <th>Dealer Name</th>
-                                <!-- <th>Dealer Code</th> -->
-                                <th>Status</th>
-                                <th>Purchase Type</th>
-                                <th>Type</th>
-                                <th>Sub Type</th>
-                                <th>Brand</th>
-                                <th>PMI</th>
-                                <th>Lead Source</th>
-                                <th>Last Name</th>
-                                <!-- <th>Description</th> -->
-                                <th>Mobile</th>
-                                <th>Email</th>
-                                <th>Lead Owner</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngIf="!leadList || leadList.length === 0">
-                                <td colspan="8">
-                                    <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
-                                </td>
-                            </tr>
+                <div class="p-3 bg-white rounded shadow-sm" *ngIf="selectedOption() === 'leads'">
 
-                            <tr *ngFor="let lead of leadList; let i = index">
-                                <td>{{i + 1}}</td>
-                                <td>{{ lead.lead_code }}</td>
-                                <td>{{ lead.dealer_name }}</td>
-                                <!-- <td>{{ lead.dealer_code }}</td> -->
-                                <td>{{ lead.status }}</td>
-                                <td>{{ lead.purchase_type }}</td>
-                                <td>{{ lead.type }}</td>
-                                <td>{{ lead.sub_type }}</td>
-                                <td>{{ lead.brand }}</td>
-                                <td>{{ lead.PMI }}</td>
-                                <td>{{ lead.lead_source }}</td>
-                                <td>{{ lead.lname }}</td>
-                                <!-- <td>{{ lead.description }}</td> -->
-                                <td>{{ lead.mobile }}</td>
-                                <td>{{ lead.email }}</td>
-                                <td>{{ lead.lead_owner }}</td>
-                                <td>
-                                    <a [routerLink]="['/Admin/single-lead', lead.lead_id]"
-                                        (click)="logUserId(lead.lead_id)">
-                                        <span class="">
-                                            <i class="fa fa-eye"></i>
-                                        </span>
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-responsive" style="overflow-x: auto; width: 100%;">
+                        <table class="table mb-4 dataTablesCard fs-14">
+                            <thead>
+                                <tr>
+                                    <th>Sr No</th>
+                                    <th>Lead<br> Code</th>
+                                    <th>Dealer <br>Name</th>
+                                    <th>Status</th>
+                                    <th>Purchase <br> Type</th>
+                                    <th>Type</th>
+                                    <th>Sub <br>Type</th>
+                                    <th>Brand</th>
+                                    <th>PMI</th>
+                                    <th>Lead<br> Source</th>
+                                    <th>Last<br> Name</th>
+                                    <th>Mobile</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngIf="!paginatedLeads || paginatedLeads.length === 0">
+                                    <td colspan="12">
+                                        <p style="color: red; text-align: center;">⚠️ No Leads Found!</p>
+                                    </td>
+                                </tr>
+
+                                <tr *ngFor="let lead of paginatedLeads; let i = index">
+                                    <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+                                    <td>{{ lead.lead_code || 'N/A' }}</td>
+                                    <td>{{ lead.dealer_name || 'N/A' }}</td>
+                                    <td>{{ lead.status || 'N/A' }}</td>
+                                    <td>{{ lead.purchase_type || 'N/A' }}</td>
+                                    <td>{{ lead.type || 'N/A' }}</td>
+                                    <td>{{ lead.sub_type || 'N/A' }}</td>
+                                    <td>{{ lead.brand || 'N/A' }}</td>
+                                    <td>{{ lead.PMI || 'N/A' }}</td>
+                                    <td>{{ lead.lead_source || 'N/A' }}</td>
+                                    <td>{{ lead.lname || 'N/A' }}</td>
+                                    <td>{{ lead.mobile || 'N/A' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row align-items-center mt-3">
+                        <!-- Left side: Showing entries -->
+                        <div class="col-md-6">
+                            <p class="mb-0 text-muted">
+                                Showing {{ (currentPage - 1) * itemsPerPage + 1 }} –
+                                {{ getRangeEnd() }} of {{ totalLeads }} entries
+                            </p>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-end mb-0">
+                                    <li class="page-item" [class.disabled]="currentPage === 1">
+                                        <button class="page-link" (click)="goToPreviousLeadPage()">Previous</button>
+                                    </li>
+
+                                    <li class="page-item" *ngFor="let page of visiblePageNumbers"
+                                        [class.active]="page === currentPage">
+                                        <button class="page-link" (click)="goToLeadPage(page)">
+                                            {{ page }}
+                                        </button>
+                                    </li>
+
+                                    <li class="page-item" [class.disabled]="currentPage === totalPages">
+                                        <button class="page-link" (click)="goToNextLeadPage()">Next</button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
-        <!-- tabel 3  -->
 
-        <div class="row">
+
+
+            <!-- tabel 3  -->
+
             <div class="col-lg-12">
-                <div class="table-responsive" *ngIf="selectedOption() === 'opportunities'">
-                    <div class="custom-scroll-wrapper" id="opportunityScrollContainer"
-                        *ngIf="selectedOption() === 'opportunities'">
-                        <table id="example5" class="table display mb-4 table-responsive-xl dataTablesCard fs-14">
+                <div class="p-3 bg-white rounded shadow-sm" *ngIf="selectedOption() === 'opportunities'">
+
+                    <div class="table-responsive" style="overflow-x: auto; width: 100%;">
+                        <table class="table mb-4 dataTablesCard fs-14">
                             <thead>
                                 <tr>
                                     <th>Sr No</th>
@@ -276,21 +347,23 @@
                                     <th>Brand</th>
                                     <th>PMI</th>
                                     <th>Description</th>
-                                    <th>Mobile</th>
-                                    <th>Phone</th>
-                                    <th>E-mail</th>
+                                    <!-- <th>Mobile</th>
+                                    <th>Phone</th> -->
+                                    <!-- <th>E-mail</th>
                                     <th>Enquiry <br>Type</th>
-                                    <th>Actions</th>
+                                    <th>Actions</th> -->
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr *ngIf="!OpportunityList || OpportunityList.length === 0">
-                                    <td colspan="8">
-                                        <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
+                                    <td colspan="13" style="text-align: center; color: grey; padding: 1rem;">
+                                        No Users Found
                                     </td>
                                 </tr>
-                                <tr *ngFor="let opp of OpportunityList(); let i = index">
-                                    <td>{{i + 1}}</td>
+
+
+                                <tr *ngFor="let opp of paginatedOpportunities; let i = index">
+                                    <td>{{ (currentOpportunityPage - 1) * opportunityItemsPerPage + i + 1 }}</td>
                                     <td>
                                         {{ opp.opportunity_name }}
                                     </td>
@@ -327,45 +400,97 @@
                                     <td>
                                         {{ opp.description }}
                                     </td>
-                                    <td>
+                                    <!-- <td>
                                         {{ opp.mobile }}
                                     </td>
                                     <td>
                                         {{ opp.phone }}
-                                    </td>
-                                    <td>
+                                    </td> -->
+                                    <!-- <td>
                                         {{ opp.email }}
                                     </td>
                                     <td>
                                         {{ opp.enquiry_type }}
-                                    </td>
-                                    <td>
+                                    </td> -->
+                                    <!-- <td>
                                         <a [routerLink]="[
                       '/Admin/single-opportunities',
                       opp.opportunity_id
                     ]" (click)="opp.opportunity_id">
-                                            <!-- <a
-                    href="javascript:void(0);"
-                    class="btn btn-success shadow btn-xs sharp"
-                  > -->
+                                           
                                             <span class="">
                                                 <i class="fa fa-eye"></i>
                                             </span>
                                         </a>
-                                    </td>
+                                    </td> -->
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div class="row align-items-center mt-3">
+                        <!-- Left side: Showing entries -->
+                        <div class="col-md-6">
+                            <p *ngIf="totalOpportunities > 0" class="mb-0 text-muted">
+                                Showing {{ (currentOpportunityPage - 1) * opportunityItemsPerPage + 1 }} –
+                                {{ getOpportunityRangeEnd() }} of {{ totalOpportunities }} entries
+                            </p>
+                            <p *ngIf="totalOpportunities === 0" class="mb-0 text-muted">
+                                No entries available
+                            </p>
+
+
+                        </div>
+
+
+
+                        <div class="col-md-6">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-end mb-0">
+
+                                    <!-- Previous Button -->
+                                    <li class="page-item"
+                                        [class.disabled]="currentOpportunityPage === 1 || totalOpportunities === 0">
+                                        <button class="page-link" (click)="goToPreviousOpportunityPage()"
+                                            [disabled]="currentOpportunityPage === 1 || totalOpportunities === 0">
+                                            Previous
+                                        </button>
+                                    </li>
+
+                                    <!-- Page Numbers -->
+                                    <li class="page-item" *ngFor="let page of visibleOpportunityPageNumbers"
+                                        [class.active]="page === currentOpportunityPage"
+                                        [class.disabled]="totalOpportunities === 0">
+                                        <button class="page-link" (click)="goToOpportunityPage(page)"
+                                            [disabled]="totalOpportunities === 0">
+                                            {{ page }}
+                                        </button>
+                                    </li>
+
+                                    <!-- Next Button -->
+                                    <li class="page-item"
+                                        [class.disabled]="currentOpportunityPage === totalOpportunityPages || totalOpportunities === 0">
+                                        <button class="page-link" (click)="goToNextOpportunityPage()"
+                                            [disabled]="currentOpportunityPage === totalOpportunityPages || totalOpportunities === 0">
+                                            Next
+                                        </button>
+                                    </li>
+
+                                </ul>
+                            </nav>
+
+                        </div>
+
                     </div>
                 </div>
 
 
                 <!-- table 4 Tasks -->
 
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="table-responsive" *ngIf="selectedOption() === 'tasks'">
-                            <table id="example5" class="table display mb-4 table-responsive-xl dataTablesCard fs-14">
+                <div class="col-lg-12">
+                    <div class="p-3 bg-white rounded shadow-sm" *ngIf="selectedOption() === 'tasks'">
+
+                        <div class="table-responsive" style="overflow-x: auto; width: 100%;">
+                            <table class="table mb-4 dataTablesCard fs-14">
                                 <thead>
                                     <tr>
                                         <th>Sr No</th>
@@ -387,13 +512,14 @@
                                     <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
                                 </td>
                             </tr> -->
-                                    <tr *ngIf="!TaskList || TaskList.length === 0">
-                                        <td colspan="8">
-                                            <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
+                                    <tr *ngIf="!paginatedTasks || paginatedTasks.length === 0">
+                                        <td colspan="11" style="text-align: center; color: grey; padding: 1rem;">
+                                            No Users Found
                                         </td>
                                     </tr>
-                                    <tr *ngFor="let task of TaskList; let i = index">
-                                        <td>{{i + 1}}</td>
+
+                                    <tr *ngFor="let task of paginatedTasks; let i = index">
+                                        <td>{{ (currentTaskPage - 1) * taskItemsPerPage + i + 1 }}</td>
                                         <td>
                                             {{ task.subject }}
                                         </td>
@@ -437,76 +563,133 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="row align-items-center mt-3">
+                            <!-- Left side: Showing entries -->
+                            <div class="col-md-6">
+                                <p *ngIf="totalTasks > 0" class="mb-0 text-muted">
+                                    Showing {{ (currentTaskPage - 1) * taskItemsPerPage + 1 }} –
+                                    {{ getTaskRangeEnd() }} of {{ totalTasks }} entries
+                                </p>
+                                <p *ngIf="totalOpportunities === 0" class="mb-0 text-muted">
+                                    No entries available
+                                </p>
+
+
+                            </div>
+
+
+
+                            <div class="col-md-6">
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination justify-content-end mb-0">
+
+                                        <!-- Previous Button -->
+                                        <li class="page-item"
+                                            [class.disabled]="currentTaskPage === 1 || totalTasks === 0">
+                                            <button class="page-link" (click)="goToPreviousTaskPage()"
+                                                [disabled]="currentTaskPage === 1 || totalTasks === 0">
+                                                Previous
+                                            </button>
+                                        </li>
+
+                                        <!-- Page Numbers -->
+                                        <li class="page-item" *ngFor="let page of visibleOpportunityPageNumbers"
+                                            [class.active]="page === currentTaskPage"
+                                            [class.disabled]="totalTasks === 0">
+                                            <button class="page-link" (click)="goToTaskPage(page)"
+                                                [disabled]="totalTasks === 0">
+                                                {{ page }}
+                                            </button>
+                                        </li>
+
+                                        <!-- Next Button -->
+                                        <li class="page-item"
+                                            [class.disabled]="currentTaskPage === totalTaskPages || totalTasks === 0">
+                                            <button class="page-link" (click)="goToNextTaskPage()"
+                                                [disabled]="currentOpportunityPage === totalOpportunityPages || totalTasks === 0">
+                                                Next
+                                            </button>
+                                        </li>
+
+                                    </ul>
+                                </nav>
+
+                            </div>
+
+                        </div>
                     </div>
-                </div>
 
-                <!-- Table 5 Events -->
 
-                <div class="row">
+
+                    <!-- Table 5 Events -->
+
                     <div class="col-lg-12">
-                        <div class="table-responsive" *ngIf="selectedOption() === 'events'">
-                            <table id="example5" class="table display mb-4 table-responsive-xl dataTablesCard fs-14">
-                                <thead>
-                                    <tr>
-                                        <th>Sr No</th>
-                                        <th>Subject</th>
-                                        <th>Assigned</th>
-                                        <th>Description</th>
-                                        <th>account Name</th>
-                                        <th>Start Date</th>
-                                        <th>End Date</th>
-                                        <th>VIN</th>
-                                        <th>T_Drive Status</th>
-                                        <th>Name</th>
-                                        <th>Related</th>
-                                        <th>Locations</th>
-                                        <th>Lead Name</th>
+                        <div class="p-3 bg-white rounded shadow-sm" *ngIf="selectedOption() === 'events'">
+
+                            <div class="table-responsive" style="overflow-x: auto; width: 100%;">
+                                <table class="table mb-4 dataTablesCard fs-14">
+                                    <thead>
+                                        <tr>
+                                            <th>Sr No</th>
+                                            <th>Subject</th>
+                                            <th>Assigned</th>
+                                            <th>Description</th>
+                                            <th>account Name</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <th>VIN</th>
+                                            <th>T_Drive Status</th>
+                                            <th>Name</th>
+                                            <th>Related</th>
+                                            <th>Locations</th>
+                                            <!-- <th>Lead Name</th>
                                         <th>Lead Code</th>
-                                        <th>Lead Email</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr *ngIf="!UserList || UserList.length === 0">
-                                        <td colspan="8">
-                                            <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
-                                        </td>
-                                    </tr>
-                                    <tr *ngFor="let event of EventList; let i = index">
-                                        <td>{{i + 1}}</td>
-                                        <td>
-                                            {{ event.subject }}
-                                        </td>
-                                        <td>
-                                            {{ event.assigned_to }}
-                                        </td>
-                                        <td>
-                                            {{ event.description }}
-                                        </td>
-                                        <td>
-                                            {{ event.name }}
-                                        </td>
-                                        <td>
-                                            {{ event.start_date }}
-                                        </td>
-                                        <td>
-                                            {{ event.end_date }}
-                                        </td>
-                                        <td>
-                                            {{ event.VIN }}
-                                        </td>
-                                        <td>
-                                            {{ event.t_drive_status }}
-                                        </td>
-                                        <td>
-                                            {{ event.name }}
-                                        </td>
-                                        <td>
-                                            {{ event.related_to }}
-                                        </td>
-                                        <td>
-                                            {{ event.location }}
-                                        </td>
-                                        <td>
+                                        <th>Lead Email</th> -->
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngIf="!OpportunityList || OpportunityList.length === 0">
+                                            <td colspan="13" style="text-align: center; color: grey; padding: 1rem;">
+                                                No Users Found
+                                            </td>
+                                        </tr>
+
+                                        <tr *ngFor="let event of EventList; let i = index">
+                                            <td>{{i + 1}}</td>
+                                            <td>
+                                                {{ event.subject }}
+                                            </td>
+                                            <td>
+                                                {{ event.assigned_to }}
+                                            </td>
+                                            <td>
+                                                {{ event.description }}
+                                            </td>
+                                            <td>
+                                                {{ event.name }}
+                                            </td>
+                                            <td>
+                                                {{ event.start_date }}
+                                            </td>
+                                            <td>
+                                                {{ event.end_date }}
+                                            </td>
+                                            <td>
+                                                {{ event.VIN }}
+                                            </td>
+                                            <td>
+                                                {{ event.t_drive_status }}
+                                            </td>
+                                            <td>
+                                                {{ event.name }}
+                                            </td>
+                                            <td>
+                                                {{ event.related_to }}
+                                            </td>
+                                            <td>
+                                                {{ event.location }}
+                                            </td>
+                                            <!-- <td>
                                             {{ event.lead_name }}
                                         </td>
                                         <td>
@@ -514,21 +697,21 @@
                                         </td>
                                         <td>
                                             {{ event.lead_email }}
-                                        </td>
-                                        <td>
+                                        </td> -->
+                                            <!-- <td>
                                             <a [routerLink]="['/Admin/single-events', event.event_id]"
                                                 (click)="event.event_id">
                                                 <span class="">
                                                     <i class="fa fa-eye"></i>
                                                 </span>
                                             </a>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                        </td> -->
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
         </div>

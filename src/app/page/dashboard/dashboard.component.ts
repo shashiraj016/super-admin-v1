@@ -158,7 +158,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   ) {}
   data: any; // To hold your data
   apiUrl: string =
-    'https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboard';
+    'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
 
   dealersData: any[] = []; // Array to hold the dealer data
   // ngOnInit() {
@@ -431,7 +431,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http
       .get<any>(
-        `https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboard?type=${type}`,
+        `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${type}`,
         { headers }
       )
       .subscribe({
@@ -567,7 +567,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   fetchData(): void {
     this.http
       .get<any>(
-        'hhttps://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboard'
+        'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew'
       )
       .subscribe(
         (response) => {
@@ -951,7 +951,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http
       .get(
-        `https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboard?filter=${filter}`,
+        `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?filter=${filter}`,
         { headers }
       )
       .subscribe(
@@ -992,7 +992,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http
       .get(
-        `https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboard?filter=${filter}`,
+        `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?filter=${filter}`,
         { headers }
       )
       .subscribe(
@@ -1135,7 +1135,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http
       .get<any>(
-        `https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboard?type=${range}`,
+        `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${range}`,
         { headers }
       )
       .subscribe(
@@ -1314,7 +1314,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (!token) return;
 
     let url =
-      'https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboard';
+      'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
     if (period && period !== 'today') {
       url += `?type=${period}`;
     }

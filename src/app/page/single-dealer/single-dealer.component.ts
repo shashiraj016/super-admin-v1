@@ -45,8 +45,11 @@ export class SingleDealerComponent implements AfterViewInit {
   leadList: any[] = []; // ✅ Initialize as an empty array
   TaskList: any[] = []; // ✅ Initialize as an empty array
   EventList: any[] = []; // ✅ Initialize as an empty array
-
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
   OpportunityList = signal<Opportunities[]>([]);
+  paginatedUsers: any[] = []; // Page-wise list
+
   // TaskList = signal<Tasks[]>([]);
   // EventList = signal<Events[]>([]);
   // leadList = signal<Leads[]>([]);
@@ -57,10 +60,27 @@ export class SingleDealerComponent implements AfterViewInit {
   showOpportunityTable: boolean = false;
   showTaskTable: boolean = false;
   showEventTable: boolean = false;
+  visiblePageNumbers: number[] = [];
+
   dealer_name: string | null = '';
   toastr: any;
   user: any;
   apiService: any;
+  // leadList: any[] = []; // full data
+  paginatedLeads: any[] = []; // current page
+  opportunityItemsPerPage = 10;
+  currentOpportunityPage = 1;
+  paginatedOpportunities: any[] = [];
+  visibleOpportunityPageNumbers: number[] = [];
+
+  taskItemsPerPage = 10;
+  currentTaskPage = 1;
+  paginatedTasks: any[] = [];
+  visibleTaskPageNumbers: number[] = [];
+  // itemsPerPage = 10;
+  // currentPage = 1;
+  // totalPages = 1;
+  // visiblePageNumbers: number[] = [];
   // Users: any;
   // trackByUserId: TrackByFunction<Users>;
 
@@ -92,6 +112,12 @@ export class SingleDealerComponent implements AfterViewInit {
       console.log('dealerData:', this.dealerData);
       console.log('Fetched UserList:', this.UserList);
     });
+    this.currentPage = 1;
+    this.paginateUsers();
+    this.updateVisiblePages();
+    this.currentPage = 1;
+    this.paginateLeads();
+    this.updateVisibleLeadPages();
   }
 
   // selectedOption: string = 'users';
@@ -148,7 +174,257 @@ export class SingleDealerComponent implements AfterViewInit {
         break;
     }
   }
+  get totalUsers(): number {
+    return this.UserList?.length || 0;
+  }
 
+  get totalPages(): number {
+    return Math.ceil(this.totalUsers / this.itemsPerPage);
+  }
+
+  paginateUsers(): void {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    this.paginatedUsers = this.UserList.slice(start, end);
+  }
+
+  updateVisiblePages() {
+    const rangeSize = 3;
+    const start =
+      Math.floor((this.currentPage - 1) / rangeSize) * rangeSize + 1;
+    const end = Math.min(start + rangeSize - 1, this.totalPages);
+
+    this.visiblePageNumbers = [];
+    for (let i = start; i <= end; i++) {
+      this.visiblePageNumbers.push(i);
+    }
+  }
+  hasDataForPage(page: number): boolean {
+    const startIndex = (page - 1) * this.itemsPerPage;
+    return startIndex < this.totalUsers;
+  }
+
+  goToPreviousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.paginateUsers();
+      this.updateVisiblePages();
+    }
+  }
+
+  goToNextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.paginateUsers();
+      this.updateVisiblePages();
+    }
+  }
+
+  // goToPage(page: number) {
+  //   this.currentPage = page;
+  //   this.paginateUsers();
+  //   this.updateVisiblePages();
+  // }
+  goToPage(page: number): void {
+    const startIndex = (page - 1) * this.itemsPerPage;
+    if (startIndex >= this.totalUsers) return;
+
+    this.currentPage = page;
+    this.paginateUsers(); // ✅ You missed this
+    this.updateVisiblePages();
+  }
+
+  // LEADS
+  get totalLeads(): number {
+    return this.leadList?.length || 0;
+  }
+
+  get totalLeadPages(): number {
+    return Math.ceil(this.totalLeads / this.itemsPerPage);
+  }
+  paginateLeads(): void {
+    if (!this.leadList || this.leadList.length === 0) {
+      this.paginatedLeads = [];
+      return;
+    }
+
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+
+    this.paginatedLeads = this.leadList.slice(start, end);
+
+    // ✅ Debug log to verify it's working
+    console.log(
+      `Paginating Leads | Page: ${this.currentPage}, Showing: ${
+        start + 1
+      } to ${Math.min(end, this.leadList.length)} of ${this.leadList.length}`
+    );
+    console.table(this.paginatedLeads);
+  }
+
+  updateVisibleLeadPages() {
+    const rangeSize = 3;
+    const start =
+      Math.floor((this.currentPage - 1) / rangeSize) * rangeSize + 1;
+    const end = Math.min(start + rangeSize - 1, this.totalLeadPages);
+
+    this.visiblePageNumbers = [];
+    for (let i = start; i <= end; i++) {
+      this.visiblePageNumbers.push(i);
+    }
+  }
+  goToLeadPage(page: number) {
+    this.currentPage = page;
+    this.paginateLeads();
+    this.updateVisibleLeadPages();
+  }
+
+  goToPreviousLeadPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.paginateLeads();
+      this.updateVisibleLeadPages();
+    }
+  }
+
+  goToNextLeadPage() {
+    if (this.currentPage < this.totalLeadPages) {
+      this.currentPage++;
+      this.paginateLeads();
+      this.updateVisibleLeadPages();
+    }
+  }
+
+  // opp
+  get totalOpportunities(): number {
+    return this.OpportunityList?.length || 0;
+  }
+
+  // Total pages
+  get totalOpportunityPages(): number {
+    return Math.ceil(this.totalOpportunities / this.opportunityItemsPerPage);
+  }
+
+  // Paginate function
+  paginateOpportunities(): void {
+    const start =
+      (this.currentOpportunityPage - 1) * this.opportunityItemsPerPage;
+    const end = start + this.opportunityItemsPerPage;
+
+    const opportunities = this.OpportunityList(); // read the signal value
+
+    this.paginatedOpportunities = opportunities.slice(start, end);
+  }
+
+  // Range text end
+  getOpportunityRangeEnd(): number {
+    const end = this.currentOpportunityPage * this.opportunityItemsPerPage;
+    return end > this.totalOpportunities ? this.totalOpportunities : end;
+  }
+
+  // Visible page numbers
+  updateVisibleOpportunityPages() {
+    const rangeSize = 3;
+    const start =
+      Math.floor((this.currentOpportunityPage - 1) / rangeSize) * rangeSize + 1;
+    const end = Math.min(start + rangeSize - 1, this.totalOpportunityPages);
+    this.visibleOpportunityPageNumbers = [];
+    for (let i = start; i <= end; i++) {
+      this.visibleOpportunityPageNumbers.push(i);
+    }
+  }
+
+  // Navigation methods
+  goToOpportunityPage(page: number) {
+    this.currentOpportunityPage = page;
+    this.paginateOpportunities();
+    this.updateVisibleOpportunityPages();
+  }
+
+  goToPreviousOpportunityPage() {
+    if (this.currentOpportunityPage > 1) {
+      this.currentOpportunityPage--;
+      this.paginateOpportunities();
+      this.updateVisibleOpportunityPages();
+    }
+  }
+
+  goToNextOpportunityPage() {
+    if (this.currentOpportunityPage < this.totalOpportunityPages) {
+      this.currentOpportunityPage++;
+      this.paginateOpportunities();
+      this.updateVisibleOpportunityPages();
+    }
+  }
+
+  // TASKS
+  get totalTasks(): number {
+    return this.TaskList?.length || 0;
+  }
+
+  get totalTaskPages(): number {
+    return Math.ceil(this.totalTasks / this.taskItemsPerPage);
+  }
+
+  paginateTasks(): void {
+    const start = (this.currentTaskPage - 1) * this.taskItemsPerPage;
+    const end = start + this.taskItemsPerPage;
+    this.paginatedTasks = this.TaskList.slice(start, end);
+  }
+
+  getTaskRangeEnd(): number {
+    const end = this.currentTaskPage * this.taskItemsPerPage;
+    return end > this.totalTasks ? this.totalTasks : end;
+  }
+
+  updateVisibleTaskPages(): void {
+    const rangeSize = 3;
+    const start =
+      Math.floor((this.currentTaskPage - 1) / rangeSize) * rangeSize + 1;
+    const end = Math.min(start + rangeSize - 1, this.totalTaskPages);
+
+    this.visibleTaskPageNumbers = [];
+    for (let i = start; i <= end; i++) {
+      this.visibleTaskPageNumbers.push(i);
+    }
+  }
+
+  goToPreviousTaskPage(): void {
+    if (this.currentTaskPage > 1) {
+      this.currentTaskPage--;
+      this.paginateTasks();
+      this.updateVisibleTaskPages();
+    }
+  }
+
+  goToNextTaskPage(): void {
+    if (this.currentTaskPage < this.totalTaskPages) {
+      this.currentTaskPage++;
+      this.paginateTasks();
+      this.updateVisibleTaskPages();
+    }
+  }
+
+  goToTaskPage(page: number): void {
+    this.currentTaskPage = page;
+    this.paginateTasks();
+    this.updateVisibleTaskPages();
+  }
+  // Sliced user data for current page
+  // get paginatedUsers(): any[] {
+  //   const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+  //   const endIndex = startIndex + this.itemsPerPage;
+  //   return this.UserList?.slice(startIndex, endIndex) || [];
+  // }
+
+  getRangeEnd(): number {
+    return Math.min(this.currentPage * this.itemsPerPage, this.totalUsers);
+  }
+  // paginateUsers(): void {
+  //   const start = (this.currentPage - 1) * this.itemsPerPage;
+  //   const end = start + this.itemsPerPage;
+  //   this.paginatedUsers = this.UserList.slice(start, end);
+  // }
   toggleUsersTable() {
     this.showLeadsTable = false;
     this.showUsersTable = true;
@@ -353,29 +629,35 @@ export class SingleDealerComponent implements AfterViewInit {
   //   });
   // }
   getAllUser(dealerId: string) {
-    console.log('Calling API with dealerId:', dealerId); // Add this line to check if API call is being made
+    console.log('Calling API with dealerId:', dealerId);
 
     this.masterSrv.getAllUser(dealerId).subscribe({
       next: (res: UserResponse) => {
         console.log('✅ Full API Response:', res);
-        console.log('Fetched Users:', res.data); // Log the fetched data
+        console.log('Fetched Users:', res.data);
 
         if (res.data && Array.isArray(res.data) && res.data.length > 0) {
           this.UserList = res.data;
-          console.log('Users List:', this.UserList); // Ensure data is set correctly
-          this.loading = false; // Stop loading indicator
+          this.currentPage = 1; // ✅ Reset current page
+          this.paginateUsers(); // ✅ Paginate data
+          this.updateVisiblePages(); // ✅ Ensure 1,2,3 shown initially
+
+          console.log('Users List:', this.UserList);
+          this.loading = false;
         } else {
           console.warn('No users found');
           this.UserList = [];
+          this.paginateUsers(); // ✅ Still paginate to show "no data"
+          this.updateVisiblePages(); // ✅ Avoids blank pagination UI
         }
 
-        // Ensure UI updates and DataTable initializes properly
         this.zone.run(() => {
           if (Array.isArray(this.UserList)) {
             console.log('✅ Assigned UserList:', this.UserList);
-            this.cdr.detectChanges(); // Force UI update
+            this.cdr.detectChanges();
+
             setTimeout(() => {
-              this.initializeDataTable(); // Initialize DataTable after data is set
+              this.initializeDataTable();
             }, 500);
           } else {
             console.warn('⚠️ Invalid API Response Format:', res);
@@ -386,6 +668,8 @@ export class SingleDealerComponent implements AfterViewInit {
       error: (err) => {
         console.error('❌ API Error:', err);
         this.UserList = [];
+        this.paginateUsers(); // ✅ Even on error, update view
+        this.updateVisiblePages();
         this.cdr.detectChanges();
       },
     });
@@ -442,16 +726,25 @@ export class SingleDealerComponent implements AfterViewInit {
         console.log('✅ Full API Response:', res);
 
         if (res && res.data && res.data.length > 0) {
-          this.leadList = res.data; // Access the 'data' field from the response
-          console.log('Leads List:', this.leadList); // Ensure data is set correctly
+          this.leadList = res.data;
+          console.log('Leads List:', this.leadList);
+
+          // ✅ ADD THESE LINES
+          this.currentPage = 1;
+          this.paginateLeads();
+          this.updateVisibleLeadPages();
         } else {
           console.warn('No leads found');
           this.leadList = [];
+          this.paginatedLeads = []; // clear paginated data too
+          this.visiblePageNumbers = [];
         }
       },
       error: (err) => {
         console.error('❌ API Error:', err);
         this.leadList = [];
+        this.paginatedLeads = [];
+        this.visiblePageNumbers = [];
       },
     });
   }
