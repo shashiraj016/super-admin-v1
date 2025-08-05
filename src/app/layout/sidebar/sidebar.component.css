@@ -1,27 +1,48 @@
-.ai-icon {
+/* Active menu item text & icon styles */
+.metismenu li.active > a {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+  border-radius: 30px;
   display: flex;
   align-items: center;
+  gap: 8px;
+  transition: none !important;
 }
 
-.metismenu a {
-  display: flex;
-  align-items: center;
+/* Keep white background icon for active menu item when sidebar is expanded */
+.deznav:not(.collapsed-sidebar) .metismenu li.active > a i {
+  background-color: #fff !important;
+  color: #222fb9 !important;
 }
-.icon-responsive {
-  display: flex;
-  justify-content: center;
-}
-.menu {
-  margin-top: 10px;
-}
-/* .deznav-scroll{
-  scroll-behavior: none !important;
-} */
 
-/* Active link style */
+/* Remove white icon bg when sidebar is collapsed */
+.collapsed-sidebar .metismenu li.active > a i {
+  background-color: transparent !important;
+  color: #fff !important;
+}
 
-/* Keep the hover effect too */
-.metismenu a:hover {
-  /* background-color: #ffffff; */
-  color: #000;
+/* Prevent hover from overriding active icon styles */
+.metismenu li > a:hover i {
+  background-color: inherit !important;
+  color: inherit !important;
+}
+
+/* Optional: regular icon styling (unchanged) */
+.deznav .metismenu > li > a > i {
+  font-size: 1.5rem;
+  display: inline-block;
+  vertical-align: middle;
+  padding: 0 1.5rem 0 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 64px;
+  height: 64px;
+  line-height: 64px;
+  text-align: center;
+  border-radius: 64px;
+}
+
+.nav-text {
+  font-size: 15px;
 }

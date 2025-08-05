@@ -47,3 +47,104 @@ input.form-control.form-control-lg.is-invalid {
   margin-top: 0px;       /* remove extra margin */
   padding-top: 8px;      /* or adjust as needed */
 }
+
+.btn-outline-primary:hover {
+  background-color: #222fb9;
+  color: white;
+}
+.btn-outline-primary {
+  border-color: #222fb9;
+  color: #222fb9;
+}
+#closebtn {
+  color: #ff2625;
+}
+
+.search-input:focus {
+  border-color: #222fb9 !important;
+  /* box-shadow: 0 0 0 0.2rem rgba(34, 47, 185, 0.25); Optional shadow for better visibility */
+  outline: none; /* Remove default outline */
+}
+/* When enabled */
+.btn-edit-enabled {
+  border: 1px solid #222fb9;
+  color: #222fb9;
+  background-color: transparent;
+}
+
+/* On hover when enabled */
+.btn-edit-enabled:hover {
+  background-color: #222fb9;
+  color: #fff;
+  border:none;
+}
+
+/* Optional: to keep consistent border when disabled */
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* Hover effect */
+.pagination .page-link:hover {
+  color: white;
+  background-color: #222fb9;
+  border-color: #222fb9;
+}
+
+/* Active page */
+.pagination .page-item.active .page-link {
+  color: white;
+  background-color: #222fb9;
+  border-color: #222fb9;
+}
+
+/* Optional: remove default focus ring */
+.pagination .page-link:focus {
+  box-shadow: none;
+}
+/* Hover effect for pagination links */
+.pagination .page-link:hover {
+  background-color: #222fb9;
+  color: #fff;
+  border-color: #222fb9;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Optional: active page */
+.pagination .page-item.active .page-link {
+  background-color: #222fb9;
+  border-color: #222fb9;
+  color: #fff;
+}
+#example5.table {
+  border: none !important;
+  border-collapse: collapse;
+}
+
+/* Remove vertical borders, keep horizontal */
+#example5.table th,
+#example5.table td {
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+}
+
+/* Keep header bottom border */
+#example5.table thead th {
+  border-bottom: 1px solid #dee2e6 !important;
+}
+
+/* Keep row bottom borders */
+#example5.table tbody tr {
+  border-bottom: 1px solid #f1f1f1 !important;
+}
+
+/* Optional: Remove border from last row */
+#example5.table tbody tr:last-child {
+  border-bottom: none !important;
+}
+
+/* Remove borders from table wrapper */
+.table-responsive {
+  border: none !important;
+}

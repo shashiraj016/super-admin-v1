@@ -10,11 +10,11 @@
         alt="Avatar Image" /> -->
       <img class="mx-auto inline-flex items-center justify-center" src="../../../assets/admin-img/jlr logo.svg"
         alt="Avatar Image" />
-      <h2 class="title" style="color:#3b86e9;font-size:20px;text-transform: capitalize;margin-top:15px;">Login to Smart
+      <h2 class="title" style="color:#222fb9;font-size:20px;text-transform: capitalize;margin-top:15px;">Login to Smart
         Assist</h2>
       <div class="input-div one">
         <div class="i mr-3">
-          <i class="fas fa-user"></i>
+          <i class="fas fa-user" ></i>
         </div>
 
         <div class="div relative">
@@ -91,8 +91,9 @@
 
       <a href="javascript:void(0)" class="forgot-password" (click)="showVerifyEmail()">Forgot Password?</a>
       <!-- <input type="submit" class="btn" value="Login" (click)="onLogin()" /> -->
-      <input type="submit" class="btn" value="Login" [disabled]="!loginObj.email || !loginObj.password"
-        [ngClass]="{ 'opacity-50 cursor-not-allowed': !loginObj.email || !loginObj.password }" (click)="onLogin()" />
+      <!-- <input type="submit" class="btn" value="Login" 
+        [ngClass]="{ 'opacity-50 cursor-not-allowed': !loginObj.email || !loginObj.password }" (click)="onLogin()" style="background-color:#222fb9 !important"/> -->
+      <input type="submit" class="btn" value="Login" (click)="onLogin()" />
 
     </form>
 
@@ -103,7 +104,7 @@
           alt="Avatar Image" />
       </div>
 
-      <h2 class="title" style="color:#3b86e9;font-size:20px;text-transform: capitalize;margin-top:15px;">
+      <h2 class="title" style="color:#222fb9;font-size:20px;text-transform: capitalize;margin-top:15px;">
         Verify Email
       </h2>
 
@@ -120,7 +121,7 @@
       <a href="javascript:void(0)" class="back-to-login" (click)="backToLogin()">Back to Login</a>
 
       <!-- Disable if the form is invalid -->
-      <input type="submit" class="btn" value="Send OTP" (click)="onVerifyEmail()" [disabled]="verifyForm.invalid" />
+      <input type="submit" class="btn" value="Send OTP" (click)="onVerifyEmail()" />
     </form>
 
 
@@ -131,7 +132,7 @@
           alt="Avatar Image" />
       </div>
 
-      <h2 class="title" style="color:#3b86e9;font-size:20px;text-transform: capitalize;margin-top:15px;">
+      <h2 class="title" style="color:#222fb9;font-size:20px;text-transform: capitalize;margin-top:15px;">
         Verify OTP
       </h2>
 

@@ -156,6 +156,9 @@ input:-webkit-autofill:focus {
   transition: background-color 5000s ease-in-out 0s; /* Delay autofill style */
 }
 
+.fas {
+  color: #222fb9 !important;
+}
 .input-div.focus > .i > i {
   /* color: #38d39f; */
   color: #5298ee;
@@ -405,4 +408,27 @@ input[type="password"] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+
+
+.btn {
+  display: block;
+  width: 100%;
+  height: 50px;
+  border-radius: 25px;
+  outline: none;
+  border: none;
+  background-image: linear-gradient(to right, #222fb9);
+  background-size: 200%;
+  font-size: 1.2rem;
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+  text-transform: uppercase;
+  margin: 1rem 0;
+  cursor: pointer;
+  transition: 0.5s;
+}
+.btn:hover {
+  background-position: right;
 }

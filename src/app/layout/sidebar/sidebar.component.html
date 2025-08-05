@@ -1,8 +1,7 @@
-<div class="deznav">
+<!-- <div class="deznav">
   <div>
     <ul class="metismenu" id="menu" [ngClass]="{ 'collapsed': !isSidebarOpen }" style="margin-top:20px;">
 
-      <!-- Dashboard -->
       <li>
         <a routerLink="/Admin/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
           class="ai-icon icon-responsive" (click)="onRoleChange('dashboard', 'Dashboard')">
@@ -12,7 +11,6 @@
       </li>
 
 
-      <!-- Masters Menu -->
       <li routerLinkActive="menu-open" [routerLinkActiveOptions]="{ exact: false }">
         <a style="cursor: pointer;" class="has-arrow ai-icon icon-responsive">
 
@@ -23,21 +21,13 @@
         </a>
 
         <ul>
-          <!-- <li routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-            <a routerLink="/Admin/user-all" (click)="onRoleChange('user-all', 'User Management')">
-              User Management
-            </a>
-          </li> -->
+          
           <li routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
             <a routerLink="/Admin/role" (click)="onRoleChange('role', 'Role Management')">
               Role Management
             </a>
           </li>
-          <!-- <li routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-            <a routerLink="/Admin/team" (click)="onRoleChange('team-all', 'Team Management')">
-              Team Management
-            </a>
-          </li> -->
+        
           <li routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
             <a routerLink="/Admin/vehicle" (click)="onRoleChange('vehicle', 'Vehicle Management')">
               Vehicle Management
@@ -50,18 +40,34 @@
             </a>
           </li>
 
-          <!-- <li routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-            <a routerLink="/Admin/target" (click)="onTargetChange('target', 'Target Management')">
-              Set Targets
-            </a>
-          </li> -->
+        
         </ul>
       </li>
     </ul>
 
     <div class="copyright" style="margin-top:280px;">
-      <!-- <p>Tixia Ticketing Admin Dashboard© 2020 All Rights Reserved</p> -->
-      <!-- <p class="op5">Made with <i class="fa fa-heart"></i> by DexignZone</p> -->
+      
+    </div>
+  </div>
+</div> -->
+
+
+
+
+
+<div class="deznav" [ngClass]="{ 'collapsed-sidebar': !isSidebarOpen }" style="background-color: #222fb9;">
+  <div>
+    <ul class="metismenu" id="menu" [ngClass]="{ 'collapsed': !isSidebarOpen }">
+      <li *ngFor="let item of menuItems" [class.active]="isActive(item.key)" style="margin-bottom:10px;">
+        <a [routerLink]="item.route">
+          <i class="flaticon-381-user"></i>
+          <span class="nav-text">{{ item.label }}</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="copyright" style="margin-top:280px;">
+      <!-- <p>Smart Assist Admin Dashboard © All Rights Reserved</p> -->
     </div>
   </div>
 </div>

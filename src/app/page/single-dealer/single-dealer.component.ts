@@ -47,6 +47,12 @@ export class SingleDealerComponent implements AfterViewInit {
   EventList: any[] = []; // ✅ Initialize as an empty array
   currentPage: number = 1;
   itemsPerPage: number = 10;
+
+  // Component properties - make sure these are properly initialized
+  currentEventPage: number = 1;
+  eventItemsPerPage: number = 10; // or whatever your desired page size is
+  // EventList: any[] = []; // your events array
+
   OpportunityList = signal<Opportunities[]>([]);
   paginatedUsers: any[] = []; // Page-wise list
 
@@ -420,6 +426,74 @@ export class SingleDealerComponent implements AfterViewInit {
   getRangeEnd(): number {
     return Math.min(this.currentPage * this.itemsPerPage, this.totalUsers);
   }
+
+  // events
+  // Fix 1: Use EventList.length instead of totalEvents for consistency
+  get totalEvents(): number {
+    return this.EventList ? this.EventList.length : 0;
+  }
+
+  get paginatedEvents(): any[] {
+    if (!this.EventList || this.EventList.length === 0) {
+      return [];
+    }
+
+    const start = (this.currentEventPage - 1) * this.eventItemsPerPage;
+    const end = start + this.eventItemsPerPage;
+    return this.EventList.slice(start, end);
+  }
+
+  get totalEventPages(): number {
+    return Math.ceil(this.totalEvents / this.eventItemsPerPage);
+  }
+
+  getEventsRangeEnd(): number {
+    const end = this.currentEventPage * this.eventItemsPerPage;
+    return end > this.totalEvents ? this.totalEvents : end;
+  }
+
+  get visibleEventPageNumbers(): number[] {
+    const total = this.totalEventPages;
+    const current = this.currentEventPage;
+    const maxButtons = 5;
+    const half = Math.floor(maxButtons / 2);
+
+    if (total === 0) return []; // Add this check
+
+    let start = Math.max(1, current - half);
+    let end = Math.min(total, start + maxButtons - 1);
+
+    if (end - start < maxButtons - 1) {
+      start = Math.max(1, end - maxButtons + 1);
+    }
+
+    const pages: number[] = [];
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }
+
+  // Navigation methods
+  goToPreviousEventPage() {
+    if (this.currentEventPage > 1) {
+      this.currentEventPage--;
+    }
+  }
+
+  goToNextEventPage() {
+    if (this.currentEventPage < this.totalEventPages) {
+      this.currentEventPage++;
+    }
+  }
+
+  goToEventPage(page: number) {
+    if (page >= 1 && page <= this.totalEventPages) {
+      this.currentEventPage = page;
+    }
+  }
+
   // paginateUsers(): void {
   //   const start = (this.currentPage - 1) * this.itemsPerPage;
   //   const end = start + this.itemsPerPage;

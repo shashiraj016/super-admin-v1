@@ -12,6 +12,8 @@ import {
   HttpClientModule,
   HttpHeaders,
 } from '@angular/common/http';
+import { Router } from '@angular/router';
+
 import { Chart, ChartType, registerables } from 'chart.js';
 import { FormsModule } from '@angular/forms'; // Add this import
 import { NgCircleProgressModule } from 'ng-circle-progress'; // Import the circle progress module
@@ -74,6 +76,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     rank: 2,
   //   },
   // ];
+  dashboardMetrics: any = {
+    totalLeads: 0,
+    totalTestDrives: 0,
+    totalOrders: 0,
+    lostLeads: 0,
+    cancellations: 0,
+    netOrders: 0,
+    retail: 0,
+  };
+
   totalLeads = signal<number>(0);
   totalTestDrives = signal<number>(0);
   totalOrders = signal<number>(0);
@@ -86,6 +98,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   filteredData: any[] = []; // Initially set as an empty array to avoid errors
   mtdTestDrives = signal<number>(0);
   qtdTestDrives = signal<number>(0);
+  hoveredSM: string | null = null;
+  loading = false; // Declare this in your component
+  selectedDealer: any = null;
+  ps1Data: any[] = [];
+  ps2Data: any[] = [];
+  pageSize = 22; // or any number you want
 
   ytdTestDrives = signal<number>(0);
 
@@ -110,7 +128,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   orderStrokeColor: string = '#4CAF50';
   currentTestDrives: number = 0;
   previousTestDrives: number = 0;
-
+  selectedDealerId: string | null = null;
+  dealerSMS: { [key: string]: any[] } = {};
   orders: number = 0;
   currentOrders: number = 0;
   previousOrders: number = 0;
@@ -118,6 +137,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   selectedPeriod: string = 'MTD'; // default selected period
   dashboardData: any = {}; // empty at start
   leads: number = 0;
+  selectedSM: any = null;
+
   // testDrives: number = 0;
   // orders: number = 0;
   rankings: any = {};
@@ -128,6 +149,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   leadsData: any = {}; // Holds your backend data
   chart: any; // Reference to the chart
   miniChart: any;
+  hoveredPS: number | null = null;
+
   graphPath: string = ''; // To store the SVG path data
   leadsChange: number = 0;
   testDrivesChange: number = 0;
@@ -141,7 +164,10 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   itemsPerPage: number = 10;
   currentPage: number = 1;
   paginatedData: any[] = [];
-
+  activeFilter: 'MTD' | 'QTD' | 'YTD' = 'MTD'; // set default selection
+  dealers: any[] = []; // Full dealer list from API
+  currentdealerPage: number = 1;
+  itemsPerdealerPage: number = 6;
   // selectedOption: string = 'leads'; // Default selected option to show 'leads' data
   maxValue: number = 0;
 
@@ -154,11 +180,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
-    private context: ContextService
+    private context: ContextService,
+    private router: Router
   ) {}
   data: any; // To hold your data
-  apiUrl: string =
-    'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
+  apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
 
   dealersData: any[] = []; // Array to hold the dealer data
   // ngOnInit() {
@@ -176,6 +202,10 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   }, 100);
   // }
   ngOnInit() {
+    this.fetchSuperAdminDashboard('MTD'); // or 'QTD', 'MTD' based on dropdown
+
+    this.fetchDashboardDataForTopCards(this.selectedFilter);
+
     this.onDropdownChange(); // Auto-trigger on page load with default values
 
     this.context.onSideBarClick$.next({
@@ -212,9 +242,17 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     }
     this.initLineChart();
   }
-
+  onFilterClick(filter: 'MTD' | 'QTD' | 'YTD') {}
   // ✅ Dynamically updates values
+  onFilterChange(filter: string): void {
+    this.selectedFilter = filter;
 
+    // Fetch top cards (KPI data)
+    this.fetchDashboardDataForTopCards(filter);
+
+    // Fetch dealer KPIs
+    this.fetchSuperAdminDashboard(filter);
+  }
   updateProgressAndColor(change: number) {
     this.changeDisplay = change;
     this.progressValue = this.getProgressFromChange(change);
@@ -230,7 +268,33 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   getDashOffset(progressValue: number): number {
     return 100 - progressValue;
   }
+  get paginatedDealers(): any[] {
+    const start = (this.currentdealerPage - 1) * this.itemsPerdealerPage;
+    return this.dealers.slice(start, start + this.itemsPerdealerPage);
+  }
 
+  get totalDealerPages(): number {
+    return Math.ceil(this.dealers.length / this.itemsPerdealerPage);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalDealerPages) {
+      this.currentdealerPage = page;
+    }
+  }
+  getShowingRange(): string {
+    const start = (this.currentdealerPage - 1) * this.itemsPerdealerPage + 1;
+    const end = Math.min(
+      this.currentdealerPage * this.itemsPerdealerPage,
+      this.dealers.length
+    );
+    return `Showing ${start} – ${end} of ${this.dealers.length} dealers`;
+  }
+  goBack() {
+    this.selectedSM = null;
+    this.selectedDealer = null;
+    this.selectedDealerId = null; // Also reset this if you're using it
+  }
   // onDropdownChange() {
   //   if (this.selectedCategory && this.selectedDuration) {
   //     this.selectedOption = `${this.selectedCategory}-${this.selectedDuration}`;
@@ -249,6 +313,257 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     } else {
       console.warn('⚠️ One or both dropdowns not selected. Skipping fetch.');
     }
+  }
+  onSMClick(sm: any) {
+    this.selectedSM = sm;
+
+    // Optional: Scroll to the PS cards section
+    setTimeout(() => {
+      const section = document.querySelector('.ps-cards-page');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+
+    // Hide selected dealer view if open
+    this.selectedDealer = null;
+
+    // Load PS1/PS2 data from API
+    this.fetchPS1Data(); // 👈 New function added
+  }
+
+  // fetchSuperAdminDashboard(type: string = 'MTD'): void {
+  //   const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${type}`;
+  //   const token = sessionStorage.getItem('token');
+
+  //   const headers = new HttpHeaders({
+  //     Authorization: `Bearer ${token}`,
+  //   });
+
+  //   this.http.get<any>(url, { headers }).subscribe({
+  //     next: (res) => {
+  //       if (res?.status === 200) {
+  //         this.dealers = res.data?.dealers || [];
+  //       } else {
+  //         console.error('Unexpected response format:', res);
+  //       }
+  //     },
+  //     error: (err) => {
+  //       console.error('Super Admin Dashboard API failed:', err);
+  //     },
+  //   });
+  // }
+  fetchSuperAdminDashboard(type: string = 'MTD'): void {
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${type}`;
+    const token = sessionStorage.getItem('token');
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    this.http.get<any>(url, { headers }).subscribe({
+      next: (res) => {
+        this.loading = false; // ✅ Stop loading
+
+        if (res?.status === 200) {
+          this.dealers = res.data?.dealers || [];
+
+          const allSMs = res.data?.sms || [];
+          this.dealerSMS = {};
+
+          // ✅ Group SMS by team_id (assumed to match dealer_id)
+          allSMs.forEach((sm: any) => {
+            const teamId = sm.team_id;
+            if (!this.dealerSMS[teamId]) {
+              this.dealerSMS[teamId] = [];
+            }
+            this.dealerSMS[teamId].push(sm);
+          });
+          this.ps1Data = res.data?.ps || []; // ✅ Add this
+
+          this.hoveredSM = null;
+
+          console.log('Grouped dealerSMS:', this.dealerSMS);
+        } else {
+          console.error('Unexpected response format:', res);
+        }
+      },
+      error: (err) => {
+        console.error('Super Admin Dashboard API failed:', err);
+      },
+    });
+  }
+
+  toggleDealerSMs(dealerId: string): void {
+    if (this.selectedDealerId === dealerId) {
+      this.selectedDealerId = null; // toggle off
+      return;
+    }
+
+    this.selectedDealerId = dealerId;
+
+    const token = sessionStorage.getItem('token');
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}`;
+
+    this.http.get<any>(url, { headers }).subscribe({
+      next: (res) => {
+        if (res?.status === 200 && res.data?.sms) {
+          this.dealerSMS[dealerId] = res.data.sms;
+        } else {
+          this.dealerSMS[dealerId] = [];
+        }
+      },
+      error: (err) => {
+        console.error('Failed to fetch SMs for dealer:', err);
+        this.dealerSMS[dealerId] = [];
+      },
+    });
+  }
+
+  onDealerClick(dealerId: string): void {
+    if (this.selectedDealerId === dealerId) {
+      this.selectedDealerId = null; // collapse if already open
+      return;
+    }
+
+    this.selectedDealerId = dealerId;
+
+    // Fetch SM data only if not already fetched
+    if (!this.dealerSMS[dealerId]) {
+      const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}`;
+      const token = sessionStorage.getItem('token');
+
+      const headers = new HttpHeaders({
+        Authorization: `Bearer ${token}`,
+      });
+
+      this.http.get<any>(url, { headers }).subscribe({
+        next: (res) => {
+          if (res?.status === 200 && res.data?.sms) {
+            this.dealerSMS[dealerId] = res.data.sms;
+          } else {
+            this.dealerSMS[dealerId] = [];
+          }
+        },
+        error: (err) => {
+          console.error('Failed to fetch SM data:', err);
+          this.dealerSMS[dealerId] = [];
+        },
+      });
+    }
+  }
+  avatarColors = [
+    { background: '#E2E0F5', color: '#4B3C9B' },
+    { background: '#D1F8F2', color: '#008B7F' },
+    { background: '#FFD6D6', color: '#C62828' },
+    { background: '#D6FFD6', color: '#2E7D32' },
+    { background: '#D6E6FF', color: '#2962FF' },
+    { background: '#FFE6FF', color: '#AD1457' },
+  ];
+  getAvatarStyle(index: number) {
+    const style = this.avatarColors[index % this.avatarColors.length];
+    return {
+      width: '60px',
+      height: '60px',
+      margin: '0 auto 12px auto',
+      borderRadius: '50%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontWeight: '600',
+      fontSize: '24px',
+      background: style.background,
+      color: style.color,
+    };
+  }
+  isLastRow(index: number): boolean {
+    const itemsPerRow = Math.floor(window.innerWidth / 160); // 120px + 20px gap approx
+    const totalRows = Math.ceil(this.ps1Data.length / itemsPerRow);
+    const currentRow = Math.floor(index / itemsPerRow) + 1;
+    return currentRow === totalRows;
+  }
+
+  // Alternative method with solid colors (simpler approach)
+  getAvatarColor(index: number): { background: string; text: string } {
+    const colors = [
+      { background: '#E2E0F5', text: '#4B3C9B' }, // Lavender bg, dark purple
+      { background: '#C4FEFB', text: '#007A78' }, // Aqua bg, teal
+      { background: '#FED1CF', text: '#C9302C' }, // Light red bg, deep red
+      { background: '#E3FFDF', text: '#3E8E41' }, // Light green bg, green
+      { background: '#CFDFFE', text: '#2C4DB2' }, // Blue bg, navy
+      { background: '#FFEDFE', text: '#AF4C96' }, // Peach bg, deep pink
+      { background: '#EAD1DC', text: '#9C2550' }, // Pink bg, magenta
+      { background: '#FFF2CC', text: '#B58900' }, // Yellow bg, gold
+      { background: '#D9EAD3', text: '#3B7A2A' }, // Mint green, green
+      { background: '#F4CCCC', text: '#990000' }, // Coral bg, dark red
+      { background: '#F3F3F3', text: '#4D4D4D' }, // Grey bg, dark grey
+      { background: '#FFE6F0', text: '#C2185B' }, // Rose bg, berry pink
+    ];
+
+    return colors[index % colors.length];
+  }
+  onPSCardClick(psId: number): void {
+    console.log('Clicked PS ID:', psId);
+    // You can add navigation or other logic here
+  }
+
+  fetchPS1Data(): void {
+    if (!this.selectedSM || !this.selectedDealerId) {
+      console.warn('SM or Dealer not selected');
+      return;
+    }
+
+    const baseUrl = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
+    const type = 'YTD';
+    const dealerId = this.selectedDealerId;
+    const smId = this.selectedSM.sm_id;
+
+    const url = `${baseUrl}?type=${type}&dealer_id=${dealerId}&sm_id=${smId}`;
+    const token = sessionStorage.getItem('token');
+
+    if (!token) {
+      console.error('No token found in sessionStorage');
+      return;
+    }
+
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    this.http.get<any>(url, { headers }).subscribe({
+      next: (res) => {
+        const psList = res?.data?.ps;
+
+        if (Array.isArray(psList)) {
+          this.ps1Data = psList.map((ps: any) => ({
+            ps_id: ps.ps_id,
+            ps_name: `${ps.ps_fname} ${ps.ps_lname}`,
+            enquiries: ps.enquiries,
+            testDrives: ps.testDrives,
+            orders: ps.orders,
+            cancellations: ps.cancellation,
+            netOrders: ps.net_orders,
+            retail: ps.retail,
+          }));
+        } else {
+          console.warn('No PS data found in API response');
+          this.ps1Data = [];
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching PS1 data:', err);
+      },
+    });
+  }
+
+  get paginatedPs1Data() {
+    const start = (this.currentPage - 1) * this.pageSize;
+    const end = start + this.pageSize;
+    return this.ps1Data.slice(start, end);
+  }
+
+  get totalPs1Pages() {
+    return Math.ceil(this.ps1Data.length / this.pageSize);
   }
 
   // getStrokeColor(change: number): string {
@@ -420,6 +735,76 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     }
   }
 
+  // fetchDashboardData(type: string = 'MTD') {
+  //   const token = sessionStorage.getItem('token');
+  //   if (!token) {
+  //     console.error('Token not found!');
+  //     return;
+  //   }
+
+  //   const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+  //   this.http
+  //     .get<any>(
+  //       `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${type}`,
+  //       { headers }
+  //     )
+  //     .subscribe({
+  //       next: (res) => {
+  //         console.log(`API response for type=${type}:`, res);
+  //         const data = res?.data || {};
+
+  //         const cleanChange = (val: any): number => {
+  //           if (typeof val === 'string') {
+  //             return parseFloat(val.replace('%', '').trim());
+  //           }
+  //           return Number(val) || 0;
+  //         };
+
+  //         this.currentLeads = Number(data.current) || 0;
+  //         this.previousLeads = Number(data.previous) || 0;
+  //         this.changeDisplay = cleanChange(data.change);
+
+  //         this.currentTestDrives = Number(data.currentTestDrives) || 0;
+  //         this.previousTestDrives = Number(data.previousTestDrives) || 0;
+  //         this.testDriveChange = cleanChange(data.testDriveChange);
+
+  //         this.currentOrders = Number(data.currentOrders) || 0;
+  //         this.previousOrders = Number(data.previousOrders) || 0;
+  //         this.orderChange = cleanChange(data.orderChange);
+
+  //         this.progressValue = Math.abs(this.changeDisplay);
+  //         this.strokeColor = this.getStrokeColor(this.changeDisplay);
+
+  //         this.testDriveProgressValue = Math.abs(this.testDriveChange);
+  //         this.testDriveStrokeColor = this.getStrokeColor(this.testDriveChange);
+
+  //         this.orderProgressValue = Math.abs(this.orderChange);
+  //         this.orderStrokeColor = this.getStrokeColor(this.orderChange);
+
+  //         console.log('✅ Final Parsed Data:', {
+  //           leads: {
+  //             current: this.currentLeads,
+  //             previous: this.previousLeads,
+  //             change: this.changeDisplay,
+  //           },
+  //           testDrives: {
+  //             current: this.currentTestDrives,
+  //             previous: this.previousTestDrives,
+  //             change: this.testDriveChange,
+  //           },
+  //           orders: {
+  //             current: this.currentOrders,
+  //             previous: this.previousOrders,
+  //             change: this.orderChange,
+  //           },
+  //         });
+  //       },
+  //       error: (err) => {
+  //         console.error('Dashboard API error:', err);
+  //       },
+  //     });
+  // }
   fetchDashboardData(type: string = 'MTD') {
     const token = sessionStorage.getItem('token');
     if (!token) {
@@ -484,6 +869,23 @@ export class DashboardComponent implements AfterViewInit, OnInit {
               change: this.orderChange,
             },
           });
+
+          // ✅ Add Doughnut Chart logic here:
+          if (data.kpi) {
+            const totalTestDrives = Number(data.kpi.totalTestDrives) || 0;
+            const totalOrders = Number(data.kpi.totalOrders) || 0;
+
+            if (totalTestDrives > 0 || totalOrders > 0) {
+              console.log('📊 Creating Doughnut Chart with:', {
+                totalTestDrives,
+                totalOrders,
+              });
+
+              // setTimeout(() => {
+              //   this.createDoughnutChart(totalTestDrives, totalOrders);
+              // }, 0);
+            }
+          }
         },
         error: (err) => {
           console.error('Dashboard API error:', err);
@@ -566,9 +968,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   fetchData(): void {
     this.http
-      .get<any>(
-        'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew'
-      )
+      .get<any>('https://uat.smartassistapp.in/api/superAdmin/dashbaordNew')
       .subscribe(
         (response) => {
           console.log('API Response:', response); // Log the response to check its structure
@@ -939,6 +1339,46 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       // console.log('hidetooltip');
     }
   }
+  // fetchDashboardDataForTopCards(filter: string) {
+  //   const token = sessionStorage.getItem('token');
+
+  //   if (!token) {
+  //     console.error('No token found!');
+  //     return;
+  //   }
+
+  //   const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+  //   this.http
+  //     .get(
+  //       `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?filter=${filter}`,
+  //       { headers }
+  //     )
+  //     .subscribe(
+  //       (response: any) => {
+  //         if (response && response.status === 200) {
+  //           const data = response.data;
+
+  //           // Access dynamic values based on the selected filter
+  //           const leadsValue = data.leads?.[filter]?.value || 0;
+  //           const testDrivesValue = data.testDrives?.[filter]?.value || 0;
+  //           const ordersValue = data.orders?.[filter]?.value || 0;
+
+  //           this.mtdLeads.set(leadsValue);
+  //           this.mtdTestDrives.set(testDrivesValue);
+  //           this.mtdOrders.set(ordersValue);
+  //         } else {
+  //           console.error(
+  //             'Error fetching data:',
+  //             response.message || 'Unknown error'
+  //           );
+  //         }
+  //       },
+  //       (error) => {
+  //         console.error('Error fetching data:', error);
+  //       }
+  //     );
+  // }
   fetchDashboardDataForTopCards(filter: string) {
     const token = sessionStorage.getItem('token');
 
@@ -950,23 +1390,36 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     this.http
-      .get(
-        `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?filter=${filter}`,
+      .get<any>(
+        `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${filter}`,
         { headers }
       )
       .subscribe(
-        (response: any) => {
+        (response) => {
           if (response && response.status === 200) {
-            const data = response.data;
+            const kpi = response.data?.kpi;
 
-            // Access dynamic values based on the selected filter
-            const leadsValue = data.leads?.[filter]?.value || 0;
-            const testDrivesValue = data.testDrives?.[filter]?.value || 0;
-            const ordersValue = data.orders?.[filter]?.value || 0;
+            if (kpi) {
+              this.dashboardMetrics = {
+                totalLeads: kpi.totalLeads || 0,
+                totalTestDrives: kpi.totalTestDrives || 0,
+                totalOrders: kpi.totalOrders || 0,
+                lostLeads: kpi.lostLeads || 0,
+                cancellations: kpi.cancellations || 0,
+                netOrders: kpi.netOrders || 0,
+                retail: kpi.retail || 0,
+              };
 
-            this.mtdLeads.set(leadsValue);
-            this.mtdTestDrives.set(testDrivesValue);
-            this.mtdOrders.set(ordersValue);
+              const totalTestDrives = this.dashboardMetrics.totalTestDrives;
+              const totalOrders = this.dashboardMetrics.totalOrders;
+
+              // ✅ Always run the chart creation (even if both values are 0)
+              setTimeout(() => {
+                this.createDoughnutChart(totalTestDrives, totalOrders);
+              }, 0);
+            } else {
+              console.warn('No KPI data found in response');
+            }
           } else {
             console.error(
               'Error fetching data:',
@@ -1011,53 +1464,102 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       );
   }
 
-  createDoughnutChart(totalTestDrives: number, totalOrders: number) {
-    // Get the canvas element
-    const ctx = document.getElementById('doughnutChart') as HTMLCanvasElement;
+  // createDoughnutChart(totalTestDrives: number, totalOrders: number) {
+  //   const ctx = document.getElementById('doughnutChart') as HTMLCanvasElement;
 
-    // Check if the canvas exists
-    if (ctx) {
-      // Destroy existing chart if it exists to avoid canvas reuse error
-      if (this.doughnutChart) {
-        this.doughnutChart.destroy();
-      }
+  //    if (ctx) {
+  //      if (this.doughnutChart) {
+  //       this.doughnutChart.destroy();
+  //     }
 
-      // Create a new chart
-      this.doughnutChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Test Drives', 'Orders'],
-          datasets: [
-            {
-              data: [totalTestDrives, totalOrders],
-              backgroundColor: ['#1E90FF', '#87CEFA'], // Blue shades (adjust as needed)
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          aspectRatio: 1,
-          plugins: {
-            legend: {
-              position: 'top',
-            },
-            tooltip: {
-              enabled: true, // Ensure tooltip is enabled
-              callbacks: {
-                label: function (tooltipItem) {
-                  const value = tooltipItem.raw; // Accessing the raw value of the segment
-                  const label = tooltipItem.label; // The label of the segment (Test Drives/Orders)
-                  return `${label}: ${value}`; // Format the tooltip as "Label: Value"
-                },
+  //      this.doughnutChart = new Chart(ctx, {
+  //       type: 'doughnut',
+  //       data: {
+  //         labels: ['Test Drives', 'Orders'],
+  //         datasets: [
+  //           {
+  //             data: [totalTestDrives, totalOrders],
+  //             backgroundColor: ['#1E90FF', '#87CEFA'], // Blue shades (adjust as needed)
+  //           },
+  //         ],
+  //       },
+  //       options: {
+  //         responsive: true,
+  //         aspectRatio: 1,
+  //         plugins: {
+  //           legend: {
+  //             position: 'top',
+  //           },
+  //           tooltip: {
+  //             enabled: true,
+  //             callbacks: {
+  //               label: function (tooltipItem) {
+  //                 const value = tooltipItem.raw;
+  //                 const label = tooltipItem.label;
+  //                 return `${label}: ${value}`;
+  //               },
+  //             },
+  //           },
+  //         },
+  //       },
+  //     });
+  //   } else {
+  //     console.error('Canvas element with ID "doughnutChart" not found.');
+  //   }
+  // }
+  createDoughnutChart(totalTestDrives: number, totalOrders: number): void {
+    this.cdr.detectChanges(); // ensures view is refreshed before accessing DOM
+
+    const canvas = document.getElementById(
+      'doughnutChart'
+    ) as HTMLCanvasElement;
+
+    if (!canvas) {
+      console.error('Canvas element with ID "doughnutChart" not found.');
+      return;
+    }
+
+    // 🔴 Properly destroy previous chart instance
+    if (this.doughnutChart) {
+      this.doughnutChart.destroy();
+      this.doughnutChart = null;
+    }
+
+    // 🔄 Forcefully reset canvas
+    const ctx = canvas.getContext('2d');
+    ctx?.clearRect(0, 0, canvas.width, canvas.height);
+
+    // ✅ Recreate the chart
+    this.doughnutChart = new Chart(ctx!, {
+      type: 'doughnut',
+      data: {
+        labels: ['Test Drives', 'Orders'],
+        datasets: [
+          {
+            data: [totalTestDrives, totalOrders],
+            backgroundColor: ['#1E90FF', '#87CEFA'],
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { position: 'top' },
+          tooltip: {
+            callbacks: {
+              label: function (tooltipItem) {
+                const value = tooltipItem.raw;
+                const label = tooltipItem.label;
+                return `${label}: ${value}`;
               },
             },
           },
         },
-      });
-    } else {
-      console.error('Canvas element with ID "doughnutChart" not found.');
-    }
+      },
+    });
   }
+
   getPercentageChange(): number {
     if (this.previousLeads === 0) return 100;
     const diff = this.currentLeads - this.previousLeads;
@@ -1313,8 +1815,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const token = sessionStorage.getItem('token');
     if (!token) return;
 
-    let url =
-      'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
+    let url = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
     if (period && period !== 'today') {
       url += `?type=${period}`;
     }

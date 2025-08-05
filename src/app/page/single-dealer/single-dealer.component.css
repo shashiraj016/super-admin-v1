@@ -47,3 +47,32 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
+.pagination .page-link:hover {
+  color: white;
+  background-color: #222fb9;
+  border-color: #222fb9;
+}
+
+/* Active page */
+.pagination .page-item.active .page-link {
+  color: white;
+  background-color: #222fb9;
+  border-color: #222fb9;
+}
+
+/* Optional: remove default focus ring */
+.pagination .page-link:focus {
+  box-shadow: none;
+}
+
+.btn-outline-primary:hover {
+  background-color: #222fb9;
+  color: white;
+}
+.btn-outline-primary {
+  border-color: #222fb9;
+  color: #222fb9;
+}
+#closebtn {
+  color: #ff2625;
+}

@@ -2,11 +2,11 @@
   <div class="content-section active">
     <div class="page-titles">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="javascript:void(0)" style="cursor: auto">Transaction</a>
+      <li class="breadcrumb-item">
+          <a href="javascript:void(0)" style="cursor: auto;color:#222fb9">Transaction</a>
         </li>
-        <li class="breadcrumb-item active">
-          <a href="javascript:void(0)" style="cursor: auto; font-weight: 700 !important; color: black">Vehicle
+         <li class="breadcrumb-item active">
+          <a href="javascript:void(0)" style="cursor: auto; font-weight: 400 !important; color: #6e7d8b;font-size:1rem;font-family: 'poppins', sans-serif;">Vehicle
             Master</a>
         </li>
       </ol>
@@ -17,9 +17,13 @@
           data-target=".bd-example-modal-lg"
           class="btn btn-primary light btn-lg btn-block rounded shadow px-2 buttons"><i class="fa fa-plus mr-1"></i>Add
           Vehicle</a> -->
-        <a style="cursor: pointer; color: white !important" (click)="openModal()" type="button" data-toggle="modal"
+        <!-- <a style="cursor: pointer; color: white !important" (click)="openModal()" type="button" data-toggle="modal"
           data-target=".bd-example-modal-lg" data-backdrop="false"
           class="btn btn-primary light btn-lg btn-block rounded shadow px-2 buttons">
+          <i class="fa fa-plus mr-1"></i>Add Vehicle
+        </a> -->
+         <a style="cursor: pointer; color:  white !important;background-color: #222fb9;" (click)="openModal()"
+          class="btn light btn-lg btn-block rounded shadow px-2 buttons">
           <i class="fa fa-plus mr-1"></i>Add Vehicle
         </a>
       </div>
@@ -102,9 +106,14 @@
                   <td>{{ vehicle.demo_end_date }}</td>
                   <td>
                     <div class="d-flex">
-                      <a href="javascript:void(0);" data-target=".bd-example-modal-lg" data-toggle="modal"
+                      <!-- <a href="javascript:void(0);" data-target=".bd-example-modal-lg" data-toggle="modal"
                         class="btn btn-primary shadow btn-xs sharp mr-1" data-backdrop="false"
                         (click)="onEdit(vehicle)">
+                        <i class="fa fa-pencil"></i>
+                      </a> -->
+                      <a href="javascript:void(0);" data-target=".bd-example-modal-lg" data-toggle="modal"
+                        class="btn  shadow btn-xs sharp mr-1" data-backdrop="false" (click)="onEdit(vehicle)"
+                        style="background-color:#222fb9;color:white;">
                         <i class="fa fa-pencil"></i>
                       </a>
                       <!-- <a href="javascript:void(0);" type="button" class="btn btn-danger shadow btn-xs sharp"
@@ -481,30 +490,41 @@
 
             <div class="modal-footer">
               <!-- Ensure Edit button appears only if vehicle_id is defined -->
-              <ng-container
-                *ngIf="vehicleObj.vehicle_id !== null && vehicleObj.vehicle_id !== undefined; else saveButton">
-                <button type="button" class="btn btn-outline-primary" (click)="onUpdate()"
-                  [disabled]="!isVehicleNameChanged()">
+              <ng-container *ngIf="vehicleObj.vehicle_id !== null && vehicleObj.vehicle_id !== undefined; else saveButton">
+                <!-- <button type="button" class="btn btn-outline-primary" (click)="onUpdate()"
+                              [disabled]="!isVehicleNameChanged()">
+                              Edit
+                            </button> -->
+                <button type="button" class="btn" data-dismiss="modal" (click)="onUpdate()" [disabled]="!isVehicleNameChanged()"
+                  [ngClass]="{
+                                    'btn-outline-primary': !isVehicleNameChanged(),
+                                    'btn-edit-enabled': isVehicleNameChanged()
+                                  }">
                   Edit
                 </button>
               </ng-container>
-
+            
               <button type="button" class="btn btn-outline-danger" (click)="closeModal()">
                 Close
               </button>
-
+            
               <!-- <ng-template #saveButton>
-            <button type="button" class="btn btn-outline-primary" (click)="onSave()"
-              [attr.data-dismiss]="useForm.valid ? 'modal' : null">
-              Save
-            </button>
-          </ng-template> -->
+                        <button type="button" class="btn btn-outline-primary" (click)="onSave()"
+                          [attr.data-dismiss]="useForm.valid ? 'modal' : null">
+                          Save
+                        </button>
+                      </ng-template> -->
               <ng-template #saveButton>
-                <button type="button" class="btn btn-outline-primary" (click)="onSave()">
+                <!-- <button type="button" class="btn " (click)="onSave()" style="border-color:#222fb9">
+                              Save
+                            </button> -->
+                <button type="button" class="btn btn-outline-primary" (click)="onSave()"
+                  [attr.data-dismiss]="useForm.valid ? 'modal' : null">
                   Save
                 </button>
+            
               </ng-template>
-
+            
             </div>
           </div>
         </div>

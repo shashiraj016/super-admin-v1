@@ -5447,7 +5447,12 @@ input[type="button"].btn-block {
   display: flex;
   padding-left: 0;
   list-style: none;
+  justify-content:end;
   border-radius: 1.25rem;
+}
+.toast-success {
+  background-color: #222fb9 !important;
+  color: white !important;
 }
 
 .page-link {
@@ -11792,7 +11797,7 @@ a.active {
 }
 
 .content-body .container-fluid {
-  padding-top: 40px;
+  padding-top: 60px;
   padding-right: 40px;
   padding-left: 40px;
 }
@@ -12682,7 +12687,7 @@ a.active {
 }
 
 .hamburger .line {
-  background: #0276FE;
+  background: #222fb9;
   display: block;
   height: 3px;
   border-radius: 3px;
@@ -17514,7 +17519,7 @@ html[dir="rtl"] [direction="rtl"][data-sidebar-style="compact"]:not([data-layout
 .deznav {
   width: 21.563rem;
   padding-bottom: 0;
-  height: calc(100% - 120px);
+  /* height: calc(100% - 120px); */
   position: absolute;
   top: 7.5rem;
   padding-top: 0;
@@ -18128,7 +18133,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #0276FE !important;
+  background-color: #222fb9 !important;
 }
 
 @media only screen and (max-width: 1400px) {
@@ -18393,7 +18398,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
   }
 
   [data-sidebar-style="mini"] .nav-header .nav-control .hamburger .line {
-    background-color: #6e6e6e !important;
+    background-color: #222fb9 !important;
   }
 
   [data-sidebar-style="mini"] .nav-header .brand-title {
@@ -19953,7 +19958,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-sidebar-style="overlay"] .nav-header .hamburger.is-active .line {
-  background-color: #0276FE;
+  background-color: #222fb9;
 }
 
 [data-sidebar-style="overlay"] .menu-toggle .nav-header {
@@ -21078,12 +21083,12 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-nav-headerbg="color_2"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-nav-headerbg="color_2"] .nav-header .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_2"][data-theme-version="dark"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-nav-headerbg="color_2"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_3"][data-theme-version="dark"] .nav-header,
@@ -21145,12 +21150,12 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-nav-headerbg="color_3"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-nav-headerbg="color_3"] .nav-header .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_3"][data-theme-version="dark"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-nav-headerbg="color_3"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_4"][data-theme-version="dark"] .nav-header,
@@ -21212,12 +21217,12 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-nav-headerbg="color_4"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-nav-headerbg="color_4"] .nav-header .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_4"][data-theme-version="dark"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-nav-headerbg="color_4"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_5"][data-theme-version="dark"] .nav-header,
@@ -21279,12 +21284,12 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-nav-headerbg="color_5"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-nav-headerbg="color_5"] .nav-header .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_5"][data-theme-version="dark"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-nav-headerbg="color_5"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_6"][data-theme-version="dark"] .nav-header,
@@ -21346,12 +21351,12 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-nav-headerbg="color_6"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-nav-headerbg="color_6"] .nav-header .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_6"][data-theme-version="dark"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-nav-headerbg="color_6"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_7"][data-theme-version="dark"] .nav-header,
@@ -21413,12 +21418,12 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-nav-headerbg="color_7"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-nav-headerbg="color_7"] .nav-header .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_7"][data-theme-version="dark"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-nav-headerbg="color_7"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_8"][data-theme-version="dark"] .nav-header,
@@ -21480,12 +21485,12 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-nav-headerbg="color_8"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-nav-headerbg="color_8"] .nav-header .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_8"][data-theme-version="dark"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-nav-headerbg="color_8"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_9"][data-theme-version="dark"] .nav-header,
@@ -21547,12 +21552,12 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-nav-headerbg="color_9"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-nav-headerbg="color_9"] .nav-header .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_9"][data-theme-version="dark"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-nav-headerbg="color_9"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_10"][data-theme-version="dark"] .nav-header,
@@ -21614,12 +21619,12 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-nav-headerbg="color_10"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-nav-headerbg="color_10"] .nav-header .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_10"][data-theme-version="dark"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-nav-headerbg="color_10"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_11"][data-theme-version="dark"] .nav-header,
@@ -21681,12 +21686,12 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-nav-headerbg="color_11"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-nav-headerbg="color_11"] .nav-header .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_11"][data-theme-version="dark"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-nav-headerbg="color_11"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_12"][data-theme-version="dark"] .nav-header,
@@ -21748,12 +21753,12 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-nav-headerbg="color_12"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-nav-headerbg="color_12"] .nav-header .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_12"][data-theme-version="dark"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-nav-headerbg="color_12"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_13"][data-theme-version="dark"] .nav-header,
@@ -21815,12 +21820,12 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-nav-headerbg="color_13"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-nav-headerbg="color_13"] .nav-header .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_13"][data-theme-version="dark"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-nav-headerbg="color_13"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_14"][data-theme-version="dark"] .nav-header,
@@ -21882,12 +21887,12 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-nav-headerbg="color_14"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-nav-headerbg="color_14"] .nav-header .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_14"][data-theme-version="dark"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-nav-headerbg="color_14"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_15"][data-theme-version="dark"] .nav-header,
@@ -21949,12 +21954,12 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-nav-headerbg="color_15"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-nav-headerbg="color_15"] .nav-header .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-nav-headerbg="color_15"][data-theme-version="dark"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-nav-headerbg="color_15"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background: #fff;
+  background: #222fb9;
 }
 
 [data-headerbg="color_2"][data-theme-version="dark"] .header-left .dashboard_bar,
@@ -21964,7 +21969,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_2"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-headerbg="color_2"] .nav-header .hamburger .line {
-  background: #fff !important;
+  background: #222fb9 !important;
 }
 
 [data-headerbg="color_2"][data-theme-version="dark"] .header,
@@ -22029,7 +22034,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_2"][data-theme-version="dark"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-headerbg="color_2"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #fff;
+  background-color: #222fb9;
 }
 
 [data-headerbg="color_2"][data-theme-version="dark"] .header-right .header-profile>a.nav-link,
@@ -22146,7 +22151,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_3"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-headerbg="color_3"] .nav-header .hamburger .line {
-  background: #fff !important;
+  background: #222fb9 !important;
 }
 
 [data-headerbg="color_3"][data-theme-version="dark"] .header,
@@ -22211,7 +22216,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_3"][data-theme-version="dark"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-headerbg="color_3"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #fff;
+  background-color: #222fb9;
 }
 
 [data-headerbg="color_3"][data-theme-version="dark"] .header-right .header-profile>a.nav-link,
@@ -22328,7 +22333,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_4"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-headerbg="color_4"] .nav-header .hamburger .line {
-  background: #fff !important;
+  background: #222fb9 !important;
 }
 
 [data-headerbg="color_4"][data-theme-version="dark"] .header,
@@ -22393,7 +22398,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_4"][data-theme-version="dark"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-headerbg="color_4"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #fff;
+  background-color: #222fb9;
 }
 
 [data-headerbg="color_4"][data-theme-version="dark"] .header-right .header-profile>a.nav-link,
@@ -22510,7 +22515,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_5"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-headerbg="color_5"] .nav-header .hamburger .line {
-  background: #fff !important;
+  background: #222fb9 !important;
 }
 
 [data-headerbg="color_5"][data-theme-version="dark"] .header,
@@ -22575,7 +22580,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_5"][data-theme-version="dark"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-headerbg="color_5"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #fff;
+  background-color: #222fb9;
 }
 
 [data-headerbg="color_5"][data-theme-version="dark"] .header-right .header-profile>a.nav-link,
@@ -22692,7 +22697,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_6"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-headerbg="color_6"] .nav-header .hamburger .line {
-  background: #fff !important;
+  background: #222fb9 !important;
 }
 
 [data-headerbg="color_6"][data-theme-version="dark"] .header,
@@ -22757,7 +22762,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_6"][data-theme-version="dark"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-headerbg="color_6"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #fff;
+  background-color: #222fb9;
 }
 
 [data-headerbg="color_6"][data-theme-version="dark"] .header-right .header-profile>a.nav-link,
@@ -22874,7 +22879,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_7"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-headerbg="color_7"] .nav-header .hamburger .line {
-  background: #fff !important;
+  background: #222fb9 !important;
 }
 
 [data-headerbg="color_7"][data-theme-version="dark"] .header,
@@ -22939,7 +22944,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_7"][data-theme-version="dark"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-headerbg="color_7"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #fff;
+  background-color: #222fb9;
 }
 
 [data-headerbg="color_7"][data-theme-version="dark"] .header-right .header-profile>a.nav-link,
@@ -23056,7 +23061,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_8"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-headerbg="color_8"] .nav-header .hamburger .line {
-  background: #fff !important;
+  background: #222fb9 !important;
 }
 
 [data-headerbg="color_8"][data-theme-version="dark"] .header,
@@ -23121,7 +23126,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_8"][data-theme-version="dark"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-headerbg="color_8"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #fff;
+  background-color: #222fb9;
 }
 
 [data-headerbg="color_8"][data-theme-version="dark"] .header-right .header-profile>a.nav-link,
@@ -23238,7 +23243,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_9"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-headerbg="color_9"] .nav-header .hamburger .line {
-  background: #fff !important;
+  background: #222fb9 !important;
 }
 
 [data-headerbg="color_9"][data-theme-version="dark"] .header,
@@ -23303,7 +23308,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_9"][data-theme-version="dark"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-headerbg="color_9"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #fff;
+  background-color: #222fb9;
 }
 
 [data-headerbg="color_9"][data-theme-version="dark"] .header-right .header-profile>a.nav-link,
@@ -23420,7 +23425,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_10"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-headerbg="color_10"] .nav-header .hamburger .line {
-  background: #fff !important;
+  background: #222fb9 !important;
 }
 
 [data-headerbg="color_10"][data-theme-version="dark"] .header,
@@ -23485,7 +23490,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_10"][data-theme-version="dark"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-headerbg="color_10"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #fff;
+  background-color: #222fb9;
 }
 
 [data-headerbg="color_10"][data-theme-version="dark"] .header-right .header-profile>a.nav-link,
@@ -23602,7 +23607,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_11"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-headerbg="color_11"] .nav-header .hamburger .line {
-  background: #fff !important;
+  background: #222fb9 !important;
 }
 
 [data-headerbg="color_11"][data-theme-version="dark"] .header,
@@ -23667,7 +23672,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_11"][data-theme-version="dark"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-headerbg="color_11"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #fff;
+  background-color: #222fb9;
 }
 
 [data-headerbg="color_11"][data-theme-version="dark"] .header-right .header-profile>a.nav-link,
@@ -23784,7 +23789,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_12"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-headerbg="color_12"] .nav-header .hamburger .line {
-  background: #fff !important;
+  background: #222fb9 !important;
 }
 
 [data-headerbg="color_12"][data-theme-version="dark"] .header,
@@ -23849,7 +23854,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_12"][data-theme-version="dark"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-headerbg="color_12"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #fff;
+  background-color: #222fb9;
 }
 
 [data-headerbg="color_12"][data-theme-version="dark"] .header-right .header-profile>a.nav-link,
@@ -23966,7 +23971,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_13"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-headerbg="color_13"] .nav-header .hamburger .line {
-  background: #fff !important;
+  background: #222fb9 !important;
 }
 
 [data-headerbg="color_13"][data-theme-version="dark"] .header,
@@ -24031,7 +24036,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_13"][data-theme-version="dark"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-headerbg="color_13"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #fff;
+  background-color: #222fb9;
 }
 
 [data-headerbg="color_13"][data-theme-version="dark"] .header-right .header-profile>a.nav-link,
@@ -24148,7 +24153,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_14"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-headerbg="color_14"] .nav-header .hamburger .line {
-  background: #fff !important;
+  background: #222fb9 !important;
 }
 
 [data-headerbg="color_14"][data-theme-version="dark"] .header,
@@ -24213,7 +24218,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_14"][data-theme-version="dark"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-headerbg="color_14"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #fff;
+  background-color: #222fb9;
 }
 
 [data-headerbg="color_14"][data-theme-version="dark"] .header-right .header-profile>a.nav-link,
@@ -24330,7 +24335,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_15"][data-theme-version="dark"] .nav-header .hamburger .line,
 [data-headerbg="color_15"] .nav-header .hamburger .line {
-  background: #fff !important;
+  background: #222fb9 !important;
 }
 
 [data-headerbg="color_15"][data-theme-version="dark"] .header,
@@ -24395,7 +24400,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_15"][data-theme-version="dark"] .menu-toggle .nav-header .nav-control .hamburger .line,
 [data-headerbg="color_15"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #fff;
+  background-color: #222fb9;
 }
 
 [data-headerbg="color_15"][data-theme-version="dark"] .header-right .header-profile>a.nav-link,
@@ -30868,7 +30873,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_1"] .nav-header .hamburger.is-active .line,
 [data-headerbg="color_1"] .nav-header .hamburger .line {
-  background: #0276FE;
+  background: #222fb9;
 }
 
 @media (min-width: 992px) {
@@ -31586,7 +31591,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_2"] .hamburger .line {
-  background: #143b64;
+  background: #222fb9;
 }
 
 [data-primary="color_2"] svg.pulse-svg .first-circle,
@@ -31610,7 +31615,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_2"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #143b64;
+  background-color: #222fb9;
 }
 
 @media (min-width: 767px) {
@@ -31624,7 +31629,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_2"][data-sidebar-style="overlay"] .nav-header .hamburger.is-active .line {
-  background-color: #143b64;
+  background-color: #222fb9;
 }
 
 [data-primary="color_2"] .nav-user {
@@ -32234,7 +32239,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_2"] .nav-header .hamburger .line {
-  background: #143b64;
+  background: #222fb9;
 }
 
 [data-primary="color_2"] .pulse-css {
@@ -33187,7 +33192,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_3"] .hamburger .line {
-  background: #0276FE;
+  background: #222fb9;
 }
 
 [data-primary="color_3"] svg.pulse-svg .first-circle,
@@ -33211,7 +33216,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_3"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #0276FE;
+  background-color: #222fb9;
 }
 
 @media (min-width: 767px) {
@@ -33225,7 +33230,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_3"][data-sidebar-style="overlay"] .nav-header .hamburger.is-active .line {
-  background-color: #0276FE;
+  background-color: #222fb9;
 }
 
 [data-primary="color_3"] .nav-user {
@@ -33835,7 +33840,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_3"] .nav-header .hamburger .line {
-  background: #0276FE;
+  background: #222fb9;
 }
 
 [data-primary="color_3"] .pulse-css {
@@ -34788,7 +34793,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_4"] .hamburger .line {
-  background: #4527a0;
+  background: #222fb9;
 }
 
 [data-primary="color_4"] svg.pulse-svg .first-circle,
@@ -34812,7 +34817,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_4"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #4527a0;
+  background-color: #222fb9;
 }
 
 @media (min-width: 767px) {
@@ -34826,7 +34831,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_4"][data-sidebar-style="overlay"] .nav-header .hamburger.is-active .line {
-  background-color: #4527a0;
+  background-color: #222fb9;
 }
 
 [data-primary="color_4"] .nav-user {
@@ -35436,7 +35441,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_4"] .nav-header .hamburger .line {
-  background: #4527a0;
+  background: #222fb9;
 }
 
 [data-primary="color_4"] .pulse-css {
@@ -36389,7 +36394,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_5"] .hamburger .line {
-  background: #c62828;
+  background: #222fb9;
 }
 
 [data-primary="color_5"] svg.pulse-svg .first-circle,
@@ -36413,7 +36418,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_5"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #c62828;
+  background-color: #222fb9;
 }
 
 @media (min-width: 767px) {
@@ -36427,7 +36432,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_5"][data-sidebar-style="overlay"] .nav-header .hamburger.is-active .line {
-  background-color: #c62828;
+  background-color: #222fb9;
 }
 
 [data-primary="color_5"] .nav-user {
@@ -37037,7 +37042,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_5"] .nav-header .hamburger .line {
-  background: #c62828;
+  background: #222fb9;
 }
 
 [data-primary="color_5"] .pulse-css {
@@ -37990,7 +37995,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_6"] .hamburger .line {
-  background: #283593;
+  background: #222fb9;
 }
 
 [data-primary="color_6"] svg.pulse-svg .first-circle,
@@ -38014,7 +38019,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_6"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #283593;
+  background-color: #222fb9;
 }
 
 @media (min-width: 767px) {
@@ -38028,7 +38033,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_6"][data-sidebar-style="overlay"] .nav-header .hamburger.is-active .line {
-  background-color: #283593;
+  background-color: #222fb9;
 }
 
 [data-primary="color_6"] .nav-user {
@@ -38638,7 +38643,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_6"] .nav-header .hamburger .line {
-  background: #283593;
+  background: #222fb9;
 }
 
 [data-primary="color_6"] .pulse-css {
@@ -39591,7 +39596,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_7"] .hamburger .line {
-  background: #7356f1;
+  background: #222fb9;
 }
 
 [data-primary="color_7"] svg.pulse-svg .first-circle,
@@ -39615,7 +39620,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_7"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #7356f1;
+  background-color: #222fb9;
 }
 
 @media (min-width: 767px) {
@@ -39629,7 +39634,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_7"][data-sidebar-style="overlay"] .nav-header .hamburger.is-active .line {
-  background-color: #7356f1;
+  background-color: #222fb9;
 }
 
 [data-primary="color_7"] .nav-user {
@@ -40239,7 +40244,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_7"] .nav-header .hamburger .line {
-  background: #7356f1;
+  background: #222fb9;
 }
 
 [data-primary="color_7"] .pulse-css {
@@ -41192,7 +41197,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_8"] .hamburger .line {
-  background: #3695eb;
+  background: #222fb9;
 }
 
 [data-primary="color_8"] svg.pulse-svg .first-circle,
@@ -41216,7 +41221,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_8"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #3695eb;
+  background-color: #222fb9;
 }
 
 @media (min-width: 767px) {
@@ -41230,7 +41235,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_8"][data-sidebar-style="overlay"] .nav-header .hamburger.is-active .line {
-  background-color: #3695eb;
+  background-color: #222fb9;
 }
 
 [data-primary="color_8"] .nav-user {
@@ -41840,7 +41845,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_8"] .nav-header .hamburger .line {
-  background: #3695eb;
+  background: #222fb9;
 }
 
 [data-primary="color_8"] .pulse-css {
@@ -42793,7 +42798,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_9"] .hamburger .line {
-  background: #00838f;
+  background: #222fb9;
 }
 
 [data-primary="color_9"] svg.pulse-svg .first-circle,
@@ -42817,7 +42822,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_9"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #00838f;
+  background-color: #222fb9;
 }
 
 @media (min-width: 767px) {
@@ -42831,7 +42836,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_9"][data-sidebar-style="overlay"] .nav-header .hamburger.is-active .line {
-  background-color: #00838f;
+  background-color: #222fb9;
 }
 
 [data-primary="color_9"] .nav-user {
@@ -43441,7 +43446,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_9"] .nav-header .hamburger .line {
-  background: #00838f;
+  background: #222fb9;
 }
 
 [data-primary="color_9"] .pulse-css {
@@ -44394,7 +44399,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_10"] .hamburger .line {
-  background: #ff8f16;
+  background: #222fb9;
 }
 
 [data-primary="color_10"] svg.pulse-svg .first-circle,
@@ -44418,7 +44423,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_10"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #ff8f16;
+  background-color: #222fb9;
 }
 
 @media (min-width: 767px) {
@@ -44432,7 +44437,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_10"][data-sidebar-style="overlay"] .nav-header .hamburger.is-active .line {
-  background-color: #ff8f16;
+  background-color: #222fb9;
 }
 
 [data-primary="color_10"] .nav-user {
@@ -45042,7 +45047,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_10"] .nav-header .hamburger .line {
-  background: #ff8f16;
+  background: #222fb9;
 }
 
 [data-primary="color_10"] .pulse-css {
@@ -45995,7 +46000,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_11"] .hamburger .line {
-  background: #6673fd;
+  background: #222fb9;
 }
 
 [data-primary="color_11"] svg.pulse-svg .first-circle,
@@ -46019,7 +46024,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_11"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #6673fd;
+  background-color: #222fb9;
 }
 
 @media (min-width: 767px) {
@@ -46033,7 +46038,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_11"][data-sidebar-style="overlay"] .nav-header .hamburger.is-active .line {
-  background-color: #6673fd;
+  background-color: #222fb9;
 }
 
 [data-primary="color_11"] .nav-user {
@@ -46643,7 +46648,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_11"] .nav-header .hamburger .line {
-  background: #6673fd;
+  background: #222fb9;
 }
 
 [data-primary="color_11"] .pulse-css {
@@ -47620,7 +47625,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_12"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #558b2f;
+  background-color: #222fb9;
 }
 
 @media (min-width: 767px) {
@@ -47634,7 +47639,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_12"][data-sidebar-style="overlay"] .nav-header .hamburger.is-active .line {
-  background-color: #558b2f;
+  background-color: #222fb9;
 }
 
 [data-primary="color_12"] .nav-user {
@@ -48244,7 +48249,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_12"] .nav-header .hamburger .line {
-  background: #558b2f;
+  background: #222fb9;
 }
 
 [data-primary="color_12"] .pulse-css {
@@ -49197,7 +49202,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_13"] .hamburger .line {
-  background: #2a2a2a;
+  background: #222fb9;
 }
 
 [data-primary="color_13"] svg.pulse-svg .first-circle,
@@ -49221,7 +49226,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_13"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #2a2a2a;
+  background-color: #222fb9;
 }
 
 @media (min-width: 767px) {
@@ -49235,7 +49240,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_13"][data-sidebar-style="overlay"] .nav-header .hamburger.is-active .line {
-  background-color: #2a2a2a;
+  background-color: #222fb9;
 }
 
 [data-primary="color_13"] .nav-user {
@@ -49845,7 +49850,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_13"] .nav-header .hamburger .line {
-  background: #2a2a2a;
+  background: #222fb9;
 }
 
 [data-primary="color_13"] .pulse-css {
@@ -50798,7 +50803,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_14"] .hamburger .line {
-  background: #1367c8;
+  background: #222fb9;
 }
 
 [data-primary="color_14"] svg.pulse-svg .first-circle,
@@ -50822,7 +50827,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_14"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #1367c8;
+  background-color: #222fb9;
 }
 
 @media (min-width: 767px) {
@@ -50836,7 +50841,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_14"][data-sidebar-style="overlay"] .nav-header .hamburger.is-active .line {
-  background-color: #1367c8;
+  background-color: #222fb9;
 }
 
 [data-primary="color_14"] .nav-user {
@@ -51446,7 +51451,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_14"] .nav-header .hamburger .line {
-  background: #1367c8;
+  background: #222fb9;
 }
 
 [data-primary="color_14"] .pulse-css {
@@ -52399,7 +52404,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_15"] .hamburger .line {
-  background: #ed0b4c;
+  background: #222fb9;
 }
 
 [data-primary="color_15"] svg.pulse-svg .first-circle,
@@ -52423,7 +52428,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_15"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #ed0b4c;
+  background-color: #222fb9;
 }
 
 @media (min-width: 767px) {
@@ -52437,7 +52442,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_15"][data-sidebar-style="overlay"] .nav-header .hamburger.is-active .line {
-  background-color: #ed0b4c;
+  background-color: #222fb9;
 }
 
 [data-primary="color_15"] .nav-user {
@@ -53047,7 +53052,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-primary="color_15"] .nav-header .hamburger .line {
-  background: #ed0b4c;
+  background: #222fb9;
 }
 
 [data-primary="color_15"] .pulse-css {
@@ -54494,11 +54499,11 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 [data-theme-version="dark"] .nav-header .hamburger .line {
-  background: #fff !important;
+  background: #222fb9 !important;
 }
 
 [data-theme-version="dark"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #fff !important;
+  background-color: #222fb9 !important;
 }
 
 [data-theme-version="dark"] .nav-header,
@@ -69876,11 +69881,11 @@ html[dir="rtl"] [direction="rtl"][data-sidebar-style="compact"]:not([data-layout
 }
 
 [data-theme-version="dark"] .nav-header .hamburger .line {
-  background: #fff !important;
+  background: #222fb9 !important;
 }
 
 [data-theme-version="dark"] .menu-toggle .nav-header .nav-control .hamburger .line {
-  background-color: #fff !important;
+  background-color: #222fb9 !important;
 }
 
 [data-theme-version="dark"] .nav-header,
@@ -71403,7 +71408,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
   .nav-control
   .hamburger
   .line {
-  background-color: #0276fe !important;
+  background-color: #222fb9 !important;
 }
 
 @media only screen and (max-width: 1400px) {
@@ -71838,7 +71843,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
   }
 
   [data-sidebar-style="mini"] .nav-header .nav-control .hamburger .line {
-    background-color: #6e6e6e !important;
+    background-color: #222fb9 !important;
   }
 
   [data-sidebar-style="mini"] .nav-header .brand-title {
