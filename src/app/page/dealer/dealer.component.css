@@ -78,6 +78,9 @@ input.form-control.form-control-lg.is-invalid {
   color: #fff;
   border:none;
 }
+.modal-backdrop {
+  display: none !important;
+}
 
 /* Optional: to keep consistent border when disabled */
 .btn[disabled] {

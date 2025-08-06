@@ -396,7 +396,7 @@ export class Login1Component {
       .navigate(['/Admin/dashboard'])
       .then(() => {
         window.location.reload();
-        this.toastr.success('Login Successful', 'Success');
+        // this.toastr.success('Login Successful', 'Success');
       })
       .catch((error) => {
         console.error('Navigation error:', error);

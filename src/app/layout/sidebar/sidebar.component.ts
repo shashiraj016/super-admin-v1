@@ -150,12 +150,32 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private routerSub!: Subscription;
 
   menuItems = [
-    { key: 'dashboard', label: 'Dashboard', route: '/Admin/dashboard' },
+    {
+      key: 'dashboard',
+      label: 'Dashboard',
+      route: '/Admin/dashboard',
+      icon: 'fas fa-tachometer-alt', // Dashboard icon
+    },
 
-    { key: 'role', label: 'Role Management', route: '/Admin/role' },
+    {
+      key: 'role',
+      label: 'Role Management',
+      route: '/Admin/role',
+      icon: 'fas fa-user-shield', // 👮 User with shield (for roles/permissions)
+    },
 
-    { key: 'vehicle', label: 'Vehicle Management', route: '/Admin/vehicle' },
-    { key: 'dealer', label: 'Dealers Management', route: '/Admin/dealer' },
+    {
+      key: 'vehicle',
+      label: 'Vehicle Management',
+      route: '/Admin/vehicle',
+      icon: 'fas fa-car', // 🚗 Car icon
+    },
+    {
+      key: 'dealer',
+      label: 'Dealer Management',
+      route: '/Admin/dealer',
+      icon: 'fas fa-user-tie', // 👔 Looks professional and suits "Dealer"
+    },
   ];
 
   constructor(

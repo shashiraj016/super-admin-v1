@@ -91,32 +91,24 @@ export class HeaderComponent implements OnInit {
   }
   onToggleClick() {
     console.log('Hamburger clicked'); // 👈 test log
-    // this.sidebarToggle.emit();
     this.sidebarService.toggleSidebar();
   }
 
   private updateTitle(): void {
     const route = this.getDeepestChild(this.activatedRoute);
-    // this.pageTitle = route.snapshot.data['title'] || 'Dashboard';
   }
 
   private getDeepestChild(route: ActivatedRoute): ActivatedRoute {
     return route.firstChild ? this.getDeepestChild(route.firstChild) : route;
   }
 
-  // logout() {
-  //   // if (isPlatformBrowser(this.platformId)) {
-  //   // }
-  //   sessionStorage.removeItem('token');
-  //   this.guestDetails = null;
-  // }
-
+ 
   logout(): void {
-    console.log('Logging out...'); // Debug log
+    console.log('Logging out...'); 
 
     sessionStorage.removeItem('token');
     this.guestDetails = null;
 
-    this.router.navigate(['/']); // Navigate to home or login after logout
+    this.router.navigate(['/']); 
   }
 }

@@ -1,4 +1,4 @@
- .logo-abbr {
+.logo-abbr {
   display: none;
 }
 .brand-title {
@@ -34,42 +34,16 @@
     display: block !important;
   }
 }
-
-.menu-toggle .header {
-  padding: 0 !important;
-}
-
- .logo-abbr {
-  display: none;
-}
-.brand-title {
-  display: block;
-  max-width: 170px !important;
-  margin-left: 0px;
-}
-.menu-toggle .logo-abbr {
-  display: block;
-}
-.menu-toggle .brand-title {
-  display: none;
-}
-
-@media (max-width: 1400px) {
-  .nav-control {
-    top: 40% !important;
-  }
-}
-@media (max-width: 767px) {
-  .brand-title {
-    display: none !important;
-  }
-  .logo-abbr {
-    display: block !important;
-  }
-}
-.nav-header{
-  background-color:#222fb9;
-}
+/* .nav-control {
+  display: inline-block;
+  padding: 10px;
+  border: 1px solid #ccc; 
+  border-radius: 8px; 
+  cursor: pointer;
+  height:45px;
+  width:45px;
+  transition: background 0.2s;
+} */
 
 .menu-toggle .header {
   padding: 0 !important;
@@ -131,6 +105,7 @@
   /* padding: 5px; Add some padding so the content isn't right against the border */
   border-radius: 5px; /* (Optional) Adds rounded corners */
 }
+
 .brand-container {
   display: flex;
   align-items: center;
@@ -196,3 +171,69 @@
     font-size: 20px !important;
   }
 }
+
+
+/* logut */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal:target {
+      display: block;
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: center;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .close-btn {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 8px 16px;
+      background-color: #ccc;
+      color: #000;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    .logout-btn {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 8px 16px;
+      background-color: #222fb9;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    .dropdown-item {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #000;
+      text-decoration: none;
+    }
+
+    .dropdown-item:hover {
+      color: #222fb9;
+    }

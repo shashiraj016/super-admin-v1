@@ -73,10 +73,10 @@ export class DealerComponent implements OnInit {
         Validators.required,
         Validators.minLength(5),
       ]),
-      dealer_email: new FormControl(this.dealerObj.dealer_email, [
-        Validators.required,
-        Validators.minLength(5),
-      ]),
+      // dealer_email: new FormControl(this.dealerObj.dealer_email, [
+      //   Validators.required,
+      //   Validators.minLength(5),
+      // ]),
     });
   }
 
@@ -480,26 +480,29 @@ export class DealerComponent implements OnInit {
           console.log('✅ API Response:', res);
 
           if (res.status === 200) {
-            this.toastr.success(res.message, 'Success');
+            this.toastr.success(
+              res.message || 'Dealer updated successfully',
+              'Success'
+            );
 
-            // ✅ Close modal
             this.isModalOpen = false;
-
-            // ✅ Reset original tracking fields
             this.originalDealerName = '';
             this.originalDealerC = '';
 
-            // ✅ Refresh list
             setTimeout(() => {
               this.getAllDealer();
             }, 500);
           } else {
-            this.toastr.error('Update failed, no data received', 'Error');
+            this.toastr.error(res.message || 'Update failed', 'Error');
           }
         },
         (error) => {
           console.error('❌ API Error:', error);
-          this.toastr.error('Failed to update customer', 'Error');
+
+          // If backend returns a specific error message
+          const errorMessage =
+            error?.error?.message || 'Failed to update dealer';
+          this.toastr.error(errorMessage, 'Error');
         }
       );
     } else {
@@ -557,25 +560,22 @@ export class DealerComponent implements OnInit {
       (res: SingleDealerResponse) => {
         console.log('API Response:', res);
 
-        if (res?.data?.dealer) {
-          const dealer = res.data.dealer;
+        const dealer = res?.data?.dealer;
+        if (dealer) {
           console.log('Dealer Found:', dealer);
 
+          // ✅ Assigning values correctly
           this.dealerObj = {
             ...dealer,
             dealer_code: Number(dealer.dealer_code),
           };
 
-          this.originalDealerName = dealer.dealer_name;
-          this.originalDealerC = dealer.dealer_code; // 👈 Save original dealer_c
-
           this.useForm.patchValue({
             dealer_name: dealer.dealer_name,
             dealer_code: Number(dealer.dealer_code),
-            dealer_c: dealer.dealer_code, // 👈 Add this
           });
 
-          this.isModalOpen = true;
+          this.isModalOpen = true; // ✅ Ensure modal is opened
         } else {
           this.toastr.error('Dealer data not found', 'Error');
         }
@@ -586,12 +586,11 @@ export class DealerComponent implements OnInit {
       }
     );
   }
- 
 
   isFormChanged(): boolean {
     return (
       this.useForm.get('dealer_name')?.value !== this.originalDealerName ||
-      this.useForm.get('dealer_c')?.value !== this.originalDealerC
+      this.useForm.get('dealer_code')?.value !== this.originalDealerC
     );
   }
 
