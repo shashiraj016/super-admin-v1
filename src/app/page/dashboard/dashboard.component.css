@@ -2841,7 +2841,7 @@ body {
 
 /* Level 3 - PSs */
 .accordion.level-3 {
-  margin: 15px 40px;
+  /* margin: 15px 40px; */
   border-left: 4px solid #222fb9;
 }
 
@@ -3279,7 +3279,7 @@ body {
 
 /* Level 3 - PSs */
 .accordion.level-3 {
-  margin: 15px 40px;
+  /* margin: 15px 40px; */
   border-left: 4px solid #222fb9;
 }
 /*  */
