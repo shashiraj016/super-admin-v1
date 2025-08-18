@@ -483,7 +483,6 @@ body {
   background: transparent !important;
 }
 
-
 .metric-box {
   background-color: white;
   padding: 1rem;
@@ -2733,7 +2732,7 @@ body {
 
 .dashboard-container {
   /* max-width: 1400px; */
-  padding:10px !important;
+  padding: 10px !important;
   margin: 0 auto;
 }
 
@@ -2804,34 +2803,38 @@ body {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
-  
 
 /* Level 1 - Dealers */
 .accordion.level-1 .accordion-header {
   background: #ffffff; /* White background */
   font-size: 1.2rem;
-  border:none !important;
+  border: none !important;
   font-weight: 700;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    font-family: "Poppins", sans-serif;
 
+  /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); Subtle shadow */
 }
 
 .accordion.level-1 .accordion-header:hover {
   background: #ffffff; /* White background */
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
 
 /* Level 2 - SMs */
 .accordion.level-2 {
   margin: 15px 20px;
-  border-left: 4px solid #4285f4;
+  /* border-left: 4px solid #4285f4; */
+  border-left: 4px solid #222fb9;
+    font-family: "Poppins", sans-serif;
+
 }
 
 .accordion.level-2 .accordion-header {
   /* background: linear-gradient(135deg, #4285f4 0%, #3367d6 100%); */
   font-size: 1.1rem;
   font-weight: 600;
+    font-family: "Poppins", sans-serif;
+
   padding-left: 40px;
 }
 
@@ -2842,7 +2845,9 @@ body {
 /* Level 3 - PSs */
 .accordion.level-3 {
   /* margin: 15px 40px; */
-  border-left: 4px solid #222fb9;
+  border-left: 4px solid #4285f4;
+    font-family: "Poppins", sans-serif;
+
 }
 
 /* .accordion.level-3 .accordion-header {
@@ -2857,7 +2862,13 @@ body {
 } */
 /* PS Accordion (Level 3) */
 .accordion.level-3 .accordion-header {
-  background: linear-gradient(135deg, #cfe8fc 0%, #a0cfff 100%); /* lighter gradient */
+  background: linear-gradient(
+    135deg,
+    #cfe8fc 0%,
+    #a0cfff 100%
+  ); /* lighter gradient */
+    font-family: "Poppins", sans-serif;
+
   font-size: 1rem;
   font-weight: 500;
   padding-left: 60px;
@@ -2867,7 +2878,11 @@ body {
 }
 
 .accordion.level-3 .accordion-header:hover {
-  background: linear-gradient(135deg, #b6dcf8 0%, #87c5f5 100%); /* slightly darker on hover */
+  background: linear-gradient(
+    135deg,
+    #b6dcf8 0%,
+    #87c5f5 100%
+  ); /* slightly darker on hover */
   cursor: pointer;
 }
 
@@ -3247,7 +3262,6 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-
 /* Level 1 - Dealers */
 .accordion.level-1 .accordion-header {
   /* 🔴 Removed fixed background so Angular dynamic colors can apply */
@@ -3256,6 +3270,8 @@ body {
   font-weight: 700;
   color: #003366; /* keep text color */
   border: 1px solid #b3d4ff;
+    font-family: "Poppins", sans-serif;
+
 }
 
 .accordion.level-1 .accordion-header:hover {
@@ -3265,7 +3281,11 @@ body {
 /* Level 2 - SMs */
 .accordion.level-2 {
   margin: 15px 20px;
-  border-left: 4px solid #4285f4;
+  border-left: 4px solid #222fb9;
+    font-family: "Poppins", sans-serif;
+
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
 }
 
 .accordion.level-2 .accordion-header {
@@ -3275,16 +3295,12 @@ body {
   padding-left: 40px;
 }
 
-
-
 /* Level 3 - PSs */
 .accordion.level-3 {
   /* margin: 15px 40px; */
-  border-left: 4px solid #222fb9;
+  border-left: 4px solid #4285f4;
 }
 /*  */
-
-
 
 .accordion-header {
   padding: 20px 30px;
@@ -3326,20 +3342,19 @@ body {
 .accordion-content {
   max-height: 0;
   overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 
   transition: max-height 0.4s ease;
 
-  /* 🔴 Removed background so parent (dealer-block) dynamic color shows through */
-  /* background: rgba(255, 255, 255, 0.95); */
+
   backdrop-filter: blur(10px);
 }
 
 .accordion-content.active {
   max-height: 5000px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
+
 
 .content-wrapper {
   padding: 30px;
@@ -3601,12 +3616,12 @@ body {
 .level-indicator {
   display: inline-block;
   padding: 3px;
-  background-color: #ffffff;  /* white bg */
-  border: 2px solid #222fb9;  /* blue border */
-  border-radius: 15px;        /* rounded corners */
-  font-size:12px;
+  background-color: #ffffff; /* white bg */
+  border: 2px solid #222fb9; /* blue border */
+  border-radius: 15px; /* rounded corners */
+  font-size: 12px;
   font-weight: 600;
-  color: #222fb9;             /* text color */
+  color: #222fb9; /* text color */
 }
 
 .kpi-card:hover {
@@ -3629,11 +3644,11 @@ body {
   .kpi-card {
     padding: 12px 8px; /* Reduce padding */
   }
-  
+
   .kpi-value {
     font-size: 1.5rem; /* Slightly smaller font */
   }
-  
+
   .kpi-label {
     font-size: 0.75rem; /* Smaller label */
   }
@@ -3643,15 +3658,15 @@ body {
   .kpi-grid {
     gap: 8px; /* Reduce gap between cards */
   }
-  
+
   .kpi-card {
     padding: 10px 6px;
   }
-  
+
   .kpi-value {
     font-size: 1.3rem;
   }
-  
+
   .kpi-label {
     font-size: 0.7rem;
   }
@@ -3681,10 +3696,11 @@ body {
 .dealer-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #ffffff; /* White background */
+  /* background-color: #ffffff; White background */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft box shadow */
   border-radius: 8px;
   overflow: hidden;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   margin-top: 15px;
   font-family: Arial, sans-serif;
 }

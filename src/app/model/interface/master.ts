@@ -192,7 +192,10 @@ export interface Dealer {
   cancellations: number;
   orders: number;
   net_orders: number;
+  lostEnquiries: number;
   retail: number;
+  overdueFollowups: number;
+  upComingFollowups:number;
   callLogs: CallLogs;
   sm_list: SM[];
 }

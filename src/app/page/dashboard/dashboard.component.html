@@ -49,14 +49,14 @@
           margin-bottom: 20px; /* space below pills before cards */
           width: max-content;  /* so the pill container fits contents */
         ">
-          <!-- <button *ngFor="let option of ['MTD', 'QTD', 'YTD']" (click)="onFilterChange(option)"
+        <!-- <button *ngFor="let option of ['MTD', 'QTD', 'YTD']" (click)="onFilterChange(option)"
             [ngClass]="{ 'pill-active': selectedFilter === option }" class="pill-button">
             {{ option }}
           </button> -->
-          <button *ngFor="let option of filterOptions" (click)="onFilterChange(option)"
-            [ngClass]="{ 'pill-active': selectedFilter === option }" class="pill-button">
-            {{ option }}
-          </button>
+        <button *ngFor="let option of filterOptions" (click)="onFilterChange(option)"
+          [ngClass]="{ 'pill-active': selectedFilter === option }" class="pill-button">
+          {{ option }}
+        </button>
 
       </div>
 
@@ -116,108 +116,116 @@
       </div>
 
       <!-- Dealers List -->
-<!-- Dealers List -->
-  <div class="dashboard-container" style="background-color:transparent !important">
-    <div class="accordion level-1">
+      <!-- Dealers List -->
+      <div class="dashboard-container" style="background-color:transparent !important">
+        <div class="accordion level-1">
 
-      <!-- Loop starts -->
-      <!-- <div *ngFor="let dealer of dealers; let i = index" class="dealer-block"
+          <!-- Loop starts -->
+          <!-- <div *ngFor="let dealer of dealers; let i = index" class="dealer-block"
         [style.backgroundColor]="dealerColors[i % dealerColors.length]"> -->
-<div *ngFor="let dealer of paginatedDealerskpi; let i = index" class="dealer-block"
-        [style.backgroundColor]="dealerColors[i % dealerColors.length]"> 
+          <div *ngFor="let dealer of paginatedDealerskpi; let i = index" class="dealer-block"
+            [style.backgroundColor]="dealerColors[i % dealerColors.length]">
 
-        <!-- Dealer header -->
-      <div class="accordion-header" (click)="toggleDealerSMs(dealer.dealer_id)">
-        <span>
-          <span class="level-indicator">DEALER</span>
-          {{ dealer.dealer_name }}
-        </span>
-        <button class="accordion-toggle">
-          {{ selectedDealerId === dealer.dealer_id ? '▲' : '▼' }}
-        </button>
-      </div>
-
-        <!-- Dealer KPIs -->
-  <div class="accordion-content" [ngClass]="{ 'active': selectedDealerId === dealer.dealer_id }">
-          <div class="content-wrapper">
-            <div class="kpi-grid">
-              <div class="kpi-card">
-                <div class="kpi-value">{{ dealer.enquiries }}</div>
-                <div class="kpi-label">Enquiries</div>
-              </div>
-              <div class="kpi-card">
-                <div class="kpi-value">{{ dealer.testDrives }}</div>
-                <div class="kpi-label">Test Drives</div>
-              </div>
-              <!-- <div class="kpi-card">
-                <div class="kpi-value">{{ dealer.lostLeads }}</div>
-                <div class="kpi-label">Lost Leads</div>
-              </div> -->
-              <div class="kpi-card">
-                <div class="kpi-value">{{ dealer.orders }}</div>
-                <div class="kpi-label">Orders</div>
-              </div>
-              <div class="kpi-card">
-                <div class="kpi-value">{{ dealer.cancellations }}</div>
-                <div class="kpi-label">Cancellations</div>
-              </div>
-              <div class="kpi-card">
-                <div class="kpi-value">{{ dealer.net_orders }}</div>
-                <div class="kpi-label">Net Orders</div>
-              </div>
-              <div class="kpi-card">
-                <div class="kpi-value">{{ dealer.retail }}</div>
-                <div class="kpi-label">Retail</div>
-              </div>
+            <!-- Dealer header -->
+            <div class="accordion-header" (click)="toggleDealerSMs(dealer.dealer_id)">
+              <span>
+                <span class="level-indicator">DEALER</span>
+                {{ dealer.dealer_name }}
+              </span>
+              <button class="accordion-toggle">
+                {{ selectedDealerId === dealer.dealer_id ? '▲' : '▼' }}
+              </button>
             </div>
-          </div>
+
+            <!-- Dealer KPIs -->
+            <div class="accordion-content" [ngClass]="{ 'active': selectedDealerId === dealer.dealer_id }">
+              <div class="content-wrapper">
+                <div class="kpi-grid">
+                  <div class="kpi-card">
+                    <div class="kpi-value">{{ dealer.enquiries }}</div>
+                    <div class="kpi-label">Enquiries</div>
+                  </div>
+                  <div class="kpi-card">
+                    <div class="kpi-value">{{ dealer.testDrives }}</div>
+                    <div class="kpi-label">Test Drives</div>
+                  </div>
+                  <div class="kpi-card">
+                <div class="kpi-value">{{ dealer.lostEnquiries }}</div>
+                <div class="kpi-label">Lost Leads</div>
+              </div>
+                  <div class="kpi-card">
+                    <div class="kpi-value">{{ dealer.upComingFollowups }}</div>
+                    <div class="kpi-label">Upcoming Followups</div>
+                  </div>
+                  <div class="kpi-card">
+                    <div class="kpi-value">{{ dealer.overdueFollowups }}</div>
+                    <div class="kpi-label">Overdue Followups</div>
+                  </div>
+                  <div class="kpi-card">
+                    <div class="kpi-value">{{ dealer.orders }}</div>
+                    <div class="kpi-label">Orders</div>
+                  </div>
+                  <div class="kpi-card">
+                    <div class="kpi-value">{{ dealer.cancellations }}</div>
+                    <div class="kpi-label">Cancellations</div>
+                  </div>
+                  <div class="kpi-card">
+                    <div class="kpi-value">{{ dealer.net_orders }}</div>
+                    <div class="kpi-label">Net Orders</div>
+                  </div>
+                  <div class="kpi-card">
+                    <div class="kpi-value">{{ dealer.retail }}</div>
+                    <div class="kpi-label">Retail</div>
+                  </div>
+                </div>
+              </div>
 
 
-          <!-- 🔽 SM Loop under Dealer -->
-    <!-- 🔽 SM Loop under Dealer -->
-<!-- SM Loop under Dealer -->
-<div class="accordion level-2" *ngFor="let sm of dealerSMS[dealer.dealer_id]">
-  <div class="accordion-header" (click)="toggleSM(sm.sm_id, dealer.dealer_id)">
-    <span>
-      <span class="level-indicator">SM</span>
-      {{ sm.sm_name }}
-    </span>
-    <button class="accordion-toggle">
-      {{ activeSM === sm.sm_id ? '▲' : '▼' }}
-    </button>
-  </div>
+              <!-- 🔽 SM Loop under Dealer -->
+              <!-- 🔽 SM Loop under Dealer -->
+              <!-- SM Loop under Dealer -->
+              <div class="accordion level-2" *ngFor="let sm of dealerSMS[dealer.dealer_id]">
+                <div class="accordion-header" (click)="toggleSM(sm.sm_id, dealer.dealer_id)">
+                  <span>
+                    <span class="level-indicator">SM</span>
+                    {{ sm.sm_name }}
+                  </span>
+                  <button class="accordion-toggle">
+                    {{ activeSM === sm.sm_id ? '▲' : '▼' }}
+                  </button>
+                </div>
 
-  <!-- SM KPIs AND PS sections should be inside the SAME accordion-content -->
-  <div class="accordion-content sm-content" [ngClass]="{ 'active': activeSM === sm.sm_id }">
-    <div class="content-wrapper">
-      <!-- SM KPI Grid -->
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-value">{{ sm.enquiries }}</div>
-          <div class="kpi-label">Enquiries</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-value">{{ sm.testDrives }}</div>
-          <div class="kpi-label">Test Drives</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-value">{{ sm.orders }}</div>
-          <div class="kpi-label">Orders</div>
-        </div>
-      </div>
+                <!-- SM KPIs AND PS sections should be inside the SAME accordion-content -->
+                <div class="accordion-content sm-content" [ngClass]="{ 'active': activeSM === sm.sm_id }">
+                  <div class="content-wrapper">
+                    <!-- SM KPI Grid -->
+                    <div class="kpi-grid">
+                      <div class="kpi-card">
+                        <div class="kpi-value">{{ sm.enquiries }}</div>
+                        <div class="kpi-label">Enquiries</div>
+                      </div>
+                      <div class="kpi-card">
+                        <div class="kpi-value">{{ sm.testDrives }}</div>
+                        <div class="kpi-label">Test Drives</div>
+                      </div>
+                      <div class="kpi-card">
+                        <div class="kpi-value">{{ sm.orders }}</div>
+                        <div class="kpi-label">Orders</div>
+                      </div>
+                    </div>
 
-      <!-- ✅ PS Loop should be INSIDE the SM's accordion content -->
-      <div class="accordion level-3" *ngFor="let ps of psData[sm.sm_id]">
-        <div class="accordion-header" (click)="togglePS(ps.ps_id)">
-          <span>
-            <span class="level-indicator">PS</span>
-            {{ ps.ps_name }}
-          </span>
-          <button class="accordion-toggle">
-            {{ activePS === ps.ps_id ? '▲' : '▼' }}
-          </button>
-        </div>
-        <!-- <div class="accordion level-3" *ngFor="let ps of psData[sm.sm_id]">
+                    <!-- ✅ PS Loop should be INSIDE the SM's accordion content -->
+                    <div class="accordion level-3" *ngFor="let ps of psData[sm.sm_id]">
+                      <div class="accordion-header" (click)="togglePS(ps.ps_id)">
+                        <span>
+                          <span class="level-indicator">PS</span>
+                          {{ ps.ps_name }}
+                        </span>
+                        <button class="accordion-toggle">
+                          {{ activePS === ps.ps_id ? '▲' : '▼' }}
+                        </button>
+                      </div>
+                      <!-- <div class="accordion level-3" *ngFor="let ps of psData[sm.sm_id]">
           <div class="accordion-header" (click)="togglePS(ps.ps_id)">
             <span>
               <span class="level-indicator">PS</span>
@@ -228,93 +236,93 @@
             </button>
           </div> -->
 
-        <div class="accordion-content" [ngClass]="{ 'active': activePS === ps.ps_id }">
-          <div class="content-wrapper">
-            <div class="kpi-grid">
-              <div class="kpi-card">
-                <div class="kpi-value">{{ ps.enquiries }}</div>
-                <div class="kpi-label">Enquiries</div>
+                      <div class="accordion-content" [ngClass]="{ 'active': activePS === ps.ps_id }">
+                        <div class="content-wrapper">
+                          <div class="kpi-grid">
+                            <div class="kpi-card">
+                              <div class="kpi-value">{{ ps.enquiries }}</div>
+                              <div class="kpi-label">Enquiries</div>
+                            </div>
+                            <div class="kpi-card">
+                              <div class="kpi-value">{{ ps.testDrives }}</div>
+                              <div class="kpi-label">Test Drives</div>
+                            </div>
+                            <div class="kpi-card">
+                              <div class="kpi-value">{{ ps.orders }}</div>
+                              <div class="kpi-label">Orders</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- End PS Loop -->
+
+                  </div>
+                </div>
               </div>
-              <div class="kpi-card">
-                <div class="kpi-value">{{ ps.testDrives }}</div>
-                <div class="kpi-label">Test Drives</div>
-              </div>
-              <div class="kpi-card">
-                <div class="kpi-value">{{ ps.orders }}</div>
-                <div class="kpi-label">Orders</div>
-              </div>
+
+
+
+
+
             </div>
           </div>
         </div>
-      </div>
-      <!-- End PS Loop -->
-
-    </div>
-  </div>
-</div>
-  
-
-    
-
-      
-  </div>
-      </div>
-    </div>
-    <!-- <div class="pagination-controls" style="margin-top: 20px; text-align:center;">
+        <!-- <div class="pagination-controls" style="margin-top: 20px; text-align:center;">
       <button (click)="prevPage()" [disabled]="currentPage === 1">Prev</button>
       <span>Page {{ currentPage }} of {{ totalPagesdealer }}</span>
       <button (click)="nextPage()" [disabled]="currentPage === totalPagesdealer">Next</button>
     </div>
   </div> -->
-<div class="pagination-wrapper" style="background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+        <div class="pagination-wrapper" style="background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
             padding: 15px 20px; border-radius: 10px; display: flex; 
             justify-content: space-between; align-items: center; margin-top: 20px;">
 
-  <!-- Left side: showing entries -->
-  <div class="entries-info" style="font-size: 14px; color: #333;">
-    Showing {{ startEntry }} to {{ endEntry }} of {{ dealers.length }} entries
-  </div>
+          <!-- Left side: showing entries -->
+          <div class="entries-info" style="font-size: 14px; color: #333;">
+            Showing {{ startEntry }} to {{ endEntry }} of {{ dealers.length }} entries
+          </div>
 
-  <!-- Right side: pagination buttons -->
-  <div class="pagination-buttons" style="display: flex; gap: 10px; align-items: center;">
-    <button (click)="prevPage()" [disabled]="currentPage === 1"
-      style="padding: 6px 12px; border: none; background-color: #222fb9; color: #fff; border-radius: 5px; cursor: pointer;"
-      [ngStyle]="{'opacity': currentPage === 1 ? 0.5 : 1}">
-      Prev
-    </button>
+          <!-- Right side: pagination buttons -->
+          <div class="pagination-buttons" style="display: flex; gap: 10px; align-items: center;">
+            <button (click)="prevPage()" [disabled]="currentPage === 1"
+              style="padding: 6px 12px; border: none; background-color: #222fb9; color: #fff; border-radius: 5px; cursor: pointer;"
+              [ngStyle]="{'opacity': currentPage === 1 ? 0.5 : 1}">
+              Prev
+            </button>
 
-    <span style="font-size: 14px; color: #333;">Page {{ currentPage }} of {{ totalPagesdealer }}</span>
+            <span style="font-size: 14px; color: #333;">Page {{ currentPage }} of {{ totalPagesdealer }}</span>
 
-    <button (click)="nextPage()" [disabled]="currentPage === totalPagesdealer"
-      style="padding: 6px 12px; border: none; background-color: #222fb9; color: #fff; border-radius: 5px; cursor: pointer;"
-      [ngStyle]="{'opacity': currentPage === totalPagesdealer ? 0.5 : 1}">
-      Next
-    </button>
-  </div>
+            <button (click)="nextPage()" [disabled]="currentPage === totalPagesdealer"
+              style="padding: 6px 12px; border: none; background-color: #222fb9; color: #fff; border-radius: 5px; cursor: pointer;"
+              [ngStyle]="{'opacity': currentPage === totalPagesdealer ? 0.5 : 1}">
+              Next
+            </button>
+          </div>
 
-</div>
-
-
-    </div>
+        </div>
 
 
-    </div>
       </div>
 
-    
+
+    </div>
+  </div>
+
+
 
   <!-- ANALYSIS TAB CONTENT -->
   <div *ngIf="selectedSection === 'callAnalysis'" class="dashboard-content content-section active">
     <!-- Analysis content will go here -->
-<div class="dashboard-container">
-
- 
+    <div class="dashboard-container">
 
 
-  <!-- HOME TAB CONTENT -->
-  <!-- <div *ngIf="selectedSection === 'callanalysis'" class="content-section active"> -->
 
-    <div style="
+
+      <!-- HOME TAB CONTENT -->
+      <!-- <div *ngIf="selectedSection === 'callanalysis'" class="content-section active"> -->
+
+      <div style="
           background-color: white;
           display: inline-flex;
           gap: 6px;
@@ -327,93 +335,93 @@
           margin-bottom: 20px; /* space below pills before cards */
           width: max-content;  /* so the pill container fits contents */
         ">
-      <!-- <button *ngFor="let option of ['MTD', 'QTD', 'YTD']" (click)="onFilterChange(option)"
+        <!-- <button *ngFor="let option of ['MTD', 'QTD', 'YTD']" (click)="onFilterChange(option)"
             [ngClass]="{ 'pill-active': selectedFilter === option }" class="pill-button">
             {{ option }}
           </button> -->
-      <button *ngFor="let option of filterOptions" (click)="onFilterChange(option)"
-        [ngClass]="{ 'pill-active': selectedFilter === option }" class="pill-button">
-        {{ option }}
-      </button>
+        <button *ngFor="let option of filterOptions" (click)="onFilterChange(option)"
+          [ngClass]="{ 'pill-active': selectedFilter === option }" class="pill-button">
+          {{ option }}
+        </button>
 
-    </div>
+      </div>
 
-    <!-- Metrics Section -->
-    <div class="dashboard-container">
-      
-    </div>
+      <!-- Metrics Section -->
+      <div class="dashboard-container">
 
-    <!-- Dealers List -->
-    <!-- Dealers List -->
-    <div class="dashboard-container" style="background-color:transparent !important">
-      <div class="accordion level-1">
+      </div>
 
-        <!-- Loop starts -->
-        <!-- <div *ngFor="let dealer of dealers; let i = index" class="dealer-block"
+      <!-- Dealers List -->
+      <!-- Dealers List -->
+      <div class="dashboard-container" style="background-color:transparent !important">
+        <div class="accordion level-1">
+
+          <!-- Loop starts -->
+          <!-- <div *ngFor="let dealer of dealers; let i = index" class="dealer-block"
         [style.backgroundColor]="dealerColors[i % dealerColors.length]"> -->
-        <div *ngFor="let dealer of paginatedDealerskpi; let i = index" class="dealer-block"
-          [style.backgroundColor]="dealerColors[i % dealerColors.length]">
+          <div *ngFor="let dealer of paginatedDealerskpi; let i = index" class="dealer-block"
+            [style.backgroundColor]="dealerColors[i % dealerColors.length]">
 
-          <!-- Dealer header -->
-          <div class="accordion-header" (click)="toggleDealerSMs(dealer.dealer_id)">
-            <span>
-              <span class="level-indicator">DEALER</span>
-              {{ dealer.dealer_name }}
-            </span>
-            <button class="accordion-toggle">
-              {{ selectedDealerId === dealer.dealer_id ? '▲' : '▼' }}
-            </button>
-          </div>
+            <!-- Dealer header -->
+            <div class="accordion-header" (click)="toggleDealerSMs(dealer.dealer_id)">
+              <span>
+                <span class="level-indicator">DEALER</span>
+                {{ dealer.dealer_name }}
+              </span>
+              <button class="accordion-toggle">
+                {{ selectedDealerId === dealer.dealer_id ? '▲' : '▼' }}
+              </button>
+            </div>
 
-          <!-- Dealer KPIs -->
-          <div class="accordion-content" [ngClass]="{ 'active': selectedDealerId === dealer.dealer_id }">
-          <div class="content-wrapper">
-            <table class="dealer-table">
-              <thead>
-                <tr>
-                 
-                  <th>Outgoing Calls</th>
-                  <th>Incoming Calls</th>
-                  <th>Connected Calls</th>
-                  <th>Declined Calls</th>
-                  <th>Call Duration</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                 
-                  <td>{{ dealer.callLogs.outgoing }}</td>
-                  <td>{{ dealer.callLogs.incoming }}</td>
-                  <td>{{ dealer.callLogs.connected }}</td>
-                  <td>{{ dealer.callLogs.declined }}</td>
-                  <td>{{ dealer.callLogs.duration || '-' }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+            <!-- Dealer KPIs -->
+            <div class="accordion-content" [ngClass]="{ 'active': selectedDealerId === dealer.dealer_id }">
+              <div class="content-wrapper">
+                <table class="dealer-table">
+                  <thead>
+                    <tr>
 
-            
+                      <th>Outgoing Calls</th>
+                      <th>Incoming Calls</th>
+                      <th>Connected Calls</th>
+                      <th>Declined Calls</th>
+                      <th>Call Duration</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
 
-
-            <!-- 🔽 SM Loop under Dealer -->
-            <!-- 🔽 SM Loop under Dealer -->
-            <!-- SM Loop under Dealer -->
-            <div class="accordion level-2" *ngFor="let sm of dealerSMS[dealer.dealer_id]">
-              <div class="accordion-header" (click)="toggleSM(sm.sm_id, dealer.dealer_id)">
-                <span>
-                  <span class="level-indicator">SM</span>
-                  {{ sm.sm_name }}
-                </span>
-                <button class="accordion-toggle">
-                  {{ activeSM === sm.sm_id ? '▲' : '▼' }}
-                </button>
+                      <td>{{ dealer.callLogs.outgoing }}</td>
+                      <td>{{ dealer.callLogs.incoming }}</td>
+                      <td>{{ dealer.callLogs.connected }}</td>
+                      <td>{{ dealer.callLogs.declined }}</td>
+                      <td>{{ dealer.callLogs.duration || '-' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
 
-              <!-- SM KPIs AND PS sections should be inside the SAME accordion-content -->
-              <div class="accordion-content" [ngClass]="{ 'active': activeSM === sm.sm_id }">
-                <div class="content-wrapper">
-                  <!-- SM KPI Grid -->
-                  <!-- <div class="kpi-grid">
+
+
+
+              <!-- 🔽 SM Loop under Dealer -->
+              <!-- 🔽 SM Loop under Dealer -->
+              <!-- SM Loop under Dealer -->
+              <div class="accordion level-2" *ngFor="let sm of dealerSMS[dealer.dealer_id]">
+                <div class="accordion-header" (click)="toggleSM(sm.sm_id, dealer.dealer_id)">
+                  <span>
+                    <span class="level-indicator">SM</span>
+                    {{ sm.sm_name }}
+                  </span>
+                  <button class="accordion-toggle">
+                    {{ activeSM === sm.sm_id ? '▲' : '▼' }}
+                  </button>
+                </div>
+
+                <!-- SM KPIs AND PS sections should be inside the SAME accordion-content -->
+                <div class="accordion-content" [ngClass]="{ 'active': activeSM === sm.sm_id }">
+                  <div class="content-wrapper">
+                    <!-- SM KPI Grid -->
+                    <!-- <div class="kpi-grid">
                     <div class="kpi-card">
                       <div class="kpi-value">{{ sm.enquiries }}</div>
                       <div class="kpi-label">Enquiries</div>
@@ -427,45 +435,47 @@
                       <div class="kpi-label">Orders</div>
                     </div>
                   </div> -->
-                  <!-- SM Table -->
-                  <div class="content-wrapper">
-                    <table class="sm-table">
-                      <thead>
-                        <tr>
-                        
-                          <th>Outgoing Calls</th>
-                          <th>Incoming Calls</th>
-                          <th>Connected Calls</th>
-                          <th>Declined Calls</th>
-                          <th>Call Duration</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                        
-                          <td>{{ sm.callLogs.outgoing }}</td>
-                          <td>{{ sm.callLogs.incoming }}</td>
-                          <td>{{ sm.callLogs.connected }}</td>
-                          <td>{{ sm.callLogs.declined }}</td>
-                          <td>{{ sm.callLogs.duration || '-' }}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                    <!-- SM Table -->
+                    <!-- <div class="content-wrapper">
+                    <table class="sm-table"> -->
+                    <div class="content-wrapper">
+                      <table class="dealer-table">
+                        <thead>
+                          <tr>
 
+                            <th>Outgoing Calls</th>
+                            <th>Incoming Calls</th>
+                            <th>Connected Calls</th>
+                            <th>Declined Calls</th>
+                            <th>Call Duration</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
 
-                  <!-- ✅ PS Loop should be INSIDE the SM's accordion content -->
-                  <div class="accordion level-3" *ngFor="let ps of psData[sm.sm_id]">
-                    <div class="accordion-header" (click)="togglePS(ps.ps_id)">
-                      <span>
-                        <span class="level-indicator">PS</span>
-                        {{ ps.ps_name }}
-                      </span>
-                      <button class="accordion-toggle">
-                        {{ activePS === ps.ps_id ? '▲' : '▼' }}
-                      </button>
+                            <td>{{ sm.callLogs.outgoing }}</td>
+                            <td>{{ sm.callLogs.incoming }}</td>
+                            <td>{{ sm.callLogs.connected }}</td>
+                            <td>{{ sm.callLogs.declined }}</td>
+                            <td>{{ sm.callLogs.duration || '-' }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
-                    <!-- <div class="accordion level-3" *ngFor="let ps of psData[sm.sm_id]">
+
+
+                    <!-- ✅ PS Loop should be INSIDE the SM's accordion content -->
+                    <div class="accordion level-3" *ngFor="let ps of psData[sm.sm_id]">
+                      <div class="accordion-header" (click)="togglePS(ps.ps_id)">
+                        <span>
+                          <span class="level-indicator">PS</span>
+                          {{ ps.ps_name }}
+                        </span>
+                        <button class="accordion-toggle">
+                          {{ activePS === ps.ps_id ? '▲' : '▼' }}
+                        </button>
+                      </div>
+                      <!-- <div class="accordion level-3" *ngFor="let ps of psData[sm.sm_id]">
           <div class="accordion-header" (click)="togglePS(ps.ps_id)">
             <span>
               <span class="level-indicator">PS</span>
@@ -476,8 +486,8 @@
             </button>
           </div> -->
 
-                    <div class="accordion-content" [ngClass]="{ 'active': activePS === ps.ps_id }">
-                      <!-- <div class="content-wrapper">
+                      <div class="accordion-content" [ngClass]="{ 'active': activePS === ps.ps_id }">
+                        <!-- <div class="content-wrapper">
                         <div class="kpi-grid">
                           <div class="kpi-card">
                             <div class="kpi-value">{{ ps.enquiries }}</div>
@@ -493,87 +503,89 @@
                           </div>
                         </div>
                       </div> -->
-                      <!-- PS Table -->
-                      <div class="content-wrapper">
-                        <table class="ps-table">
-                          <thead>
-                            <tr>
-                           
-                              <th>Outgoing Calls</th>
-                              <th>Incoming Calls</th>
-                              <th>Connected Calls</th>
-                              <th>Declined Calls</th>
-                              <th>Call Duration</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                            
-                              <td>{{ ps.callLogs.outgoing }}</td>
-                              <td>{{ ps.callLogs.incoming }}</td>
-                              <td>{{ ps.callLogs.connected }}</td>
-                              <td>{{ ps.callLogs.declined }}</td>
-                              <td>{{ ps.callLogs.duration || '-' }}</td>
-                            </tr>
-                          </tbody>
-                        </table>
+                        <!-- PS Table -->
+                        <!-- <div class="content-wrapper">
+                        <table class="ps-table"> -->
+                        <div class="content-wrapper">
+                          <table class="dealer-table">
+                            <thead>
+                              <tr>
+
+                                <th>Outgoing Calls</th>
+                                <th>Incoming Calls</th>
+                                <th>Connected Calls</th>
+                                <th>Declined Calls</th>
+                                <th>Call Duration</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+
+                                <td>{{ ps.callLogs.outgoing }}</td>
+                                <td>{{ ps.callLogs.incoming }}</td>
+                                <td>{{ ps.callLogs.connected }}</td>
+                                <td>{{ ps.callLogs.declined }}</td>
+                                <td>{{ ps.callLogs.duration || '-' }}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+
                       </div>
-
                     </div>
-                  </div>
-                  <!-- End PS Loop -->
+                    <!-- End PS Loop -->
 
+                  </div>
                 </div>
               </div>
+
+
+
+
+
             </div>
-
-
-
-
-
           </div>
         </div>
-      </div>
-      <!-- <div class="pagination-controls" style="margin-top: 20px; text-align:center;">
+        <!-- <div class="pagination-controls" style="margin-top: 20px; text-align:center;">
       <button (click)="prevPage()" [disabled]="currentPage === 1">Prev</button>
       <span>Page {{ currentPage }} of {{ totalPagesdealer }}</span>
       <button (click)="nextPage()" [disabled]="currentPage === totalPagesdealer">Next</button>
     </div>
   </div> -->
-      <div class="pagination-wrapper" style="background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+        <div class="pagination-wrapper" style="background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
             padding: 15px 20px; border-radius: 10px; display: flex; 
             justify-content: space-between; align-items: center; margin-top: 20px;">
 
-        <!-- Left side: showing entries -->
-        <div class="entries-info" style="font-size: 14px; color: #333;">
-          Showing {{ startEntry }} to {{ endEntry }} of {{ dealers.length }} entries
+          <!-- Left side: showing entries -->
+          <div class="entries-info" style="font-size: 14px; color: #333;">
+            Showing {{ startEntry }} to {{ endEntry }} of {{ dealers.length }} entries
+          </div>
+
+          <!-- Right side: pagination buttons -->
+          <div class="pagination-buttons" style="display: flex; gap: 10px; align-items: center;">
+            <button (click)="prevPage()" [disabled]="currentPage === 1"
+              style="padding: 6px 12px; border: none; background-color: #222fb9; color: #fff; border-radius: 5px; cursor: pointer;"
+              [ngStyle]="{'opacity': currentPage === 1 ? 0.5 : 1}">
+              Prev
+            </button>
+
+            <span style="font-size: 14px; color: #333;">Page {{ currentPage }} of {{ totalPagesdealer }}</span>
+
+            <button (click)="nextPage()" [disabled]="currentPage === totalPagesdealer"
+              style="padding: 6px 12px; border: none; background-color: #222fb9; color: #fff; border-radius: 5px; cursor: pointer;"
+              [ngStyle]="{'opacity': currentPage === totalPagesdealer ? 0.5 : 1}">
+              Next
+            </button>
+          </div>
+
         </div>
 
-        <!-- Right side: pagination buttons -->
-        <div class="pagination-buttons" style="display: flex; gap: 10px; align-items: center;">
-          <button (click)="prevPage()" [disabled]="currentPage === 1"
-            style="padding: 6px 12px; border: none; background-color: #222fb9; color: #fff; border-radius: 5px; cursor: pointer;"
-            [ngStyle]="{'opacity': currentPage === 1 ? 0.5 : 1}">
-            Prev
-          </button>
-
-          <span style="font-size: 14px; color: #333;">Page {{ currentPage }} of {{ totalPagesdealer }}</span>
-
-          <button (click)="nextPage()" [disabled]="currentPage === totalPagesdealer"
-            style="padding: 6px 12px; border: none; background-color: #222fb9; color: #fff; border-radius: 5px; cursor: pointer;"
-            [ngStyle]="{'opacity': currentPage === totalPagesdealer ? 0.5 : 1}">
-            Next
-          </button>
-        </div>
 
       </div>
 
 
     </div>
-
-
   </div>
-</div>
 
 
   <!-- </div> -->
