@@ -58,6 +58,8 @@ export class DealerComponent implements OnInit {
   maxVisiblePages: number = 3;
   totalItems = 0;
   currentPage = 1;
+  originalFormValue: any;
+
   searchTerm: string = '';
   filteredDealers: any[] = []; // will hold the filtered user list
   paginatedDealers: any[] = []; // your current paginated users (already existing)
@@ -552,37 +554,72 @@ export class DealerComponent implements OnInit {
   //     }
   //   );
   // }
+  // THIS IS MY CODE
+  // onEdit(dealerId: string): void {
+  //   console.log('Edit button clicked. Dealer ID:', dealerId);
+  //   this.isEditMode = true;
+
+  //   this.masterSrv.getDealerById(dealerId).subscribe(
+  //     (res: SingleDealerResponse) => {
+  //       console.log('API Response:', res);
+
+  //       const dealer = res?.data?.dealer;
+  //       if (dealer) {
+  //         console.log('Dealer Found:', dealer);
+
+  //         // ✅ Assigning values correctly
+  //         this.dealerObj = {
+  //           ...dealer,
+  //           dealer_code: Number(dealer.dealer_code),
+  //         };
+
+  //         this.useForm.patchValue({
+  //           dealer_name: dealer.dealer_name,
+  //           dealer_code: Number(dealer.dealer_code),
+  //         });
+
+  //         this.isModalOpen = true; // ✅ Ensure modal is opened
+  //       } else {
+  //         this.toastr.error('Dealer data not found', 'Error');
+  //       }
+  //     },
+  //     (error) => {
+  //       this.toastr.error('Error fetching dealer details', 'Error');
+  //       console.error('Error fetching dealer:', error);
+  //     }
+  //   );
+  // }
+
+  // THIS IS GPT CODE FOR DISBALED EDIT NOT WROKING
   onEdit(dealerId: string): void {
     console.log('Edit button clicked. Dealer ID:', dealerId);
     this.isEditMode = true;
 
     this.masterSrv.getDealerById(dealerId).subscribe(
       (res: SingleDealerResponse) => {
-        console.log('API Response:', res);
-
         const dealer = res?.data?.dealer;
         if (dealer) {
-          console.log('Dealer Found:', dealer);
-
-          // ✅ Assigning values correctly
           this.dealerObj = {
             ...dealer,
             dealer_code: Number(dealer.dealer_code),
           };
 
+          // Patch values into form
           this.useForm.patchValue({
             dealer_name: dealer.dealer_name,
             dealer_code: Number(dealer.dealer_code),
           });
 
-          this.isModalOpen = true; // ✅ Ensure modal is opened
+          // ✅ Save original form values for change detection
+          this.originalFormValue = { ...this.useForm.value };
+
+          this.isModalOpen = true;
         } else {
           this.toastr.error('Dealer data not found', 'Error');
         }
       },
       (error) => {
         this.toastr.error('Error fetching dealer details', 'Error');
-        console.error('Error fetching dealer:', error);
       }
     );
   }

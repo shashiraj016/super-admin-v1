@@ -9,7 +9,8 @@
           <a href="javascript:void(0)" style="cursor: auto;color: #222fb9;">Users</a>
         </li>
         <li class="breadcrumb-item active">
-          <a href="javascript:void(0)" style="cursor: auto; font-weight: 400 !important; color: #6e7d8b;font-size:1rem;font-family: 'poppins', sans-serif;">Dealers</a>
+          <a href="javascript:void(0)"
+            style="cursor: auto; font-weight: 400 !important; color: #6e7d8b;font-size:1rem;font-family: 'poppins', sans-serif;">Dealers</a>
         </li>
       </ol>
     </div>
@@ -19,10 +20,10 @@
           class="btn btn-primary light btn-lg btn-block rounded shadow px-2 buttons">
           <i class="fa fa-plus mr-1"></i>
           Add Dealer</a> -->
-          <a style="cursor: pointer; color:  white !important;background-color: #222fb9;" (click)="openModal()"
-            class="btn light btn-lg btn-block rounded shadow px-2 buttons">
-            <i class="fa fa-plus mr-1"></i>Add Dealer
-          </a>
+        <a style="cursor: pointer; color:  white !important;background-color: #222fb9;" (click)="openModal()"
+          class="btn light btn-lg btn-block rounded shadow px-2 buttons">
+          <i class="fa fa-plus mr-1"></i>Add Dealer
+        </a>
       </div>
       <div class="col-xl-2 mb-4 mb-xl-0">
         <div class="media-body ml-1">
@@ -91,15 +92,13 @@
                   <td>{{ dealer.dealer_code }}</td>
                   <td>
                     <div class="d-flex">
-                  <a href="javascript:void(0);" class="btn shadow btn-xs sharp mr-1" (click)="onEdit(dealer.dealer_id)"
-                    style="background-color:#222fb9; color:white; border:2px solid #222fb9 ;">
-                    <i class="fa fa-pencil"></i>
-                  </a>
+                      <a href="javascript:void(0);" class="btn shadow btn-xs sharp mr-1"
+                        (click)="onEdit(dealer.dealer_id)"
+                        style="background-color:#222fb9; color:white; border:2px solid #222fb9 ;">
+                        <i class="fa fa-pencil"></i>
+                      </a>
 
-                      <!-- <a href="javascript:void(0);" class="btn btn-danger shadow btn-xs sharp delete-btn-ipad"
-                        (click)="openDeleteModal(dealer)">
-                        <i class="fa fa-trash"></i>
-                      </a> -->
+
                       <a href="javascript:void(0);" class="btn btn-danger shadow btn-xs sharp delete-btn-ipad"
                         (click)="openDeleteModal(dealer)">
                         <i class="fa fa-trash"></i>
@@ -239,24 +238,17 @@
 
 
       <div [formGroup]="useForm" class="form-group" style="margin-inline: 1em">
-        <label for="dealer_name" class="form-label">
+        <!-- <label for="dealer_name" class="form-label">
           Dealer Name<span style="color: red;">*</span>
+        </label> -->
+        <label for="dealer_name" class="form-label ">
+          Dealer Name<span *ngIf="!isEditMode" style="color: red;">*</span>
         </label>
-        <!-- <input
-            class="form-control form-control-lg"
-            type="text"
-            placeholder="Dealer Name"
-            formControlName="dealer_name"
-            [(ngModel)]="dealerObj.dealer_name"
-            [ngClass]="{
-              'is-invalid':
-                useForm.get('dealer_name')?.touched &&
-                useForm.get('dealer_name')?.invalid
-            }"
-          /> -->
 
-        <input class="form-control form-control-lg" type="text" placeholder="Dealer Name" 
-          formControlName="dealer_name"  [ngClass]="{
+
+
+        <input class="form-control form-control-lg editable-input" type="text" placeholder="Dealer Name"
+          formControlName="dealer_name" [ngClass]="{
               'is-invalid':
                 useForm.get('dealer_name')?.touched &&
                 useForm.get('dealer_name')?.invalid
@@ -270,8 +262,13 @@
       </div>
 
       <div [formGroup]="useForm" class="form-group" style="margin-inline: 1em">
+        <!-- <label for="dealer_code" class="form-label">
+          Dealer Code<span class="text-danger">*</span></label> -->
         <label for="dealer_code" class="form-label">
-          Dealer Code<span class="text-danger">*</span></label> <!-- <input
+          Dealer Code<span *ngIf="!isEditMode" class="text-danger">*</span>
+        </label>
+
+        <!-- <input
 
             class="form-control form-control-lg"
             type="text"
@@ -299,8 +296,8 @@
             }"
             [readOnly]="!!dealerObj.dealer_id"
           /> -->
-        <input class="form-control form-control-lg " type="text" placeholder="Dealer Code" formControlName="dealer_code"
-        [ngClass]="{
+        <input class="form-control form-control-lg editable-input" type="text" placeholder="Dealer Code"
+          formControlName="dealer_code" [ngClass]="{
               'is-invalid':
                 useForm.get('dealer_code')?.touched &&
                 useForm.get('dealer_code')?.invalid
@@ -316,34 +313,61 @@
 
 
       <!-- model footer buttons  -->
-      <div class="modal-footer">
-      
 
-        <!-- model footer buttons  -->
-        <div class="modal-footer">
-          <!-- <ng-container *ngIf="dealerObj.dealer_id; else saveButton">
+
+      <!-- model footer buttons  -->
+      <div class="modal-footer">
+        <!-- <ng-container *ngIf="dealerObj.dealer_id; else saveButton">
           <button type="button" class="btn btn-outline-primary" data-dismiss="modal" (click)="onUpdate()"
             [disabled]="!isDealerNameChanged()">
             Edit
           </button>
         </ng-container> -->
-          <ng-container *ngIf="dealerObj?.dealer_id; else saveButton">
-            <button type="button" class="btn" data-dismiss="modal" (click)="onUpdate()"
-              [disabled]="!isFormChanged()" style="border:none">
-              Edit
-            </button>
-          </ng-container>
-          <button type="button" class="btn btn-outline-danger" data-dismiss="modal" (click)="closeModal()">
-            Close
+        <ng-container *ngIf="dealerObj?.dealer_id; else saveButton">
+          <button type="button" class="btn" data-dismiss="modal" (click)="onUpdate()" [disabled]="!isFormChanged()"
+            style="border-color:#222fb9">
+            Edit
           </button>
-          <ng-template #saveButton>
-            <button type="button" class="btn btn-outline-primary" (click)="onSave()"
-              [attr.data-dismiss]="useForm.valid ? 'modal' : null">
-              save
-            </button>
-          </ng-template>
-        </div>
+        </ng-container>
+
+        <!-- <ng-container *ngIf="dealerObj?.dealer_id; else saveButton">
+          <button type="button" class="btn edit-btn" data-dismiss="modal" id="editButton" (click)="onUpdate()" [disabled]="!isFormChanged()">
+            Edit
+          </button>
+        </ng-container> -->
+
+
+        <button type="button" class="btn btn-outline-danger" data-dismiss="modal" (click)="closeModal()">
+          Close
+        </button>
+        <ng-template #saveButton>
+          <button type="button" class="btn btn-outline-primary" (click)="onSave()"
+            [attr.data-dismiss]="useForm.valid ? 'modal' : null">
+            save
+          </button>
+        </ng-template>
       </div>
     </div>
   </div>
-  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputs = document.querySelectorAll('.editable-input');
+      const editButton = document.getElementById('editButton');
+
+      const initialValues = {};
+      inputs.forEach(input => {
+        initialValues[input.id] = input.value;
+        input.addEventListener('input', () => {
+          const isChanged = Array.from(inputs).some(input =>
+            input.value !== initialValues[input.id]
+          );
+          editButton.disabled = !isChanged;
+        });
+      });
+    });
+
+    function handleEditClick() {
+      // Optionally call Angular function via (click) in template if needed
+      console.log('Edit button clicked');
+    }
+  </script>

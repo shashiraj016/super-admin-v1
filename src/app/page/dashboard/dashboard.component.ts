@@ -30,6 +30,7 @@ import {
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { HeaderComponent } from '../../layout/header/header.component';
 import { ContextService } from '../../service/context.service';
+import { ApiResponse, Dealer } from '../../model/interface/master';
 // Register all chart components
 Chart.register(...registerables);
 Chart.register(
@@ -76,6 +77,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     rank: 2,
   //   },
   // ];
+
   dashboardMetrics: any = {
     totalLeads: 0,
     totalTestDrives: 0,
@@ -85,6 +87,31 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     netOrders: 0,
     retail: 0,
   };
+  // activeAccordion: number | null = null; // store which accordion is open
+  // dealers = [
+  //   {
+  //     dealer_name: 'Dealer 1',
+  //     sms: [
+  //       {
+  //         sm_name: 'SM 1',
+  //         ps: [{ ps_name: 'PS 1' }, { ps_name: 'PS 2' }],
+  //       },
+  //       {
+  //         sm_name: 'SM 2',
+  //         ps: [{ ps_name: 'PS 3' }],
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     dealer_name: 'Dealer 2',
+  //     sms: [
+  //       {
+  //         sm_name: 'SM 3',
+  //         ps: [{ ps_name: 'PS 4' }],
+  //       },
+  //     ],
+  //   },
+  // ];
 
   totalLeads = signal<number>(0);
   totalTestDrives = signal<number>(0);
@@ -103,14 +130,22 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   selectedDealer: any = null;
   ps1Data: any[] = [];
   ps2Data: any[] = [];
-  pageSize = 22; // or any number you want
-
+  pageSize = 20; // or any number you want
+  selectedSection: 'analysis' | 'callAnalysis' = 'analysis';
   ytdTestDrives = signal<number>(0);
+  loadingSM: boolean = false;
+  psData: { [smId: string]: any[] } = {};
 
   mtdOrders = signal<number>(0);
   qtdOrders = signal<number>(0);
   ytdOrders = signal<number>(0);
   selectedFilter: string = 'MTD'; // Default filter
+  dealerColors: string[] = [
+    '#e6f2ff', // light blue
+    '#f9f2ec', // light peach
+    '#eaf7ea', // light green
+    '#f3e8ff', // light purple
+  ];
 
   mtdLeads = signal<number>(0);
   qtdLeads = signal<number>(0);
@@ -125,11 +160,17 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // selectedOption: string = '';
   orderChange: number = 0;
   orderProgressValue: number = 0;
+  loadingPS = false; // Add this property in your component class
+  activeAccordion: string | null = null;
+
   orderStrokeColor: string = '#4CAF50';
   currentTestDrives: number = 0;
   previousTestDrives: number = 0;
   selectedDealerId: string | null = null;
   dealerSMS: { [key: string]: any[] } = {};
+  salesManagers: { [dealerId: string]: any[] } = {}; // Store SMs by dealer ID
+  loadingSMs: { [dealerId: string]: boolean } = {}; // Loading state for SMs
+
   orders: number = 0;
   currentOrders: number = 0;
   previousOrders: number = 0;
@@ -138,6 +179,15 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   dashboardData: any = {}; // empty at start
   leads: number = 0;
   selectedSM: any = null;
+  isSidebarOpen = true;
+  // loadingPS: boolean = false;
+  // Current page tracking properties
+  currentDealerPage: number = 1;
+  // totalDealerPages: number = 5;
+  dealersPerPage: number = 5;
+  expandedItems: { [key: string]: boolean } = {};
+  // In your component
+  filterOptions = ['MTD', 'QTD', 'YTD'] as const; // 'as const' makes type readonly ['MTD','QTD','YTD']
 
   // testDrives: number = 0;
   // orders: number = 0;
@@ -150,6 +200,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   chart: any; // Reference to the chart
   miniChart: any;
   hoveredPS: number | null = null;
+  activeDealer: string | null = null;
+  activeSM: string | null = null;
+  activePS: string | null = null;
 
   graphPath: string = ''; // To store the SVG path data
   leadsChange: number = 0;
@@ -167,9 +220,10 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   activeFilter: 'MTD' | 'QTD' | 'YTD' = 'MTD'; // set default selection
   dealers: any[] = []; // Full dealer list from API
   currentdealerPage: number = 1;
-  itemsPerdealerPage: number = 6;
+  itemsPerdealerPage: number = 5;
   // selectedOption: string = 'leads'; // Default selected option to show 'leads' data
   maxValue: number = 0;
+  selectedFilterPS: 'MTD' | 'QTD' | 'YTD' = 'MTD'; // default
 
   // currentLeads: number = 0;
   // previousLeads: number = 0;
@@ -186,7 +240,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   data: any; // To hold your data
   apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
 
-  dealersData: any[] = []; // Array to hold the dealer data
+  // dealersData: any[] = []; // Array to hold the dealer data
   // ngOnInit() {
   //   this.selectedFilter = 'MTD';
   //   this.fetchDashboardData('MTD');
@@ -216,7 +270,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.selectedFilter = 'MTD';
     this.fetchDashboardData('MTD');
 
-    this.updateDataBasedOnSelection();
+    // this.updateDataBasedOnSelection();
     this.applyFilter(this.selectedFilter);
 
     setTimeout(() => {
@@ -229,6 +283,23 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (value > 0) return '#4CAF50'; // green
     if (value < 0) return '#F44336'; // red
     return '#9E9E9E'; // grey
+  }
+  // Add this method to your component class
+  getDealerBackground(index: number): string {
+    const backgrounds = [
+      'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // Purple to Blue
+      'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', // Pink to Red
+      'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', // Light Blue to Cyan
+      'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', // Green to Turquoise
+      'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', // Pink to Yellow
+      'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', // Mint to Pink
+      'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)', // Coral to Light Pink
+      'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // Purple (repeats)
+      'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', // Pink (repeats)
+      'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', // Blue (repeats)
+    ];
+
+    return backgrounds[index % backgrounds.length];
   }
 
   // get progressValue(): number {
@@ -244,7 +315,19 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
   onFilterClick(filter: 'MTD' | 'QTD' | 'YTD') {}
   // ✅ Dynamically updates values
-  onFilterChange(filter: string): void {
+  // onFilterChange(filter: string): void {
+  //   this.selectedFilter = filter;
+
+  //   // Fetch top cards (KPI data)
+  //   this.fetchDashboardDataForTopCards(filter);
+
+  //   // Fetch dealer KPIs
+  //   this.fetchSuperAdminDashboard(filter);
+  //   this.fetchDealers('MTD');
+  // }
+  onFilterChange(filter: 'MTD' | 'QTD' | 'YTD'): void {
+    const activeSMId = this.activeSM; // remember the currently active SM
+
     this.selectedFilter = filter;
 
     // Fetch top cards (KPI data)
@@ -252,19 +335,91 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     // Fetch dealer KPIs
     this.fetchSuperAdminDashboard(filter);
+    this.fetchDealers(filter);
+
+    // Refresh SMs for any open dealer divs
+    if (this.selectedDealerId) {
+      this.fetchDealerSMs(this.selectedDealerId, filter);
+
+      // Restore previously active SM if it still exists
+      const smList = this.dealerSMS[this.selectedDealerId] || [];
+      if (!smList.some((s) => s.sm_id === activeSMId)) {
+        this.activeSM = null; // previously active SM no longer exists
+      } else {
+        this.activeSM = activeSMId; // keep it open
+      }
+    }
   }
+  // Updated fetchDealerSMs to accept previous active SM
+  fetchDealerSMs(
+    dealerId: string,
+    type: 'MTD' | 'QTD' | 'YTD',
+    activeSMId?: string
+  ) {
+    const token = sessionStorage.getItem('token');
+    if (!token) return;
+
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?dealer_id=${dealerId}&type=${type}`;
+
+    this.http.get<any>(url, { headers }).subscribe({
+      next: (res) => {
+        this.dealerSMS[dealerId] =
+          res?.status === 200 && res.data?.sms ? res.data.sms : [];
+
+        // Restore previously active SM if it still exists
+        if (
+          activeSMId &&
+          this.dealerSMS[dealerId].some((s) => s.sm_id === activeSMId)
+        ) {
+          this.activeSM = activeSMId;
+        } else {
+          this.activeSM = null;
+        }
+      },
+      error: (err) => {
+        console.error('Failed to fetch SM data:', err);
+        this.dealerSMS[dealerId] = [];
+        this.activeSM = null;
+      },
+    });
+  }
+  fetchPS(smId: string, dealerId: string) {
+    const token = sessionStorage.getItem('token');
+    if (!token) return;
+
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
+
+    this.http.get<any>(url, { headers }).subscribe({
+      next: (res) => {
+        this.psData[smId] = res?.data?.ps || [];
+      },
+      error: (err) => {
+        console.error('Failed to fetch PS data:', err);
+        this.psData[smId] = [];
+      },
+    });
+  }
+
   updateProgressAndColor(change: number) {
     this.changeDisplay = change;
     this.progressValue = this.getProgressFromChange(change);
     this.strokeColor = this.getStrokeColor(change);
     this.cdr.detectChanges(); // ✅ trigger update
   }
+  selectSection(section: 'analysis' | 'callAnalysis'): void {
+    this.selectedSection = section;
+  }
   // ✅ Maps change to 0–100%
   getProgressFromChange(change: number): number {
     const maxValue = 500;
     return Math.min((Math.abs(change) / maxValue) * 100, 100);
   }
-
+  isDealerDataAvailable(dealer: any): boolean {
+    return dealer?.dealer_id && this.dealerSMS[dealer.dealer_id]?.length > 0;
+  }
   getDashOffset(progressValue: number): number {
     return 100 - progressValue;
   }
@@ -282,6 +437,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.currentdealerPage = page;
     }
   }
+
   getShowingRange(): string {
     const start = (this.currentdealerPage - 1) * this.itemsPerdealerPage + 1;
     const end = Math.min(
@@ -301,6 +457,174 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     this.updateDataBasedOnSelection();
   //   }
   // }
+  getDealerColor(index: number): string {
+    return this.dealerColors[index % this.dealerColors.length];
+  }
+  toggleAccordion(id: string): void {
+    if (this.activeAccordion === id) {
+      this.activeAccordion = null; // close if same accordion clicked
+    } else {
+      this.activeAccordion = id; // open new one
+    }
+  }
+  toggleDealer(id: string): void {
+    this.activeDealer = this.activeDealer === id ? null : id;
+  }
+
+  // DEALER PAGIANTOON
+  get totalPagesdealer(): number {
+    return Math.ceil(this.dealers.length / this.dealersPerPage);
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+  get paginatedDealerskpi(): Dealer[] {
+    const start = (this.currentPage - 1) * this.dealersPerPage;
+    return this.dealers.slice(start, start + this.dealersPerPage);
+  }
+  get startEntry(): number {
+    return (this.currentPage - 1) * this.dealersPerPage + 1;
+  }
+
+  get endEntry(): number {
+    return Math.min(
+      this.currentPage * this.dealersPerPage,
+      this.dealers.length
+    );
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPagesdealer) {
+      // ✅ works now
+      this.currentPage++;
+    }
+  }
+
+  // toggleSM(id: string): void {
+  //   this.activeSM = this.activeSM === id ? null : id;
+  // }
+  // toggleSM(smId: string, dealerId: string): void {
+  //   if (this.activeSM === smId) {
+  //     // Closing SM
+  //     this.activeSM = null;
+  //     this.activePS = null; // <-- Reset PS when SM closes
+  //   } else {
+  //     // Opening new SM
+  //     this.activeSM = smId;
+  //     this.activePS = null; // <-- Optionally reset PS when switching SMs
+
+  //     // Fetch PS data only if not fetched yet
+  //     if (!this.psData[smId]) {
+  //       const token = sessionStorage.getItem('token');
+  //       if (!token) return;
+
+  //       const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+  //       const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
+
+  //       this.http.get<any>(url, { headers }).subscribe({
+  //         next: (res) => {
+  //           this.psData[smId] = res?.data?.ps || [];
+  //         },
+  //         error: (err) => {
+  //           console.error('Failed to fetch PS data:', err);
+  //           this.psData[smId] = [];
+  //         },
+  //       });
+  //     }
+  //   }
+  // }
+  // toggleSM(smId: string, dealerId: string): void {
+  //   if (this.activeSM === smId) {
+  //     // Closing SM
+  //     this.activeSM = null;
+  //     this.activePS = null;
+  //   } else {
+  //     // Opening SM
+  //     this.activeSM = smId;
+  //     this.activePS = null;
+
+  //     // Fetch dealer SMs if not already fetched
+  //     if (!this.dealerSMS[dealerId]) {
+  //       const token = sessionStorage.getItem('token');
+  //       if (!token) return;
+
+  //       const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+  //       const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?dealer_id=${dealerId}&type=${this.selectedFilter}`;
+
+  //       this.http.get<any>(url, { headers }).subscribe({
+  //         next: (res) => {
+  //           // const dealer = res?.data?.dealers?.find(
+  //           //   (d) => d.dealer_id === dealerId
+  //           // );
+  //           const dealer = res?.data?.dealers?.find(
+  //             (d: any) => d.dealer_id === dealerId
+  //           );
+
+  //           this.dealerSMS[dealerId] = dealer?.sm_list || [];
+
+  //           // Set PS data for the clicked SM
+  //           const sm = this.dealerSMS[dealerId].find((s) => s.sm_id === smId);
+  //           this.psData[smId] = sm?.ps_list || [];
+  //         },
+  //         error: (err) => {
+  //           console.error('Failed to fetch SMs and PS:', err);
+  //           this.dealerSMS[dealerId] = [];
+  //           this.psData[smId] = [];
+  //         },
+  //       });
+  //     } else {
+  //       // Already fetched: just load PS for this SM
+  //       const sm = this.dealerSMS[dealerId].find((s) => s.sm_id === smId);
+  //       this.psData[smId] = sm?.ps_list || [];
+  //     }
+  //   }
+  // }
+
+  toggleSM(smId: string, dealerId: string): void {
+    if (this.activeSM === smId) {
+      // Closing SM
+      this.activeSM = null;
+      this.activePS = null;
+    } else {
+      // Opening SM
+      this.activeSM = smId;
+      this.activePS = null;
+
+      const token = sessionStorage.getItem('token');
+      if (!token) return;
+
+      const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+      // Fetch PS for this SM
+      const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?dealer_id=${dealerId}&sm_id=${smId}&type=${this.selectedFilter}`;
+
+      this.http.get<any>(url, { headers }).subscribe({
+        next: (res) => {
+          // Find the dealer
+          const dealer = res?.data?.dealers?.find(
+            (d: Dealer) => d.dealer_id === dealerId
+          );
+          this.dealerSMS[dealerId] = dealer?.sm_list || [];
+
+          // Find the SM and set its PS data
+          const sm = this.dealerSMS[dealerId].find((s) => s.sm_id === smId);
+          this.psData[smId] = sm?.ps_list || [];
+        },
+        error: (err) => {
+          console.error('Failed to fetch SMs and PS:', err);
+          this.dealerSMS[dealerId] = [];
+          this.psData[smId] = [];
+        },
+      });
+    }
+  }
+
+  togglePS(id: string): void {
+    this.activePS = this.activePS === id ? null : id;
+  }
   onDropdownChange() {
     console.log('Dropdown changed:');
     console.log('selectedCategory:', this.selectedCategory);
@@ -309,27 +633,174 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (this.selectedCategory && this.selectedDuration) {
       console.log('✅ Both dropdowns selected. Proceeding to fetch data...');
       this.selectedOption = `${this.selectedCategory}-${this.selectedDuration}`;
-      this.updateDataBasedOnSelection(); // Fetch data
+      // this.updateDataBasedOnSelection(); // Fetch data
     } else {
       console.warn('⚠️ One or both dropdowns not selected. Skipping fetch.');
     }
   }
-  onSMClick(sm: any) {
+  // onSMClick(sm: any) {
+  //   this.selectedSM = sm;
+
+  //   setTimeout(() => {
+  //     const section = document.querySelector('.ps-cards-page');
+  //     if (section) {
+  //       section.scrollIntoView({ behavior: 'smooth' });
+  //     }
+  //   }, 100);
+
+  //   this.selectedDealer = null;
+
+  //   this.fetchPS1Data();
+  //  }
+  // Your existing onSMClick method with PS data fetching added
+  onSMClick(sm: any): void {
     this.selectedSM = sm;
-
-    // Optional: Scroll to the PS cards section
-    setTimeout(() => {
-      const section = document.querySelector('.ps-cards-page');
-      if (section) {
-        section.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-
-    // Hide selected dealer view if open
     this.selectedDealer = null;
+    this.currentPage = 1;
+    this.ps1Data = []; // Clear old PS data immediately
 
-    // Load PS1/PS2 data from API
-    this.fetchPS1Data(); // 👈 New function added
+    this.fetchPS1Data(); // no argument
+  }
+  // Toggle accordion functionality
+  // toggleAccordion(id: string): void {
+  //   const content = document.getElementById(`content-${id}`) as HTMLElement;
+  //   const toggle = document.getElementById(`toggle-${id}`) as HTMLElement;
+  //   const header = toggle?.parentElement as HTMLElement;
+
+  //   if (content && toggle && header) {
+  //     // Toggle current accordion
+  //     const isActive = content.classList.contains('active');
+  //     content.classList.toggle('active');
+  //     header.classList.toggle('active');
+  //     toggle.textContent = isActive ? '▼' : '▲';
+  //   }
+  // }
+
+  // Dealer pagination functions
+  changeDealerPage(direction: number): void {
+    const newPage = this.currentDealerPage + direction;
+    if (newPage >= 1 && newPage <= this.totalDealerPages) {
+      this.goToDealerPage(newPage);
+    }
+  }
+
+  goToDealerPage(page: number): void {
+    if (page >= 1 && page <= this.totalDealerPages) {
+      this.currentDealerPage = page;
+      this.updateDealerPagination();
+      this.loadDealersForPage(page);
+    }
+  }
+
+  updateDealerPagination(): void {
+    // Update pagination info
+    const startDealer = (this.currentDealerPage - 1) * this.dealersPerPage + 1;
+    const endDealer = Math.min(
+      this.currentDealerPage * this.dealersPerPage,
+      23
+    );
+
+    const dealerRangeElement = document.getElementById(
+      'dealer-range'
+    ) as HTMLElement;
+    if (dealerRangeElement) {
+      dealerRangeElement.textContent = `${startDealer}-${endDealer}`;
+    }
+
+    // Update pagination buttons
+    const paginationButtons = document.querySelectorAll(
+      '.pagination-btn'
+    ) as NodeListOf<HTMLButtonElement>;
+    paginationButtons.forEach((btn: HTMLButtonElement, index: number) => {
+      if (btn.textContent === 'Previous') {
+        btn.disabled = this.currentDealerPage === 1;
+      } else if (btn.textContent === 'Next') {
+        btn.disabled = this.currentDealerPage === this.totalDealerPages;
+      } else if (btn.textContent && !isNaN(parseInt(btn.textContent))) {
+        btn.classList.toggle(
+          'active',
+          parseInt(btn.textContent) === this.currentDealerPage
+        );
+      }
+    });
+  }
+
+  loadDealersForPage(page: number): void {
+    // In a real application, this would make an API call to load dealers for the specific page
+    console.log(`Loading dealers for page ${page}`);
+
+    // Simulate loading with a brief delay
+    const accordions = document.querySelectorAll(
+      '.accordion.level-1'
+    ) as NodeListOf<HTMLElement>;
+    accordions.forEach((acc: HTMLElement) => {
+      acc.style.opacity = '0.5';
+    });
+
+    setTimeout(() => {
+      accordions.forEach((acc: HTMLElement) => {
+        acc.style.opacity = '1';
+      });
+    }, 300);
+  }
+
+  // Table pagination function
+  changeTablePage(tableId: string, direction: number): void {
+    console.log(`Changing page for ${tableId} by ${direction}`);
+    // In a real application, this would load new data for the table
+  }
+
+  // Add search functionality
+  searchDealer(searchTerm: string): void {
+    console.log('Searching for:', searchTerm);
+    // Filter dealers based on search term
+  }
+
+  // Auto-collapse other sections when opening a new one (optional)
+  autoCollapseOthers(currentId: string): void {
+    const activeContents = document.querySelectorAll(
+      '.accordion-content.active'
+    ) as NodeListOf<HTMLElement>;
+    activeContents.forEach((content: HTMLElement) => {
+      if (content.id !== `content-${currentId}`) {
+        const toggleId = content.id.replace('content-', 'toggle-');
+        const toggle = document.getElementById(toggleId) as HTMLElement;
+        if (toggle && toggle.parentElement) {
+          content.classList.remove('active');
+          toggle.parentElement.classList.remove('active');
+          toggle.textContent = '▼';
+        }
+      }
+    });
+  }
+
+  // Initialize filters after view is ready
+  private initializeFilters(): void {
+    // Add some interactive functionality for filters
+    const filterElements = document.querySelectorAll(
+      'select, input[type="date"]'
+    ) as NodeListOf<HTMLElement>;
+    filterElements.forEach((element: HTMLElement) => {
+      element.addEventListener('change', (event: Event) => {
+        const target = event.target as HTMLInputElement | HTMLSelectElement;
+        console.log('Filter changed:', target.value);
+        // Here you would make API calls to filter the data
+        this.handleFilterChange(target.value);
+      });
+    });
+  }
+
+  // Handle filter changes
+  private handleFilterChange(value: string): void {
+    // Implement your filter logic here
+    console.log('Handling filter change:', value);
+    // You can make API calls or filter local data here
+  }
+
+  // Method to handle search input changes (if you have a search input)
+  onSearchChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchDealer(target.value);
   }
 
   // fetchSuperAdminDashboard(type: string = 'MTD'): void {
@@ -354,7 +825,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   });
   // }
   fetchSuperAdminDashboard(type: string = 'MTD'): void {
-    const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${type}`;
+    // const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${type}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
+
     const token = sessionStorage.getItem('token');
 
     const headers = new HttpHeaders({
@@ -393,10 +866,157 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       },
     });
   }
+  // THIS CODE FOR DEALER DIV CLICK  AND THIS IS COMING RIGHT DONT TOUCH THIS
 
-  toggleDealerSMs(dealerId: string): void {
+  // toggleDealerSMs(dealerId: string): void {
+  //   if (this.selectedDealerId === dealerId) {
+  //     this.selectedDealerId = null; // toggle off
+  //     return;
+  //   }
+
+  //   this.selectedDealerId = dealerId;
+
+  //   const token = sessionStorage.getItem('token');
+  //   const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+  //   const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}`;
+
+  //   this.http.get<any>(url, { headers }).subscribe({
+  //     next: (res) => {
+  //       if (res?.status === 200 && res.data?.sms) {
+  //         this.dealerSMS[dealerId] = res.data.sms;
+  //       } else {
+  //         this.dealerSMS[dealerId] = [];
+  //       }
+  //     },
+  //     error: (err) => {
+  //       console.error('Failed to fetch SMs for dealer:', err);
+  //       this.dealerSMS[dealerId] = [];
+  //     },
+  //   });
+  // }
+
+  // onDealerClick(dealerId: string): void {
+  //   if (this.selectedDealerId === dealerId) {
+  //     this.selectedDealerId = null; // collapse if already open
+  //     return;
+  //   }
+
+  //   this.selectedDealerId = dealerId;
+
+  //   // Fetch SM data only if not already fetched
+  //   if (!this.dealerSMS[dealerId]) {
+  //     const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}`;
+  //     const token = sessionStorage.getItem('token');
+
+  //     const headers = new HttpHeaders({
+  //       Authorization: `Bearer ${token}`,
+  //     });
+
+  //     this.http.get<any>(url, { headers }).subscribe({
+  //       next: (res) => {
+  //         if (res?.status === 200 && res.data?.sms) {
+  //           this.dealerSMS[dealerId] = res.data.sms;
+  //         } else {
+  //           this.dealerSMS[dealerId] = [];
+  //         }
+  //       },
+  //       error: (err) => {
+  //         console.error('Failed to fetch SM data:', err);
+  //         this.dealerSMS[dealerId] = [];
+  //       },
+  //     });
+  //   }
+  // }
+  // fetchDealers() {
+  //   this.http
+  //     .get<any>(
+  //       'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=MTD'
+  //     )
+  //     .subscribe({
+  //       next: (res) => {
+  //         if (res.status === 200 && res.data && res.data.dealerData) {
+  //           this.dealers = res.data.dealerData;
+  //         }
+  //       },
+  //       error: (err) => {
+  //         console.error('Error fetching dealers:', err);
+  //       },
+  //     });
+  // }
+  // loadDealers() {
+  //   this.http
+  //     .get<any>(
+  //       'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=MTD'
+  //     )
+  //     .subscribe((res) => {
+  //       this.dealers = res.dealers || [];
+  //     });
+  // }
+  // Fetch all dealers for the selected filter
+  // fetchDealers(filter: 'MTD' | 'QTD' | 'YTD') {
+  //   const token = sessionStorage.getItem('token');
+  //   const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+  //   this.http
+  //     .get<any>(
+  //       // `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${filter}`,
+  //       `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
+
+  //       { headers }
+  //     )
+  //     .subscribe((res) => {
+  //       if (res?.status === 200 && res.data?.dealerData) {
+  //         this.dealers = res.data.dealerData;
+  //       }
+  //     });
+  // }
+  fetchDealers(filter: 'MTD' | 'QTD' | 'YTD') {
+    const token = sessionStorage.getItem('token');
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
+
+    this.http.get<any>(url, { headers }).subscribe(
+      (res) => {
+        if (res?.status === 200 && res.data?.dealerData) {
+          this.dealers = res.data.dealerData;
+        } else {
+          this.dealers = []; // clear if no data
+        }
+      },
+      (err) => {
+        console.error('Error fetching dealers:', err);
+        this.dealers = []; // clear on error
+      }
+    );
+  }
+
+  // Called when user clicks a dealer div
+  // toggleDealerSMs(dealerId: string) {
+  //   if (this.selectedDealerId === dealerId) {
+  //     this.selectedDealerId = null; // collapse
+  //     return;
+  //   }
+
+  //   this.selectedDealerId = dealerId;
+
+  //   const token = sessionStorage.getItem('token');
+  //   const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+  //   this.http
+  //     .get<any>(
+  //       `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}`,
+  //       { headers }
+  //     )
+  //     .subscribe((res) => {
+  //       this.dealerSMS[dealerId] =
+  //         res?.status === 200 && res.data?.sms ? res.data.sms : [];
+  //     });
+  // }
+  toggleDealerSMs(dealerId: string) {
     if (this.selectedDealerId === dealerId) {
-      this.selectedDealerId = null; // toggle off
+      this.selectedDealerId = null; // collapse
       return;
     }
 
@@ -405,23 +1025,64 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const token = sessionStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?dealer_id=${dealerId}&type=${this.selectedFilter}`;
 
-    this.http.get<any>(url, { headers }).subscribe({
+    this.http.get<ApiResponse>(url, { headers }).subscribe({
       next: (res) => {
-        if (res?.status === 200 && res.data?.sms) {
-          this.dealerSMS[dealerId] = res.data.sms;
+        const dealer: Dealer | undefined = res.data.dealers.find(
+          (d: Dealer) => d.dealer_id === dealerId
+        );
+
+        if (dealer && dealer.sm_list) {
+          this.dealerSMS[dealerId] = dealer.sm_list;
         } else {
           this.dealerSMS[dealerId] = [];
         }
       },
       error: (err) => {
-        console.error('Failed to fetch SMs for dealer:', err);
+        console.error('Error fetching SMs for dealer:', err);
         this.dealerSMS[dealerId] = [];
       },
     });
   }
 
+  // this is aslo DEALER DIV CODE API COMING PROPER DOTN TOCUH
+  // onDealerClick(dealerId: string): void {
+  //   if (this.selectedDealerId === dealerId) {
+  //     this.selectedDealerId = null; // collapse if already open
+  //     return;
+  //   }
+
+  //   this.selectedDealerId = dealerId;
+
+  //   // Fetch SM data only if not already fetched
+  //   if (!this.dealerSMS[dealerId]) {
+  //     this.loadingSM = true; // Set loading state to true
+
+  //     const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}`;
+  //     const token = sessionStorage.getItem('token');
+
+  //     const headers = new HttpHeaders({
+  //       Authorization: `Bearer ${token}`,
+  //     });
+
+  //     this.http.get<any>(url, { headers }).subscribe({
+  //       next: (res) => {
+  //         if (res?.status === 200 && res.data?.sms) {
+  //           this.dealerSMS[dealerId] = res.data.sms;
+  //         } else {
+  //           this.dealerSMS[dealerId] = [];
+  //         }
+  //         this.loadingSM = false; // Set loading state to false
+  //       },
+  //       error: (err) => {
+  //         console.error('Failed to fetch SM data:', err);
+  //         this.dealerSMS[dealerId] = [];
+  //         this.loadingSM = false; // Set loading state to false on error
+  //       },
+  //     });
+  //   }
+  // }
   onDealerClick(dealerId: string): void {
     if (this.selectedDealerId === dealerId) {
       this.selectedDealerId = null; // collapse if already open
@@ -432,7 +1093,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     // Fetch SM data only if not already fetched
     if (!this.dealerSMS[dealerId]) {
-      const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}`;
+      this.loadingSM = true; // Set loading state to true
+
+      const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${this.selectedFilter}&dealer_id=${dealerId}`;
       const token = sessionStorage.getItem('token');
 
       const headers = new HttpHeaders({
@@ -446,14 +1109,17 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           } else {
             this.dealerSMS[dealerId] = [];
           }
+          this.loadingSM = false; // Set loading state to false
         },
         error: (err) => {
           console.error('Failed to fetch SM data:', err);
           this.dealerSMS[dealerId] = [];
+          this.loadingSM = false; // Set loading state to false on error
         },
       });
     }
   }
+
   avatarColors = [
     { background: '#E2E0F5', color: '#4B3C9B' },
     { background: '#D1F8F2', color: '#008B7F' },
@@ -509,22 +1175,119 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     // You can add navigation or other logic here
   }
 
+  // fetchPS1Data(): void {
+  //   if (!this.selectedSM || !this.selectedDealerId) {
+  //     console.warn('SM or Dealer not selected');
+  //     return;
+  //   }
+
+  //   const baseUrl = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
+  //   const type = 'YTD';
+  //   const dealerId = this.selectedDealerId;
+  //   const smId = this.selectedSM.sm_id;
+
+  //   const url = `${baseUrl}?type=${type}&dealer_id=${dealerId}&sm_id=${smId}`;
+  //   const token = sessionStorage.getItem('token');
+
+  //   if (!token) {
+  //     console.error('No token found in sessionStorage');
+  //     return;
+  //   }
+
+  //   const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+  //   this.http.get<any>(url, { headers }).subscribe({
+  //     next: (res) => {
+  //       const psList = res?.data?.ps;
+
+  //       if (Array.isArray(psList)) {
+  //         this.ps1Data = psList.map((ps: any) => ({
+  //           ps_id: ps.ps_id,
+  //           ps_name: `${ps.ps_fname} ${ps.ps_lname}`,
+  //           enquiries: ps.enquiries,
+  //           testDrives: ps.testDrives,
+  //           orders: ps.orders,
+  //           cancellations: ps.cancellation,
+  //           netOrders: ps.net_orders,
+  //           retail: ps.retail,
+  //         }));
+  //       } else {
+  //         console.warn('No PS data found in API response');
+  //         this.ps1Data = [];
+  //       }
+  //     },
+  //     error: (err) => {
+  //       console.error('Error fetching PS1 data:', err);
+  //     },
+  //   });
+  // }
+
+  // fetchPS1Data(): void {
+  //   if (!this.selectedSM || !this.selectedDealerId) {
+  //     console.warn('SM or Dealer not selected');
+  //     return;
+  //   }
+
+  //   // Always take the filter from the main page selection
+  //   const type = this.selectedFilter;
+
+  //   const baseUrl = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
+  //   const dealerId = this.selectedDealerId;
+  //   const smId = this.selectedSM.sm_id;
+
+  //   const url = `${baseUrl}?type=${type}&dealer_id=${dealerId}&sm_id=${smId}`;
+  //   const token = sessionStorage.getItem('token');
+
+  //   if (!token) {
+  //     console.error('No token found in sessionStorage');
+  //     return;
+  //   }
+
+  //   const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+  //   this.http.get<any>(url, { headers }).subscribe({
+  //     next: (res) => {
+  //       const psList = res?.data?.ps;
+
+  //       if (Array.isArray(psList)) {
+  //         this.ps1Data = psList.map((ps: any) => ({
+  //           ps_id: ps.ps_id,
+  //           ps_name: `${ps.ps_fname} ${ps.ps_lname}`,
+  //           enquiries: ps.enquiries,
+  //           testDrives: ps.testDrives,
+  //           orders: ps.orders,
+  //           cancellations: ps.cancellation,
+  //           netOrders: ps.net_orders,
+  //           retail: ps.retail,
+  //         }));
+  //       } else {
+  //         console.warn('No PS data found in API response');
+  //         this.ps1Data = [];
+  //       }
+  //     },
+  //     error: (err) => {
+  //       console.error('Error fetching PS1 data:', err);
+  //     },
+  //   });
+  // }
   fetchPS1Data(): void {
     if (!this.selectedSM || !this.selectedDealerId) {
       console.warn('SM or Dealer not selected');
       return;
     }
 
+    this.loadingPS = true; // start loading
+
+    const type = this.selectedFilter;
     const baseUrl = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
-    const type = 'YTD';
     const dealerId = this.selectedDealerId;
     const smId = this.selectedSM.sm_id;
-
     const url = `${baseUrl}?type=${type}&dealer_id=${dealerId}&sm_id=${smId}`;
     const token = sessionStorage.getItem('token');
 
     if (!token) {
       console.error('No token found in sessionStorage');
+      this.loadingPS = false; // stop loading on error
       return;
     }
 
@@ -549,13 +1312,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           console.warn('No PS data found in API response');
           this.ps1Data = [];
         }
+
+        this.loadingPS = false; // stop loading after success
       },
       error: (err) => {
         console.error('Error fetching PS1 data:', err);
+        this.ps1Data = [];
+        this.loadingPS = false; // stop loading after error
       },
     });
   }
-
   get paginatedPs1Data() {
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
@@ -805,7 +1571,94 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //       },
   //     });
   // }
-  fetchDashboardData(type: string = 'MTD') {
+  // fetchDashboardData(type: string = 'MTD') {
+  //   const token = sessionStorage.getItem('token');
+  //   if (!token) {
+  //     console.error('Token not found!');
+  //     return;
+  //   }
+
+  //   const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+  //   this.http
+  //     .get<any>(
+  //       `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter};`,
+  //       { headers }
+  //     )
+  //     .subscribe({
+  //       next: (res) => {
+  //         console.log(`API response for type=${type}:`, res);
+  //         const data = res?.data || {};
+
+  //         const cleanChange = (val: any): number => {
+  //           if (typeof val === 'string') {
+  //             return parseFloat(val.replace('%', '').trim());
+  //           }
+  //           return Number(val) || 0;
+  //         };
+
+  //         this.currentLeads = Number(data.current) || 0;
+  //         this.previousLeads = Number(data.previous) || 0;
+  //         this.changeDisplay = cleanChange(data.change);
+
+  //         this.currentTestDrives = Number(data.currentTestDrives) || 0;
+  //         this.previousTestDrives = Number(data.previousTestDrives) || 0;
+  //         this.testDriveChange = cleanChange(data.testDriveChange);
+
+  //         this.currentOrders = Number(data.currentOrders) || 0;
+  //         this.previousOrders = Number(data.previousOrders) || 0;
+  //         this.orderChange = cleanChange(data.orderChange);
+
+  //         this.progressValue = Math.abs(this.changeDisplay);
+  //         this.strokeColor = this.getStrokeColor(this.changeDisplay);
+
+  //         this.testDriveProgressValue = Math.abs(this.testDriveChange);
+  //         this.testDriveStrokeColor = this.getStrokeColor(this.testDriveChange);
+
+  //         this.orderProgressValue = Math.abs(this.orderChange);
+  //         this.orderStrokeColor = this.getStrokeColor(this.orderChange);
+
+  //         console.log('✅ Final Parsed Data:', {
+  //           leads: {
+  //             current: this.currentLeads,
+  //             previous: this.previousLeads,
+  //             change: this.changeDisplay,
+  //           },
+  //           testDrives: {
+  //             current: this.currentTestDrives,
+  //             previous: this.previousTestDrives,
+  //             change: this.testDriveChange,
+  //           },
+  //           orders: {
+  //             current: this.currentOrders,
+  //             previous: this.previousOrders,
+  //             change: this.orderChange,
+  //           },
+  //         });
+
+  //         // ✅ Add Doughnut Chart logic here:
+  //         if (data.kpi) {
+  //           const totalTestDrives = Number(data.kpi.totalTestDrives) || 0;
+  //           const totalOrders = Number(data.kpi.totalOrders) || 0;
+
+  //           if (totalTestDrives > 0 || totalOrders > 0) {
+  //             console.log('📊 Creating Doughnut Chart with:', {
+  //               totalTestDrives,
+  //               totalOrders,
+  //             });
+
+  //             // setTimeout(() => {
+  //             //   this.createDoughnutChart(totalTestDrives, totalOrders);
+  //             // }, 0);
+  //           }
+  //         }
+  //       },
+  //       error: (err) => {
+  //         console.error('Dashboard API error:', err);
+  //       },
+  //     });
+  // }
+  fetchDashboardData(type: 'MTD' | 'QTD' | 'YTD' = 'MTD') {
     const token = sessionStorage.getItem('token');
     if (!token) {
       console.error('Token not found!');
@@ -814,83 +1667,76 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http
-      .get<any>(
-        `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${type}`,
-        { headers }
-      )
-      .subscribe({
-        next: (res) => {
-          console.log(`API response for type=${type}:`, res);
-          const data = res?.data || {};
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
 
-          const cleanChange = (val: any): number => {
-            if (typeof val === 'string') {
-              return parseFloat(val.replace('%', '').trim());
-            }
-            return Number(val) || 0;
-          };
+    this.http.get<any>(url, { headers }).subscribe({
+      next: (res) => {
+        console.log(`API response for type=${type}:`, res);
+        const data = res?.data || {};
 
-          this.currentLeads = Number(data.current) || 0;
-          this.previousLeads = Number(data.previous) || 0;
-          this.changeDisplay = cleanChange(data.change);
-
-          this.currentTestDrives = Number(data.currentTestDrives) || 0;
-          this.previousTestDrives = Number(data.previousTestDrives) || 0;
-          this.testDriveChange = cleanChange(data.testDriveChange);
-
-          this.currentOrders = Number(data.currentOrders) || 0;
-          this.previousOrders = Number(data.previousOrders) || 0;
-          this.orderChange = cleanChange(data.orderChange);
-
-          this.progressValue = Math.abs(this.changeDisplay);
-          this.strokeColor = this.getStrokeColor(this.changeDisplay);
-
-          this.testDriveProgressValue = Math.abs(this.testDriveChange);
-          this.testDriveStrokeColor = this.getStrokeColor(this.testDriveChange);
-
-          this.orderProgressValue = Math.abs(this.orderChange);
-          this.orderStrokeColor = this.getStrokeColor(this.orderChange);
-
-          console.log('✅ Final Parsed Data:', {
-            leads: {
-              current: this.currentLeads,
-              previous: this.previousLeads,
-              change: this.changeDisplay,
-            },
-            testDrives: {
-              current: this.currentTestDrives,
-              previous: this.previousTestDrives,
-              change: this.testDriveChange,
-            },
-            orders: {
-              current: this.currentOrders,
-              previous: this.previousOrders,
-              change: this.orderChange,
-            },
-          });
-
-          // ✅ Add Doughnut Chart logic here:
-          if (data.kpi) {
-            const totalTestDrives = Number(data.kpi.totalTestDrives) || 0;
-            const totalOrders = Number(data.kpi.totalOrders) || 0;
-
-            if (totalTestDrives > 0 || totalOrders > 0) {
-              console.log('📊 Creating Doughnut Chart with:', {
-                totalTestDrives,
-                totalOrders,
-              });
-
-              // setTimeout(() => {
-              //   this.createDoughnutChart(totalTestDrives, totalOrders);
-              // }, 0);
-            }
+        const cleanChange = (val: any): number => {
+          if (typeof val === 'string') {
+            return parseFloat(val.replace('%', '').trim());
           }
-        },
-        error: (err) => {
-          console.error('Dashboard API error:', err);
-        },
-      });
+          return Number(val) || 0;
+        };
+
+        this.currentLeads = Number(data.current) || 0;
+        this.previousLeads = Number(data.previous) || 0;
+        this.changeDisplay = cleanChange(data.change);
+
+        this.currentTestDrives = Number(data.currentTestDrives) || 0;
+        this.previousTestDrives = Number(data.previousTestDrives) || 0;
+        this.testDriveChange = cleanChange(data.testDriveChange);
+
+        this.currentOrders = Number(data.currentOrders) || 0;
+        this.previousOrders = Number(data.previousOrders) || 0;
+        this.orderChange = cleanChange(data.orderChange);
+
+        this.progressValue = Math.abs(this.changeDisplay);
+        this.strokeColor = this.getStrokeColor(this.changeDisplay);
+
+        this.testDriveProgressValue = Math.abs(this.testDriveChange);
+        this.testDriveStrokeColor = this.getStrokeColor(this.testDriveChange);
+
+        this.orderProgressValue = Math.abs(this.orderChange);
+        this.orderStrokeColor = this.getStrokeColor(this.orderChange);
+
+        console.log('✅ Final Parsed Data:', {
+          leads: {
+            current: this.currentLeads,
+            previous: this.previousLeads,
+            change: this.changeDisplay,
+          },
+          testDrives: {
+            current: this.currentTestDrives,
+            previous: this.previousTestDrives,
+            change: this.testDriveChange,
+          },
+          orders: {
+            current: this.currentOrders,
+            previous: this.previousOrders,
+            change: this.orderChange,
+          },
+        });
+
+        if (data.kpi) {
+          const totalTestDrives = Number(data.kpi.totalTestDrives) || 0;
+          const totalOrders = Number(data.kpi.totalOrders) || 0;
+
+          if (totalTestDrives > 0 || totalOrders > 0) {
+            console.log('📊 Creating Doughnut Chart with:', {
+              totalTestDrives,
+              totalOrders,
+            });
+            // Optional: createDoughnutChart(totalTestDrives, totalOrders);
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Dashboard API error:', err);
+      },
+    });
   }
 
   initLineChart() {
@@ -1391,7 +2237,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http
       .get<any>(
-        `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${filter}`,
+        `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`,
         { headers }
       )
       .subscribe(
@@ -1445,7 +2291,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http
       .get(
-        `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?filter=${filter}`,
+        `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter};`,
         { headers }
       )
       .subscribe(
@@ -1621,44 +2467,44 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   return this.data?.leads?.MTD?.value ?? 0; // adjust according to your data
   // }
 
-  updateDataBasedOnSelection(): void {
-    const [type, range] = this.selectedOption.split('-');
-    console.log(`📦 Fetching data for type: ${type}, duration: ${range}`);
+  // updateDataBasedOnSelection(): void {
+  //   const [type, range] = this.selectedOption.split('-');
+  //   console.log(`📦 Fetching data for type: ${type}, duration: ${range}`);
 
-    const token = sessionStorage.getItem('token');
-    if (!token) {
-      console.error('❌ No token found!');
-      return;
-    }
+  //   const token = sessionStorage.getItem('token');
+  //   if (!token) {
+  //     console.error('❌ No token found!');
+  //     return;
+  //   }
 
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-    });
+  //   const headers = new HttpHeaders({
+  //     Authorization: `Bearer ${token}`,
+  //   });
 
-    this.http
-      .get<any>(
-        `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${range}`,
-        { headers }
-      )
-      .subscribe(
-        (response) => {
-          console.log('✅ Filtered API response:', response);
+  //   this.http
+  //     .get<any>(
+  //       `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${range}`,
+  //       { headers }
+  //     )
+  //     .subscribe(
+  //       (response) => {
+  //         console.log('✅ Filtered API response:', response);
 
-          const rankings = response?.data?.rankings || {};
-          this.displayedData = rankings[type] || [];
-          this.paginateData(); // <-- paginate after setting data
+  //         const rankings = response?.data?.rankings || {};
+  //         this.displayedData = rankings[type] || [];
+  //         this.paginateData(); // <-- paginate after setting data
 
-          this.maxValue =
-            Math.max(...this.displayedData.map((item) => item.value)) || 1;
+  //         this.maxValue =
+  //           Math.max(...this.displayedData.map((item) => item.value)) || 1;
 
-          console.log('📊 Displayed Data:', this.displayedData);
-        },
-        (error) => {
-          console.error('❌ Error fetching filtered data:', error);
-          this.displayedData = [];
-        }
-      );
-  }
+  //         console.log('📊 Displayed Data:', this.displayedData);
+  //       },
+  //       (error) => {
+  //         console.error('❌ Error fetching filtered data:', error);
+  //         this.displayedData = [];
+  //       }
+  //     );
+  // }
   paginateData() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
@@ -1815,7 +2661,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const token = sessionStorage.getItem('token');
     if (!token) return;
 
-    let url = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
+    let url =
+      'https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities';
     if (period && period !== 'today') {
       url += `?type=${period}`;
     }

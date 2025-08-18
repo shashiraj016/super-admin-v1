@@ -44,8 +44,8 @@ input.form-control.form-control-lg.is-invalid {
   padding-right: 0.75rem !important; /* optional: clean spacing after icon removal */
 }
 .page-titles {
-  margin-top: 0px;       /* remove extra margin */
-  padding-top: 8px;      /* or adjust as needed */
+  margin-top: 0px; /* remove extra margin */
+  padding-top: 8px; /* or adjust as needed */
 }
 
 .btn-outline-primary:hover {
@@ -76,7 +76,7 @@ input.form-control.form-control-lg.is-invalid {
 .btn-edit-enabled:hover {
   background-color: #222fb9;
   color: #fff;
-  border:none;
+  border: none;
 }
 .modal-backdrop {
   display: none !important;
@@ -150,4 +150,24 @@ input.form-control.form-control-lg.is-invalid {
 /* Remove borders from table wrapper */
 .table-responsive {
   border: none !important;
+}
+.edit-btn {
+  border: 1px solid #222fb9;
+  color: #222fb9;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+.edit-btn:hover:enabled {
+  background-color: #222fb9;
+  color: white;
+}
+
+.edit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+#editButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }

@@ -350,7 +350,7 @@
                                     <th>Sub<br> Type</th>
                                     <th>Brand</th>
                                     <th>PMI</th>
-                                    <th>Description</th>
+                                    <!-- <th>Description</th> -->
                                     <!-- <th>Mobile</th>
                                     <th>Phone</th> -->
                                     <!-- <th>E-mail</th>
@@ -505,8 +505,8 @@
                                         <th>Due Date</th>
                                         <th>Comments</th>
                                         <th>Lead Name</th>
-                                        <th>Lead Email</th>
-                                        <th>Lead Code</th>
+                                        <!-- <th>Lead Email</th> -->
+                                        <!-- <th>Lead Code</th> -->
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -627,99 +627,100 @@
 
                     <!-- Table 5 Events -->
 
-                <div class="col-lg-12">
-                    <div class="p-3 bg-white rounded shadow-sm" *ngIf="selectedOption() === 'events'">
-                
-                        <div class="table-responsive" style="overflow-x: auto; width: 100%;">
-                            <table class="table mb-4 dataTablesCard fs-14">
-                                <thead>
-                                    <tr>
-                                        <th>Sr No</th>
-                                        <th>Subject</th>
-                                        <th>Assigned</th>
-                                        <th>Description</th>
-                                        <th>Account Name</th>
-                                        <th>Start Date</th>
-                                        <th>End Date</th>
-                                        <th>VIN</th>
-                                        <th>T_Drive Status</th>
-                                        <th>Name</th>
-                                        <th>Related</th>
-                                        <th>Locations</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Updated condition to check both EventList and paginatedEvents -->
-                                    <tr *ngIf="!EventList || EventList.length === 0">
-                                        <td colspan="12" style="text-align: center; color: grey; padding: 1rem;">
-                                            No Events Found
-                                        </td>
-                                    </tr>
-                
-                                    <tr *ngFor="let event of paginatedEvents; let i = index">
-                                        <td>{{ (currentEventPage - 1) * eventItemsPerPage + i + 1 }}</td>
-                                        <td>{{ event.subject }}</td>
-                                        <td>{{ event.assigned_to }}</td>
-                                        <td>{{ event.description }}</td>
-                                        <td>{{ event.name }}</td>
-                                        <td>{{ event.start_date }}</td>
-                                        <td>{{ event.end_date }}</td>
-                                        <td>{{ event.VIN }}</td>
-                                        <td>{{ event.t_drive_status }}</td>
-                                        <td>{{ event.name }}</td>
-                                        <td>{{ event.related_to }}</td>
-                                        <td>{{ event.location }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                
-                        <!-- Pagination section - only show if there are events -->
-                        <div class="row align-items-center mt-3" *ngIf="EventList && EventList.length > 0">
-                            <!-- Left side: Showing entries -->
-                            <div class="col-md-6">
-                                <p class="mb-0 text-muted">
-                                    Showing {{ (currentEventPage - 1) * eventItemsPerPage + 1 }} –
-                                    {{ getEventsRangeEnd() }} of {{ totalEvents }} entries
-                                </p>
+                    <div class="col-lg-12">
+                        <div class="p-3 bg-white rounded shadow-sm" *ngIf="selectedOption() === 'events'">
+
+                            <div class="table-responsive" style="overflow-x: auto; width: 100%;">
+                                <table class="table mb-4 dataTablesCard fs-14">
+                                    <thead>
+                                        <tr>
+                                            <th>Sr No</th>
+                                            <th>Subject</th>
+                                            <th>Assigned</th>
+                                            <th>Description</th>
+                                            <th>Account Name</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <th>VIN</th>
+                                            <!-- <th>T_Drive Status</th>
+                                            <th>Name</th>
+                                            <th>Related</th> -->
+                                            <th>Locations</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Updated condition to check both EventList and paginatedEvents -->
+                                        <tr *ngIf="!EventList || EventList.length === 0">
+                                            <td colspan="12" style="text-align: center; color: grey; padding: 1rem;">
+                                                No Events Found
+                                            </td>
+                                        </tr>
+
+                                        <tr *ngFor="let event of paginatedEvents; let i = index">
+                                            <td>{{ (currentEventPage - 1) * eventItemsPerPage + i + 1 }}</td>
+                                            <td>{{ event.subject }}</td>
+                                            <td>{{ event.assigned_to }}</td>
+                                            <td>{{ event.description }}</td>
+                                            <td>{{ event.name }}</td>
+                                            <td>{{ event.start_date }}</td>
+                                            <td>{{ event.end_date }}</td>
+                                            <td>{{ event.VIN }}</td>
+                                            <!-- <td>{{ event.t_drive_status }}</td>
+                                            <td>{{ event.name }}</td>
+                                            <td>{{ event.related_to }}</td> -->
+                                            <td>{{ event.location }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                
-                            <!-- Right side: Pagination controls -->
-                            <div class="col-md-6">
-                                <nav aria-label="Page navigation">
-                                    <ul class="pagination justify-content-end mb-0">
-                
-                                        <!-- Previous Button -->
-                                        <li class="page-item" [class.disabled]="currentEventPage === 1">
-                                            <button class="page-link" (click)="goToPreviousEventPage()"
-                                                [disabled]="currentEventPage === 1">
-                                                Previous
-                                            </button>
-                                        </li>
-                
-                                        <!-- Page Numbers -->
-                                        <li class="page-item" *ngFor="let page of visibleEventPageNumbers"
-                                            [class.active]="page === currentEventPage">
-                                            <button class="page-link" (click)="goToEventPage(page)">
-                                                {{ page }}
-                                            </button>
-                                        </li>
-                
-                                        <!-- Next Button -->
-                                        <li class="page-item" [class.disabled]="currentEventPage === totalEventPages">
-                                            <button class="page-link" (click)="goToNextEventPage()"
-                                                [disabled]="currentEventPage === totalEventPages">
-                                                Next
-                                            </button>
-                                        </li>
-                
-                                    </ul>
-                                </nav>
+
+                            <!-- Pagination section - only show if there are events -->
+                            <div class="row align-items-center mt-3" *ngIf="EventList && EventList.length > 0">
+                                <!-- Left side: Showing entries -->
+                                <div class="col-md-6">
+                                    <p class="mb-0 text-muted">
+                                        Showing {{ (currentEventPage - 1) * eventItemsPerPage + 1 }} –
+                                        {{ getEventsRangeEnd() }} of {{ totalEvents }} entries
+                                    </p>
+                                </div>
+
+                                <!-- Right side: Pagination controls -->
+                                <div class="col-md-6">
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination justify-content-end mb-0">
+
+                                            <!-- Previous Button -->
+                                            <li class="page-item" [class.disabled]="currentEventPage === 1">
+                                                <button class="page-link" (click)="goToPreviousEventPage()"
+                                                    [disabled]="currentEventPage === 1">
+                                                    Previous
+                                                </button>
+                                            </li>
+
+                                            <!-- Page Numbers -->
+                                            <li class="page-item" *ngFor="let page of visibleEventPageNumbers"
+                                                [class.active]="page === currentEventPage">
+                                                <button class="page-link" (click)="goToEventPage(page)">
+                                                    {{ page }}
+                                                </button>
+                                            </li>
+
+                                            <!-- Next Button -->
+                                            <li class="page-item"
+                                                [class.disabled]="currentEventPage === totalEventPages">
+                                                <button class="page-link" (click)="goToNextEventPage()"
+                                                    [disabled]="currentEventPage === totalEventPages">
+                                                    Next
+                                                </button>
+                                            </li>
+
+                                        </ul>
+                                    </nav>
+                                </div>
                             </div>
+
                         </div>
-                
                     </div>
-                </div>
                 </div>
             </div>
         </div>

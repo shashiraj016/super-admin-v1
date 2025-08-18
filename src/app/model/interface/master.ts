@@ -147,6 +147,63 @@ export interface SingleLeadResponse {
   };
 }
 
+// NEW CODE ANAND 
+export interface CallLogs {
+  outgoing: number;
+  incoming: number;
+  connected: number;
+  declined: number;
+  duration: string;
+}
+
+export interface PS {
+  ps_id: string;
+  ps_name: string;
+  enquiries: number;
+  testDrives: number;
+  orders: number;
+  cancellations: number;
+  net_orders: number;
+  retail: number;
+  callLogs: CallLogs;
+}
+
+export interface SM {
+  sm_id: string;
+  sm_name: string;
+  team_id: string;
+  team_name: string;
+  enquiries: number;
+  testDrives: number;
+  orders: number;
+  cancellations: number;
+  net_orders: number;
+  retail: number;
+  callLogs: CallLogs;
+  ps_list: PS[];
+}
+
+export interface Dealer {
+  dealer_id: string;
+  dealer_name: string;
+  dealer_email: string | null;
+  enquiries: number;
+  testDrives: number;
+  cancellations: number;
+  orders: number;
+  net_orders: number;
+  retail: number;
+  callLogs: CallLogs;
+  sm_list: SM[];
+}
+
+export interface ApiResponse {
+  status: number;
+  message: string;
+  data: {
+    dealers: Dealer[];
+  };
+}
 // export interface SingleUserResponse {
 //   status: number; // Ensure status exists
 
