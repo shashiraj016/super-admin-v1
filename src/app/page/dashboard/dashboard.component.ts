@@ -31,6 +31,7 @@ import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { HeaderComponent } from '../../layout/header/header.component';
 import { ContextService } from '../../service/context.service';
 import { ApiResponse, Dealer } from '../../model/interface/master';
+import { DashboardService } from '../../service/dashboard-service';
 // Register all chart components
 Chart.register(...registerables);
 Chart.register(
@@ -42,6 +43,7 @@ Chart.register(
   CategoryScale,
   Tooltip
 );
+
 
 @Component({
   selector: 'app-dashboard',
@@ -112,6 +114,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     ],
   //   },
   // ];
+  currentPageMap: { [dealerId: string]: number } = {}; // track current page per dealer
+  showAllSMs: { [dealerId: string]: boolean } = {};
 
   totalLeads = signal<number>(0);
   totalTestDrives = signal<number>(0);
@@ -135,17 +139,20 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   ytdTestDrives = signal<number>(0);
   loadingSM: boolean = false;
   psData: { [smId: string]: any[] } = {};
+  showDetails = false;
+  paginatedDealers: any[] = [];
 
   mtdOrders = signal<number>(0);
   qtdOrders = signal<number>(0);
   ytdOrders = signal<number>(0);
-  selectedFilter: string = 'MTD'; // Default filter
+  selectedFilter: 'MTD' | 'QTD' | 'YTD' = 'MTD';
   dealerColors: string[] = [
     '#e6f2ff', // light blue
     '#f9f2ec', // light peach
     '#eaf7ea', // light green
     '#f3e8ff', // light purple
   ];
+  // showAllSMs: { [dealerId: string]: boolean } = {};
 
   mtdLeads = signal<number>(0);
   qtdLeads = signal<number>(0);
@@ -170,7 +177,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   dealerSMS: { [key: string]: any[] } = {};
   salesManagers: { [dealerId: string]: any[] } = {}; // Store SMs by dealer ID
   loadingSMs: { [dealerId: string]: boolean } = {}; // Loading state for SMs
-
+  expandedRow: number | null = null;
+  Math = Math;
+  itemsPerPagedeal: number = 10; // or 4
   orders: number = 0;
   currentOrders: number = 0;
   previousOrders: number = 0;
@@ -180,6 +189,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   leads: number = 0;
   selectedSM: any = null;
   isSidebarOpen = true;
+  paginatedDealerskpis: any[] = [];
+
   // loadingPS: boolean = false;
   // Current page tracking properties
   currentDealerPage: number = 1;
@@ -188,6 +199,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   expandedItems: { [key: string]: boolean } = {};
   // In your component
   filterOptions = ['MTD', 'QTD', 'YTD'] as const; // 'as const' makes type readonly ['MTD','QTD','YTD']
+  expandedRows: boolean[] = [false, false, false, false, false, false];
 
   // testDrives: number = 0;
   // orders: number = 0;
@@ -224,7 +236,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // selectedOption: string = 'leads'; // Default selected option to show 'leads' data
   maxValue: number = 0;
   selectedFilterPS: 'MTD' | 'QTD' | 'YTD' = 'MTD'; // default
-
+  customStartDate!: string;
+  customEndDate!: string;
   // currentLeads: number = 0;
   // previousLeads: number = 0;
   changeDisplay: number = 0;
@@ -235,7 +248,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private context: ContextService,
-    private router: Router
+    private router: Router,
+    private dashboardService: DashboardService
   ) {}
   data: any; // To hold your data
   apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
@@ -256,6 +270,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   }, 100);
   // }
   ngOnInit() {
+    this.selectedFilter = 'MTD';
+    this.fetchDealers(this.selectedFilter); // this.updatePaginatedDealers();
     this.fetchSuperAdminDashboard('MTD'); // or 'QTD', 'MTD' based on dropdown
 
     this.fetchDashboardDataForTopCards(this.selectedFilter);
@@ -278,12 +294,19 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     }, 100);
   }
 
+  toggleExpand(index: number): void {
+    this.expandedRows[index] = !this.expandedRows[index];
+    console.log(`Order ${index + 1} expanded:`, this.expandedRows[index]);
+  }
   getStrokeColor(change: number): string {
     const value = Number(change); // Ensure type
     if (value > 0) return '#4CAF50'; // green
     if (value < 0) return '#F44336'; // red
     return '#9E9E9E'; // grey
   }
+  // toggleShowSMs(dealerId: string) {
+  //   this.showAllSMs[dealerId] = !this.showAllSMs[dealerId];
+  // }
   // Add this method to your component class
   getDealerBackground(index: number): string {
     const backgrounds = [
@@ -325,7 +348,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   this.fetchSuperAdminDashboard(filter);
   //   this.fetchDealers('MTD');
   // }
+  toggleShowAllSMs(dealerId: string) {
+    this.showAllSMs[dealerId] = !this.showAllSMs[dealerId];
+  }
   onFilterChange(filter: 'MTD' | 'QTD' | 'YTD'): void {
+    this.selectedFilter = filter;
+    this.fetchDealers(filter);
     const activeSMId = this.activeSM; // remember the currently active SM
 
     this.selectedFilter = filter;
@@ -335,7 +363,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     // Fetch dealer KPIs
     this.fetchSuperAdminDashboard(filter);
-    this.fetchDealers(filter);
+    // this.fetchDealers(filter);
 
     // Refresh SMs for any open dealer divs
     if (this.selectedDealerId) {
@@ -403,6 +431,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     });
   }
 
+  toggleDetails(i: number) {
+    this.expandedRow = this.expandedRow === i ? null : i;
+  }
   updateProgressAndColor(change: number) {
     this.changeDisplay = change;
     this.progressValue = this.getProgressFromChange(change);
@@ -423,10 +454,10 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   getDashOffset(progressValue: number): number {
     return 100 - progressValue;
   }
-  get paginatedDealers(): any[] {
-    const start = (this.currentdealerPage - 1) * this.itemsPerdealerPage;
-    return this.dealers.slice(start, start + this.itemsPerdealerPage);
-  }
+  // get paginatedDealers(): any[] {
+  //   const start = (this.currentdealerPage - 1) * this.itemsPerdealerPage;
+  //   return this.dealers.slice(start, start + this.itemsPerdealerPage);
+  // }
 
   get totalDealerPages(): number {
     return Math.ceil(this.dealers.length / this.itemsPerdealerPage);
@@ -500,6 +531,37 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (this.currentPage < this.totalPagesdealer) {
       // ✅ works now
       this.currentPage++;
+    }
+  }
+  //   applyCustomDateFilter() {
+  //   if (!this.customStartDate || !this.customEndDate) {
+  //     alert('Please select both start and end dates');
+  //     return;
+  //   }
+
+  //   this.dashboardService.getDealerActivitiesCustom(this.customStartDate, this.customEndDate)
+  //     .subscribe((res: any) => {
+  //       if (res.status === 200) {
+  //         this.dealers = res.data.dealers || [];
+  //       }
+  //     });
+  // }
+  applyCustomDateFilter() {
+    if (this.customStartDate && this.customEndDate) {
+      // Pass the currently selected filter (MTD/QTD/YTD)
+      this.dashboardService
+        .getDealerActivitiesCustom(
+          this.customStartDate,
+          this.customEndDate,
+          this.selectedFilter
+        )
+        .subscribe((res: any) => {
+          if (res.status === 200) {
+            this.dealers = res.data.dealers || [];
+          }
+        });
+    } else {
+      alert('Please select both start and end dates.');
     }
   }
 
@@ -581,6 +643,25 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //       this.psData[smId] = sm?.ps_list || [];
   //     }
   //   }
+  // }
+
+  onPageChange(page: number): void {
+    const totalPages = Math.ceil(this.dealers.length / this.itemsPerPage);
+
+    if (page >= 1 && page <= totalPages) {
+      this.currentPage = page;
+      this.updatePaginatedDealers();
+    }
+  }
+
+  // updatePaginatedDealers() {
+  //   if (!this.dealers || !this.dealers.length) {
+  //     this.paginatedDealers = [];
+  //     return;
+  //   }
+  //   const start = (this.currentPage - 1) * this.itemsPerPagedeal;
+  //   const end = start + this.itemsPerPagedeal;
+  //   this.paginatedDealers = this.dealers.slice(start, end);
   // }
 
   toggleSM(smId: string, dealerId: string): void {
@@ -971,27 +1052,73 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //       }
   //     });
   // }
+  // fetchDealers(filter: 'MTD' | 'QTD' | 'YTD') {
+  //   const token = sessionStorage.getItem('token');
+  //   const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+  //   const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
+
+  //   this.http.get<any>(url, { headers }).subscribe(
+  //     (res) => {
+  //       if (res?.status === 200 && res.data?.dealerData) {
+  //         this.dealers = res.data.dealerData;
+  //       } else {
+  //         this.dealers = []; // clear if no data
+  //       }
+  //     },
+  //     (err) => {
+  //       console.error('Error fetching dealers:', err);
+  //       this.dealers = []; // clear on error
+  //     }
+  //   );
+  // }
+  // fetchDealers(filter: 'MTD' | 'QTD' | 'YTD') {
+  //   const token = sessionStorage.getItem('token');
+  //   const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+  //   const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
+
+  //   this.http.get<any>(url, { headers }).subscribe(
+  //     (res) => {
+  //       if (res?.status === 200 && res.data?.dealerData) {
+  //         this.dealers = res.data.dealerData;
+
+  //         // Initialize dealerSMS for each dealer
+  //         this.dealers.forEach((dealer) => {
+  //           if (!this.dealerSMS[dealer.dealer_id]) {
+  //             this.dealerSMS[dealer.dealer_id] = [];
+  //           }
+  //         });
+  //       } else {
+  //         this.dealers = []; // clear if no data
+  //       }
+  //     },
+  //     (err) => {
+  //       console.error('Error fetching dealers:', err);
+  //       this.dealers = []; // clear on error
+  //     }
+  //   );
+  // }
   fetchDealers(filter: 'MTD' | 'QTD' | 'YTD') {
-    const token = sessionStorage.getItem('token');
-    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-
-    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
-
-    this.http.get<any>(url, { headers }).subscribe(
-      (res) => {
-        if (res?.status === 200 && res.data?.dealerData) {
-          this.dealers = res.data.dealerData;
-        } else {
-          this.dealers = []; // clear if no data
-        }
-      },
-      (err) => {
-        console.error('Error fetching dealers:', err);
-        this.dealers = []; // clear on error
+    this.dashboardService.getDealerActivities(filter).subscribe((res: any) => {
+      console.log('API responseeeeeeeeeee:', res); // <--- check this in console
+      if (res.status === 200) {
+        this.dealers = res.data.dealers || [];
+        console.log('Dealers array:', this.dealers); // <--- check this too
+        this.currentPage = 1;
+        this.updatePaginatedDealers();
+      } else {
+        this.dealers = [];
+        this.paginatedDealers = [];
       }
-    );
+    });
   }
 
+  updatePaginatedDealers() {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    this.paginatedDealers = this.dealers.slice(start, end);
+  }
   // Called when user clicks a dealer div
   // toggleDealerSMs(dealerId: string) {
   //   if (this.selectedDealerId === dealerId) {
@@ -1989,6 +2116,44 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     });
   //   }
   // }
+
+  // FOR CALL ANSLSYISI
+  // Convert dealer.callLogs object to an array if it's a single object
+  getPaginatedLogs(dealer: any) {
+    const logsArray = Array.isArray(dealer.callLogs)
+      ? dealer.callLogs
+      : [dealer.callLogs];
+    const currentPage = this.currentPageMap[dealer.dealer_id] || 1;
+    const start = (currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    return logsArray.slice(start, end);
+  }
+
+  getTotalPages(dealer: any) {
+    const logsArray = Array.isArray(dealer.callLogs)
+      ? dealer.callLogs
+      : [dealer.callLogs];
+    return Math.ceil(logsArray.length / this.itemsPerPage);
+  }
+
+  changePagesm(dealerId: string, page: number) {
+    const dealer = this.dealers.find((d) => d.dealer_id === dealerId);
+    if (!dealer) return;
+
+    const totalPages = this.getTotalPages(dealer);
+    if (page >= 1 && page <= totalPages) {
+      this.currentPageMap[dealerId] = page;
+    }
+  }
+
+  // changePage(dealerId: string, page: number) {
+  //   const totalPages = this.getTotalPages(
+  //     this.dealers.find((d) => d.dealer_id === dealerId)
+  //   );
+  //   if (page >= 1 && page <= totalPages) {
+  //     this.currentPageMap[dealerId] = page;
+  //   }
+  // }
   updateData(data: any) {
     switch (this.selectedOption) {
       case 'leads':
@@ -2656,7 +2821,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // Apply the filter and update the selected period
   applyFilter(period: string): void {
     this.selectedPeriod = period;
-    this.selectedFilter = period; // ✅ ADD THIS LINE to highlight the correct button
+    // this.selectedFilter = period; // ✅ ADD THIS LINE to highlight the correct button
 
     const token = sessionStorage.getItem('token');
     if (!token) return;

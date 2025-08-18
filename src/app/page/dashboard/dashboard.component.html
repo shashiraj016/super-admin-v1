@@ -1,753 +1,110 @@
-<!-- Main Dashboard Content -->
-<ng-container *ngIf="!selectedDealer && !selectedSM">
-  <div class="dashboard-container">
-    <!-- Tab Navigation Header -->
-    <!-- <div class="header2" [ngClass]="{ 'sidebar-open': isSidebarOpen, 'sidebar-closed': !isSidebarOpen }">
-      <div class="nav-button-group" style="margin-left:10px;">
-        <button class="nav-button" [ngClass]="{ 'active': selectedSection === 'home' }" (click)="selectSection('home')">
-          <i class="fas fa-home" style="margin-right: 6px;font-size:15px;"></i> Home
-        </button>
+<div class="dashboard-container">
+  <div class="orders-table-container">
 
-        <button class="nav-button" [ngClass]="{ 'active': selectedSection === 'analysis' }"
-          (click)="selectSection('analysis')">
-          <i class="fas fa-chart-line" style="margin-right: 8px;"></i> Analysis
-        </button>
-      </div>
-    </div> -->
-    <div class="header2" [ngClass]="{ 'sidebar-open': isSidebarOpen, 'sidebar-closed': !isSidebarOpen }">
-      <div class="nav-button-group" style="margin-left:10px;">
+<!-- Filter buttons + Custom date inline -->
+<!-- Filter buttons + Custom date inline -->
+<!-- Filter buttons + Custom date inline -->
+<div class="filter-container mb-3 d-flex align-items-center">
+  <!-- Standard Filters -->
+  <button class="btn filter-btn me-2" [ngClass]="{'active': selectedFilter==='MTD'}"
+    (click)="onFilterChange('MTD')">MTD</button>
+  <button class="btn filter-btn me-2" [ngClass]="{'active': selectedFilter==='QTD'}"
+    (click)="onFilterChange('QTD')">QTD</button>
+  <button class="btn filter-btn me-3" [ngClass]="{'active': selectedFilter==='YTD'}"
+    (click)="onFilterChange('YTD')">YTD</button>
 
-        <!-- Analysis button (was Home) -->
-        <button class="nav-button" [ngClass]="{ 'active': selectedSection === 'analysis' }"
-          (click)="selectSection('analysis')">
-          <i class="fas fa-chart-line" style="margin-right: 6px; font-size:15px;"></i> Analysis
-        </button>
+  <!-- Custom Date Filter inline -->
+  <label class="me-2 mb-0" style="margin-left:10px;">Custom date:</label>
+  <input type="date" [(ngModel)]="customStartDate" class="form-control form-control-sm me-2"
+    style="width: 120px; display: inline-block; margin-left:10px;" />
+  <input type="date" [(ngModel)]="customEndDate" class="form-control form-control-sm me-2"
+    style="width: 120px; display: inline-block; margin-left:10px;" />
+  <button class="btn btn-sm " style="margin-left:10px;" (click)="applyCustomDateFilter()">Apply</button>
+</div>
 
-        <!-- Call Analysis button (was Analysis) -->
-        <button class="nav-button" [ngClass]="{ 'active': selectedSection === 'callAnalysis' }"
-          (click)="selectSection('callAnalysis')">
-          <i class="fas fa-phone-alt" style="margin-right: 8px;"></i> Call Analysis
-        </button>
+    <!-- Table -->
+    <div class="table-responsive" *ngIf="paginatedDealers.length > 0">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Dealer name</th>
+            <th>Enquiries</th>
+            <th>Test Drives</th>
+            <th>Orders</th>
+            <th>Net orders</th>
+            <th>Lost leads</th>
+            <th>Retail</th>
+            <th>Cancellations</th>
+            <th>Upcoming Followups</th>
+            <th>Overdue Followups</th>
+            <th>Outgoing</th>
+            <th>Incoming</th>
+            <th>Connected</th>
+            <th>Declined</th>
+            <th>Duration</th>
+            <th>Total user</th>
+            <th>Active user</th>
+            <th></th>
+          </tr>
+        </thead>
 
-      </div>
-    </div>
+        <tbody>
+          <ng-container *ngFor="let dealer of paginatedDealers; let i = index">
+            <tr>
+              <td>{{ dealer.dealer_name }}</td>
+              <td>{{ dealer.enquiries }}</td>
+              <td>{{ dealer.testDrives }}</td>
+              <td>{{ dealer.orders }}</td>
+              <td>{{ dealer.net_orders }}</td>
+              <td>{{ dealer.lostEnquiries }}</td>
+              <td>{{ dealer.retail }}</td>
+              <td>{{ dealer.cancellations }}</td>
+              <td>{{ dealer.upComingFollowups }}</td>
+              <td>{{ dealer.overdueFollowups }}</td>
+              <td>{{ dealer.callLogs?.outgoing }}</td>
+              <td>{{ dealer.callLogs?.incoming }}</td>
+              <td>{{ dealer.callLogs?.connected }}</td>
+              <td>{{ dealer.callLogs?.declined }}</td>
+              <td>{{ dealer.callLogs?.duration || '-' }}</td>
+                <td>{{ dealer.totalUsers }}</td>
+                <td>{{ dealer.activeUsers }}</td>
+                        
 
 
-    <!-- HOME TAB CONTENT -->
-    <div *ngIf="selectedSection === 'analysis'" class="content-section active">
+              <td>
+                <button class="icon-btn" (click)="toggleDetails(i)">
+                  <i class="fas" [ngClass]="expandedRow === i ? 'fa-minus' : 'fa-plus'"></i>
+                </button>
+              </td>
+            </tr>
 
-      <div style="
-          background-color: white;
-          display: inline-flex;
-          gap: 6px;
-          color: #000;
-          padding: 6px 12px;
-          border-radius: 999px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          font-family: 'Poppins', sans-serif;
-          margin-top: -150px !important;   /* positive margin to separate from tabs */
-          margin-bottom: 20px; /* space below pills before cards */
-          width: max-content;  /* so the pill container fits contents */
-        ">
-        <!-- <button *ngFor="let option of ['MTD', 'QTD', 'YTD']" (click)="onFilterChange(option)"
-            [ngClass]="{ 'pill-active': selectedFilter === option }" class="pill-button">
-            {{ option }}
-          </button> -->
-        <button *ngFor="let option of filterOptions" (click)="onFilterChange(option)"
-          [ngClass]="{ 'pill-active': selectedFilter === option }" class="pill-button">
-          {{ option }}
-        </button>
-
-      </div>
-
-      <!-- Metrics Section -->
-      <div class="dashboard-container">
-        <!-- <div class="metrics-row" style="display: flex; gap: 15px; font-family: 'Poppins', sans-serif;">
-
-          <div class="metric-box" style="border: 1px solid #E4E4E7; border-radius: 10px; overflow: hidden;">
-            <div class="metric-value" style="color:black;font-size:1.125rem;font-weight:500;">{{
-              dashboardMetrics.totalLeads }}</div>
-            <div class="metric-label"
-              style="color:#000;font-size:18px;font-weight:400;font-family: 'Poppins', sans-serif">Enquiries</div>
-          </div>
-
-          <div class="metric-box" style="border: 1px solid #E4E4E7; border-radius: 10px; overflow: hidden;">
-            <div class="metric-value" style="color:black;font-size:1.125rem;font-weight:500;">{{
-              dashboardMetrics.totalTestDrives }}</div>
-            <div class="metric-label"
-              style="color:#000;font-size:18px;font-weight:400;font-family: 'Poppins', sans-serif">Test Drives</div>
-          </div>
-
-          <div class="metric-box" style="border: 1px solid #E4E4E7; border-radius: 10px; overflow: hidden;">
-            <div class="metric-value" style="color:black;font-size:1.125rem;font-weight:500;">{{
-              dashboardMetrics.totalOrders }}</div>
-            <div class="metric-label"
-              style="color:#000;font-size:18px;font-weight:400;font-family: 'Poppins', sans-serif"> Orders</div>
-          </div>
-
-          <div class="metric-box" style="border: 1px solid #E4E4E7; border-radius: 10px; overflow: hidden;">
-            <div class="metric-value" style="color:black;font-size:1.125rem;font-weight:500;">{{
-              dashboardMetrics.lostLeads }}</div>
-            <div class="metric-label"
-              style="color:#000;font-size:18px;font-weight:400;font-family: 'Poppins', sans-serif"> Lost leads</div>
-          </div>
-
-          <div class="metric-box" style="border: 1px solid #E4E4E7; border-radius: 10px; overflow: hidden;">
-            <div class="metric-value" style="color:black;font-size:1.125rem;font-weight:500;">{{
-              dashboardMetrics.cancellations }}</div>
-            <div class="metric-label"
-              style="color:#000;font-size:18px;font-weight:400;font-family: 'Poppins', sans-serif">Cancellation</div>
-          </div>
-
-          <div class="metric-box" style="border: 1px solid #E4E4E7; border-radius: 10px; overflow: hidden;">
-            <div class="metric-value" style="color:black;font-size:1.125rem;font-weight:500;">{{
-              dashboardMetrics.netOrders }}</div>
-            <div class="metric-label"
-              style="color:#000;font-size:18px;font-weight:400;font-family: 'Poppins', sans-serif;">Net Orders</div>
-          </div>
-
-          <div class="metric-box" style="border: 1px solid #E4E4E7; border-radius: 10px; overflow: hidden;">
-            <div class="metric-value" style="color:black;font-size:1.125rem;font-weight:500;">{{ dashboardMetrics.retail
-              }}</div>
-            <div class="metric-label"
-              style="color:#000;font-size:18px;font-weight:400;font-family: 'Poppins', sans-serif">Retail</div>
-          </div>
-        </div> -->
-      </div>
-
-      <!-- Dealers List -->
-      <!-- Dealers List -->
-      <div class="dashboard-container" style="background-color:transparent !important">
-        <div class="accordion level-1">
-
-          <!-- Loop starts -->
-          <!-- <div *ngFor="let dealer of dealers; let i = index" class="dealer-block"
-        [style.backgroundColor]="dealerColors[i % dealerColors.length]"> -->
-          <div *ngFor="let dealer of paginatedDealerskpi; let i = index" class="dealer-block"
-            [style.backgroundColor]="dealerColors[i % dealerColors.length]">
-
-            <!-- Dealer header -->
-            <div class="accordion-header" (click)="toggleDealerSMs(dealer.dealer_id)">
-              <span>
-                <span class="level-indicator">DEALER</span>
-                {{ dealer.dealer_name }}
-              </span>
-              <button class="accordion-toggle">
-                {{ selectedDealerId === dealer.dealer_id ? '▲' : '▼' }}
-              </button>
-            </div>
-
-            <!-- Dealer KPIs -->
-            <div class="accordion-content" [ngClass]="{ 'active': selectedDealerId === dealer.dealer_id }">
-              <div class="content-wrapper">
-                <div class="kpi-grid">
-                  <div class="kpi-card">
-                    <div class="kpi-value">{{ dealer.enquiries }}</div>
-                    <div class="kpi-label">Enquiries</div>
-                  </div>
-                  <div class="kpi-card">
-                    <div class="kpi-value">{{ dealer.testDrives }}</div>
-                    <div class="kpi-label">Test Drives</div>
-                  </div>
-                  <div class="kpi-card">
-                <div class="kpi-value">{{ dealer.lostEnquiries }}</div>
-                <div class="kpi-label">Lost Leads</div>
-              </div>
-                  <div class="kpi-card">
-                    <div class="kpi-value">{{ dealer.upComingFollowups }}</div>
-                    <div class="kpi-label">Upcoming Followups</div>
-                  </div>
-                  <div class="kpi-card">
-                    <div class="kpi-value">{{ dealer.overdueFollowups }}</div>
-                    <div class="kpi-label">Overdue Followups</div>
-                  </div>
-                  <div class="kpi-card">
-                    <div class="kpi-value">{{ dealer.orders }}</div>
-                    <div class="kpi-label">Orders</div>
-                  </div>
-                  <div class="kpi-card">
-                    <div class="kpi-value">{{ dealer.cancellations }}</div>
-                    <div class="kpi-label">Cancellations</div>
-                  </div>
-                  <div class="kpi-card">
-                    <div class="kpi-value">{{ dealer.net_orders }}</div>
-                    <div class="kpi-label">Net Orders</div>
-                  </div>
-                  <div class="kpi-card">
-                    <div class="kpi-value">{{ dealer.retail }}</div>
-                    <div class="kpi-label">Retail</div>
-                  </div>
+            <tr *ngIf="expandedRow === i">
+              <td colspan="16">
+                <div class="p-3 bg-light border rounded text-center">
+                  <h6 class="text-primary">User Details (Static)</h6>
+                  <p>User 1 - user1xample.com</p>
+                  <p>User 2 - user2example.com</p>
+                  <p>User 3 - user3xample.com</p>
+                  <button class="btn btn-sm btn-danger mt-2" (click)="expandedRow = null">Close</button>
                 </div>
-              </div>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
 
-
-              <!-- 🔽 SM Loop under Dealer -->
-              <!-- 🔽 SM Loop under Dealer -->
-              <!-- SM Loop under Dealer -->
-              <div class="accordion level-2" *ngFor="let sm of dealerSMS[dealer.dealer_id]">
-                <div class="accordion-header" (click)="toggleSM(sm.sm_id, dealer.dealer_id)">
-                  <span>
-                    <span class="level-indicator">SM</span>
-                    {{ sm.sm_name }}
-                  </span>
-                  <button class="accordion-toggle">
-                    {{ activeSM === sm.sm_id ? '▲' : '▼' }}
-                  </button>
-                </div>
-
-                <!-- SM KPIs AND PS sections should be inside the SAME accordion-content -->
-                <div class="accordion-content sm-content" [ngClass]="{ 'active': activeSM === sm.sm_id }">
-                  <div class="content-wrapper">
-                    <!-- SM KPI Grid -->
-                    <div class="kpi-grid">
-                      <div class="kpi-card">
-                        <div class="kpi-value">{{ sm.enquiries }}</div>
-                        <div class="kpi-label">Enquiries</div>
-                      </div>
-                      <div class="kpi-card">
-                        <div class="kpi-value">{{ sm.testDrives }}</div>
-                        <div class="kpi-label">Test Drives</div>
-                      </div>
-                      <div class="kpi-card">
-                        <div class="kpi-value">{{ sm.orders }}</div>
-                        <div class="kpi-label">Orders</div>
-                      </div>
-                    </div>
-
-                    <!-- ✅ PS Loop should be INSIDE the SM's accordion content -->
-                    <div class="accordion level-3" *ngFor="let ps of psData[sm.sm_id]">
-                      <div class="accordion-header" (click)="togglePS(ps.ps_id)">
-                        <span>
-                          <span class="level-indicator">PS</span>
-                          {{ ps.ps_name }}
-                        </span>
-                        <button class="accordion-toggle">
-                          {{ activePS === ps.ps_id ? '▲' : '▼' }}
-                        </button>
-                      </div>
-                      <!-- <div class="accordion level-3" *ngFor="let ps of psData[sm.sm_id]">
-          <div class="accordion-header" (click)="togglePS(ps.ps_id)">
-            <span>
-              <span class="level-indicator">PS</span>
-              {{ ps.ps_fname }} {{ ps.ps_lname }}
-            </span>
-            <button class="accordion-toggle">
-              {{ activePS === ps.ps_id ? '▲' : '▼' }}
-            </button>
-          </div> -->
-
-                      <div class="accordion-content" [ngClass]="{ 'active': activePS === ps.ps_id }">
-                        <div class="content-wrapper">
-                          <div class="kpi-grid">
-                            <div class="kpi-card">
-                              <div class="kpi-value">{{ ps.enquiries }}</div>
-                              <div class="kpi-label">Enquiries</div>
-                            </div>
-                            <div class="kpi-card">
-                              <div class="kpi-value">{{ ps.testDrives }}</div>
-                              <div class="kpi-label">Test Drives</div>
-                            </div>
-                            <div class="kpi-card">
-                              <div class="kpi-value">{{ ps.orders }}</div>
-                              <div class="kpi-label">Orders</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <!-- End PS Loop -->
-
-                  </div>
-                </div>
-              </div>
-
-
-
-
-
-            </div>
-          </div>
-        </div>
-        <!-- <div class="pagination-controls" style="margin-top: 20px; text-align:center;">
-      <button (click)="prevPage()" [disabled]="currentPage === 1">Prev</button>
-      <span>Page {{ currentPage }} of {{ totalPagesdealer }}</span>
-      <button (click)="nextPage()" [disabled]="currentPage === totalPagesdealer">Next</button>
-    </div>
-  </div> -->
-        <div class="pagination-wrapper" style="background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
-            padding: 15px 20px; border-radius: 10px; display: flex; 
-            justify-content: space-between; align-items: center; margin-top: 20px;">
-
-          <!-- Left side: showing entries -->
-          <div class="entries-info" style="font-size: 14px; color: #333;">
-            Showing {{ startEntry }} to {{ endEntry }} of {{ dealers.length }} entries
-          </div>
-
-          <!-- Right side: pagination buttons -->
-          <div class="pagination-buttons" style="display: flex; gap: 10px; align-items: center;">
-            <button (click)="prevPage()" [disabled]="currentPage === 1"
-              style="padding: 6px 12px; border: none; background-color: #222fb9; color: #fff; border-radius: 5px; cursor: pointer;"
-              [ngStyle]="{'opacity': currentPage === 1 ? 0.5 : 1}">
-              Prev
-            </button>
-
-            <span style="font-size: 14px; color: #333;">Page {{ currentPage }} of {{ totalPagesdealer }}</span>
-
-            <button (click)="nextPage()" [disabled]="currentPage === totalPagesdealer"
-              style="padding: 6px 12px; border: none; background-color: #222fb9; color: #fff; border-radius: 5px; cursor: pointer;"
-              [ngStyle]="{'opacity': currentPage === totalPagesdealer ? 0.5 : 1}">
-              Next
-            </button>
-          </div>
-
-        </div>
-
-
+      <!-- Pagination -->
+      <div class="pagination-container mt-2 d-flex justify-content-end align-items-center">
+        <button class="btn btn-sm me-2" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">Prev</button>
+        <span class="me-2">Page {{ currentPage }} of {{ Math.ceil(dealers.length / itemsPerPage) || 1 }}</span>
+        <button class="btn btn-sm" (click)="onPageChange(currentPage + 1)"
+          [disabled]="currentPage === (Math.ceil(dealers.length / itemsPerPage) || 1)">Next</button>
       </div>
-
-
-    </div>
-  </div>
-
-
-
-  <!-- ANALYSIS TAB CONTENT -->
-  <div *ngIf="selectedSection === 'callAnalysis'" class="dashboard-content content-section active">
-    <!-- Analysis content will go here -->
-    <div class="dashboard-container">
-
-
-
-
-      <!-- HOME TAB CONTENT -->
-      <!-- <div *ngIf="selectedSection === 'callanalysis'" class="content-section active"> -->
-
-      <div style="
-          background-color: white;
-          display: inline-flex;
-          gap: 6px;
-          color: #000;
-          padding: 6px 12px;
-          border-radius: 999px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          font-family: 'Poppins', sans-serif;
-          margin-top: -150px !important;   /* positive margin to separate from tabs */
-          margin-bottom: 20px; /* space below pills before cards */
-          width: max-content;  /* so the pill container fits contents */
-        ">
-        <!-- <button *ngFor="let option of ['MTD', 'QTD', 'YTD']" (click)="onFilterChange(option)"
-            [ngClass]="{ 'pill-active': selectedFilter === option }" class="pill-button">
-            {{ option }}
-          </button> -->
-        <button *ngFor="let option of filterOptions" (click)="onFilterChange(option)"
-          [ngClass]="{ 'pill-active': selectedFilter === option }" class="pill-button">
-          {{ option }}
-        </button>
-
+      
+      <div *ngIf="paginatedDealers.length === 0" class="text-center mt-3">
+        No dealers found.
       </div>
-
-      <!-- Metrics Section -->
-      <div class="dashboard-container">
-
-      </div>
-
-      <!-- Dealers List -->
-      <!-- Dealers List -->
-      <div class="dashboard-container" style="background-color:transparent !important">
-        <div class="accordion level-1">
-
-          <!-- Loop starts -->
-          <!-- <div *ngFor="let dealer of dealers; let i = index" class="dealer-block"
-        [style.backgroundColor]="dealerColors[i % dealerColors.length]"> -->
-          <div *ngFor="let dealer of paginatedDealerskpi; let i = index" class="dealer-block"
-            [style.backgroundColor]="dealerColors[i % dealerColors.length]">
-
-            <!-- Dealer header -->
-            <div class="accordion-header" (click)="toggleDealerSMs(dealer.dealer_id)">
-              <span>
-                <span class="level-indicator">DEALER</span>
-                {{ dealer.dealer_name }}
-              </span>
-              <button class="accordion-toggle">
-                {{ selectedDealerId === dealer.dealer_id ? '▲' : '▼' }}
-              </button>
-            </div>
-
-            <!-- Dealer KPIs -->
-            <div class="accordion-content" [ngClass]="{ 'active': selectedDealerId === dealer.dealer_id }">
-              <div class="content-wrapper">
-                <table class="dealer-table">
-                  <thead>
-                    <tr>
-
-                      <th>Outgoing Calls</th>
-                      <th>Incoming Calls</th>
-                      <th>Connected Calls</th>
-                      <th>Declined Calls</th>
-                      <th>Call Duration</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-
-                      <td>{{ dealer.callLogs.outgoing }}</td>
-                      <td>{{ dealer.callLogs.incoming }}</td>
-                      <td>{{ dealer.callLogs.connected }}</td>
-                      <td>{{ dealer.callLogs.declined }}</td>
-                      <td>{{ dealer.callLogs.duration || '-' }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-
-
-
-              <!-- 🔽 SM Loop under Dealer -->
-              <!-- 🔽 SM Loop under Dealer -->
-              <!-- SM Loop under Dealer -->
-              <div class="accordion level-2" *ngFor="let sm of dealerSMS[dealer.dealer_id]">
-                <div class="accordion-header" (click)="toggleSM(sm.sm_id, dealer.dealer_id)">
-                  <span>
-                    <span class="level-indicator">SM</span>
-                    {{ sm.sm_name }}
-                  </span>
-                  <button class="accordion-toggle">
-                    {{ activeSM === sm.sm_id ? '▲' : '▼' }}
-                  </button>
-                </div>
-
-                <!-- SM KPIs AND PS sections should be inside the SAME accordion-content -->
-                <div class="accordion-content" [ngClass]="{ 'active': activeSM === sm.sm_id }">
-                  <div class="content-wrapper">
-                    <!-- SM KPI Grid -->
-                    <!-- <div class="kpi-grid">
-                    <div class="kpi-card">
-                      <div class="kpi-value">{{ sm.enquiries }}</div>
-                      <div class="kpi-label">Enquiries</div>
-                    </div>
-                    <div class="kpi-card">
-                      <div class="kpi-value">{{ sm.testDrives }}</div>
-                      <div class="kpi-label">Test Drives</div>
-                    </div>
-                    <div class="kpi-card">
-                      <div class="kpi-value">{{ sm.orders }}</div>
-                      <div class="kpi-label">Orders</div>
-                    </div>
-                  </div> -->
-                    <!-- SM Table -->
-                    <!-- <div class="content-wrapper">
-                    <table class="sm-table"> -->
-                    <div class="content-wrapper">
-                      <table class="dealer-table">
-                        <thead>
-                          <tr>
-
-                            <th>Outgoing Calls</th>
-                            <th>Incoming Calls</th>
-                            <th>Connected Calls</th>
-                            <th>Declined Calls</th>
-                            <th>Call Duration</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-
-                            <td>{{ sm.callLogs.outgoing }}</td>
-                            <td>{{ sm.callLogs.incoming }}</td>
-                            <td>{{ sm.callLogs.connected }}</td>
-                            <td>{{ sm.callLogs.declined }}</td>
-                            <td>{{ sm.callLogs.duration || '-' }}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-
-
-                    <!-- ✅ PS Loop should be INSIDE the SM's accordion content -->
-                    <div class="accordion level-3" *ngFor="let ps of psData[sm.sm_id]">
-                      <div class="accordion-header" (click)="togglePS(ps.ps_id)">
-                        <span>
-                          <span class="level-indicator">PS</span>
-                          {{ ps.ps_name }}
-                        </span>
-                        <button class="accordion-toggle">
-                          {{ activePS === ps.ps_id ? '▲' : '▼' }}
-                        </button>
-                      </div>
-                      <!-- <div class="accordion level-3" *ngFor="let ps of psData[sm.sm_id]">
-          <div class="accordion-header" (click)="togglePS(ps.ps_id)">
-            <span>
-              <span class="level-indicator">PS</span>
-              {{ ps.ps_fname }} {{ ps.ps_lname }}
-            </span>
-            <button class="accordion-toggle">
-              {{ activePS === ps.ps_id ? '▲' : '▼' }}
-            </button>
-          </div> -->
-
-                      <div class="accordion-content" [ngClass]="{ 'active': activePS === ps.ps_id }">
-                        <!-- <div class="content-wrapper">
-                        <div class="kpi-grid">
-                          <div class="kpi-card">
-                            <div class="kpi-value">{{ ps.enquiries }}</div>
-                            <div class="kpi-label">Enquiries</div>
-                          </div>
-                          <div class="kpi-card">
-                            <div class="kpi-value">{{ ps.testDrives }}</div>
-                            <div class="kpi-label">Test Drives</div>
-                          </div>
-                          <div class="kpi-card">
-                            <div class="kpi-value">{{ ps.orders }}</div>
-                            <div class="kpi-label">Orders</div>
-                          </div>
-                        </div>
-                      </div> -->
-                        <!-- PS Table -->
-                        <!-- <div class="content-wrapper">
-                        <table class="ps-table"> -->
-                        <div class="content-wrapper">
-                          <table class="dealer-table">
-                            <thead>
-                              <tr>
-
-                                <th>Outgoing Calls</th>
-                                <th>Incoming Calls</th>
-                                <th>Connected Calls</th>
-                                <th>Declined Calls</th>
-                                <th>Call Duration</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-
-                                <td>{{ ps.callLogs.outgoing }}</td>
-                                <td>{{ ps.callLogs.incoming }}</td>
-                                <td>{{ ps.callLogs.connected }}</td>
-                                <td>{{ ps.callLogs.declined }}</td>
-                                <td>{{ ps.callLogs.duration || '-' }}</td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-
-                      </div>
-                    </div>
-                    <!-- End PS Loop -->
-
-                  </div>
-                </div>
-              </div>
-
-
-
-
-
-            </div>
-          </div>
-        </div>
-        <!-- <div class="pagination-controls" style="margin-top: 20px; text-align:center;">
-      <button (click)="prevPage()" [disabled]="currentPage === 1">Prev</button>
-      <span>Page {{ currentPage }} of {{ totalPagesdealer }}</span>
-      <button (click)="nextPage()" [disabled]="currentPage === totalPagesdealer">Next</button>
-    </div>
-  </div> -->
-        <div class="pagination-wrapper" style="background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
-            padding: 15px 20px; border-radius: 10px; display: flex; 
-            justify-content: space-between; align-items: center; margin-top: 20px;">
-
-          <!-- Left side: showing entries -->
-          <div class="entries-info" style="font-size: 14px; color: #333;">
-            Showing {{ startEntry }} to {{ endEntry }} of {{ dealers.length }} entries
-          </div>
-
-          <!-- Right side: pagination buttons -->
-          <div class="pagination-buttons" style="display: flex; gap: 10px; align-items: center;">
-            <button (click)="prevPage()" [disabled]="currentPage === 1"
-              style="padding: 6px 12px; border: none; background-color: #222fb9; color: #fff; border-radius: 5px; cursor: pointer;"
-              [ngStyle]="{'opacity': currentPage === 1 ? 0.5 : 1}">
-              Prev
-            </button>
-
-            <span style="font-size: 14px; color: #333;">Page {{ currentPage }} of {{ totalPagesdealer }}</span>
-
-            <button (click)="nextPage()" [disabled]="currentPage === totalPagesdealer"
-              style="padding: 6px 12px; border: none; background-color: #222fb9; color: #fff; border-radius: 5px; cursor: pointer;"
-              [ngStyle]="{'opacity': currentPage === totalPagesdealer ? 0.5 : 1}">
-              Next
-            </button>
-          </div>
-
-        </div>
-
-
-      </div>
-
-
-    </div>
-  </div>
-
-
-  <!-- </div> -->
-</ng-container>
-
-<!-- PS1 & PS2 Cards Section (only shown when SM is selected) -->
-<div class="ps-cards-page" *ngIf="selectedSM" style="margin-top: 40px;">
-  <button class="back-arrow" (click)="goBack()" title="Go Back">←</button>
-  <h2 style="margin: 16px 0;">{{ selectedSM.sm_name }}</h2>
-
-  <div class="ps-section" style="display: flex; gap: 40px; flex-wrap: wrap;">
-
-    <!-- Show PS cards if data exists -->
-    <ng-container *ngIf="paginatedPs1Data.length > 0; else noPSData">
-      <h3 style="font-weight: 600; margin-bottom: 16px;"></h3>
-      <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-        <div *ngFor="let item of paginatedPs1Data; let i = index" (mouseenter)="hoveredPS = item.ps_id"
-          (mouseleave)="hoveredPS = null" (click)="onPSCardClick(item.ps_id)"
-          style="background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06); padding: 16px; width: 120px; text-align: center; cursor: pointer; position: relative;">
-
-          <!-- Avatar -->
-          <div [ngStyle]="getAvatarStyle(i)">
-            {{ item.ps_name.charAt(0).toUpperCase() }}
-          </div>
-
-          <!-- Name -->
-          <div
-            style="font-size: 12px; font-weight: 600; color: #2c2c2c; margin-top: 8px; font-family: 'Poppins', sans-serif;">
-            {{ item.ps_name }}
-          </div>
-
-          <!-- Tooltip -->
-          <div *ngIf="hoveredPS === item.ps_id"
-            style="position: absolute; top: 90%; left: 50%; transform: translateX(-50%); background: #f0f0ff; border: 1px solid #ccc; padding: 8px 12px; border-radius: 8px; font-size: 12px; color: #333; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.1); z-index: 10; text-align: left; line-height: 1.6;">
-            <div><strong>Enquiries:</strong> {{ item.enquiries }}</div>
-            <div><strong>Test Drives:</strong> {{ item.testDrives }}</div>
-            <div><strong>Orders:</strong> {{ item.orders }}</div>
-            <div><strong>Cancellations:</strong> {{ item.cancellations }}</div>
-            <div><strong>Net Orders:</strong> {{ item.netOrders }}</div>
-            <div><strong>Retail:</strong> {{ item.retail }}</div>
-          </div>
-        </div>
-      </div>
-      <div style="width: 100%; margin-top: 24px;">
-        <div style="display: flex; justify-content: flex-end; align-items: center; padding-right: 50px;">
-          <!-- <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1"
-            style="padding: 6px 12px; margin-right: 8px; border: 1px solid #ccc; background: #f5f5f5; color: #666; cursor: pointer;">
-            Prev
-          </button> -->
-          <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1" [ngStyle]="{
-              'padding': '6px 12px',
-              'margin-right': '8px',
-              'border': currentPage === 1 ? '1px solid #ccc' : '1px solid #222fb9',
-              'background': currentPage === 1 ? '#f5f5f5' : 'white',
-              'color': currentPage === 1 ? '#666' : '#222fb9',
-              'cursor': currentPage === 1 ? 'not-allowed' : 'pointer'
-            }">
-            Prev
-          </button>
-
-
-          <span style="margin: 0 8px; color: #555;">
-            Page {{ currentPage }} of {{ totalPs1Pages }}
-          </span>
-
-          <!-- <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPs1Pages"
-            style="padding: 6px 12px; margin-left: 8px; border: 1px solid #222fb9; background: white; color: #222fb9; cursor: pointer;">
-            Next
-          </button> -->
-          <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPs1Pages" [ngStyle]="{
-              'padding': '6px 12px',
-              'margin-left': '8px',
-              'border': currentPage === totalPs1Pages ? '1px solid #ccc' : '1px solid #222fb9',
-              'background': currentPage === totalPs1Pages ? '#f5f5f5' : 'white',
-              'color': currentPage === totalPs1Pages ? '#666' : '#222fb9',
-              'cursor': currentPage === totalPs1Pages ? 'not-allowed' : 'pointer'
-            }">
-            Next
-          </button>
-
-        </div>
-      </div>
-
-    </ng-container>
-
-    <!-- No PS message -->
-    <ng-template #noPSData>
-      <div *ngIf="!loadingPS" style="text-align: center; padding: 60px 20px; color: #666; font-style: italic;
-                  background-color: #f9f9f9; border-radius: 12px; margin-top: 20px;
-                  font-family: 'Poppins', sans-serif;  width: 100%;">
-        <!-- <div style="font-size: 48px; color: #ccc; margin-bottom: 16px;">
-          <i class="fas fa-user-slash"></i>
-        </div> -->
-        <!-- <div style="font-size: 18px; font-weight: 500; color: #888; margin-bottom: 8px;">
-          No PS data found
-        </div> -->
-        <div style="font-size: 14px; color: #aaa;">
-          There are no PS records available for <strong>{{ selectedSM.sm_name }}</strong>
-        </div>
-      </div>
-    </ng-template>
+                                              
 
   </div>
 </div>
-
-<!-- No PS data message -->
-
-
-
-
-<!-- Pagination aligned to right -->
-
-<!-- </div> -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Chart.js Script -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  const ctx = document.getElementById('doughnutChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Red', 'Blue', 'Yellow'],
-      datasets: [{
-        data: [300, 50, 100],
-        backgroundColor: ['#ff0000', '#0000ff', '#ffff00'],
-        hoverOffset: 4
-      }]
-    }
-  });
-
-  document.addEventListener('DOMContentLoaded', function () {
-    fetch('https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd') // Replace with your actual API endpoint
-      .then(response => response.json())
-      .then(data => {
-        populateTable(data.data.rankings.leads); // Assuming the structure is data.data.rankings.leads
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-        // Optionally display an error message in the table
-      });
-
-    function populateTable(leadsData) {
-      const tableBody = document.querySelector('#dataTable tbody');
-      tableBody.innerHTML = ''; // Clear any existing rows
-
-      leadsData.forEach(dealer => {
-        const row = tableBody.insertRow();
-        const nameCell = row.insertCell();
-        const codeCell = row.insertCell();
-        const locationCell = row.insertCell();
-        const phoneCell = row.insertCell();
-        const countCell = row.insertCell();
-        const rankCell = row.insertCell();
-
-        nameCell.textContent = dealer.dealer_name;
-        codeCell.textContent = dealer.dealer_code;
-        locationCell.textContent = dealer.location;
-        phoneCell.textContent = dealer.phone || dealer.mobile || ''; // Use phone if available, otherwise mobile
-        countCell.textContent = dealer.value;
-        rankCell.textContent = dealer.rank;
-      });
-    }
-  });
-</script>

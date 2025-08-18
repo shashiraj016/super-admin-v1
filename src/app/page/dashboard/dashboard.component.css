@@ -3727,3 +3727,288 @@ body {
   font-weight: 600;
   color: #333;
 }
+.show-more-wrapper {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  margin: 15px 0; /* Space above and below */
+}
+
+.show-more-btn {
+  background-color: #007bff; /* Blue color */
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.show-more-btn:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+}
+
+/* call anslyis pagination */
+/* Center the pagination */
+.pagination-center {
+  display: flex;
+  justify-content: center; /* center horizontally */
+  align-items: center;
+  gap: 8px; /* space between buttons */
+  margin-top: 15px; /* spacing from table */
+}
+
+/* Basic button styling */
+.pagination button {
+  padding: 6px 12px;
+  border: 1px solid #007bff;
+  background-color: white;
+  color: #007bff;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+/* Hover effect */
+.pagination button:hover:not(:disabled) {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Active page button */
+.pagination button.active {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+}
+
+/* Disabled button */
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+
+
+
+/*  */
+/* dashboard.component.css */
+
+.expand-row {
+  background-color: #f8f9fa;
+}
+
+.expanded-content {
+  padding: 20px;
+  border-left: 4px solid #007bff;
+  margin: 10px;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.expanded-content .row {
+  margin: 0;
+}
+
+.expanded-content .col-md-4 {
+  margin-bottom: 15px;
+}
+
+.expanded-content strong {
+  color: #495057;
+  font-size: 13px;
+}
+.orders-table-container {
+  /* background: white; */
+  border-radius: 8px;
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.table {
+  margin-bottom: 0;
+  font-size: 14px;
+}
+
+.table thead th {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #dee2e6;
+  padding: 16px 12px;
+  white-space: nowrap;
+}
+
+.table tbody td {
+  padding: 16px 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.order-row:hover {
+  background-color: #f8f9fa;
+}
+
+.order-id {
+  font-weight: 600;
+  color: #495057;
+}
+
+.created-time {
+  color: #6c757d;
+}
+
+.customer-name {
+  font-weight: 500;
+  color: #212529;
+}
+
+.total-amount,
+.profit-amount {
+  font-weight: 600;
+  color: #212529;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-confirmed {
+  background-color: #cce5ff;
+  color: #0066cc;
+}
+
+.status-shipped {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.btn-plus {
+  background: none;
+  border: none;
+  color: #6c757d;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.btn-plus:hover {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.btn-plus:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.action-cell {
+  text-align: center;
+  width: 60px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .table-responsive {
+    font-size: 12px;
+  }
+  
+  .table thead th,
+  .table tbody td {
+    padding: 12px 8px;
+  }
+}
+.filter-btn {
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #0d6efd;
+  background-color: white;
+  color: #0d6efd;
+  box-sizing: border-box; /* ensure border doesn’t change size */
+}
+
+.filter-btn.active {
+  background-color: #0d6efd;
+  color: white;
+  border: 1px solid #0d6efd; /* keep border consistent */
+}
+
+.filter-btn:hover {
+  background-color: #0d6efd;
+  color: white;
+  border: 1px solid #0d6efd; /* lock border */
+}
+.icon-btn {
+  border: none;
+  outline: none;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.icon-btn:hover {
+  background: #e9ecef;
+}
+
+.icon-btn i {
+  font-size: 16px;
+  color: #0d6efd; /* bootstrap blue */
+}
+/* Default filter button */
+.filter-btn {
+  background-color: white; /* normal background */
+  color: #222fb9;          /* normal text color */
+  border: 1px solid #222fb9;
+}
+
+/* Active filter button */
+.filter-btn.active {
+  background-color: #222fb9; /* active background */
+  color: white;              /* text white when active */
+  border-color: #222fb9;
+}
+
+/* Optional: hover effect */
+.filter-btn:hover {
+  background-color: #1b26a0; /* slightly darker on hover */
+  color: white;
+}
+.btn-sm{
+   background-color: #222fb9; /* active background */
+  color: white;   
+  padding:5px;
+  border-radius:10px;
+}
