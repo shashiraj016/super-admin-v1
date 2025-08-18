@@ -2800,7 +2800,7 @@ body {
   margin-bottom: 15px;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); */
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -3242,10 +3242,11 @@ body {
   margin-bottom: 15px;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); */
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
 
 /* Level 1 - Dealers */
 .accordion.level-1 .accordion-header {
@@ -3325,6 +3326,8 @@ body {
 .accordion-content {
   max-height: 0;
   overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
   transition: max-height 0.4s ease;
 
   /* 🔴 Removed background so parent (dealer-block) dynamic color shows through */
@@ -3334,6 +3337,8 @@ body {
 
 .accordion-content.active {
   max-height: 5000px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
 }
 
 .content-wrapper {
@@ -3650,4 +3655,59 @@ body {
   .kpi-label {
     font-size: 0.7rem;
   }
+}
+
+.shadow-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background-color: #fff; /* Required to make shadow visible */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Box shadow */
+  border-radius: 8px; /* Optional: rounded corners */
+  overflow: hidden; /* Needed for rounded corners on table */
+}
+
+.shadow-table th,
+.shadow-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.shadow-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+.dealer-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff; /* White background */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft box shadow */
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 15px;
+  font-family: Arial, sans-serif;
+}
+
+.dealer-table th,
+.dealer-table td {
+  padding: 12px 15px;
+  text-align: center;
+}
+
+.dealer-table thead {
+  background-color: #f0f0f0; /* Grey header */
+}
+
+.dealer-table tbody tr:nth-child(even) {
+  background-color: #fafafa; /* Light grey for alternate rows */
+}
+
+.dealer-table tbody tr:hover {
+  background-color: #f1f7ff; /* Subtle hover effect */
+}
+
+.dealer-table th {
+  font-weight: 600;
+  color: #333;
 }
