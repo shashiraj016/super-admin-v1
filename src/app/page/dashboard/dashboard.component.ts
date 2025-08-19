@@ -173,6 +173,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   loadingPS = false; // Add this property in your component class
   activeAccordion: string | null = null;
   // dealerUsers: { [dealerId: string]: any[] } = {}; // store users per dealer
+  showAll = false;
 
   orderStrokeColor: string = '#4CAF50';
   currentTestDrives: number = 0;
@@ -194,6 +195,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   selectedSM: any = null;
   isSidebarOpen = true;
   paginatedDealerskpis: any[] = [];
+  currentIndex = 0;
 
   // loadingPS: boolean = false;
   // Current page tracking properties
@@ -204,6 +206,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // In your component
   filterOptions = ['MTD', 'QTD', 'YTD'] as const; // 'as const' makes type readonly ['MTD','QTD','YTD']
   expandedRows: boolean[] = [false, false, false, false, false, false];
+showMoreActive = false;   // Button toggle state
 
   // testDrives: number = 0;
   // orders: number = 0;
@@ -274,6 +277,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   }, 100);
   // }
   ngOnInit() {
+    this.loadInitialDealers();
     this.selectedFilter = 'MTD';
     this.fetchDealers(this.selectedFilter); // this.updatePaginatedDealers();
     this.fetchSuperAdminDashboard('MTD'); // or 'QTD', 'MTD' based on dropdown
@@ -437,6 +441,22 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     });
   }
 
+  // loadInitialDealers() {
+  //   this.paginatedDealers = this.dealers.slice(0, this.itemsPerPage);
+  //   this.showAll = false;
+  // }
+
+  toggleShow() {
+    if (this.showAll) {
+      // Show less
+      this.paginatedDealers = this.dealers.slice(0, this.itemsPerPage);
+      this.showAll = false;
+    } else {
+      // Show all
+      this.paginatedDealers = [...this.dealers];
+      this.showAll = true;
+    }
+  }
   // toggleDetails(i: number) {
   //   this.expandedRow = this.expandedRow === i ? null : i;
   // }
@@ -1716,6 +1736,13 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     console.error('Token not found!');
   //     return;
   //   }
+  showMore() {
+    const nextIndex = this.currentIndex + this.itemsPerPage;
+    this.paginatedDealers = this.paginatedDealers.concat(
+      this.dealers.slice(this.currentIndex, nextIndex)
+    );
+    this.currentIndex = this.paginatedDealers.length;
+  }
 
   //   const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
@@ -2972,6 +2999,24 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       },
     });
   }
+  loadInitialDealers() {
+  this.paginatedDealers = this.dealers.slice(0, this.itemsPerPage);
+  this.currentIndex = this.paginatedDealers.length;
+  this.showMoreActive = false;
+}
+
+toggleShowMore() {
+  if (this.showMoreActive) {
+    // Show Less → reset to first 10 dealers
+    this.loadInitialDealers();
+  } else {
+    // Show More → next 10 dealers
+    const nextIndex = Math.min(this.currentIndex + this.itemsPerPage, this.dealers.length);
+    this.paginatedDealers = this.dealers.slice(0, nextIndex);
+    this.currentIndex = nextIndex;
+    this.showMoreActive = true;
+  }
+}
 
   loadTodayData(): void {
     this.selectedPeriod = ''; // ensure no filter is highlighted

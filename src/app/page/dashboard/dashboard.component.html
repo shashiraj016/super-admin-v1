@@ -63,7 +63,8 @@
           <ng-container *ngFor="let dealer of paginatedDealers; let i = index trackBy: trackByDealerId">
             <!-- Dealer row -->
             <tr>
-              <td>{{ dealer.dealer_name }}</td>
+          <td style="text-align: left;">{{ dealer.dealer_name }}</td>
+
               <td>{{ dealer.enquiries }}</td>
               <td>{{ dealer.testDrives }}</td>
               <td>{{ dealer.upComingTestDrives }}</td>
@@ -72,7 +73,7 @@
 
               <td>{{ dealer.orders }}</td>
               <td>{{ dealer.net_orders }}</td>
-              <td>{{ dealer.lostEnquiries }}</td>
+<td style="color: red;">{{ dealer.lostEnquiries }}</td>
               <td>{{ dealer.retail }}</td>
               <td>{{ dealer.cancellations }}</td>
               <td>{{ dealer.upComingFollowups }}</td>
@@ -80,7 +81,7 @@
               <td>{{ dealer.callLogs?.outgoing }}</td>
               <td>{{ dealer.callLogs?.incoming }}</td>
               <td>{{ dealer.callLogs?.connected }}</td>
-              <td>{{ dealer.callLogs?.declined }}</td>
+              <td style="color: red;">{{ dealer.callLogs?.declined }}</td>
               <td>{{ dealer.callLogs?.duration || '-' }}</td>
               <td>{{ dealer.totalUsersCount }}</td>
               <td>{{ dealer.activeUsersCount }}</td>
@@ -114,7 +115,7 @@
                 <td style="color:#222fb9 !important">{{ user.testDrives }}</td>
                 <td style="color:#222fb9 !important">{{ user.orders }}</td>
                 <td style="color:#222fb9 !important">{{ user.net_orders }}</td>
-                <td style="color:#222fb9 !important">{{ user.lostEnquiries }}</td>
+                <td style="color:red !important">{{ user.lostEnquiries }}</td>
                 <td style="color:#222fb9 !important">{{ user.retail }}</td>
                 <td style="color:#222fb9 !important">{{ user.cancellations }}</td>
                 <td style="color:#222fb9 !important">{{ user.upComingFollowups }}</td>
@@ -122,7 +123,7 @@
                 <td style="color:#222fb9 !important">{{ user.callLogs?.outgoing }}</td>
                 <td style="color:#222fb9 !important">{{ user.callLogs?.incoming }}</td>
                 <td style="color:#222fb9 !important">{{ user.callLogs?.connected }}</td>
-                <td style="color:#222fb9 !important">{{ user.callLogs?.declined }}</td>
+                <td style="color:red !important">{{ user.callLogs?.declined }}</td>
                 <td style="color:#222fb9 !important">{{ user.callLogs?.duration || '-' }}</td>
                 <td>-</td>
                 <td>-</td>
@@ -149,7 +150,7 @@
       </table>
 
       <!-- Pagination -->
-      <div class="pagination-container mt-2 d-flex justify-content-end align-items-center">
+      <!-- <div class="pagination-container mt-2 d-flex justify-content-end align-items-center">
         <button class="btn btn-sm me-2" (click)="onPageChange(currentPage - 1)"
           [disabled]="currentPage === 1">Prev</button>
         <span class="me-2">Page {{ currentPage }} of {{ Math.ceil(dealers.length / itemsPerPage) || 1 }}</span>
@@ -159,8 +160,16 @@
 
       <div *ngIf="paginatedDealers.length === 0" class="text-center mt-3">
         No dealers found.
-      </div>
+      </div> -->
+<div class="text-center mt-3" *ngIf="dealers.length > itemsPerPage">
+  <button class="btn btn-primary" (click)="toggleShow()">
+    {{ showAll ? 'Show Less' : 'Show More' }}
+  </button>
+</div>
 
+<div *ngIf="paginatedDealers.length === 0" class="text-center mt-3">
+  No dealers found.
+</div>
 
     </div>
   </div>
