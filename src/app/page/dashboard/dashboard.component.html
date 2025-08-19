@@ -161,9 +161,15 @@
       <div *ngIf="paginatedDealers.length === 0" class="text-center mt-3">
         No dealers found.
       </div> -->
-<div class="text-center mt-3" *ngIf="dealers.length > itemsPerPage">
+<!-- <div class="text-center mt-3" *ngIf="dealers.length > itemsPerPage">
   <button class="btn btn-primary" (click)="toggleShow()">
     {{ showAll ? 'Show Less' : 'Show More' }}
+  </button>
+</div> -->
+
+<div class="text-center mt-3" *ngIf="dealers.length > itemsPerPage">
+  <button class="btn btn-primary" (click)="toggleShow()">
+    {{ showButtonText }}
   </button>
 </div>
 

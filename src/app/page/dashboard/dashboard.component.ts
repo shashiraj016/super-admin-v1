@@ -185,6 +185,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   expandedRow: number | null = null;
   Math = Math;
   itemsPerPagedeal: number = 10; // or 4
+  currentDisplayCount!: number; // Track current number of items shown (initialize in ngOnInit)
+
   orders: number = 0;
   currentOrders: number = 0;
   previousOrders: number = 0;
@@ -206,7 +208,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // In your component
   filterOptions = ['MTD', 'QTD', 'YTD'] as const; // 'as const' makes type readonly ['MTD','QTD','YTD']
   expandedRows: boolean[] = [false, false, false, false, false, false];
-showMoreActive = false;   // Button toggle state
+  showMoreActive = false; // Button toggle state
 
   // testDrives: number = 0;
   // orders: number = 0;
@@ -222,6 +224,7 @@ showMoreActive = false;   // Button toggle state
   activeDealer: string | null = null;
   activeSM: string | null = null;
   activePS: string | null = null;
+  incrementSize = 10; // Items to add/remove each time
 
   graphPath: string = ''; // To store the SVG path data
   leadsChange: number = 0;
@@ -277,6 +280,8 @@ showMoreActive = false;   // Button toggle state
   //   }, 100);
   // }
   ngOnInit() {
+    this.currentDisplayCount = this.itemsPerPage;
+
     this.loadInitialDealers();
     this.selectedFilter = 'MTD';
     this.fetchDealers(this.selectedFilter); // this.updatePaginatedDealers();
@@ -300,6 +305,42 @@ showMoreActive = false;   // Button toggle state
     setTimeout(() => {
       this.animatedValue = this.progressValue;
     }, 100);
+  }
+
+  initializeDisplay() {
+    this.currentDisplayCount = this.itemsPerPage;
+    this.updatePaginatedDealers();
+  }
+  toggleShow() {
+    if (this.currentDisplayCount >= this.dealers.length) {
+      // Show Less → reset to first 10
+      this.currentDisplayCount = this.itemsPerPage;
+    } else {
+      // Show More → show next 10
+      this.currentDisplayCount = Math.min(
+        this.dealers.length,
+        this.currentDisplayCount + this.incrementSize
+      );
+    }
+    this.updatePaginatedDealers();
+  }
+  // Getter methods for template conditions
+  get canShowMore(): boolean {
+    return this.currentDisplayCount < this.dealers.length;
+  }
+
+  get canShowLess(): boolean {
+    return this.currentDisplayCount > this.itemsPerPage;
+  }
+
+  get isShowingAll(): boolean {
+    return this.currentDisplayCount >= this.dealers.length;
+  }
+  // Helper to determine button text
+  get showButtonText() {
+    return this.currentDisplayCount >= this.dealers.length
+      ? 'Show Less'
+      : 'Show More';
   }
 
   toggleExpand(index: number): void {
@@ -446,17 +487,17 @@ showMoreActive = false;   // Button toggle state
   //   this.showAll = false;
   // }
 
-  toggleShow() {
-    if (this.showAll) {
-      // Show less
-      this.paginatedDealers = this.dealers.slice(0, this.itemsPerPage);
-      this.showAll = false;
-    } else {
-      // Show all
-      this.paginatedDealers = [...this.dealers];
-      this.showAll = true;
-    }
-  }
+  // toggleShow() {
+  //   if (this.showAll) {
+  //     // Show less
+  //     this.paginatedDealers = this.dealers.slice(0, this.itemsPerPage);
+  //     this.showAll = false;
+  //   } else {
+  //     // Show all
+  //     this.paginatedDealers = [...this.dealers];
+  //     this.showAll = true;
+  //   }
+  // }
   // toggleDetails(i: number) {
   //   this.expandedRow = this.expandedRow === i ? null : i;
   // }
@@ -1216,10 +1257,13 @@ showMoreActive = false;   // Button toggle state
     return dealer.dealer_id;
   }
 
+  // updatePaginatedDealers() {
+  //   const start = (this.currentPage - 1) * this.itemsPerPage;
+  //   const end = start + this.itemsPerPage;
+  //   this.paginatedDealers = this.dealers.slice(start, end);
+  // }
   updatePaginatedDealers() {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-    this.paginatedDealers = this.dealers.slice(start, end);
+    this.paginatedDealers = this.dealers.slice(0, this.currentDisplayCount);
   }
   // Called when user clicks a dealer div
   // toggleDealerSMs(dealerId: string) {
@@ -3000,23 +3044,26 @@ showMoreActive = false;   // Button toggle state
     });
   }
   loadInitialDealers() {
-  this.paginatedDealers = this.dealers.slice(0, this.itemsPerPage);
-  this.currentIndex = this.paginatedDealers.length;
-  this.showMoreActive = false;
-}
-
-toggleShowMore() {
-  if (this.showMoreActive) {
-    // Show Less → reset to first 10 dealers
-    this.loadInitialDealers();
-  } else {
-    // Show More → next 10 dealers
-    const nextIndex = Math.min(this.currentIndex + this.itemsPerPage, this.dealers.length);
-    this.paginatedDealers = this.dealers.slice(0, nextIndex);
-    this.currentIndex = nextIndex;
-    this.showMoreActive = true;
+    this.paginatedDealers = this.dealers.slice(0, this.itemsPerPage);
+    this.currentIndex = this.paginatedDealers.length;
+    this.showMoreActive = false;
   }
-}
+
+  // toggleShowMore() {
+  //   if (this.showMoreActive) {
+  //     // Show Less → reset to first 10 dealers
+  //     this.loadInitialDealers();
+  //   } else {
+  //     // Show More → next 10 dealers
+  //     const nextIndex = Math.min(
+  //       this.currentIndex + this.itemsPerPage,
+  //       this.dealers.length
+  //     );
+  //     this.paginatedDealers = this.dealers.slice(0, nextIndex);
+  //     this.currentIndex = nextIndex;
+  //     this.showMoreActive = true;
+  //   }
+  // }
 
   loadTodayData(): void {
     this.selectedPeriod = ''; // ensure no filter is highlighted
