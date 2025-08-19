@@ -240,8 +240,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // selectedOption: string = 'leads'; // Default selected option to show 'leads' data
   maxValue: number = 0;
   selectedFilterPS: 'MTD' | 'QTD' | 'YTD' = 'MTD'; // default
-  customStartDate!: string;
-  customEndDate!: string;
+  customStartDate: string | null = null;
+  customEndDate: string | null = null;
   // currentLeads: number = 0;
   // previousLeads: number = 0;
   changeDisplay: number = 0;
@@ -2905,6 +2905,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //       return 0;
   //   }
   // }
+  clearCustomDateFilter() {
+    // Reset date fields
+    this.customStartDate = null;
+    this.customEndDate = null;
+    this.appliedStartDate = null;
+    this.appliedEndDate = null;
+
+    // Optionally, refresh table with current standard filter
+    this.applyFilter(this.selectedFilter);
+  }
 
   // Apply the filter and update the selected period
   applyFilter(period: string): void {

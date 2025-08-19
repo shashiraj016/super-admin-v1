@@ -20,6 +20,8 @@
         <input type="date" [(ngModel)]="customEndDate" class="form-control form-control-sm me-2"
           style="width: 120px; display: inline-block; margin-left:10px;" />
         <button class="btn btn-sm " style="margin-left:10px;" (click)="applyCustomDateFilter()">Apply</button>
+          <button class="btn btn-sm " style="margin-left:10px;" (click)="clearCustomDateFilter()">Clear</button>
+
           <span *ngIf="appliedStartDate && appliedEndDate" class="ms-3 fw-bold text-primary">
             Showing data from {{ appliedStartDate | date:'shortDate' }} to {{ appliedEndDate | date:'shortDate' }}
           </span>
