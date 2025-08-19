@@ -25,7 +25,6 @@
 // //   }
 // // }
 
-
 // import { Injectable } from '@angular/core';
 // import { HttpClient, HttpHeaders } from '@angular/common/http';
 // import { Observable } from 'rxjs';
@@ -69,8 +68,6 @@
 //   }
 // }
 
-
-
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -84,7 +81,7 @@ export class DashboardService {
   // Updated method for MTD/QTD/YTD using NoSM API
   getDealerActivities(type: 'MTD' | 'QTD' | 'YTD'): Observable<any> {
     const sessionToken = sessionStorage.getItem('token');
-    console.log('Session Token:', sessionToken);
+    // console.log('Session Token:', sessionToken);
 
     const headers = new HttpHeaders({
       Authorization: `Bearer ${sessionToken}`,

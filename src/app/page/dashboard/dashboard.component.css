@@ -18,6 +18,15 @@
   position: relative;
 }
 
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100% !important;
+  table-layout: auto;
+}
 .content-body {
   /* margin-left: 350px; */
   padding: 20px;
@@ -3821,12 +3830,14 @@ body {
   color: #495057;
   font-size: 13px;
 }
+
 .orders-table-container {
   /* background: white; */
   border-radius: 8px;
   /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
   overflow: hidden;
   margin: 20px 0;
+  max-width:100%
 }
 
 .table {
