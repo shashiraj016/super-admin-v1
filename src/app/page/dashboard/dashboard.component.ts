@@ -141,6 +141,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   psData: { [smId: string]: any[] } = {};
   showDetails = false;
   paginatedDealers: any[] = [];
+  dealerUsers: { [dealerId: string]: any[] } = {}; // store users per dealer
 
   mtdOrders = signal<number>(0);
   qtdOrders = signal<number>(0);
@@ -169,6 +170,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   orderProgressValue: number = 0;
   loadingPS = false; // Add this property in your component class
   activeAccordion: string | null = null;
+  // dealerUsers: { [dealerId: string]: any[] } = {}; // store users per dealer
 
   orderStrokeColor: string = '#4CAF50';
   currentTestDrives: number = 0;
@@ -389,17 +391,19 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?dealer_id=${dealerId}&type=${type}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
         this.dealerSMS[dealerId] =
-          res?.status === 200 && res.data?.sms ? res.data.sms : [];
+          res?.status === 200 && res.data?.dealers?.[0]?.user_list
+            ? res.data.dealers[0].user_list
+            : [];
 
         // Restore previously active SM if it still exists
         if (
           activeSMId &&
-          this.dealerSMS[dealerId].some((s) => s.sm_id === activeSMId)
+          this.dealerSMS[dealerId].some((s) => s.user_id === activeSMId)
         ) {
           this.activeSM = activeSMId;
         } else {
@@ -431,9 +435,35 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     });
   }
 
-  toggleDetails(i: number) {
-    this.expandedRow = this.expandedRow === i ? null : i;
+  // toggleDetails(i: number) {
+  //   this.expandedRow = this.expandedRow === i ? null : i;
+  // }
+  toggleDetails(i: number, dealer: any) {
+    if (this.expandedRow === i) {
+      this.expandedRow = null; // Close if already open
+      return;
+    }
+
+    this.expandedRow = i;
+
+    // Fetch users only if not already fetched
+    if (!this.dealerUsers[dealer.dealer_id]) {
+      this.dashboardService.getNoSMUsers(dealer.dealer_id, 'MTD').subscribe({
+        next: (res: any) => {
+          if (res.status === 200) {
+            const users = res.data?.dealers?.[0]?.user_list || [];
+            this.dealerUsers[dealer.dealer_id] = users;
+          } else {
+            this.dealerUsers[dealer.dealer_id] = [];
+          }
+        },
+        error: () => {
+          this.dealerUsers[dealer.dealer_id] = [];
+        },
+      });
+    }
   }
+
   updateProgressAndColor(change: number) {
     this.changeDisplay = change;
     this.progressValue = this.getProgressFromChange(change);
@@ -548,7 +578,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // }
   applyCustomDateFilter() {
     if (this.customStartDate && this.customEndDate) {
-      // Pass the currently selected filter (MTD/QTD/YTD)
       this.dashboardService
         .getDealerActivitiesCustom(
           this.customStartDate,
@@ -557,14 +586,25 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         )
         .subscribe((res: any) => {
           if (res.status === 200) {
-            this.dealers = res.data.dealers || [];
+            // Replace dealers array
+            this.dealers = [...(res.data.dealers || [])];
+
+            // Update paginated dealers
+            this.paginatedDealers = [
+              ...this.dealers.slice(0, this.itemsPerPage),
+            ];
+
+            // Reset expanded row
+            this.expandedRow = null;
+
+            // Trigger change detection manually
+            this.cdr.detectChanges();
           }
         });
     } else {
       alert('Please select both start and end dates.');
     }
   }
-
   // toggleSM(id: string): void {
   //   this.activeSM = this.activeSM === id ? null : id;
   // }
@@ -907,7 +947,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // }
   fetchSuperAdminDashboard(type: string = 'MTD'): void {
     // const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${type}`;
-    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
 
     const token = sessionStorage.getItem('token');
 
@@ -1112,6 +1152,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         this.paginatedDealers = [];
       }
     });
+  }
+  trackByDealerId(index: number, dealer: any) {
+    return dealer.dealer_id;
   }
 
   updatePaginatedDealers() {
