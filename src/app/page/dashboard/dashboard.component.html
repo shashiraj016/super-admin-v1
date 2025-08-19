@@ -29,15 +29,18 @@
     </div>
 
     <!-- Table -->
-    <div class="table-responsive" *ngIf="paginatedDealers.length > 0" >
+    <div class="table-responsive" *ngIf="paginatedDealers.length > 0">
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
             <th>Dealer name</th>
             <th>Enquiries</th>
-            <!-- <th>Test Drives</th> -->
-              <th>Upcoming Test Drive</th>
-              <th>Overdue Test Drive</th>
+            <th>Test Drives</th>
+            <th>Upcoming Test Drives</th>
+            <th>Overdue Test Drives</th>
+                        <th>Completed Test Drives</th>
+
+
             <th>Orders</th>
             <th>Net orders</th>
             <th>Lost leads</th>
@@ -62,9 +65,11 @@
             <tr>
               <td>{{ dealer.dealer_name }}</td>
               <td>{{ dealer.enquiries }}</td>
-              <!-- <td>{{ dealer.testDrives }}</td> -->
-                  <td>{{ dealer.upComingtestDrives }}</td>
-                  <td>{{ dealer.overduetestDrives }}</td>
+              <td>{{ dealer.testDrives }}</td>
+              <td>{{ dealer.upComingTestDrives }}</td>
+              <td>{{ dealer.overdueTestDrives }}</td>
+              <td>{{ dealer.completedTestDrives }}</td>
+
               <td>{{ dealer.orders }}</td>
               <td>{{ dealer.net_orders }}</td>
               <td>{{ dealer.lostEnquiries }}</td>
