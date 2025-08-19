@@ -108,18 +108,53 @@ export class DashboardService {
     const url = `${this.baseUrl}/NoSM?type=${filterType}&start_date=${startDate}&end_date=${endDate}`;
     return this.http.get(url, { headers });
   }
+  // getNoSMUsers(
+  //   dealerId: string,
+  //   type: 'DAY' | 'MTD' | 'QTD' | 'YTD' = 'MTD'
+  // ): Observable<any> {
+  //   const sessionToken = sessionStorage.getItem('token');
+  //   const headers = new HttpHeaders({
+  //     Authorization: `Bearer ${sessionToken}`,
+  //   });
+
+  //   return this.http.get(
+  //     `${this.baseUrl}/NoSM?dealer_id=${dealerId}&type=${type}`,
+  //     { headers }
+  //   );
+  // }
   getNoSMUsers(
     dealerId: string,
-    type: 'MTD' | 'QTD' | 'YTD' = 'MTD'
+    type: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM' = 'MTD',
+    startDate?: string,
+    endDate?: string
   ): Observable<any> {
     const sessionToken = sessionStorage.getItem('token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${sessionToken}`,
     });
 
+    let url = `${this.baseUrl}/NoSM?dealer_id=${dealerId}&type=${type}`;
+
+    // Append custom date range if type is CUSTOM
+    if (type === 'CUSTOM' && startDate && endDate) {
+      url += `&start_date=${startDate}&end_date=${endDate}`;
+    }
+
+    return this.http.get(url, { headers });
+  }
+
+  getDealers(  filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM', token: string) {
     return this.http.get(
-      `${this.baseUrl}/NoSM?dealer_id=${dealerId}&type=${type}`,
-      { headers }
+      `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${filter}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+  }
+  getDealersByCustomDate(startDate: string, endDate: string, token: string) {
+    return this.http.get(
+      `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${startDate}&end_date=${endDate}`,
+      { headers: { Authorization: `Bearer ${token}` } }
     );
   }
 }

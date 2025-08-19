@@ -32,6 +32,7 @@ import { HeaderComponent } from '../../layout/header/header.component';
 import { ContextService } from '../../service/context.service';
 import { ApiResponse, Dealer } from '../../model/interface/master';
 import { DashboardService } from '../../service/dashboard-service';
+import { SharedService } from '../../service/shared.service';
 // Register all chart components
 Chart.register(...registerables);
 Chart.register(
@@ -43,7 +44,6 @@ Chart.register(
   CategoryScale,
   Tooltip
 );
-
 
 @Component({
   selector: 'app-dashboard',
@@ -114,8 +114,28 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     ],
   //   },
   // ];
+
+  // NEW DESIGN CODE
+  expandedDealer: any | null = null; // or better, create an interface for Dealer
+  dealerUsers: any = {
+    'Dealer One': [
+      { name: 'User A', leads: 10, testDrives: 5, followups: 2 },
+      { name: 'User B', leads: 15, testDrives: 7, followups: 3 },
+    ],
+    'Dealer Two': [
+      { name: 'User C', leads: 8, testDrives: 4, followups: 2 },
+      { name: 'User D', leads: 10, testDrives: 3, followups: 1 },
+    ],
+    'Dealer Three': [
+      { name: 'User E', leads: 12, testDrives: 6, followups: 2 },
+      { name: 'User F', leads: 18, testDrives: 9, followups: 4 },
+    ],
+  };
   currentPageMap: { [dealerId: string]: number } = {}; // track current page per dealer
   showAllSMs: { [dealerId: string]: boolean } = {};
+  showCustomDatePicker = false;
+  customStartDate: string = '';
+  customEndDate: string = '';
 
   totalLeads = signal<number>(0);
   totalTestDrives = signal<number>(0);
@@ -135,18 +155,19 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   ps1Data: any[] = [];
   ps2Data: any[] = [];
   pageSize = 20; // or any number you want
-  selectedSection: 'analysis' | 'callAnalysis' = 'analysis';
+  selectedSection: 'activities' | 'callAnalysis' = 'activities';
   ytdTestDrives = signal<number>(0);
   loadingSM: boolean = false;
   psData: { [smId: string]: any[] } = {};
   showDetails = false;
   paginatedDealers: any[] = [];
-  dealerUsers: { [dealerId: string]: any[] } = {}; // store users per dealer
+  // dealerUsers: { [dealerId: string]: any[] } = {}; // store users per dealer
+  dealerPSL: any = null;
 
   mtdOrders = signal<number>(0);
   qtdOrders = signal<number>(0);
   ytdOrders = signal<number>(0);
-  selectedFilter: 'MTD' | 'QTD' | 'YTD' = 'MTD';
+  selectedFilter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM' = 'MTD';
   dealerColors: string[] = [
     '#e6f2ff', // light blue
     '#f9f2ec', // light peach
@@ -198,6 +219,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   isSidebarOpen = true;
   paginatedDealerskpis: any[] = [];
   currentIndex = 0;
+  // selectedDealerId: number | null = null;   // 👈 NEW
 
   // loadingPS: boolean = false;
   // Current page tracking properties
@@ -225,6 +247,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   activeSM: string | null = null;
   activePS: string | null = null;
   incrementSize = 10; // Items to add/remove each time
+  selectedTime: string = '1M'; // 👈 default selected
 
   graphPath: string = ''; // To store the SVG path data
   leadsChange: number = 0;
@@ -246,8 +269,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // selectedOption: string = 'leads'; // Default selected option to show 'leads' data
   maxValue: number = 0;
   selectedFilterPS: 'MTD' | 'QTD' | 'YTD' = 'MTD'; // default
-  customStartDate: string | null = null;
-  customEndDate: string | null = null;
+  // customStartDate: string | null = null;
+  // customEndDate: string | null = null;
   // currentLeads: number = 0;
   // previousLeads: number = 0;
   changeDisplay: number = 0;
@@ -259,7 +282,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private cdr: ChangeDetectorRef,
     private context: ContextService,
     private router: Router,
-    private dashboardService: DashboardService
+    private dashboardService: DashboardService,
+    private sharedService: SharedService
   ) {}
   data: any; // To hold your data
   apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
@@ -353,6 +377,103 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (value < 0) return '#F44336'; // red
     return '#9E9E9E'; // grey
   }
+
+  // toggleDealer(dealer: any) {
+  //   if (dealer) {
+  //     this.expandedDealer = dealer.dealer_name;
+  //     this.dealerUsers[dealer.dealer_id] = dealer.users || [];
+  //   } else {
+  //     this.expandedDealer = null;
+  //   }
+  // }
+  // toggleDealer(
+  //   dealer: any | null,
+  //   filter: 'MTD' | 'QTD' | 'YTD' = this.selectedFilter
+  // ): void {
+  //   if (dealer) {
+  //     this.expandedDealer = dealer; // store selected dealer
+  //     this.selectedDealerId = dealer.dealer_id;
+
+  //     if (this.selectedDealerId) {
+  //       // Fetch users for selected dealer
+  //       this.dashboardService
+  //         .getNoSMUsers(this.selectedDealerId, filter)
+  //         .subscribe({
+  //           next: (res: any) => {
+  //             if (res.status === 200 && res.data?.dealers?.length > 0) {
+  //               // Extract the users from the selected dealer
+  //               this.dealerUsers = res.data.dealers[0].user_list || [];
+  //             } else {
+  //               this.dealerUsers = [];
+  //             }
+  //           },
+  //           error: (err: any) => {
+  //             console.error('Error fetching dealer users:', err);
+  //             this.dealerUsers = [];
+  //           },
+  //         });
+  //     }
+  //   } else {
+  //     // Back to dealer list
+  //     this.expandedDealer = null;
+  //     this.selectedDealerId = null;
+  //     this.dealerUsers = [];
+  //   }
+  // }
+  // toggleCustomDatePicker(): void {
+  //   this.showCustomDatePicker = !this.showCustomDatePicker;
+  // }
+  toggleCustomDatePicker() {
+    if (!this.showCustomDatePicker) {
+      // Picker is opening → reset inputs
+      this.customStartDate = '';
+      this.customEndDate = '';
+    }
+    this.showCustomDatePicker = !this.showCustomDatePicker;
+  }
+
+  toggleDealer(
+    dealer: any | null,
+    filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM' = this
+      .selectedFilter
+  ): void {
+    if (dealer) {
+      this.expandedDealer = dealer; // store selected dealer
+      this.selectedDealerId = dealer.dealer_id;
+
+      // 🔹 Notify shared service about selected dealer
+      this.sharedService.setSelectedDealer(dealer);
+
+      if (this.selectedDealerId) {
+        // Fetch users for selected dealer with the selected filter
+        this.dashboardService
+          .getNoSMUsers(this.selectedDealerId, filter)
+          .subscribe({
+            next: (res: any) => {
+              if (res.status === 200 && res.data?.dealers?.length > 0) {
+                // Extract the users from the selected dealer
+                this.dealerUsers = res.data.dealers[0].user_list || [];
+              } else {
+                this.dealerUsers = [];
+              }
+            },
+            error: (err: any) => {
+              console.error('Error fetching dealer users:', err);
+              this.dealerUsers = [];
+            },
+          });
+      }
+    } else {
+      // Back to dealer list
+      this.expandedDealer = null;
+      this.selectedDealerId = null;
+      this.dealerUsers = [];
+
+      // 🔹 Reset shared service when going back
+      this.sharedService.setSelectedDealer(null);
+    }
+  }
+
   // toggleShowSMs(dealerId: string) {
   //   this.showAllSMs[dealerId] = !this.showAllSMs[dealerId];
   // }
@@ -377,6 +498,41 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // get progressValue(): number {
   //   return Math.min(Math.abs(this.changeLeads), 100);
   // }
+  private mapTimeToApi(time: string): 'MTD' | 'QTD' | 'YTD' {
+    switch (time) {
+      case '1M':
+        return 'MTD'; // Month-To-Date
+      case 'QTD':
+        return 'QTD'; // Quarter-To-Date
+      case '1Y':
+        return 'YTD'; // Year-To-Date
+      default:
+        return 'MTD'; // fallback
+    }
+  }
+  onTimeChange(time: string) {
+    this.selectedTime = time;
+
+    const token = sessionStorage.getItem('authToken');
+    if (!token) {
+      console.error('No token found in sessionStorage!');
+      return;
+    }
+
+    // map UI value -> API value
+    const apiType = this.mapTimeToApi(time);
+
+    this.dashboardService.getDealers(apiType, token).subscribe((res: any) => {
+      console.log('API Response:', res);
+      if (res.status === 200 && res.data?.dealers) {
+        this.dealers = res.data.dealers;
+        this.expandedDealer = null;
+        this.selectedDealerId = null;
+      } else {
+        this.dealers = [];
+      }
+    });
+  }
 
   ngAfterViewInit() {
     // Ensure pie chart is created only once on initial load or when data changes
@@ -400,32 +556,31 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   toggleShowAllSMs(dealerId: string) {
     this.showAllSMs[dealerId] = !this.showAllSMs[dealerId];
   }
-  onFilterChange(filter: 'MTD' | 'QTD' | 'YTD'): void {
+  onFilterChange(
+    filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM'
+  ): void {
     this.selectedFilter = filter;
     this.fetchDealers(filter);
     const activeSMId = this.activeSM; // remember the currently active SM
-
-    this.selectedFilter = filter;
 
     // Fetch top cards (KPI data)
     this.fetchDashboardDataForTopCards(filter);
 
     // Fetch dealer KPIs
     this.fetchSuperAdminDashboard(filter);
-    // this.fetchDealers(filter);
 
     // Refresh SMs for any open dealer divs
-    if (this.selectedDealerId) {
-      this.fetchDealerSMs(this.selectedDealerId, filter);
+    // if (this.selectedDealerId) {
+    //   this.fetchDealerSMs(this.selectedDealerId, filter);
 
-      // Restore previously active SM if it still exists
-      const smList = this.dealerSMS[this.selectedDealerId] || [];
-      if (!smList.some((s) => s.sm_id === activeSMId)) {
-        this.activeSM = null; // previously active SM no longer exists
-      } else {
-        this.activeSM = activeSMId; // keep it open
-      }
-    }
+    //   // Restore previously active SM if it still exists
+    //   const smList = this.dealerSMS[this.selectedDealerId] || [];
+    //   if (!smList.some((s) => s.sm_id === activeSMId)) {
+    //     this.activeSM = null; // previously active SM no longer exists
+    //   } else {
+    //     this.activeSM = activeSMId; // keep it open
+    //   }
+    // }
   }
   // Updated fetchDealerSMs to accept previous active SM
   fetchDealerSMs(
@@ -501,31 +656,31 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // toggleDetails(i: number) {
   //   this.expandedRow = this.expandedRow === i ? null : i;
   // }
-  toggleDetails(i: number, dealer: any) {
-    if (this.expandedRow === i) {
-      this.expandedRow = null; // Close if already open
-      return;
-    }
+  // toggleDetails(i: number, dealer: any) {
+  //   if (this.expandedRow === i) {
+  //     this.expandedRow = null; // Close if already open
+  //     return;
+  //   }
 
-    this.expandedRow = i;
+  //   this.expandedRow = i;
 
-    // Fetch users only if not already fetched
-    if (!this.dealerUsers[dealer.dealer_id]) {
-      this.dashboardService.getNoSMUsers(dealer.dealer_id, 'MTD').subscribe({
-        next: (res: any) => {
-          if (res.status === 200) {
-            const users = res.data?.dealers?.[0]?.user_list || [];
-            this.dealerUsers[dealer.dealer_id] = users;
-          } else {
-            this.dealerUsers[dealer.dealer_id] = [];
-          }
-        },
-        error: () => {
-          this.dealerUsers[dealer.dealer_id] = [];
-        },
-      });
-    }
-  }
+  //   // Fetch users only if not already fetched
+  //   if (!this.dealerUsers[dealer.dealer_id]) {
+  //     this.dashboardService.getNoSMUsers(dealer.dealer_id, 'MTD').subscribe({
+  //       next: (res: any) => {
+  //         if (res.status === 200) {
+  //           const users = res.data?.dealers?.[0]?.user_list || [];
+  //           this.dealerUsers[dealer.dealer_id] = users;
+  //         } else {
+  //           this.dealerUsers[dealer.dealer_id] = [];
+  //         }
+  //       },
+  //       error: () => {
+  //         this.dealerUsers[dealer.dealer_id] = [];
+  //       },
+  //     });
+  //   }
+  // }
 
   updateProgressAndColor(change: number) {
     this.changeDisplay = change;
@@ -533,7 +688,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.strokeColor = this.getStrokeColor(change);
     this.cdr.detectChanges(); // ✅ trigger update
   }
-  selectSection(section: 'analysis' | 'callAnalysis'): void {
+  selectSection(section: 'activities' | 'callAnalysis'): void {
     this.selectedSection = section;
   }
   // ✅ Maps change to 0–100%
@@ -591,9 +746,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.activeAccordion = id; // open new one
     }
   }
-  toggleDealer(id: string): void {
-    this.activeDealer = this.activeDealer === id ? null : id;
-  }
+  // toggleDealer(id: string): void {
+  //   this.activeDealer = this.activeDealer === id ? null : id;
+  // }
 
   // DEALER PAGIANTOON
   get totalPagesdealer(): number {
@@ -669,41 +824,41 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     alert('Please select both start and end dates.');
   //   }
   // }
-  applyCustomDateFilter() {
-    if (this.customStartDate && this.customEndDate) {
-      // First, set the applied dates so the UI shows them immediately
-      this.appliedStartDate = this.customStartDate;
-      this.appliedEndDate = this.customEndDate;
+  // applyCustomDateFilter() {
+  //   if (this.customStartDate && this.customEndDate) {
+  //     // First, set the applied dates so the UI shows them immediately
+  //     this.appliedStartDate = this.customStartDate;
+  //     this.appliedEndDate = this.customEndDate;
 
-      // Temporarily clear table to show refresh
-      this.dealers = [];
-      this.paginatedDealers = [];
-      this.expandedRow = null;
+  //     // Temporarily clear table to show refresh
+  //     this.dealers = [];
+  //     this.paginatedDealers = [];
+  //     this.expandedRow = null;
 
-      // Call API
-      this.dashboardService
-        .getDealerActivitiesCustom(
-          this.customStartDate,
-          this.customEndDate,
-          this.selectedFilter
-        )
-        .subscribe((res: any) => {
-          if (res.status === 200) {
-            // Update the main dealers array
-            this.dealers = res.data.dealers || [];
+  //     // Call API
+  //     this.dashboardService
+  //       .getDealerActivitiesCustom(
+  //         this.customStartDate,
+  //         this.customEndDate,
+  //         this.selectedFilter
+  //       )
+  //       .subscribe((res: any) => {
+  //         if (res.status === 200) {
+  //           // Update the main dealers array
+  //           this.dealers = res.data.dealers || [];
 
-            // Reset pagination to first page
-            this.currentPage = 1;
-            this.paginateDealers();
+  //           // Reset pagination to first page
+  //           this.currentPage = 1;
+  //           this.paginateDealers();
 
-            // Collapse any expanded rows (already done)
-            this.expandedRow = null;
-          }
-        });
-    } else {
-      alert('Please select both start and end dates.');
-    }
-  }
+  //           // Collapse any expanded rows (already done)
+  //           this.expandedRow = null;
+  //         }
+  //       });
+  //   } else {
+  //     alert('Please select both start and end dates.');
+  //   }
+  // }
 
   // toggleSM(id: string): void {
   //   this.activeSM = this.activeSM === id ? null : id;
@@ -1239,22 +1394,88 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     }
   //   );
   // }
-  fetchDealers(filter: 'MTD' | 'QTD' | 'YTD') {
-    this.dashboardService.getDealerActivities(filter).subscribe((res: any) => {
-      console.log('API responseeeeeeeeeee:', res); // <--- check this in console
-      if (res.status === 200) {
-        this.dealers = res.data.dealers || [];
-        console.log('Dealers array:', this.dealers); // <--- check this too
-        this.currentPage = 1;
-        this.updatePaginatedDealers();
-      } else {
+
+  // applyCustomDate() {
+  //   if (this.customStartDate && this.customEndDate) {
+  //     console.log(
+  //       'Custom date range:',
+  //       this.customStartDate,
+  //       this.customEndDate
+  //     );
+  //     this.fetchDealersWithCustomDate(this.customStartDate, this.customEndDate);
+  //     this.showCustomDatePicker = false;
+  //     this.selectedFilter = 'CUSTOM'; // mark as custom filter
+  //   } else {
+  //     alert('Please select both start and end dates');
+  //   }
+  // }
+  applyCustomDate() {
+    if (this.customStartDate && this.customEndDate) {
+      console.log(
+        'Custom date range:',
+        this.customStartDate,
+        this.customEndDate
+      );
+
+      // Fetch filtered data
+      this.fetchDealersWithCustomDate(this.customStartDate, this.customEndDate);
+
+      // Close the picker
+      this.showCustomDatePicker = false;
+      this.selectedFilter = 'CUSTOM'; // mark as custom filter
+
+      // Normal page refresh
+      window.location.reload();
+    } else {
+      alert('Please select both start and end dates');
+    }
+  }
+
+  fetchDealersWithCustomDate(start: string, end: string) {
+    const token = sessionStorage.getItem('token');
+    this.dashboardService.getDealersByCustomDate(start, end, token!).subscribe({
+      next: (res: any) => {
+        this.dealers = res?.data?.dealers || [];
+      },
+      error: (err) => {
+        console.error(err);
         this.dealers = [];
-        this.paginatedDealers = [];
-      }
+      },
     });
   }
-  trackByDealerId(index: number, dealer: any) {
-    return dealer.dealer_id;
+  fetchDealers(filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM') {
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      console.error('No token found in sessionStorage!');
+      this.dealers = [];
+      return;
+    }
+
+    this.dashboardService.getDealers(filter, token).subscribe({
+      next: (res: any) => {
+        console.log('API Response:', res);
+
+        // check which format API actually uses
+        const dealers = res?.data?.dealers || res?.dealers || [];
+
+        if (dealers.length > 0) {
+          this.dealers = dealers;
+
+          this.dealers.forEach((dealer: any) => {
+            if (!this.dealerSMS[dealer.dealer_id]) {
+              this.dealerSMS[dealer.dealer_id] = [];
+            }
+          });
+        } else {
+          console.warn('No dealers found in response');
+          this.dealers = [];
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching dealers:', err);
+        this.dealers = [];
+      },
+    });
   }
 
   // updatePaginatedDealers() {
@@ -1287,37 +1508,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //         res?.status === 200 && res.data?.sms ? res.data.sms : [];
   //     });
   // }
-  toggleDealerSMs(dealerId: string) {
-    if (this.selectedDealerId === dealerId) {
-      this.selectedDealerId = null; // collapse
-      return;
-    }
-
-    this.selectedDealerId = dealerId;
-
-    const token = sessionStorage.getItem('token');
-    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-
-    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?dealer_id=${dealerId}&type=${this.selectedFilter}`;
-
-    this.http.get<ApiResponse>(url, { headers }).subscribe({
-      next: (res) => {
-        const dealer: Dealer | undefined = res.data.dealers.find(
-          (d: Dealer) => d.dealer_id === dealerId
-        );
-
-        if (dealer && dealer.sm_list) {
-          this.dealerSMS[dealerId] = dealer.sm_list;
-        } else {
-          this.dealerSMS[dealerId] = [];
-        }
-      },
-      error: (err) => {
-        console.error('Error fetching SMs for dealer:', err);
-        this.dealerSMS[dealerId] = [];
-      },
-    });
-  }
 
   // this is aslo DEALER DIV CODE API COMING PROPER DOTN TOCUH
   // onDealerClick(dealerId: string): void {
@@ -2978,8 +3168,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // }
   clearCustomDateFilter() {
     // Reset date fields
-    this.customStartDate = null;
-    this.customEndDate = null;
+    // this.customStartDate = null;
+    // this.customEndDate = null;
     this.appliedStartDate = null;
     this.appliedEndDate = null;
 

@@ -1,11 +1,5 @@
 import { createRequire } from 'module';const require = createRequire(import.meta.url);
 import {
-  Router,
-  RouterLink,
-  RouterLinkActive,
-  RouterModule
-} from "./chunk-UB77SA2Y.js";
-import {
   Tooltip,
   TooltipModule
 } from "./chunk-56J533RP.js";
@@ -19,6 +13,12 @@ import {
   SharedModule,
   UniqueComponentId
 } from "./chunk-MAWA6GWC.js";
+import {
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterModule
+} from "./chunk-UB77SA2Y.js";
 import "./chunk-TLZC2Y3Y.js";
 import "./chunk-VE4VKEY2.js";
 import {

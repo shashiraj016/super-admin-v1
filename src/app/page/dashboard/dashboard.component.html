@@ -1,181 +1,480 @@
-<div class="container-fluid">
-  <!-- <div class="dashboard-container"> -->
-  <div class="orders-table-container">
+<ng-container *ngIf="!selectedDealer && !selectedSM">
+  <div class="dashboard-container">
+    <!-- Tab Navigation Header -->
+    <!-- <div class="header2" [ngClass]="{ 'sidebar-open': isSidebarOpen, 'sidebar-closed': !isSidebarOpen }">
+      <div class="nav-button-group" style="margin-left:10px;">
+        <button class="nav-button" [ngClass]="{ 'active': selectedSection === 'home' }" (click)="selectSection('home')">
+          <i class="fas fa-home" style="margin-right: 6px;font-size:15px;"></i> Home
+        </button>
 
-    <!-- Filter buttons + Custom date inline -->
-    <!-- Filter buttons + Custom date inline -->
-    <!-- Filter buttons + Custom date inline -->
-    <div class="filter-container mb-3 d-flex align-items-center">
-      <!-- Standard Filters -->
-      <button class="btn filter-btn me-2" [ngClass]="{'active': selectedFilter==='MTD'}"
-        (click)="onFilterChange('MTD')">MTD</button>
-      <button class="btn filter-btn me-2" [ngClass]="{'active': selectedFilter==='QTD'}"
-        (click)="onFilterChange('QTD')">QTD</button>
-      <button class="btn filter-btn me-3" [ngClass]="{'active': selectedFilter==='YTD'}"
-        (click)="onFilterChange('YTD')">YTD</button>
+        <button class="nav-button" [ngClass]="{ 'active': selectedSection === 'analysis' }"
+          (click)="selectSection('analysis')">
+          <i class="fas fa-chart-line" style="margin-right: 8px;"></i> Analysis
+        </button>
+      </div>
+    </div> -->
+    <div class="header2" [ngClass]="{ 'sidebar-open': isSidebarOpen, 'sidebar-closed': !isSidebarOpen }">
+      <div class="nav-button-group" style="margin-left:10px;">
 
-      <!-- Custom Date Filter inline -->
-      <label class="me-2 mb-0" style="margin-left:10px;">Custom date:</label>
-      <input type="date" [(ngModel)]="customStartDate" class="form-control form-control-sm me-2"
-        style="width: 120px; display: inline-block; margin-left:10px;" />
-      <input type="date" [(ngModel)]="customEndDate" class="form-control form-control-sm me-2"
-        style="width: 120px; display: inline-block; margin-left:10px;" />
-      <button class="btn btn-sm " style="margin-left:10px;" (click)="applyCustomDateFilter()">Apply</button>
-      <button class="btn btn-sm " style="margin-left:10px;" (click)="clearCustomDateFilter()">Clear</button>
+        <!-- Analysis button (was Home) -->
+        <button class="nav-button" [ngClass]="{ 'active': selectedSection === 'activities' }"
+          (click)="selectSection('activities')">
+          <i class="fas fa-chart-line" style="margin-right: 6px; font-size:15px;"></i> Activities
+        </button>
 
-      <span *ngIf="appliedStartDate && appliedEndDate" class="ms-3 fw-bold text-primary">
-        Showing data from {{ appliedStartDate | date:'shortDate' }} to {{ appliedEndDate | date:'shortDate' }}
+        <!-- Call Analysis button (was Analysis) -->
+        <button class="nav-button" [ngClass]="{ 'active': selectedSection === 'callAnalysis' }"
+          (click)="selectSection('callAnalysis')">
+          <i class="fas fa-phone-alt" style="margin-right: 8px;"></i> Call Analysis
+        </button>
+
+      </div>
+    </div>
+
+    <!-- 👇 Filter buttons for time range -->
+    <!-- <div class="time-filter d-flex justify-content-start mt-2 ms-3">
+  <button class="time-btn" [class.active]="selectedFilter === 'DAY'" (click)="onFilterChange('DAY')">1D</button>
+  <button class="time-btn" [class.active]="selectedFilter === 'MTD'" (click)="onFilterChange('MTD')">1M</button>
+  <button class="time-btn" [class.active]="selectedFilter === 'QTD'" (click)="onFilterChange('QTD')">1Q</button>
+  <button class="time-btn" [class.active]="selectedFilter === 'YTD'" (click)="onFilterChange('YTD')">1Y</button>
+</div> -->
+    <div class="time-filter-container"
+      style="background: white; padding: 8px 12px; display: inline-block; border-radius: 6px;margin-top:10px;">
+      <button class="time-btn" [class.active]="selectedFilter === 'DAY'" (click)="onFilterChange('DAY')">1D</button>
+      <span class="separator">|</span>
+      <button class="time-btn" [class.active]="selectedFilter === 'MTD'" (click)="onFilterChange('MTD')">1M</button>
+      <span class="separator">|</span>
+      <button class="time-btn" [class.active]="selectedFilter === 'QTD'" (click)="onFilterChange('QTD')">1Q</button>
+      <span class="separator">|</span>
+      <button class="time-btn" [class.active]="selectedFilter === 'YTD'" (click)="onFilterChange('YTD')">1Y</button>
+      <span class="separator">|</span>
+      <button class="time-btn" [class.active]="selectedFilter === 'WEEK'" (click)="onFilterChange('WEEK')">1W</button>
+      <span class="separator">|</span>
+
+
+      <span class="calendar-icon" (click)="toggleCustomDatePicker()" style="cursor:pointer; margin-right: 8px;">
+        <i class="fas fa-calendar-alt"></i>
       </span>
     </div>
 
-    <!-- Table -->
-    <div class="table-responsive" *ngIf="paginatedDealers.length > 0">
-      <table class="table table-bordered table-striped">
-        <thead>
+    <!-- Custom Date Picker -->
+    <!-- <div *ngIf="showCustomDatePicker" style="margin-top: 8px;">
+      <label>From: <input type="date" [(ngModel)]="customStartDate"></label>
+      <label style="margin-left:10px;">To: <input type="date" [(ngModel)]="customEndDate"></label>
+      <button (click)="applyCustomDate()" style="margin-left:10px;">Apply</button>
+    </div> -->
+
+<div *ngIf="showCustomDatePicker"
+  style="margin-top: 8px; display: flex; align-items: center; gap: 10px; background: #f5f5f5; padding: 8px 12px; border-radius: 6px; width: fit-content;">
+  <label style="display: flex; flex-direction: column; font-size: 14px;">
+    From:
+    <input type="date" [(ngModel)]="customStartDate"
+      style="padding: 4px 6px; border-radius: 4px; border: 1px solid #ccc; background: white;">
+  </label>
+
+  <label style="display: flex; flex-direction: column; font-size: 14px;">
+    To:
+    <input type="date" [(ngModel)]="customEndDate"
+      style="padding: 4px 6px; border-radius: 4px; border: 1px solid #ccc; background: white;">
+  </label>
+
+  <button (click)="applyCustomDate()"
+    style="padding: 6px 12px; background-color: #222fb9; color: white; border: none; border-radius: 4px; cursor: pointer;margin-top:14px;">
+    Apply
+  </button>
+</div>
+
+
+    <!-- HOME TAB CONTENT -->
+    <div *ngIf="selectedSection === 'activities'" class="content-section active">
+      <!-- Metrics Section -->
+      <!-- <div class="dashboard-container">
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover">
+      <thead class="table-primary">
+        <tr>
+          <th scope="col">Sr No</th>
+          <th scope="col">Name</th>
+          <th scope="col">Leads</th>
+          <th scope="col">Test Drives</th>
+          <th scope="col">Followups</th>
+          <th scope="col">Total Users</th>
+          <th scope="col">Active Users</th>
+          <th scope="col">Inactive Users</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Dealer One</td>
+          <td>25</td>
+          <td>10</td>
+          <td>5</td>
+          <td>50</td>
+          <td>40</td>
+          <td>10</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Dealer Two</td>
+          <td>18</td>
+          <td>7</td>
+          <td>4</td>
+          <td>35</td>
+          <td>28</td>
+          <td>7</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Dealer Three</td>
+          <td>30</td>
+          <td>15</td>
+          <td>8</td>
+          <td>60</td>
+          <td>50</td>
+          <td>10</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div> -->
+      <!-- Dealer Table -->
+      <table class="table table-hover table-bordered" *ngIf="!expandedDealer">
+        <thead class="table-primary">
           <tr>
-            <th>Dealer name</th>
-            <th>Enquiries</th>
-            <th>Test Drives</th>
-            <th>Upcoming Test Drives</th>
-            <th>Overdue Test Drives</th>
-                        <th>Completed Test Drives</th>
-
-
-            <th>Orders</th>
-            <th>Net orders</th>
-            <th>Lost leads</th>
-            <th>Retail</th>
-            <th>Cancellations</th>
-            <th>Upcoming Followups</th>
-            <th>Overdue Followups</th>
-            <th>Outgoing</th>
-            <th>Incoming</th>
-            <th>Connected</th>
-            <th>Declined</th>
-            <th>Duration</th>
-            <th>Total user</th>
-            <th>Active user</th>
-            <th></th>
+            <th scope="col">Sr No</th>
+            <th scope="col">Name</th>
+            <th scope="col">Leads</th>
+            <th scope="col">Test Drives</th>
+            <th scope="col">Followups</th>
+            <th scope="col">Total Users</th>
+            <th scope="col">Active Users</th>
+            <!-- <th scope="col">Inactive Users</th> -->
           </tr>
         </thead>
-
         <tbody>
-          <ng-container *ngFor="let dealer of paginatedDealers; let i = index trackBy: trackByDealerId">
-            <!-- Dealer row -->
-            <tr>
-          <td style="text-align: left;">{{ dealer.dealer_name }}</td>
-
-              <td>{{ dealer.enquiries }}</td>
-              <td>{{ dealer.testDrives }}</td>
-              <td>{{ dealer.upComingTestDrives }}</td>
-              <td>{{ dealer.overdueTestDrives }}</td>
-              <td>{{ dealer.completedTestDrives }}</td>
-
-              <td>{{ dealer.orders }}</td>
-              <td>{{ dealer.net_orders }}</td>
-<td style="color: red;">{{ dealer.lostEnquiries }}</td>
-              <td>{{ dealer.retail }}</td>
-              <td>{{ dealer.cancellations }}</td>
-              <td>{{ dealer.upComingFollowups }}</td>
-              <td>{{ dealer.overdueFollowups }}</td>
-              <td>{{ dealer.callLogs?.outgoing }}</td>
-              <td>{{ dealer.callLogs?.incoming }}</td>
-              <td>{{ dealer.callLogs?.connected }}</td>
-              <td style="color: red;">{{ dealer.callLogs?.declined }}</td>
-              <td>{{ dealer.callLogs?.duration || '-' }}</td>
-              <td>{{ dealer.totalUsersCount }}</td>
-              <td>{{ dealer.activeUsersCount }}</td>
-              <td>
-                <button class="icon-btn" (click)="toggleDetails(i, dealer)">
-                  <i class="fas" [ngClass]="expandedRow === i ? 'fa-minus' : 'fa-plus'"></i>
-                </button>
-              </td>
-            </tr>
-
-            <!-- User rows under dealer -->
-            <!-- User rows under dealer -->
-            <ng-container *ngIf="expandedRow === i">
-              <!-- Label row for users -->
-              <!-- <tr class="table-secondary">
-              <td colspan="18" class="fw-bold ps-3">
-                Users for {{ dealer.dealer_name }}
-              </td>
-            </tr> -->
-              <tr *ngIf="(dealerUsers[dealer.dealer_id] || []).length > 0" class="table-secondary">
-                <td colspan="18" class="fw-bold ps-3">
-                  Users for {{ dealer.dealer_name }}
-                </td>
-              </tr>
-
-
-              <!-- Actual user rows -->
-              <tr *ngFor="let user of dealerUsers[dealer.dealer_id]">
-                <td class="ps-4" style="color:#222fb9 !important">{{ user.user_name }}</td>
-                <td style="color:#222fb9 !important">{{ user.enquiries }}</td>
-                <td style="color:#222fb9 !important">{{ user.testDrives }}</td>
-                <td style="color:#222fb9 !important">{{ user.orders }}</td>
-                <td style="color:#222fb9 !important">{{ user.net_orders }}</td>
-                <td style="color:red !important">{{ user.lostEnquiries }}</td>
-                <td style="color:#222fb9 !important">{{ user.retail }}</td>
-                <td style="color:#222fb9 !important">{{ user.cancellations }}</td>
-                <td style="color:#222fb9 !important">{{ user.upComingFollowups }}</td>
-                <td style="color:#222fb9 !important">{{ user.overdueFollowups }}</td>
-                <td style="color:#222fb9 !important">{{ user.callLogs?.outgoing }}</td>
-                <td style="color:#222fb9 !important">{{ user.callLogs?.incoming }}</td>
-                <td style="color:#222fb9 !important">{{ user.callLogs?.connected }}</td>
-                <td style="color:red !important">{{ user.callLogs?.declined }}</td>
-                <td style="color:#222fb9 !important">{{ user.callLogs?.duration || '-' }}</td>
-                <td>-</td>
-                <td>-</td>
-                <td></td>
-              </tr>
-
-              <!-- If no users (only show after API response) -->
-              <!-- <tr *ngIf="dealerUsers[dealer.dealer_id] && dealerUsers[dealer.dealer_id].length === 0">
-                <td colspan="18" class="text-center text-muted">No users found for this dealer.</td>
-              </tr> -->
-              <tr *ngIf="dealerUsers[dealer.dealer_id] && dealerUsers[dealer.dealer_id].length === 0">
-                <td colspan="18" class="text-center text-muted">
-                  No users found for {{ dealer.dealer_name }}.
-                </td>
-              </tr>
-
-            </ng-container>
-
-          </ng-container>
-
-
+          <tr *ngFor="let dealer of dealers; let i = index" (click)="toggleDealer(dealer)" class="clickable-row"
+            style="cursor:pointer">
+            <td>{{ i + 1 }}</td>
+            <td>{{ dealer.dealer_name }}</td>
+            <td>{{ dealer.enquiries }}</td>
+            <td>{{ dealer.testDrives }}</td>
+            <td>{{ dealer.followUps }}</td>
+            <td>{{ dealer.totalUsersCount }}</td>
+<td style="color: #28a745; font-weight: 500;">{{ dealer.activeUsersCount }}</td>
+            <!-- <td>{{ dealer.inactiveUsers }}</td> -->
+          </tr>
 
         </tbody>
       </table>
 
-      <!-- Pagination -->
-      <!-- <div class="pagination-container mt-2 d-flex justify-content-end align-items-center">
-        <button class="btn btn-sm me-2" (click)="onPageChange(currentPage - 1)"
-          [disabled]="currentPage === 1">Prev</button>
-        <span class="me-2">Page {{ currentPage }} of {{ Math.ceil(dealers.length / itemsPerPage) || 1 }}</span>
-        <button class="btn btn-sm" (click)="onPageChange(currentPage + 1)"
-          [disabled]="currentPage === (Math.ceil(dealers.length / itemsPerPage) || 1)">Next</button>
+      <!-- Users Table -->
+      <!-- Users Table -->
+      <div *ngIf="expandedDealer" class="mb-2">
+        <span class="back-arrow" (click)="toggleDealer(null)" style="cursor:pointer; font-size:30px; color:#222fb9;">
+          ←
+        </span>
+        <h5 class="mt-2">Showing Users for: <b>{{ expandedDealer.dealer_name }}</b></h5>
       </div>
 
-      <div *ngIf="paginatedDealers.length === 0" class="text-center mt-3">
-        No dealers found.
-      </div> -->
-<!-- <div class="text-center mt-3" *ngIf="dealers.length > itemsPerPage">
-  <button class="btn btn-primary" (click)="toggleShow()">
-    {{ showAll ? 'Show Less' : 'Show More' }}
-  </button>
-</div> -->
+      <table class="table table-bordered table-hover mt-2" *ngIf="expandedDealer">
+        <thead class="table-primary">
+          <tr>
+            <th>Sr No</th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Leads</th>
+            <th>Followups</th>
+            <th>Overdue Followups</th>
+            <th>Test Drives</th>
+            <th>Overdue Test Drives</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of dealerUsers; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ user.user_name }}</td>
+            <td>{{ user.user_role }}</td>
+            <td>{{ user.enquiries }}</td>
+                        <td>{{ user.followUps }}</td>
 
-<div class="text-center mt-3" *ngIf="dealers.length > itemsPerPage">
-  <button class="btn btn-primary" (click)="toggleShow()">
-    {{ showButtonText }}
-  </button>
-</div>
 
-<div *ngIf="paginatedDealers.length === 0" class="text-center mt-3">
-  No dealers found.
-</div>
+            <td style="color: red;font-weight: 500;">{{  user.overdueFollowups }}</td>
+            <!-- <td>{{ user.overdueFollowups }}</td> -->
+            <td >{{ user.testDrives }}</td>
+            <td style="color: red;font-weight: 500;">{{ user.overdueTestDrives }}</td>
+          </tr>
+          <tr *ngIf="dealerUsers.length === 0">
+            <td colspan="8" class="text-center text-muted">
+              No users for this dealer
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
 
     </div>
+
   </div>
+
+
+
+
+
+  <!-- ANALYSIS TAB CONTENT -->
+  <div *ngIf="selectedSection === 'callAnalysis'" class="dashboard-content content-section active">
+    <!-- Analysis content will go here -->
+    <!-- Dealer Call Logs Table -->
+    <div class="dashboard-container" *ngIf="!expandedDealer">
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead class="table-primary">
+            <tr>
+              <th scope="col">Sr No</th>
+              <th scope="col">Name</th>
+              <th scope="col">All Calls</th>
+              <th scope="col">Incoming</th>
+              <th scope="col">Outgoing</th>
+              <th scope="col">Missed</th>
+              <th scope="col">Rejected</th>
+              <th scope="col">Connected</th>
+              <th scope="col">Duration</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let dealer of dealers; let i = index" (click)="toggleDealer(dealer)" style="cursor:pointer">
+              <td>{{ i + 1 }}</td>
+              <td>{{ dealer.dealer_name }}</td>
+              <td>{{ dealer.callLogs.connected || 0 }}</td>
+              <td>{{ dealer.callLogs.incoming || 0 }}</td>
+              <td >{{ dealer.callLogs.outgoing || 0 }}</td>
+              <td>{{ dealer.callLogs.missed || 0 }}</td>
+              <td style="color: red;font-weight: 500;">{{ dealer.callLogs.declined || 0 }}</td>
+              <td>{{ dealer.callLogs.connected || 0 }}</td>
+              <td>{{ dealer.callLogs.duration || 0 }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- User Call Logs Table -->
+    <div *ngIf="expandedDealer" class="dashboard-container">
+      <span class="back-arrow" (click)="toggleDealer(null)" style="cursor:pointer; font-size:30px; color:#222fb9;">
+        ←
+      </span>
+      <h5 class="mt-2">Showing Call Logs for: <b>{{ expandedDealer.dealer_name }}</b></h5>
+
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover mt-2">
+          <thead class="table-primary">
+            <tr>
+              <th>Sr No</th>
+              <th>Name</th>
+              <th>All Calls</th>
+              <th>Incoming</th>
+              <th>Outgoing</th>
+              <th>Missed</th>
+              <th>Rejected</th>
+              <th>Connected</th>
+              <th>Duration</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of dealerUsers; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ user.user_name }}</td>
+              <td>{{ user.callLogs.connected || 0 }}</td>
+              <td>{{ user.callLogs.incoming || 0 }}</td>
+              <td>{{ user.callLogs.outgoing || 0 }}</td>
+              <td>{{ user.callLogs.missed || 0 }}</td>
+              <td>{{ user.callLogs.declined || 0 }}</td>
+              <td>{{ user.callLogs.connected || 0 }}</td>
+              <td>{{ user.callLogs.duration || 0 }}</td>
+            </tr>
+
+            <!-- Show message only if dealerUsers is explicitly empty -->
+            <!-- <tr *ngIf="expandedDealer && dealerUsers && dealerUsers.length === 0">
+    <td colspan="9" class="text-center text-muted">
+      No call logs for dealer <b>{{ expandedDealer.dealer_name }}</b>
+    </td>
+  </tr> -->
+            <tr *ngIf="dealerUsers.length === 0">
+              <td colspan="8" class="text-center text-muted">
+                No call logs for this dealer
+              </td>
+            </tr>
+          </tbody>
+
+
+        </table>
+      </div>
+    </div>
+
+
+  </div>
+
+
+  <!-- </div> -->
+</ng-container>
+
+<!-- PS1 & PS2 Cards Section (only shown when SM is selected) -->
+<div class="ps-cards-page" *ngIf="selectedSM" style="margin-top: 40px;">
+  <button class="back-arrow" (click)="goBack()" title="Go Back">←</button>
+  <h2 style="margin: 16px 0;">{{ selectedSM.sm_name }}</h2>
+
+  <div class="ps-section" style="display: flex; gap: 40px; flex-wrap: wrap;">
+
+    <!-- Show PS cards if data exists -->
+    <ng-container *ngIf="paginatedPs1Data.length > 0; else noPSData">
+      <h3 style="font-weight: 600; margin-bottom: 16px;"></h3>
+      <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div *ngFor="let item of paginatedPs1Data; let i = index" (mouseenter)="hoveredPS = item.ps_id"
+          (mouseleave)="hoveredPS = null" (click)="onPSCardClick(item.ps_id)"
+          style="background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06); padding: 16px; width: 120px; text-align: center; cursor: pointer; position: relative;">
+
+          <!-- Avatar -->
+          <div [ngStyle]="getAvatarStyle(i)">
+            {{ item.ps_name.charAt(0).toUpperCase() }}
+          </div>
+
+          <!-- Name -->
+          <div
+            style="font-size: 12px; font-weight: 600; color: #2c2c2c; margin-top: 8px; font-family: 'Poppins', sans-serif;">
+            {{ item.ps_name }}
+          </div>
+
+          <!-- Tooltip -->
+          <div *ngIf="hoveredPS === item.ps_id"
+            style="position: absolute; top: 90%; left: 50%; transform: translateX(-50%); background: #f0f0ff; border: 1px solid #ccc; padding: 8px 12px; border-radius: 8px; font-size: 12px; color: #333; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.1); z-index: 10; text-align: left; line-height: 1.6;">
+            <div><strong>Enquiries:</strong> {{ item.enquiries }}</div>
+            <div><strong>Test Drives:</strong> {{ item.testDrives }}</div>
+            <div><strong>Orders:</strong> {{ item.orders }}</div>
+            <div><strong>Cancellations:</strong> {{ item.cancellations }}</div>
+            <div><strong>Net Orders:</strong> {{ item.netOrders }}</div>
+            <div><strong>Retail:</strong> {{ item.retail }}</div>
+          </div>
+        </div>
+      </div>
+      <div style="width: 100%; margin-top: 24px;">
+        <div style="display: flex; justify-content: flex-end; align-items: center; padding-right: 50px;">
+          <!-- <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1"
+            style="padding: 6px 12px; margin-right: 8px; border: 1px solid #ccc; background: #f5f5f5; color: #666; cursor: pointer;">
+            Prev
+          </button> -->
+          <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1" [ngStyle]="{
+              'padding': '6px 12px',
+              'margin-right': '8px',
+              'border': currentPage === 1 ? '1px solid #ccc' : '1px solid #222fb9',
+              'background': currentPage === 1 ? '#f5f5f5' : 'white',
+              'color': currentPage === 1 ? '#666' : '#222fb9',
+              'cursor': currentPage === 1 ? 'not-allowed' : 'pointer'
+            }">
+            Prev
+          </button>
+
+
+          <span style="margin: 0 8px; color: #555;">
+            Page {{ currentPage }} of {{ totalPs1Pages }}
+          </span>
+
+          <!-- <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPs1Pages"
+            style="padding: 6px 12px; margin-left: 8px; border: 1px solid #222fb9; background: white; color: #222fb9; cursor: pointer;">
+            Next
+          </button> -->
+          <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPs1Pages" [ngStyle]="{
+              'padding': '6px 12px',
+              'margin-left': '8px',
+              'border': currentPage === totalPs1Pages ? '1px solid #ccc' : '1px solid #222fb9',
+              'background': currentPage === totalPs1Pages ? '#f5f5f5' : 'white',
+              'color': currentPage === totalPs1Pages ? '#666' : '#222fb9',
+              'cursor': currentPage === totalPs1Pages ? 'not-allowed' : 'pointer'
+            }">
+            Next
+          </button>
+
+        </div>
+      </div>
+
+    </ng-container>
+
+    <!-- No PS message -->
+    <ng-template #noPSData>
+      <div *ngIf="!loadingPS" style="text-align: center; padding: 60px 20px; color: #666; font-style: italic;
+                  background-color: #f9f9f9; border-radius: 12px; margin-top: 20px;
+                  font-family: 'Poppins', sans-serif;  width: 100%;">
+        <!-- <div style="font-size: 48px; color: #ccc; margin-bottom: 16px;">
+          <i class="fas fa-user-slash"></i>
+        </div> -->
+        <!-- <div style="font-size: 18px; font-weight: 500; color: #888; margin-bottom: 8px;">
+          No PS data found
+        </div> -->
+        <div style="font-size: 14px; color: #aaa;">
+          There are no PS records available for <strong>{{ selectedSM.sm_name }}</strong>
+        </div>
+      </div>
+    </ng-template>
+
+  </div>
+</div>
+
+<!-- No PS data message -->
+
+
+
+
+<!-- Pagination aligned to right -->
+
+<!-- </div> -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Chart.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('doughnutChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Red', 'Blue', 'Yellow'],
+      datasets: [{
+        data: [300, 50, 100],
+        backgroundColor: ['#ff0000', '#0000ff', '#ffff00'],
+        hoverOffset: 4
+      }]
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    fetch('https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd') // Replace with your actual API endpoint
+      .then(response => response.json())
+      .then(data => {
+        populateTable(data.data.rankings.leads); // Assuming the structure is data.data.rankings.leads
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        // Optionally display an error message in the table
+      });
+
+    function populateTable(leadsData) {
+      const tableBody = document.querySelector('#dataTable tbody');
+      tableBody.innerHTML = ''; // Clear any existing rows
+
+      leadsData.forEach(dealer => {
+        const row = tableBody.insertRow();
+        const nameCell = row.insertCell();
+        const codeCell = row.insertCell();
+        const locationCell = row.insertCell();
+        const phoneCell = row.insertCell();
+        const countCell = row.insertCell();
+        const rankCell = row.insertCell();
+
+        nameCell.textContent = dealer.dealer_name;
+        codeCell.textContent = dealer.dealer_code;
+        locationCell.textContent = dealer.location;
+        phoneCell.textContent = dealer.phone || dealer.mobile || ''; // Use phone if available, otherwise mobile
+        countCell.textContent = dealer.value;
+        rankCell.textContent = dealer.rank;
+      });
+    }
+  });
+</script>

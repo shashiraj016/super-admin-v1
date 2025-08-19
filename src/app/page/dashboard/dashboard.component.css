@@ -19,7 +19,7 @@
 }
 
 .table-responsive {
-  width: 80%;
+  /* width: 80%; */
   overflow-x: auto;
 }
 
@@ -29,6 +29,7 @@ table {
 }
 .content-body {
   /* margin-left: 350px; */
+  overflow-x: auto;
   padding: 20px;
   flex-grow: 1;
 }
@@ -2819,7 +2820,7 @@ body {
   font-size: 1.2rem;
   border: none !important;
   font-weight: 700;
-    font-family: "Poppins", sans-serif;
+  font-family: "Poppins", sans-serif;
 
   /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); Subtle shadow */
 }
@@ -2834,15 +2835,14 @@ body {
   margin: 15px 20px;
   /* border-left: 4px solid #4285f4; */
   border-left: 4px solid #222fb9;
-    font-family: "Poppins", sans-serif;
-
+  font-family: "Poppins", sans-serif;
 }
 
 .accordion.level-2 .accordion-header {
   /* background: linear-gradient(135deg, #4285f4 0%, #3367d6 100%); */
   font-size: 1.1rem;
   font-weight: 600;
-    font-family: "Poppins", sans-serif;
+  font-family: "Poppins", sans-serif;
 
   padding-left: 40px;
 }
@@ -2855,8 +2855,7 @@ body {
 .accordion.level-3 {
   /* margin: 15px 40px; */
   border-left: 4px solid #4285f4;
-    font-family: "Poppins", sans-serif;
-
+  font-family: "Poppins", sans-serif;
 }
 
 /* .accordion.level-3 .accordion-header {
@@ -2876,7 +2875,7 @@ body {
     #cfe8fc 0%,
     #a0cfff 100%
   ); /* lighter gradient */
-    font-family: "Poppins", sans-serif;
+  font-family: "Poppins", sans-serif;
 
   font-size: 1rem;
   font-weight: 500;
@@ -3279,8 +3278,7 @@ body {
   font-weight: 700;
   color: #003366; /* keep text color */
   border: 1px solid #b3d4ff;
-    font-family: "Poppins", sans-serif;
-
+  font-family: "Poppins", sans-serif;
 }
 
 .accordion.level-1 .accordion-header:hover {
@@ -3291,10 +3289,9 @@ body {
 .accordion.level-2 {
   margin: 15px 20px;
   border-left: 4px solid #222fb9;
-    font-family: "Poppins", sans-serif;
+  font-family: "Poppins", sans-serif;
 
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .accordion.level-2 .accordion-header {
@@ -3355,7 +3352,6 @@ body {
 
   transition: max-height 0.4s ease;
 
-
   backdrop-filter: blur(10px);
 }
 
@@ -3363,7 +3359,6 @@ body {
   max-height: 5000px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
-
 
 .content-wrapper {
   padding: 30px;
@@ -3709,7 +3704,7 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft box shadow */
   border-radius: 8px;
   overflow: hidden;
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   margin-top: 15px;
   font-family: Arial, sans-serif;
 }
@@ -3799,9 +3794,6 @@ body {
   opacity: 0.5;
 }
 
-
-
-
 /*  */
 /* dashboard.component.css */
 
@@ -3837,7 +3829,7 @@ body {
   /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
   overflow: hidden;
   margin: 20px 0;
-  max-width:100%
+  max-width: 100%;
 }
 
 .table {
@@ -3946,80 +3938,71 @@ body {
   width: 60px;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-  .table-responsive {
-    font-size: 12px;
-  }
-  
-  .table thead th,
-  .table tbody td {
-    padding: 12px 8px;
-  }
+/*  */
+/* Add to your component's CSS file */
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa !important;
+  transition: background-color 0.2s ease;
 }
-.filter-btn {
-  border-radius: 20px;
-  padding: 6px 16px;
-  font-size: 14px;
+
+.clickable-row:hover {
+  background-color: #e3f2fd !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.back-arrow {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.back-arrow:hover {
+  transform: translateX(-3px);
+}
+.time-filter {
+  gap: 10px; /* spacing between buttons */
+}
+
+.time-btn {
+  border: 1px solid #222fb9;
+  background: #fff;
+  color: #222fb9;
   font-weight: 500;
-  border: 1px solid #0d6efd;
-  background-color: white;
-  color: #0d6efd;
-  box-sizing: border-box; /* ensure border doesn’t change size */
-}
-
-.filter-btn.active {
-  background-color: #0d6efd;
-  color: white;
-  border: 1px solid #0d6efd; /* keep border consistent */
-}
-
-.filter-btn:hover {
-  background-color: #0d6efd;
-  color: white;
-  border: 1px solid #0d6efd; /* lock border */
-}
-.icon-btn {
-  border: none;
-  outline: none;
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 6px 10px;
+  font-size: 14px;
+  padding: 8px 18px;
+  border-radius: 20px; /* rounded pill look */
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.icon-btn:hover {
-  background: #e9ecef;
+.time-btn:hover {
+  background: #f1f5ff;
+}
+.time-filter-container {
+  background: white;
+  padding: 8px 12px;
+  display: inline-block;
+  border-radius: 6px;
 }
 
-.icon-btn i {
-  font-size: 16px;
-  color: #0d6efd; /* bootstrap blue */
-}
-/* Default filter button */
-.filter-btn {
-  background-color: white; /* normal background */
-  color: #222fb9;          /* normal text color */
-  border: 1px solid #222fb9;
+.time-filter-container .time-btn {
+  border: none !important; /* remove any border */
+  border-radius: 0 !important; /* remove pill rounding */
+  background: none !important; /* remove button background */
+  padding: 0 6px;
+  font-size: 20px;
+  cursor: pointer;
 }
 
-/* Active filter button */
-.filter-btn.active {
-  background-color: #222fb9; /* active background */
-  color: white;              /* text white when active */
-  border-color: #222fb9;
+.time-filter-container .time-btn.active {
+  font-weight: 600;
+  color: #222fb9;
 }
 
-/* Optional: hover effect */
-.filter-btn:hover {
-  background-color: #1b26a0; /* slightly darker on hover */
-  color: white;
+.time-filter-container .separator {
+  margin: 0 6px;
+  color: #555;
+  user-select: none;
 }
-.btn-sm{
-   background-color: #222fb9; /* active background */
-  color: white;   
-  padding:5px;
-  border-radius:10px;
-}
+

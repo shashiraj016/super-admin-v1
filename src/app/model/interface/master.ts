@@ -148,13 +148,13 @@ export interface SingleLeadResponse {
 }
 
 // NEW CODE ANAND 
-export interface CallLogs {
-  outgoing: number;
-  incoming: number;
-  connected: number;
-  declined: number;
-  duration: string;
-}
+// export interface CallLogs {
+//   outgoing: number;
+//   incoming: number;
+//   connected: number;
+//   declined: number;
+//   duration: string;
+// }
 
 export interface PS {
   ps_id: string;
@@ -183,22 +183,22 @@ export interface SM {
   ps_list: PS[];
 }
 
-export interface Dealer {
-  dealer_id: string;
-  dealer_name: string;
-  dealer_email: string | null;
-  enquiries: number;
-  testDrives: number;
-  cancellations: number;
-  orders: number;
-  net_orders: number;
-  lostEnquiries: number;
-  retail: number;
-  overdueFollowups: number;
-  upComingFollowups:number;
-  callLogs: CallLogs;
-  sm_list: SM[];
-}
+// export interface Dealer {
+//   dealer_id: string;
+//   dealer_name: string;
+//   dealer_email: string | null;
+//   enquiries: number;
+//   testDrives: number;
+//   cancellations: number;
+//   orders: number;
+//   net_orders: number;
+//   lostEnquiries: number;
+//   retail: number;
+//   overdueFollowups: number;
+//   upComingFollowups:number;
+//   callLogs: CallLogs;
+//   sm_list: SM[];
+// }
 
 export interface ApiResponse {
   status: number;
@@ -207,6 +207,56 @@ export interface ApiResponse {
     dealers: Dealer[];
   };
 }
+interface CallLogs {
+  name?: string;
+  outgoing: number;
+  incoming: number;
+  connected: number;
+  declined: number;
+  duration: string;
+}
+
+export interface User {
+  user_id: string;
+  user_name: string;
+  user_role: string;
+  upComingFollowups: number;
+  overdueFollowups: number;
+  upComingTestDrives: number;
+  completedTestDrives: number;
+  overdueTestDrives: number;
+  lostEnquiries: number;
+  enquiries: number;
+  testDrives: number;
+  orders: number;
+  cancellations: number;
+  net_orders: number;
+  retail: number;
+  callLogs: CallLogs;
+}
+
+export interface Dealer {
+  dealer_id: string;
+  dealer_name: string;
+  dealer_email?: string;
+  upComingFollowups: number;
+  overdueFollowups: number;
+  upComingTestDrives: number;
+  completedTestDrives: number;
+  overdueTestDrives: number;
+  enquiries: number;
+  lostEnquiries: number;
+  testDrives: number;
+  cancellations: number;
+  orders: number;
+  net_orders: number;
+  retail: number;
+  totalUsersCount: number;
+  activeUsersCount: number;
+  callLogs: CallLogs;
+  user_list: User[];
+}
+
 // export interface SingleUserResponse {
 //   status: number; // Ensure status exists
 
