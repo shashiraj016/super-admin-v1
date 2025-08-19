@@ -4,23 +4,26 @@
     <!-- Filter buttons + Custom date inline -->
     <!-- Filter buttons + Custom date inline -->
     <!-- Filter buttons + Custom date inline -->
-    <div class="filter-container mb-3 d-flex align-items-center">
-      <!-- Standard Filters -->
-      <button class="btn filter-btn me-2" [ngClass]="{'active': selectedFilter==='MTD'}"
-        (click)="onFilterChange('MTD')">MTD</button>
-      <button class="btn filter-btn me-2" [ngClass]="{'active': selectedFilter==='QTD'}"
-        (click)="onFilterChange('QTD')">QTD</button>
-      <button class="btn filter-btn me-3" [ngClass]="{'active': selectedFilter==='YTD'}"
-        (click)="onFilterChange('YTD')">YTD</button>
+      <div class="filter-container mb-3 d-flex align-items-center">
+        <!-- Standard Filters -->
+        <button class="btn filter-btn me-2" [ngClass]="{'active': selectedFilter==='MTD'}"
+          (click)="onFilterChange('MTD')">MTD</button>
+        <button class="btn filter-btn me-2" [ngClass]="{'active': selectedFilter==='QTD'}"
+          (click)="onFilterChange('QTD')">QTD</button>
+        <button class="btn filter-btn me-3" [ngClass]="{'active': selectedFilter==='YTD'}"
+          (click)="onFilterChange('YTD')">YTD</button>
 
-      <!-- Custom Date Filter inline -->
-      <label class="me-2 mb-0" style="margin-left:10px;">Custom date:</label>
-      <input type="date" [(ngModel)]="customStartDate" class="form-control form-control-sm me-2"
-        style="width: 120px; display: inline-block; margin-left:10px;" />
-      <input type="date" [(ngModel)]="customEndDate" class="form-control form-control-sm me-2"
-        style="width: 120px; display: inline-block; margin-left:10px;" />
-      <button class="btn btn-sm " style="margin-left:10px;" (click)="applyCustomDateFilter()">Apply</button>
-    </div>
+        <!-- Custom Date Filter inline -->
+        <label class="me-2 mb-0" style="margin-left:10px;">Custom date:</label>
+        <input type="date" [(ngModel)]="customStartDate" class="form-control form-control-sm me-2"
+          style="width: 120px; display: inline-block; margin-left:10px;" />
+        <input type="date" [(ngModel)]="customEndDate" class="form-control form-control-sm me-2"
+          style="width: 120px; display: inline-block; margin-left:10px;" />
+        <button class="btn btn-sm " style="margin-left:10px;" (click)="applyCustomDateFilter()">Apply</button>
+          <span *ngIf="appliedStartDate && appliedEndDate" class="ms-3 fw-bold text-primary">
+            Showing data from {{ appliedStartDate | date:'shortDate' }} to {{ appliedEndDate | date:'shortDate' }}
+          </span>
+      </div>
 
     <!-- Table -->
     <div class="table-responsive" *ngIf="paginatedDealers.length > 0">

@@ -154,6 +154,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     '#f3e8ff', // light purple
   ];
   // showAllSMs: { [dealerId: string]: boolean } = {};
+  appliedStartDate: string | null = null;
+  appliedEndDate: string | null = null;
 
   mtdLeads = signal<number>(0);
   qtdLeads = signal<number>(0);
@@ -576,8 +578,48 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //       }
   //     });
   // }
+  // applyCustomDateFilter() {
+  //   if (this.customStartDate && this.customEndDate) {
+  //     // Temporarily clear table to show refresh
+  //     const tempDealers = this.dealers;
+  //     this.dealers = [];
+  //     this.paginatedDealers = [];
+
+  //     this.dashboardService
+  //       .getDealerActivitiesCustom(
+  //         this.customStartDate,
+  //         this.customEndDate,
+  //         this.selectedFilter
+  //       )
+  //       .subscribe((res: any) => {
+  //         if (res.status === 200) {
+  //           // Update the main dealers array
+  //           this.dealers = res.data.dealers || [];
+
+  //           // Reset pagination to first page
+  //           this.currentPage = 1;
+  //           this.paginateDealers();
+
+  //           // Collapse any expanded rows
+  //           this.expandedRow = null;
+  //         }
+  //       });
+  //   } else {
+  //     alert('Please select both start and end dates.');
+  //   }
+  // }
   applyCustomDateFilter() {
     if (this.customStartDate && this.customEndDate) {
+      // First, set the applied dates so the UI shows them immediately
+      this.appliedStartDate = this.customStartDate;
+      this.appliedEndDate = this.customEndDate;
+
+      // Temporarily clear table to show refresh
+      this.dealers = [];
+      this.paginatedDealers = [];
+      this.expandedRow = null;
+
+      // Call API
       this.dashboardService
         .getDealerActivitiesCustom(
           this.customStartDate,
@@ -586,25 +628,22 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         )
         .subscribe((res: any) => {
           if (res.status === 200) {
-            // Replace dealers array
-            this.dealers = [...(res.data.dealers || [])];
+            // Update the main dealers array
+            this.dealers = res.data.dealers || [];
 
-            // Update paginated dealers
-            this.paginatedDealers = [
-              ...this.dealers.slice(0, this.itemsPerPage),
-            ];
+            // Reset pagination to first page
+            this.currentPage = 1;
+            this.paginateDealers();
 
-            // Reset expanded row
+            // Collapse any expanded rows (already done)
             this.expandedRow = null;
-
-            // Trigger change detection manually
-            this.cdr.detectChanges();
           }
         });
     } else {
       alert('Please select both start and end dates.');
     }
   }
+
   // toggleSM(id: string): void {
   //   this.activeSM = this.activeSM === id ? null : id;
   // }
@@ -2717,6 +2756,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
     this.paginatedData = this.displayedData.slice(startIndex, endIndex);
+  }
+  // Helper function to paginate
+  paginateDealers() {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    this.paginatedDealers = [...this.dealers.slice(start, end)];
   }
 
   getFormattedChange(change: number): string {
