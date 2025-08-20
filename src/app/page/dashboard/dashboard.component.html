@@ -64,25 +64,25 @@
       <button (click)="applyCustomDate()" style="margin-left:10px;">Apply</button>
     </div> -->
 
-<div *ngIf="showCustomDatePicker"
-  style="margin-top: 8px; display: flex; align-items: center; gap: 10px; background: #f5f5f5; padding: 8px 12px; border-radius: 6px; width: fit-content;">
-  <label style="display: flex; flex-direction: column; font-size: 14px;">
-    From:
-    <input type="date" [(ngModel)]="customStartDate"
-      style="padding: 4px 6px; border-radius: 4px; border: 1px solid #ccc; background: white;">
-  </label>
+    <div *ngIf="showCustomDatePicker"
+      style="margin-top: 8px; display: flex; align-items: center; gap: 10px; background: #f5f5f5; padding: 8px 12px; border-radius: 6px; width: fit-content;">
+      <label style="display: flex; flex-direction: column; font-size: 14px;">
+        From:
+        <input type="date" [(ngModel)]="customStartDate"
+          style="padding: 4px 6px; border-radius: 4px; border: 1px solid #ccc; background: white;">
+      </label>
 
-  <label style="display: flex; flex-direction: column; font-size: 14px;">
-    To:
-    <input type="date" [(ngModel)]="customEndDate"
-      style="padding: 4px 6px; border-radius: 4px; border: 1px solid #ccc; background: white;">
-  </label>
+      <label style="display: flex; flex-direction: column; font-size: 14px;">
+        To:
+        <input type="date" [(ngModel)]="customEndDate"
+          style="padding: 4px 6px; border-radius: 4px; border: 1px solid #ccc; background: white;">
+      </label>
 
-  <button (click)="applyCustomDate()"
-    style="padding: 6px 12px; background-color: #222fb9; color: white; border: none; border-radius: 4px; cursor: pointer;margin-top:14px;">
-    Apply
-  </button>
-</div>
+      <button (click)="applyCustomDate()"
+        style="padding: 6px 12px; background-color: #222fb9; color: white; border: none; border-radius: 4px; cursor: pointer;margin-top:14px;">
+        Apply
+      </button>
+    </div>
 
 
     <!-- HOME TAB CONTENT -->
@@ -139,7 +139,7 @@
   </div>
 </div> -->
       <!-- Dealer Table -->
-      <table class="table table-hover table-bordered" *ngIf="!expandedDealer">
+      <table class="table table-hover " *ngIf="!expandedDealer" style="border: 1px solid lightgray !important;text-align:left;">
         <thead class="table-primary">
           <tr>
             <th scope="col">Sr No</th>
@@ -156,12 +156,12 @@
           <tr *ngFor="let dealer of dealers; let i = index" (click)="toggleDealer(dealer)" class="clickable-row"
             style="cursor:pointer">
             <td>{{ i + 1 }}</td>
-            <td>{{ dealer.dealer_name }}</td>
+            <td style="text-align: left;">{{ dealer.dealer_name }}</td>
             <td>{{ dealer.enquiries }}</td>
             <td>{{ dealer.testDrives }}</td>
             <td>{{ dealer.followUps }}</td>
             <td>{{ dealer.totalUsersCount }}</td>
-<td style="color: #28a745; font-weight: 500;">{{ dealer.activeUsersCount }}</td>
+            <td style="color: #28a745; font-weight: 500;">{{ dealer.activeUsersCount }}</td>
             <!-- <td>{{ dealer.inactiveUsers }}</td> -->
           </tr>
 
@@ -193,15 +193,15 @@
         <tbody>
           <tr *ngFor="let user of dealerUsers; let i = index">
             <td>{{ i + 1 }}</td>
-            <td>{{ user.user_name }}</td>
+            <td style="text-align: left;">{{ user.user_name }}</td>
             <td>{{ user.user_role }}</td>
             <td>{{ user.enquiries }}</td>
-                        <td>{{ user.followUps }}</td>
+            <td>{{ user.followUps }}</td>
 
 
-            <td style="color: red;font-weight: 500;">{{  user.overdueFollowups }}</td>
+            <td style="color: red;font-weight: 500;">{{ user.overdueFollowups }}</td>
             <!-- <td>{{ user.overdueFollowups }}</td> -->
-            <td >{{ user.testDrives }}</td>
+            <td>{{ user.testDrives }}</td>
             <td style="color: red;font-weight: 500;">{{ user.overdueTestDrives }}</td>
           </tr>
           <tr *ngIf="dealerUsers.length === 0">
@@ -244,10 +244,10 @@
           <tbody>
             <tr *ngFor="let dealer of dealers; let i = index" (click)="toggleDealer(dealer)" style="cursor:pointer">
               <td>{{ i + 1 }}</td>
-              <td>{{ dealer.dealer_name }}</td>
+              <td style="text-align: left;">{{ dealer.dealer_name }}</td>
               <td>{{ dealer.callLogs.connected || 0 }}</td>
               <td>{{ dealer.callLogs.incoming || 0 }}</td>
-              <td >{{ dealer.callLogs.outgoing || 0 }}</td>
+              <td>{{ dealer.callLogs.outgoing || 0 }}</td>
               <td>{{ dealer.callLogs.missed || 0 }}</td>
               <td style="color: red;font-weight: 500;">{{ dealer.callLogs.declined || 0 }}</td>
               <td>{{ dealer.callLogs.connected || 0 }}</td>
@@ -283,12 +283,12 @@
           <tbody>
             <tr *ngFor="let user of dealerUsers; let i = index">
               <td>{{ i + 1 }}</td>
-              <td>{{ user.user_name }}</td>
+              <td style="text-align: left;">{{ user.user_name }}</td>
               <td>{{ user.callLogs.connected || 0 }}</td>
               <td>{{ user.callLogs.incoming || 0 }}</td>
               <td>{{ user.callLogs.outgoing || 0 }}</td>
               <td>{{ user.callLogs.missed || 0 }}</td>
-              <td>{{ user.callLogs.declined || 0 }}</td>
+              <td style="color: red;font-weight: 500;">{{ user.callLogs.declined || 0 }}</td>
               <td>{{ user.callLogs.connected || 0 }}</td>
               <td>{{ user.callLogs.duration || 0 }}</td>
             </tr>
