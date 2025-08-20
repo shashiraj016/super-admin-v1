@@ -2406,13 +2406,16 @@ table {
   border-collapse: separate; /* IMPORTANT */
   border-spacing: 0 12px; /* Controls vertical spacing between rows */
 }
+th{
+  color:#000000;
+}
 
 td {
   background-color: #f9f9fb;
   padding: 14px;
   text-align: center;
   font-weight: 500;
-  color: #000000;
+  /* color: #000000; */
   border: none;
   padding: 30px;
   transition: all 0.3s ease;
@@ -3533,7 +3536,7 @@ body {
 }
 
 .table-pagination button:hover:not(:disabled) {
-  background: #f8f9fa;
+  /* background: #f8f9fa; */
 }
 
 .table-pagination button:disabled {
@@ -3724,7 +3727,7 @@ body {
 }
 
 .dealer-table tbody tr:hover {
-  background-color: #f1f7ff; /* Subtle hover effect */
+  /* background-color: #f1f7ff; Subtle hover effect */
 }
 
 .dealer-table th {
@@ -3852,11 +3855,11 @@ body {
 .table tbody td {
   padding: 16px 12px;
   vertical-align: middle;
-  border-bottom: 1px solid #f1f3f4;
+  /* border-bottom: 1px solid #f1f3f4; */
 }
 
 .order-row:hover {
-  background-color: #f8f9fa;
+  /* background-color: #f8f9fa; */
 }
 
 .order-id {
@@ -3941,12 +3944,12 @@ body {
 /*  */
 /* Add to your component's CSS file */
 .table-hover tbody tr:hover {
-  background-color: #f8f9fa !important;
+  /* background-color: #f8f9fa !important; */
   transition: background-color 0.2s ease;
 }
 
 .clickable-row:hover {
-  background-color: #e3f2fd !important;
+  /* background-color: #e3f2fd !important; */
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
@@ -4006,3 +4009,88 @@ body {
   user-select: none;
 }
 
+
+/*  */
+.custom-table {
+  /* border: 1px solid lightgray; */
+  border-radius: 15px;
+  border-collapse: separate; /* required for rounded corners */
+  overflow: hidden;           /* ensures corners are not cut off */
+  background-color: white;    /* white background */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* subtle shadow */
+}
+.custom-table th,
+.custom-table td {
+  padding: 8px 12px;          /* reduce default Bootstrap padding */
+  color: #555555;             /* row text color */
+}
+
+.custom-table tbody tr:hover {
+  /* background-color: #f1f5ff;  light hover effect */
+  cursor: pointer;
+}
+.custom-table tbody tr {
+  background-color: transparent !important;
+}
+
+.custom-table tbody tr:hover {
+  /* background-color: #f8f9fa !important; Light hover effect */
+}
+
+/* Remove any alternating row colors */
+.custom-table tbody tr:nth-child(odd) {
+  background-color: transparent !important;
+}
+
+.custom-table tbody tr:nth-child(even) {
+  background-color: transparent !important;
+}
+.custom-table {
+  background-color: white !important;
+}
+
+.custom-table thead tr {
+  background-color: white !important;
+}
+
+.custom-table tbody tr {
+  background-color: white !important;
+}
+
+.custom-table tbody tr:hover {
+  background-color: #f1f5f9 !important; /* Custom hover color */
+}
+.custom-table tbody tr {
+  background-color: white !important; /* ensures all rows are white */
+}
+
+.custom-table tbody tr:hover {
+  background-color: #f1f5ff; /* optional: keep light hover effect */
+}
+/* Remove all default table backgrounds */
+.custom-table {
+  background-color: white !important;
+}
+
+.custom-table thead th {
+  background-color: white !important;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.custom-table tbody tr {
+  background-color: white !important;
+}
+
+/* Remove striped/alternating row colors */
+.custom-table tbody tr:nth-child(odd) {
+  background-color: white !important;
+}
+
+.custom-table tbody tr:nth-child(even) {
+  background-color: white !important;
+}
+
+/* Custom hover effect (optional) */
+.custom-table tbody tr:hover {
+  background-color: #f8f9fa !important;
+}
