@@ -136,6 +136,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   showCustomDatePicker = false;
   customStartDate: string = '';
   customEndDate: string = '';
+  displayedDealers: any[] = [];
+  itemsToShow: number = 10;
 
   totalLeads = signal<number>(0);
   totalTestDrives = signal<number>(0);
@@ -259,8 +261,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   doughnutChart: any;
   // progressValue: number = 75; // Set a default value (e.g., 75 for 75%)
   animatedValue: number = 0; // Initial value
-  itemsPerPage: number = 10;
+  // itemsPerPage: number = 10;
   currentPage: number = 1;
+  itemsPerPage: number = 10;
   paginatedData: any[] = [];
   activeFilter: 'MTD' | 'QTD' | 'YTD' = 'MTD'; // set default selection
   dealers: any[] = []; // Full dealer list from API
@@ -304,6 +307,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   }, 100);
   // }
   ngOnInit() {
+    this.updateDisplayedDealers();
+
     this.currentDisplayCount = this.itemsPerPage;
 
     this.loadInitialDealers();
@@ -1448,6 +1453,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (!token) {
       console.error('No token found in sessionStorage!');
       this.dealers = [];
+      this.displayedDealers = [];
       return;
     }
 
@@ -1455,25 +1461,31 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       next: (res: any) => {
         console.log('API Response:', res);
 
-        // check which format API actually uses
         const dealers = res?.data?.dealers || res?.dealers || [];
 
         if (dealers.length > 0) {
           this.dealers = dealers;
 
+          // initialize dealerSMS
           this.dealers.forEach((dealer: any) => {
             if (!this.dealerSMS[dealer.dealer_id]) {
               this.dealerSMS[dealer.dealer_id] = [];
             }
           });
+
+          // update first 10 dealers for display
+          this.itemsToShow = 10; // reset to 10 each time you fetch
+          this.updateDisplayedDealers();
         } else {
           console.warn('No dealers found in response');
           this.dealers = [];
+          this.displayedDealers = [];
         }
       },
       error: (err) => {
         console.error('Error fetching dealers:', err);
         this.dealers = [];
+        this.displayedDealers = [];
       },
     });
   }
@@ -1970,14 +1982,21 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     console.error('Token not found!');
   //     return;
   //   }
+  // showMore() {
+  //   const nextIndex = this.currentIndex + this.itemsPerPage;
+  //   this.paginatedDealers = this.paginatedDealers.concat(
+  //     this.dealers.slice(this.currentIndex, nextIndex)
+  //   );
+  //   this.currentIndex = this.paginatedDealers.length;
+  // }
   showMore() {
-    const nextIndex = this.currentIndex + this.itemsPerPage;
-    this.paginatedDealers = this.paginatedDealers.concat(
-      this.dealers.slice(this.currentIndex, nextIndex)
-    );
-    this.currentIndex = this.paginatedDealers.length;
+    this.itemsToShow += 10;
+    this.updateDisplayedDealers();
   }
 
+  updateDisplayedDealers() {
+    this.displayedDealers = this.dealers.slice(0, this.itemsToShow);
+  }
   //   const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
   //   this.http
@@ -3254,6 +3273,17 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     this.showMoreActive = true;
   //   }
   // }
+
+  toggleShowMore() {
+    if (this.itemsToShow >= this.dealers.length) {
+      // Currently showing all → reset to 10
+      this.itemsToShow = 10;
+    } else {
+      // Show all remaining dealers
+      this.itemsToShow = this.dealers.length;
+    }
+    this.updateDisplayedDealers();
+  }
 
   loadTodayData(): void {
     this.selectedPeriod = ''; // ensure no filter is highlighted

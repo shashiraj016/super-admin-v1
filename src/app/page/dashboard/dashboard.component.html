@@ -42,13 +42,15 @@
       style="background: white; padding: 8px 12px; display: inline-block; border-radius: 6px;margin-top:10px;">
       <button class="time-btn" [class.active]="selectedFilter === 'DAY'" (click)="onFilterChange('DAY')">1D</button>
       <span class="separator">|</span>
+            <button class="time-btn" [class.active]="selectedFilter === 'WEEK'" (click)="onFilterChange('WEEK')">1W</button>
+      <span class="separator">|</span>
+
       <button class="time-btn" [class.active]="selectedFilter === 'MTD'" (click)="onFilterChange('MTD')">1M</button>
       <span class="separator">|</span>
       <button class="time-btn" [class.active]="selectedFilter === 'QTD'" (click)="onFilterChange('QTD')">1Q</button>
       <span class="separator">|</span>
       <button class="time-btn" [class.active]="selectedFilter === 'YTD'" (click)="onFilterChange('YTD')">1Y</button>
       <span class="separator">|</span>
-      <button class="time-btn" [class.active]="selectedFilter === 'WEEK'" (click)="onFilterChange('WEEK')">1W</button>
       <span class="separator">|</span>
 
 
@@ -143,7 +145,7 @@
         <thead class="table-primary">
           <tr>
             <th scope="col">Sr No</th>
-            <th scope="col">Name</th>
+            <th scope="col" style="text-align: left;">Name</th>
             <th scope="col">Leads</th>
             <th scope="col">Test Drives</th>
             <th scope="col">Followups</th>
@@ -154,7 +156,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let dealer of dealers; let i = index" (click)="toggleDealer(dealer)" class="clickable-row"
-            style="cursor:pointer">
+            style="cursor:pointer;" >
             <td>{{ i + 1 }}</td>
             <td style="text-align: left;">{{ dealer.dealer_name }}</td>
             <td>{{ dealer.enquiries }}</td>
@@ -193,7 +195,7 @@
         <tbody>
           <tr *ngFor="let user of dealerUsers; let i = index">
             <td>{{ i + 1 }}</td>
-            <td style="text-align: left;">{{ user.user_name }}</td>
+            <td >{{ user.user_name }}</td>
             <td>{{ user.user_role }}</td>
             <td>{{ user.enquiries }}</td>
             <td>{{ user.followUps }}</td>
@@ -244,7 +246,7 @@
           <tbody>
             <tr *ngFor="let dealer of dealers; let i = index" (click)="toggleDealer(dealer)" style="cursor:pointer">
               <td>{{ i + 1 }}</td>
-              <td style="text-align: left;">{{ dealer.dealer_name }}</td>
+              <td >{{ dealer.dealer_name }}</td>
               <td>{{ dealer.callLogs.connected || 0 }}</td>
               <td>{{ dealer.callLogs.incoming || 0 }}</td>
               <td>{{ dealer.callLogs.outgoing || 0 }}</td>
@@ -283,7 +285,7 @@
           <tbody>
             <tr *ngFor="let user of dealerUsers; let i = index">
               <td>{{ i + 1 }}</td>
-              <td style="text-align: left;">{{ user.user_name }}</td>
+              <td >{{ user.user_name }}</td>
               <td>{{ user.callLogs.connected || 0 }}</td>
               <td>{{ user.callLogs.incoming || 0 }}</td>
               <td>{{ user.callLogs.outgoing || 0 }}</td>
