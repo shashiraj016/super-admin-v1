@@ -182,6 +182,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   appliedStartDate: string | null = null;
   appliedEndDate: string | null = null;
   usersItemsToShow: number = 10;
+  userItemsToShow: number = 10; // Initial number of users to show
 
   // Users to actually display
   displayedUsers: any[] = [];
@@ -230,6 +231,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   paginatedDealerskpis: any[] = [];
   currentIndex = 0;
   // selectedDealerId: number | null = null;   // 👈 NEW
+  displayedDealerUsers: any[] = [];
 
   // loadingPS: boolean = false;
   // Current page tracking properties
@@ -1551,8 +1553,25 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   });
   // }
   updateDisplayedUsers() {
-    this.displayedUsers = this.dealerUsers.slice(0, this.usersItemsToShow);
-    this.showMoreUsersVisible = this.usersItemsToShow < this.dealerUsers.length;
+    if (!this.dealerUsers) {
+      this.displayedDealerUsers = [];
+      this.showMoreUsersVisible = false;
+      return;
+    }
+
+    // Optional: filter out users whose all counts are zero
+    const filteredUsers = this.dealerUsers.filter((user: any) => {
+      return (
+        user.enquiries ||
+        user.followUps ||
+        user.overdueFollowups ||
+        user.testDrives ||
+        user.overdueTestDrives
+      );
+    });
+
+    this.displayedDealerUsers = filteredUsers.slice(0, this.userItemsToShow);
+    this.showMoreUsersVisible = this.userItemsToShow < filteredUsers.length;
   }
 
   // Toggle Show More / Less
