@@ -165,7 +165,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   paginatedDealers: any[] = [];
   // dealerUsers: { [dealerId: string]: any[] } = {}; // store users per dealer
   dealerPSL: any = null;
-
+  callLogsItemsToShow = 10;
+  displayedCallLogs: any[] = [];
+  showMoreCallLogsVisible = true;
   mtdOrders = signal<number>(0);
   qtdOrders = signal<number>(0);
   ytdOrders = signal<number>(0);
@@ -179,7 +181,13 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // showAllSMs: { [dealerId: string]: boolean } = {};
   appliedStartDate: string | null = null;
   appliedEndDate: string | null = null;
+  usersItemsToShow: number = 10;
 
+  // Users to actually display
+  displayedUsers: any[] = [];
+
+  // Show More button visibility
+  showMoreUsersVisible: boolean = false;
   mtdLeads = signal<number>(0);
   qtdLeads = signal<number>(0);
   currentLeads: number = 0;
@@ -335,8 +343,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.animatedValue = this.progressValue;
     }, 100);
   }
-
-  
 
   initializeDisplay() {
     this.currentDisplayCount = this.itemsPerPage;
@@ -1456,12 +1462,118 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       },
     });
   }
+  // fetchDealers(filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM') {
+  //   const token = sessionStorage.getItem('token');
+  //   if (!token) {
+  //     console.error('No token found in sessionStorage!');
+  //     this.dealers = [];
+  //     this.displayedDealers = [];
+  //     return;
+  //   }
+
+  //   this.dashboardService.getDealers(filter, token).subscribe({
+  //     next: (res: any) => {
+  //       console.log('API Response:', res);
+
+  //       const dealers = res?.data?.dealers || res?.dealers || [];
+
+  //       if (dealers.length > 0) {
+  //         this.dealers = dealers;
+
+  //         // initialize dealerSMS
+  //         this.dealers.forEach((dealer: any) => {
+  //           if (!this.dealerSMS[dealer.dealer_id]) {
+  //             this.dealerSMS[dealer.dealer_id] = [];
+  //           }
+  //         });
+
+  //         // update first 10 dealers for display
+  //         this.itemsToShow = 10; // reset to 10 each time you fetch
+  //         this.updateDisplayedDealers();
+  //       } else {
+  //         console.warn('No dealers found in response');
+  //         this.dealers = [];
+  //         this.displayedDealers = [];
+  //       }
+  //     },
+  //     error: (err) => {
+  //       console.error('Error fetching dealers:', err);
+  //       this.dealers = [];
+  //       this.displayedDealers = [];
+  //     },
+  //   });
+  // }
+
+  // updatePaginatedDealers() {
+  //   const start = (this.currentPage - 1) * this.itemsPerPage;
+  //   const end = start + this.itemsPerPage;
+  //   this.paginatedDealers = this.dealers.slice(start, end);
+  // }
+  // fetchDealers(filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM') {
+  //   const token = sessionStorage.getItem('token');
+  //   if (!token) {
+  //     console.error('No token found in sessionStorage!');
+  //     this.dealers = [];
+  //     this.displayedDealers = [];
+  //     return;
+  //   }
+
+  //   this.dashboardService.getDealers(filter, token).subscribe({
+  //     next: (res: any) => {
+  //       console.log('API Response:', res);
+
+  //       const dealers = res?.data?.dealers || res?.dealers || [];
+
+  //       if (dealers.length > 0) {
+  //         this.dealers = dealers;
+
+  //         // initialize dealerSMS
+  //         this.dealers.forEach((dealer: any) => {
+  //           if (!this.dealerSMS[dealer.dealer_id]) {
+  //             this.dealerSMS[dealer.dealer_id] = [];
+  //           }
+  //         });
+
+  //         // Reset to show first 10
+  //         this.itemsToShow = 10;
+  //         this.updateDisplayedDealers();
+  //       } else {
+  //         console.warn('No dealers found in response');
+  //         this.dealers = [];
+  //         this.displayedDealers = [];
+  //       }
+  //     },
+  //     error: (err) => {
+  //       console.error('Error fetching dealers:', err);
+  //       this.dealers = [];
+  //       this.displayedDealers = [];
+  //     },
+  //   });
+  // }
+  updateDisplayedUsers() {
+    this.displayedUsers = this.dealerUsers.slice(0, this.usersItemsToShow);
+    this.showMoreUsersVisible = this.usersItemsToShow < this.dealerUsers.length;
+  }
+
+  // Toggle Show More / Less
+  toggleShowMoreUsers() {
+    if (this.usersItemsToShow >= this.dealerUsers.length) {
+      // Show Less
+      this.usersItemsToShow = 10;
+    } else {
+      // Show all
+      this.usersItemsToShow = this.dealerUsers.length;
+    }
+    this.updateDisplayedUsers();
+  }
   fetchDealers(filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM') {
     const token = sessionStorage.getItem('token');
     if (!token) {
       console.error('No token found in sessionStorage!');
       this.dealers = [];
       this.displayedDealers = [];
+      this.displayedCallLogs = [];
+      // this.displayedUsers = [];
       return;
     }
 
@@ -1474,35 +1586,39 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         if (dealers.length > 0) {
           this.dealers = dealers;
 
-          // initialize dealerSMS
+          // Initialize dealerSMS
           this.dealers.forEach((dealer: any) => {
             if (!this.dealerSMS[dealer.dealer_id]) {
               this.dealerSMS[dealer.dealer_id] = [];
             }
           });
 
-          // update first 10 dealers for display
-          this.itemsToShow = 10; // reset to 10 each time you fetch
+          // Reset to show first 10 for all tables
+          this.itemsToShow = 10;
+          this.callLogsItemsToShow = 10;
+          // this.userItemsToShow = 10;
+
           this.updateDisplayedDealers();
+          this.updateDisplayedCallLogs();
+          // this.updateDisplayedUsers();
         } else {
           console.warn('No dealers found in response');
           this.dealers = [];
           this.displayedDealers = [];
+          this.displayedCallLogs = [];
+          // this.displayedUsers = [];
         }
       },
       error: (err) => {
         console.error('Error fetching dealers:', err);
         this.dealers = [];
         this.displayedDealers = [];
+        this.displayedCallLogs = [];
+        // this.displayedUsers = [];
       },
     });
   }
 
-  // updatePaginatedDealers() {
-  //   const start = (this.currentPage - 1) * this.itemsPerPage;
-  //   const end = start + this.itemsPerPage;
-  //   this.paginatedDealers = this.dealers.slice(start, end);
-  // }
   updatePaginatedDealers() {
     this.paginatedDealers = this.dealers.slice(0, this.currentDisplayCount);
   }
@@ -1997,15 +2113,19 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   );
   //   this.currentIndex = this.paginatedDealers.length;
   // }
-   showMore() {
+  showMore() {
     this.currentDisplayCount += this.itemsPerPage;
     this.updateDisplayedDealers();
   }
   showMoreVisible: boolean = true;
 
+  // updateDisplayedDealers() {
+  //   this.displayedDealers = this.dealers.slice(0, this.itemsToShow);
+  //   this.showMoreVisible = this.itemsToShow < this.dealers.length;
+  // }
   updateDisplayedDealers() {
-    this.displayedDealers = this.dealers.slice(0, this.currentDisplayCount);
-    this.showMoreVisible = this.currentDisplayCount < this.dealers.length;
+    this.displayedDealers = this.dealers.slice(0, this.itemsToShow);
+    this.showMoreVisible = this.itemsToShow < this.dealers.length;
   }
   //   const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
@@ -3267,6 +3387,24 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.currentIndex = this.paginatedDealers.length;
     this.showMoreActive = false;
   }
+  toggleShowMoreCallLogs() {
+    if (this.callLogsItemsToShow >= this.dealers.length) {
+      // Show Less → back to first 10
+      this.callLogsItemsToShow = 10;
+    } else {
+      // Show next 10
+      this.callLogsItemsToShow = Math.min(
+        this.callLogsItemsToShow + 10,
+        this.dealers.length
+      );
+    }
+    this.updateDisplayedCallLogs();
+  }
+  updateDisplayedCallLogs() {
+    this.displayedCallLogs = this.dealers.slice(0, this.callLogsItemsToShow);
+    this.showMoreCallLogsVisible =
+      this.callLogsItemsToShow < this.dealers.length;
+  }
 
   // toggleShowMore() {
   //   if (this.showMoreActive) {
@@ -3284,17 +3422,26 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   }
   // }
 
+  // toggleShowMore() {
+  //   if (this.itemsToShow >= this.dealers.length) {
+  //     // Reset to initial 10
+  //     this.itemsToShow = 10;
+  //   } else {
+  //     // Show all remaining dealers
+  //     this.itemsToShow = this.dealers.length;
+  //   }
+  //   this.updateDisplayedDealers();
+  // }
   toggleShowMore() {
     if (this.itemsToShow >= this.dealers.length) {
-      // Currently showing all → reset to 10
+      // Show Less → back to first 10
       this.itemsToShow = 10;
     } else {
-      // Show all remaining dealers
-      this.itemsToShow = this.dealers.length;
+      // Show next 10
+      this.itemsToShow = Math.min(this.itemsToShow + 10, this.dealers.length);
     }
     this.updateDisplayedDealers();
   }
-
   loadTodayData(): void {
     this.selectedPeriod = ''; // ensure no filter is highlighted
     this.applyFilter('today');
