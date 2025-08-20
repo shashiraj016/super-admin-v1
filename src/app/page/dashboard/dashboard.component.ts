@@ -1577,11 +1577,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // Toggle Show More / Less
   toggleShowMoreUsers() {
     if (this.usersItemsToShow >= this.dealerUsers.length) {
-      // Show Less
-      this.usersItemsToShow = 10;
+      this.usersItemsToShow = 10; // Show Less
     } else {
-      // Show all
-      this.usersItemsToShow = this.dealerUsers.length;
+      this.usersItemsToShow = this.dealerUsers.length; // Show More
     }
     this.updateDisplayedUsers();
   }

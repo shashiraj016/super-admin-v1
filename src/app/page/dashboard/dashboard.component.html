@@ -13,7 +13,8 @@
         </button>
       </div>
     </div> -->
-    <div class="header2" [ngClass]="{ 'sidebar-open': isSidebarOpen, 'sidebar-closed': !isSidebarOpen }" style="border-radius:10px;">
+    <div class="header2" [ngClass]="{ 'sidebar-open': isSidebarOpen, 'sidebar-closed': !isSidebarOpen }"
+      style="border-radius:10px;">
       <div class="nav-button-group" style="margin-left:10px;">
 
         <!-- Analysis button (was Home) -->
@@ -42,7 +43,7 @@
       style="background: white; padding: 8px 12px; display: inline-block; border-radius: 6px;margin-top:10px;">
       <button class="time-btn" [class.active]="selectedFilter === 'DAY'" (click)="onFilterChange('DAY')">1D</button>
       <span class="separator">|</span>
-            <button class="time-btn" [class.active]="selectedFilter === 'WEEK'" (click)="onFilterChange('WEEK')">1W</button>
+      <button class="time-btn" [class.active]="selectedFilter === 'WEEK'" (click)="onFilterChange('WEEK')">1W</button>
       <span class="separator">|</span>
 
       <button class="time-btn" [class.active]="selectedFilter === 'MTD'" (click)="onFilterChange('MTD')">1M</button>
@@ -141,52 +142,58 @@
   </div>
 </div> -->
       <!-- Dealer Table -->
-  <!-- Dealer Table + Show More Button -->
-  <div *ngIf="!expandedDealer">
-    <table class="table custom-table"
-      style="text-align:left; border-radius:20px !important; background-color: white !important; border: 1px solid lightgray !important;">
-  
-      <thead style="background-color: white !important;">
-        <tr style="background-color: white !important;">
-          <th scope="col" style="color: #000000; font-weight:600; background-color: white !important;">Sr No</th>
-          <th scope="col" style="color: #000000; text-align: left; font-weight:600; background-color: white !important;">
-            Name</th>
-          <th scope="col" style="color: #000000; font-weight:600; background-color: white !important;">Leads</th>
-          <th scope="col" style="color: #000000; font-weight:600; background-color: white !important;">Test Drives</th>
-          <th scope="col" style="color: #000000; font-weight:600; background-color: white !important;">Followups</th>
-          <th scope="col" style="color: #000000; font-weight:600; background-color: white !important;">Total Users</th>
-          <th scope="col" style="color: #000000; font-weight:600; background-color: white !important;">Active Users</th>
-        </tr>
-      </thead>
-  
-      <tbody>
-        <tr *ngFor="let dealer of dealers; let i = index" (click)="toggleDealer(dealer)" class="clickable-row"
-          style="cursor:pointer; color: #555555; background-color: white !important;font-size:14px !important">
-          <td style="background-color: white !important;">{{ i + 1 }}</td>
-          <td style="text-align: left; background-color: white !important;">{{ dealer.dealer_name }}</td>
-          <td style="background-color: white !important;">{{ dealer.enquiries }}</td>
-          <td style="background-color: white !important;">{{ dealer.testDrives }}</td>
-          <td style="background-color: white !important;">{{ dealer.followUps }}</td>
-          <td style="background-color: white !important;">{{ dealer.totalUsersCount }}</td>
-          <td style="color: #28a745; font-weight: 500; background-color: white !important;">{{ dealer.activeUsersCount }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  
-    <!-- Show More Button -->
-  <!-- <div class="text-center mt-2" *ngIf="showMoreVisible">
+      <!-- Dealer Table + Show More Button -->
+      <div *ngIf="!expandedDealer">
+        <table class="table custom-table"
+          style="text-align:left; border-radius:20px !important; background-color: white !important; border: 1px solid lightgray !important;">
+
+          <thead style="background-color: white !important;">
+            <tr style="background-color: white !important;">
+              <th scope="col" style="color: #000000; font-weight:600; background-color: white !important;">Sr No</th>
+              <th scope="col"
+                style="color: #000000; text-align: left; font-weight:600; background-color: white !important;">
+                Name</th>
+              <th scope="col" style="color: #000000; font-weight:600; background-color: white !important;">Leads</th>
+              <th scope="col" style="color: #000000; font-weight:600; background-color: white !important;">Test Drives
+              </th>
+              <th scope="col" style="color: #000000; font-weight:600; background-color: white !important;">Followups
+              </th>
+              <th scope="col" style="color: #000000; font-weight:600; background-color: white !important;">Total Users
+              </th>
+              <th scope="col" style="color: #000000; font-weight:600; background-color: white !important;">Active Users
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let dealer of dealers; let i = index" (click)="toggleDealer(dealer)" class="clickable-row"
+              style="cursor:pointer; color: #555555; background-color: white !important;font-size:14px !important">
+              <td style="background-color: white !important;">{{ i + 1 }}</td>
+              <td style="text-align: left; background-color: white !important;">{{ dealer.dealer_name }}</td>
+              <td style="background-color: white !important;">{{ dealer.enquiries }}</td>
+              <td style="background-color: white !important;">{{ dealer.testDrives }}</td>
+              <td style="background-color: white !important;">{{ dealer.followUps }}</td>
+              <td style="background-color: white !important;">{{ dealer.totalUsersCount }}</td>
+              <td style="color: #28a745; font-weight: 500; background-color: white !important;">{{
+                dealer.activeUsersCount }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Show More Button -->
+        <!-- <div class="text-center mt-2" *ngIf="showMoreVisible">
     <button class="btn btn-primary" (click)="toggleShowMore()">Show More</button>
   </div> -->
-  <!-- Show More / Show Less Button -->
-  <!-- <div class="text-center mt-2" *ngIf="dealers.length > 10">
+        <!-- Show More / Show Less Button -->
+        <!-- <div class="text-center mt-2" *ngIf="dealers.length > 10">
     <button class="btn btn-primary" (click)="toggleShowMore()">
       {{ itemsToShow >= dealers.length ? 'Show Less' : 'Show More' }}
     </button>
   </div> -->
-  </div>
+      </div>
 
-    
+
 
       <!-- Users Table -->
       <!-- Users Table -->
@@ -213,7 +220,7 @@
         <tbody>
           <tr *ngFor="let user of dealerUsers; let i = index" style="color: #555555;">
             <td style="background-color: white !important;">{{ i + 1 }}</td>
-            <td style="text-align: left;background-color:white !important" >{{ user.user_name }}</td>
+            <td style="text-align: left;background-color:white !important">{{ user.user_name }}</td>
             <td style="background-color: white !important;">{{ user.user_role }}</td>
             <td style="background-color: white !important;">{{ user.enquiries }}</td>
             <td style="background-color: white !important;">{{ user.followUps }}</td>
@@ -222,7 +229,8 @@
             <td style="color: red;font-weight: 500;background-color: white !important;">{{ user.overdueFollowups }}</td>
             <!-- <td>{{ user.overdueFollowups }}</td> -->
             <td style="background-color: white !important;">{{ user.testDrives }}</td>
-            <td style="color: red;font-weight: 500;background-color: white !important;">{{ user.overdueTestDrives }}</td>
+            <td style="color: red;font-weight: 500;background-color: white !important;">{{ user.overdueTestDrives }}
+            </td>
           </tr>
           <tr *ngIf="dealerUsers.length === 0">
             <td colspan="8" class="text-center text-muted">
@@ -231,7 +239,7 @@
           </tr>
         </tbody>
       </table>
-      
+
 
 
     </div>
@@ -247,40 +255,40 @@
     <!-- Analysis content will go here -->
     <!-- Dealer Call Logs Table -->
     <div class="dashboard-container" *ngIf="!expandedDealer">
-        <table class="table custom-table" style="border: 1px solid lightgray !important;">
-          <thead class="table-primary">
-            <tr>
-              <th scope="col"  style="color: #000000;font-weight:600;background-color: white !important;;">Sr No</th>
-              <th scope="col" style="text-align: left;color: #000000;font-weight:600;background-color: white !important;">Name</th>
-              <th scope="col"  style="color: #000000;font-weight:600;background-color: white !important;">All Calls</th>
-              <th scope="col"  style="color: #000000;font-weight:600;background-color: white !important;">Incoming</th>
-              <th scope="col"  style="color: #000000;font-weight:600;background-color: white !important;">Outgoing</th>
-              <th scope="col"  style="color: #000000;font-weight:600;background-color: white !important;">Missed</th>
-              <th scope="col"  style="color: #000000;font-weight:600;background-color: white !important;">Rejected</th>
-              <th scope="col"  style="color: #000000;font-weight:600;background-color: white !important;">Connected</th>
-              <th scope="col" style="color: #000000;font-weight:600;background-color: white !important;">Duration</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let dealer of dealers; let i = index" (click)="toggleDealer(dealer)" style="cursor:pointer;color: #555555;">
-              <td style="background-color: white !important;">{{ i + 1 }}</td>
-              <td style="text-align: left;background-color: white !important;" >{{ dealer.dealer_name }}</td>
-              <td style="background-color: white !important;">{{ dealer.callLogs.connected || 0 }}</td>
-              <td style="background-color: white !important;">{{ dealer.callLogs.incoming || 0 }}</td>
-              <td style="background-color: white !important;">{{ dealer.callLogs.outgoing || 0 }}</td>
-              <td style="background-color: white !important;">{{ dealer.callLogs.missed || 0 }}</td>
-              <td style="color: red;font-weight: 500;background-color: white !important;">{{ dealer.callLogs.declined || 0 }}</td>
-              <td style="background-color: white !important;background-color: white !important;">{{ dealer.callLogs.connected || 0 }}</td>
-              <td style="background-color: white !important;">{{ dealer.callLogs.duration || 0 }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <!-- <div class="text-center mt-2" *ngIf="dealers.length > 10">
-    <button class="btn btn-primary" (click)="toggleShowMore()">
-      {{ itemsToShow >= dealers.length ? 'Show Less' : 'Show More' }}
-    </button>
-  </div>  
-       -->
+      <table class="table custom-table" style="border: 1px solid lightgray !important;">
+        <thead class="table-primary">
+          <tr>
+            <th scope="col" style="color: #000000;font-weight:600;background-color: white !important;;">Sr No</th>
+            <th scope="col" style="text-align: left;color: #000000;font-weight:600;background-color: white !important;">
+              Name</th>
+            <th scope="col" style="color: #000000;font-weight:600;background-color: white !important;">All Calls</th>
+            <th scope="col" style="color: #000000;font-weight:600;background-color: white !important;">Incoming</th>
+            <th scope="col" style="color: #000000;font-weight:600;background-color: white !important;">Outgoing</th>
+            <th scope="col" style="color: #000000;font-weight:600;background-color: white !important;">Missed</th>
+            <th scope="col" style="color: #000000;font-weight:600;background-color: white !important;">Rejected</th>
+            <th scope="col" style="color: #000000;font-weight:600;background-color: white !important;">Connected</th>
+            <th scope="col" style="color: #000000;font-weight:600;background-color: white !important;">Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let dealer of dealers; let i = index" (click)="toggleDealer(dealer)"
+            style="cursor:pointer;color: #555555;">
+            <td style="background-color: white !important;">{{ i + 1 }}</td>
+            <td style="text-align: left;background-color: white !important;">{{ dealer.dealer_name }}</td>
+            <td style="background-color: white !important;">{{ dealer.callLogs.connected || 0 }}</td>
+            <td style="background-color: white !important;">{{ dealer.callLogs.incoming || 0 }}</td>
+            <td style="background-color: white !important;">{{ dealer.callLogs.outgoing || 0 }}</td>
+            <td style="background-color: white !important;">{{ dealer.callLogs.missed || 0 }}</td>
+            <td style="color: red;font-weight: 500;background-color: white !important;">{{ dealer.callLogs.declined || 0
+              }}</td>
+            <td style="background-color: white !important;background-color: white !important;">{{
+              dealer.callLogs.connected || 0 }}</td>
+            <td style="background-color: white !important;">{{ dealer.callLogs.duration || 0 }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+
     </div>
 
     <!-- User Call Logs Table -->
@@ -288,7 +296,8 @@
       <span class="back-arrow" (click)="toggleDealer(null)" style="cursor:pointer; font-size:30px; color:#222fb9;">
         ←
       </span>
-      <h5 class="mt-2" style="color: #28a745;font-size:20px;margin-top:-30px;"> <b>{{ expandedDealer.dealer_name }}</b></h5>
+      <h5 class="mt-2" style="color: #28a745;font-size:20px;margin-top:-30px;"> <b>{{ expandedDealer.dealer_name }}</b>
+      </h5>
 
       <div class="table-responsive">
         <table class="table custom-table">
@@ -313,7 +322,8 @@
               <td style="background-color: white !important;">{{ user.callLogs.incoming || 0 }}</td>
               <td style="background-color: white !important;">{{ user.callLogs.outgoing || 0 }}</td>
               <td style="background-color: white !important;">{{ user.callLogs.missed || 0 }}</td>
-              <td style="color: red;font-weight: 500;background-color: white !important;">{{ user.callLogs.declined || 0 }}</td>
+              <td style="color: red;font-weight: 500;background-color: white !important;">{{ user.callLogs.declined || 0
+                }}</td>
               <td style="background-color: white !important;">{{ user.callLogs.connected || 0 }}</td>
               <td style="background-color: white !important;">{{ user.callLogs.duration || 0 }}</td>
             </tr>
