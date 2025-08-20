@@ -208,7 +208,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   expandedRow: number | null = null;
   Math = Math;
   itemsPerPagedeal: number = 10; // or 4
-  currentDisplayCount!: number; // Track current number of items shown (initialize in ngOnInit)
+  currentDisplayCount: number = 10; // Track current number of items shown (initialize in ngOnInit)
 
   orders: number = 0;
   currentOrders: number = 0;
@@ -336,6 +336,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     }, 100);
   }
 
+  
+
   initializeDisplay() {
     this.currentDisplayCount = this.itemsPerPage;
     this.updatePaginatedDealers();
@@ -353,6 +355,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     }
     this.updatePaginatedDealers();
   }
+
+  showLess() {
+    this.currentDisplayCount = this.itemsPerPage;
+    this.updateDisplayedDealers();
+  }
+
   // Getter methods for template conditions
   get canShowMore(): boolean {
     return this.currentDisplayCount < this.dealers.length;
@@ -1989,13 +1997,15 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   );
   //   this.currentIndex = this.paginatedDealers.length;
   // }
-  showMore() {
-    this.itemsToShow += 10;
+   showMore() {
+    this.currentDisplayCount += this.itemsPerPage;
     this.updateDisplayedDealers();
   }
+  showMoreVisible: boolean = true;
 
   updateDisplayedDealers() {
-    this.displayedDealers = this.dealers.slice(0, this.itemsToShow);
+    this.displayedDealers = this.dealers.slice(0, this.currentDisplayCount);
+    this.showMoreVisible = this.currentDisplayCount < this.dealers.length;
   }
   //   const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 

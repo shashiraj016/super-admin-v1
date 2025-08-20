@@ -141,34 +141,50 @@
   </div>
 </div> -->
       <!-- Dealer Table -->
-      <table class="table table-hover " *ngIf="!expandedDealer" style="border: 1px solid lightgray !important;text-align:left;">
-        <thead class="table-primary">
-          <tr>
-            <th scope="col">Sr No</th>
-            <th scope="col" style="text-align: left;">Name</th>
-            <th scope="col">Leads</th>
-            <th scope="col">Test Drives</th>
-            <th scope="col">Followups</th>
-            <th scope="col">Total Users</th>
-            <th scope="col">Active Users</th>
-            <!-- <th scope="col">Inactive Users</th> -->
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let dealer of dealers; let i = index" (click)="toggleDealer(dealer)" class="clickable-row"
-            style="cursor:pointer;" >
-            <td>{{ i + 1 }}</td>
-            <td style="text-align: left;">{{ dealer.dealer_name }}</td>
-            <td>{{ dealer.enquiries }}</td>
-            <td>{{ dealer.testDrives }}</td>
-            <td>{{ dealer.followUps }}</td>
-            <td>{{ dealer.totalUsersCount }}</td>
-            <td style="color: #28a745; font-weight: 500;">{{ dealer.activeUsersCount }}</td>
-            <!-- <td>{{ dealer.inactiveUsers }}</td> -->
-          </tr>
+      <div>
+  <table class="table table-hover" *ngIf="!expandedDealer" style="border: 1px solid lightgray !important;text-align:left;">
+    <thead class="table-primary">
+      <tr>
+        <th scope="col">Sr No</th>
+        <th scope="col" style="text-align: left;">Name</th>
+        <th scope="col">Leads</th>
+        <th scope="col">Test Drives</th>
+        <th scope="col">Followups</th>
+        <th scope="col">Total Users</th>
+        <th scope="col">Active Users</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let dealer of displayedDealers; let i = index" 
+          (click)="toggleDealer(dealer)" 
+          class="clickable-row"
+          style="cursor:pointer;">
+        <td>{{ i + 1 }}</td>
+        <td style="text-align: left;">{{ dealer.dealer_name }}</td>
+        <td>{{ dealer.enquiries }}</td>
+        <td>{{ dealer.testDrives }}</td>
+        <td>{{ dealer.followUps }}</td>
+        <td>{{ dealer.totalUsersCount }}</td>
+        <td style="color: #28a745; font-weight: 500;">{{ dealer.activeUsersCount }}</td>
+      </tr>
+    </tbody>
+  </table>
 
-        </tbody>
-      </table>
+  <!-- Show More/Show Less Buttons -->
+  <div class="text-center mt-3" *ngIf="dealers.length > itemsPerPage">
+    <button *ngIf="showMoreVisible" 
+            class="btn btn-outline-primary me-2" 
+            (click)="showMore()">
+      Show More ({{ dealers.length - currentDisplayCount }} remaining)
+    </button>
+    
+    <button *ngIf="currentDisplayCount > itemsPerPage" 
+            class="btn btn-outline-secondary" 
+            (click)="showLess()">
+      Show Less
+    </button>
+  </div>
+</div>
 
       <!-- Users Table -->
       <!-- Users Table -->
