@@ -143,7 +143,10 @@ export class DashboardService {
     return this.http.get(url, { headers });
   }
 
-  getDealers(  filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM', token: string) {
+  getDealers(
+    filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM',
+    token: string
+  ) {
     return this.http.get(
       `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${filter}`,
       {
@@ -156,5 +159,11 @@ export class DashboardService {
       `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${startDate}&end_date=${endDate}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
+  }
+  getDealerUsers(dealerId: string, type: string, token: string) {
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
+    return this.http.get(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
   }
 }

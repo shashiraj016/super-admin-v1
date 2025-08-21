@@ -112,7 +112,7 @@
                             <div class="media align-items-end">
                                 <div class="media-body">
                                     <!-- <p class="mb-1 fs-14">Table</p> -->
-                                    <h3 class="mb-0 " style="background-color: none;">
+                                    <h3 class="mb-0 " style="background-color: none;text-transform: capitalize;">
                                         {{ selectedOption() }}
                                     </h3>
                                 </div>
@@ -169,7 +169,9 @@
                             </tr> -->
                                 <tr *ngIf="!paginatedUsers || paginatedUsers.length === 0">
                                     <td colspan="7">
-                                        <p style="color: red; text-align: center;">⚠️ No Users Found!</p>
+                                        <p style="color: #555; font-weight: 500; text-align: center;">
+                                            No Users Found
+                                        </p>
                                     </td>
                                 </tr>
 
@@ -196,51 +198,53 @@
 
                     </div>
                     <!-- Pagination Footer -->
-                    <div class="row align-items-center mt-3">
-                        <!-- Left side: Showing entries -->
-                        <div class="col-md-6">
-                            <p class="mb-0 text-muted">
-                                <ng-container
-                                    *ngIf="totalUsers > 0 && (currentPage - 1) * itemsPerPage < totalUsers; else noEntries">
-                                    Showing {{ (currentPage - 1) * itemsPerPage + 1 }} –
-                                    {{ getRangeEnd() }} of {{ totalUsers }} entries
-                                </ng-container>
-                                <ng-template #noEntries>
-                                    No entries available
-                                </ng-template>
-
-                            </p>
-
-                        </div>
-
-
-                        <div class="col-md-6">
-                            <nav aria-label="Page navigation">
-                                <ul class="pagination justify-content-end mb-0">
-                                    <li class="page-item" [class.disabled]="currentPage === 1">
-                                        <button class="page-link" (click)="goToPreviousPage()">Previous</button>
-                                    </li>
-
-                                    <li class="page-item" *ngFor="let page of visiblePageNumbers"
-                                        [class.active]="page === currentPage" [class.disabled]="!hasDataForPage(page)">
-                                        <button class="page-link" (click)="goToPage(page)"
-                                            [disabled]="!hasDataForPage(page)">
-                                            {{ page }}
-                                        </button>
-                                    </li>
-
-
-
-                                    <li class="page-item" [class.disabled]="currentPage === totalPages">
-                                        <button class="page-link" (click)="goToNextPage()">Next</button>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
-
-                    </div>
+            <div class="row align-items-center mt-3">
+                <!-- Left side: Showing entries -->
+                <div class="col-md-6">
+                    <p class="mb-0 text-muted">
+                        <ng-container *ngIf="totalUsers > 0 && (currentPage - 1) * itemsPerPage < totalUsers; else noEntries">
+                            Showing {{ (currentPage - 1) * itemsPerPage + 1 }} –
+                            {{ getRangeEnd() }} of {{ totalUsers }} entries
+                        </ng-container>
+                        <ng-template #noEntries>
+                            No entries available
+                        </ng-template>
+                    </p>
+                </div>
+            
+                <!-- Right side: Pagination buttons -->
+                <div class="col-md-6">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-end mb-0">
+                            <!-- Previous Button -->
+                            <li class="page-item" [class.disabled]="currentPage === 1 || totalUsers === 0">
+                                <button class="page-link" (click)="goToPreviousPage()"
+                                    [disabled]="currentPage === 1 || totalUsers === 0">
+                                    Previous
+                                </button>
+                            </li>
+            
+                            <!-- Page Numbers -->
+                            <li class="page-item" *ngFor="let page of visiblePageNumbers" [class.active]="page === currentPage"
+                                [class.disabled]="!hasDataForPage(page) || totalUsers === 0">
+                                <button class="page-link" (click)="goToPage(page)"
+                                    [disabled]="!hasDataForPage(page) || totalUsers === 0">
+                                    {{ page }}
+                                </button>
+                            </li>
+            
+                            <!-- Next Button -->
+                            <li class="page-item" [class.disabled]="currentPage === totalPages || totalUsers === 0">
+                                <button class="page-link" (click)="goToNextPage()"
+                                    [disabled]="currentPage === totalPages || totalUsers === 0">
+                                    Next
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
+                </div>
 
             <!-- table 2 -->
 
@@ -270,8 +274,16 @@
                             </thead>
                             <tbody>
                                 <tr *ngIf="!paginatedLeads || paginatedLeads.length === 0">
-                                    <td colspan="12">
+                                    <!-- <td colspan="12">
                                         <p style="color: red; text-align: center;">⚠️ No Leads Found!</p>
+                                    </td> -->
+                                    <!-- <p style="color: #555; font-weight: 500; text-align: center;">
+                                        No Leads Found
+                                    </p> -->
+                                    <td colspan="12">
+                                        <p style="color: #555; font-weight: 500; text-align: center;">
+                                            No Users Found
+                                        </p>
                                     </td>
                                 </tr>
 
@@ -302,26 +314,36 @@
                         </div>
 
 
-                        <div class="col-md-6">
-                            <nav aria-label="Page navigation">
-                                <ul class="pagination justify-content-end mb-0">
-                                    <li class="page-item" [class.disabled]="currentPage === 1">
-                                        <button class="page-link" (click)="goToPreviousLeadPage()">Previous</button>
-                                    </li>
+                    <div class="col-md-6">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-end mb-0">
+                                <!-- Previous Button -->
+                                <li class="page-item" [class.disabled]="currentPage === 1 || totalLeads === 0">
+                                    <button class="page-link" (click)="goToPreviousLeadPage()"
+                                        [disabled]="currentPage === 1 || totalLeads === 0">
+                                        Previous
+                                    </button>
+                                </li>
+                    
+                                <!-- Page Numbers -->
+                                <li class="page-item" *ngFor="let page of visiblePageNumbers" [class.active]="page === currentPage"
+                                    [class.disabled]="totalLeads === 0">
+                                    <button class="page-link" (click)="goToLeadPage(page)" [disabled]="totalLeads === 0">
+                                        {{ page }}
+                                    </button>
+                                </li>
+                    
+                                <!-- Next Button -->
+                                <li class="page-item" [class.disabled]="currentPage === totalPages || totalLeads === 0">
+                                    <button class="page-link" (click)="goToNextLeadPage()"
+                                        [disabled]="currentPage === totalPages || totalLeads === 0">
+                                        Next
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
 
-                                    <li class="page-item" *ngFor="let page of visiblePageNumbers"
-                                        [class.active]="page === currentPage">
-                                        <button class="page-link" (click)="goToLeadPage(page)">
-                                            {{ page }}
-                                        </button>
-                                    </li>
-
-                                    <li class="page-item" [class.disabled]="currentPage === totalPages">
-                                        <button class="page-link" (click)="goToNextLeadPage()">Next</button>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
 
                     </div>
                 </div>
@@ -360,8 +382,16 @@
                             </thead>
                             <tbody>
                                 <tr *ngIf="!OpportunityList || OpportunityList.length === 0">
-                                    <td colspan="13" style="text-align: center; color: grey; padding: 1rem;">
+                                    <!-- <td colspan="13" style="text-align: center; color: grey; padding: 1rem;">
                                         No Users Found
+                                    </td> -->
+                                    <!-- <p style="color: #555; font-weight: 500; text-align: center;">
+                                        No Users Found
+                                    </p> -->
+                                    <td colspan="12">
+                                        <p style="color: #555; font-weight: 500; text-align: center;">
+                                            No Users Found
+                                        </p>
                                     </td>
                                 </tr>
 
@@ -517,8 +547,16 @@
                                 </td>
                             </tr> -->
                                     <tr *ngIf="!paginatedTasks || paginatedTasks.length === 0">
-                                        <td colspan="11" style="text-align: center; color: grey; padding: 1rem;">
+                                        <!-- <td colspan="11" style="text-align: center; color: grey; padding: 1rem;">
                                             No Users Found
+                                        </td> -->
+                                        <!-- <p style="color: #555; font-weight: 500; text-align: center;">
+                                            No Users Found
+                                        </p> -->
+                                        <td colspan="12">
+                                            <p style="color: #555; font-weight: 500; text-align: center;">
+                                                No Users Found
+                                            </p>
                                         </td>
                                     </tr>
 
@@ -651,8 +689,16 @@
                                     <tbody>
                                         <!-- Updated condition to check both EventList and paginatedEvents -->
                                         <tr *ngIf="!EventList || EventList.length === 0">
-                                            <td colspan="12" style="text-align: center; color: grey; padding: 1rem;">
+                                            <!-- <td colspan="12" style="text-align: center; color: grey; padding: 1rem;">
                                                 No Events Found
+                                            </td> -->
+                                            <!-- <p style="color: #555; font-weight: 500; text-align: center;">
+                                                No  Found
+                                            </p> -->
+                                            <td colspan="12">
+                                                <p style="color: #555; font-weight: 500; text-align: center;">
+                                                    No Events Found
+                                                </p>
                                             </td>
                                         </tr>
 

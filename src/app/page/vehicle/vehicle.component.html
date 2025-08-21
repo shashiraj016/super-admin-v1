@@ -365,7 +365,7 @@
                   <div class="text-danger" *ngIf="!isEditMode &&
                                 useForm.get('demo_start_date')?.touched &&
                                 useForm.get('demo_start_date')?.invalid">
-                    <span *ngIf="useForm.get('demo_start_date')?.errors?.['required']">
+                    <span *ngIf="useForm.get('demo_start_date')?.errors?.['required']" style="white-space: nowrap;">
                       Start date is required.
                     </span>
                   </div>
