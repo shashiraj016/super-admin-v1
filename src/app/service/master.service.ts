@@ -40,7 +40,7 @@ import { SingleUserComponent } from '../page/single-user/single-user.component';
   providedIn: 'root',
 })
 export class MasterService {
-  apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/';
+  apiUrl: string = 'https://uat.smartassistapp.in/api/superadmin/';
 
   constructor(
     private http: HttpClient,
@@ -49,7 +49,7 @@ export class MasterService {
 
   private getAuthHeaders(): HttpHeaders {
     const token = this.storageService.getItem('token');
-    console.log('Retrieved Token:', token); // Debugging
+    // console.log('Retrieved Token:', token); // Debugging
     return new HttpHeaders()
       .set('authorization', `Bearer ${token}`)
       .set('accept', 'application/json');

@@ -7,6 +7,8 @@ import {
   WritableSignal,
   ChangeDetectorRef,
   NgZone,
+  HostListener,
+  ElementRef,
 } from '@angular/core';
 import {
   HttpClient,
@@ -118,20 +120,24 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   // NEW DESIGN CODE
   expandedDealer: any | null = null; // or better, create an interface for Dealer
-  dealerUsers: any = {
-    'Dealer One': [
-      { name: 'User A', leads: 10, testDrives: 5, followups: 2 },
-      { name: 'User B', leads: 15, testDrives: 7, followups: 3 },
-    ],
-    'Dealer Two': [
-      { name: 'User C', leads: 8, testDrives: 4, followups: 2 },
-      { name: 'User D', leads: 10, testDrives: 3, followups: 1 },
-    ],
-    'Dealer Three': [
-      { name: 'User E', leads: 12, testDrives: 6, followups: 2 },
-      { name: 'User F', leads: 18, testDrives: 9, followups: 4 },
-    ],
-  };
+  // dealerUsers: any = {
+  //   'Dealer One': [
+  //     { name: 'User A', leads: 10, testDrives: 5, followups: 2 },
+  //     { name: 'User B', leads: 15, testDrives: 7, followups: 3 },
+  //   ],
+  //   'Dealer Two': [
+  //     { name: 'User C', leads: 8, testDrives: 4, followups: 2 },
+  //     { name: 'User D', leads: 10, testDrives: 3, followups: 1 },
+  //   ],
+  //   'Dealer Three': [
+  //     { name: 'User E', leads: 12, testDrives: 6, followups: 2 },
+  //     { name: 'User F', leads: 18, testDrives: 9, followups: 4 },
+  //   ],
+  // };
+  sortColumn: string | null = null; // track which column is sorted
+  // sortDirection: 'asc' | 'desc' = 'asc'; // track sort direction
+  sortDirection: 'asc' | 'desc' | 'default' = 'default';
+
   currentPageMap: { [dealerId: string]: number } = {}; // track current page per dealer
   showAllSMs: { [dealerId: string]: boolean } = {};
   showCustomDatePicker = false;
@@ -140,6 +146,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   displayedDealers: any[] = [];
   itemsToShow: number = 10;
   expandedRow: string | null = null;
+  filteredDealers: any[] = []; // filtered for dropdown
 
   totalLeads = signal<number>(0);
   totalTestDrives = signal<number>(0);
@@ -166,14 +173,35 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   showDetails = false;
   paginatedDealers: any[] = [];
   // dealerUsers: { [dealerId: string]: any[] } = {}; // store users per dealer
+  // dealerUsers: { [key: string]: any[] } = {};
+  dealerCallData: any[] = [];
+  dropdownOpen = false;
+  selectedDealers: any[] = []; // ✅ store multiple selected dealers
+
   dealerPSL: any = null;
+  userCallLogs: { [dealerId: string]: any[] } = {};
+
   callLogsItemsToShow = 10;
   displayedCallLogs: any[] = [];
   showMoreCallLogsVisible = true;
   mtdOrders = signal<number>(0);
   qtdOrders = signal<number>(0);
   ytdOrders = signal<number>(0);
-  selectedFilter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM' = 'MTD';
+  // selectedFilter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM' = 'MTD';
+  selectedFilter:
+    | 'Today'
+    | 'Yesterday'
+    | 'This Week'
+    | 'Last Week'
+    | 'This Month'
+    | 'Last Month'
+    | 'This Quarter'
+    | 'Last Quarter'
+    | 'Last 6 Months'
+    | 'This Year'
+    | 'CUSTOM'
+    | 'Lifetime' = 'Today';
+
   dealerColors: string[] = [
     '#e6f2ff', // light blue
     '#f9f2ec', // light peach
@@ -206,7 +234,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   orderProgressValue: number = 0;
   loadingPS = false; // Add this property in your component class
   activeAccordion: string | null = null;
-  // dealerUsers: { [dealerId: string]: any[] } = {}; // store users per dealer
+  dealerUsers: { [dealerId: string]: any[] } = {}; // store users per dealer
+  dealerCallLogs: { [dealerId: string]: any } = {}; // ← add this
+
   showAll = false;
 
   orderStrokeColor: string = '#4CAF50';
@@ -220,7 +250,14 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   Math = Math;
   itemsPerPagedeal: number = 10; // or 4
   currentDisplayCount: number = 10; // Track current number of items shown (initialize in ngOnInit)
-
+  kpiData: any = {
+    dealers: 0,
+    activeNetwork: 0,
+    users: 0,
+    activeUsers: 0,
+    leads: 0,
+    calls: 0,
+  };
   orders: number = 0;
   currentOrders: number = 0;
   previousOrders: number = 0;
@@ -245,6 +282,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   filterOptions = ['MTD', 'QTD', 'YTD'] as const; // 'as const' makes type readonly ['MTD','QTD','YTD']
   expandedRows: boolean[] = [false, false, false, false, false, false];
   showMoreActive = false; // Button toggle state
+  originalDealers: any[] = [];
 
   // testDrives: number = 0;
   // orders: number = 0;
@@ -271,6 +309,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // previousLeads: number = 0; // Dynamically set this from your API
   change: number = 0; // Initialize with a default value, such as 0
   doughnutChart: any;
+  dealerSearch: string = '';
+
   // progressValue: number = 75; // Set a default value (e.g., 75 for 75%)
   animatedValue: number = 0; // Initial value
   // itemsPerPage: number = 10;
@@ -299,37 +339,36 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private router: Router,
     private dashboardService: DashboardService,
     private sharedService: SharedService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private cd: ChangeDetectorRef,
+    private eRef: ElementRef
   ) {}
   data: any; // To hold your data
   apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
 
-  // dealersData: any[] = []; // Array to hold the dealer data
-  // ngOnInit() {
-  //   this.selectedFilter = 'MTD';
-  //   this.fetchDashboardData('MTD');
-
-  //   this.maxValue =
-  //     Math.max(...this.displayedData.map((item) => item.value)) || 1;
-  //   this.fetchData();
-  //   this.updateDataBasedOnSelection();
-  //   this.applyFilter(this.selectedFilter);
-
-  //   setTimeout(() => {
-  //     this.animatedValue = this.progressValue;
-  //   }, 100);
-  // }
   ngOnInit() {
-    this.updateDisplayedDealers();
+    this.selectedTime = 'MTD'; // or 'ALL'
+    this.onTimeChange(this.selectedTime); // <-- this ensures API call on load
+    this.dashboardService.getKpiData('MTD').subscribe({
+      next: (res: any) => {
+        if (res.status === 200) {
+          this.kpiData = res.data; // <--- assign the nested 'data' object
+        }
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
+
+    this.fetchKpiData();
+
+    // this.updateDisplayedDealers();
 
     this.currentDisplayCount = this.itemsPerPage;
 
-    this.loadInitialDealers();
-    this.selectedFilter = 'MTD';
-    this.fetchDealers(this.selectedFilter); // this.updatePaginatedDealers();
-    this.fetchSuperAdminDashboard('MTD'); // or 'QTD', 'MTD' based on dropdown
-
-    this.fetchDashboardDataForTopCards(this.selectedFilter);
+    // this.loadInitialDealers();
+    this.selectedFilter = 'Today';
+    this.fetchSuperAdminDashboard(this.selectedFilter); // or 'QTD', 'MTD' based on dropdown
 
     this.onDropdownChange(); // Auto-trigger on page load with default values
 
@@ -338,20 +377,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       pageTitle: 'Dashboard',
     });
 
-    this.selectedFilter = 'MTD';
-    this.fetchDashboardData('MTD');
+    this.selectedFilter = 'Today';
+    // this.fetchDashboardData('MTD');
 
     // this.updateDataBasedOnSelection();
-    this.applyFilter(this.selectedFilter);
-
-    setTimeout(() => {
-      this.animatedValue = this.progressValue;
-    }, 100);
+    // this.applyFilter(this.selectedFilter);
   }
 
   initializeDisplay() {
     this.currentDisplayCount = this.itemsPerPage;
-    this.updatePaginatedDealers();
+    // this.updatePaginatedDealers();
   }
   toggleShow() {
     if (this.currentDisplayCount >= this.dealers.length) {
@@ -364,12 +399,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         this.currentDisplayCount + this.incrementSize
       );
     }
-    this.updatePaginatedDealers();
+    // this.updatePaginatedDealers();
   }
 
   showLess() {
     this.currentDisplayCount = this.itemsPerPage;
-    this.updateDisplayedDealers();
+    // this.updateDisplayedDealers();
   }
 
   // Getter methods for template conditions
@@ -502,52 +537,113 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   this.showAllSMs[dealerId] = !this.showAllSMs[dealerId];
   // }
   // Add this method to your component class
-  toggleDealer(
-    dealer: any | null,
-    filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM' = this
-      .selectedFilter
-  ): void {
-    if (dealer) {
-      this.expandedDealer = dealer; // store selected dealer
-      this.selectedDealerId = dealer.dealer_id;
+  // toggleDealer(
+  //   dealer: any | null,
+  //   filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM' = this
+  //     .selectedFilter
+  // ): void {
+  //   if (dealer) {
+  //     this.expandedDealer = dealer; // store selected dealer
+  //     this.selectedDealerId = dealer.dealer_id;
 
-      // Notify shared service about selected dealer
-      this.sharedService.setSelectedDealer(dealer);
+  //     // Notify shared service about selected dealer
+  //     this.sharedService.setSelectedDealer(dealer);
 
-      if (this.selectedDealerId) {
-        // Fetch users for selected dealer with the selected filter
-        this.dashboardService
-          .getNoSMUsers(this.selectedDealerId, filter)
-          .subscribe({
-            next: (res: any) => {
-              if (res.status === 200 && res.data?.dealers?.length > 0) {
-                // ✅ Find the dealer matching selectedDealerId
-                const selectedDealer = res.data.dealers.find(
-                  (d: any) => d.dealer_id === this.selectedDealerId
-                );
+  //     if (this.selectedDealerId) {
+  //       // Fetch users for selected dealer with the selected filter
+  //       this.dashboardService
+  //         .getNoSMUsers(this.selectedDealerId, filter)
+  //         .subscribe({
+  //           next: (res: any) => {
+  //             if (res.status === 200 && res.data?.dealers?.length > 0) {
+  //               // ✅ Find the dealer matching selectedDealerId
+  //               const selectedDealer = res.data.dealers.find(
+  //                 (d: any) => d.dealer_id === this.selectedDealerId
+  //               );
 
-                // Populate users for the selected dealer
-                this.dealerUsers = selectedDealer?.user_list || [];
-              } else {
-                this.dealerUsers = [];
-              }
-            },
-            error: (err: any) => {
-              console.error('Error fetching dealer users:', err);
-              this.dealerUsers = [];
-            },
-          });
-      }
-    } else {
-      // Back to dealer list
-      this.expandedDealer = null;
-      this.selectedDealerId = null;
-      this.dealerUsers = [];
+  //               // Populate users for the selected dealer
+  //               this.dealerUsers = selectedDealer?.user_list || [];
+  //             } else {
+  //               this.dealerUsers = [];
+  //             }
+  //           },
+  //           error: (err: any) => {
+  //             console.error('Error fetching dealer users:', err);
+  //             this.dealerUsers = [];
+  //           },
+  //         });
+  //     }
+  //   } else {
+  //     // Back to dealer list
+  //     this.expandedDealer = null;
+  //     this.selectedDealerId = null;
+  //     this.dealerUsers = [];
 
-      // Reset shared service when going back
-      this.sharedService.setSelectedDealer(null);
-    }
-  }
+  //     // Reset shared service when going back
+  //     this.sharedService.setSelectedDealer(null);
+  //   }
+  // }
+
+  // toggleDealer(
+  //   dealer: any | null,
+  //   filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM' = this
+  //     .selectedFilter
+  // ): void {
+  //   if (dealer) {
+  //     this.expandedDealer = dealer; // store selected dealer
+  //     this.selectedDealerId = dealer.dealerId; // use dealerId (consistent with API)
+
+  //     // Notify shared service about selected dealer
+  //     this.sharedService.setSelectedDealer(dealer);
+
+  //     if (this.selectedDealerId) {
+  //       // Fetch users for selected dealer with the selected filter
+  //       this.dashboardService
+  //         .getNoSMUsers(this.selectedDealerId, filter)
+  //         .subscribe({
+  //           next: (res: any) => {
+  //             if (res.status === 200 && res.data?.dealerData?.length > 0) {
+  //               // ✅ Find the dealer matching selectedDealerId
+  //               const selectedDealerData = res.data.dealerData.find(
+  //                 (d: any) => d.dealerId === this.selectedDealerId
+  //               );
+
+  //               // ✅ Store users keyed by dealerId
+  //               this.dealerUsers = {
+  //                 ...this.dealerUsers,
+  //                 [this.selectedDealerId]: selectedDealerData?.users || [],
+  //               };
+
+  //               console.log(
+  //                 'Mapped Users:',
+  //                 this.dealerUsers[this.selectedDealerId]
+  //               );
+  //             } else {
+  //               this.dealerUsers = {
+  //                 ...this.dealerUsers,
+  //                 [this.selectedDealerId]: [],
+  //               };
+  //             }
+  //           },
+  //           error: (err: any) => {
+  //             console.error('Error fetching dealer users:', err);
+  //             this.dealerUsers = {
+  //               ...this.dealerUsers,
+  //               [this.selectedDealerId]: [],
+  //             };
+  //           },
+  //         });
+  //     }
+  //   } else {
+  //     // Back to dealer list
+  //     this.expandedDealer = null;
+  //     this.selectedDealerId = null;
+  //     this.dealerUsers = {}; // reset object
+
+  //     // Reset shared service when going back
+  //     this.sharedService.setSelectedDealer(null);
+  //   }
+  // }
 
   getDealerBackground(index: number): string {
     const backgrounds = [
@@ -565,10 +661,29 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     return backgrounds[index % backgrounds.length];
   }
+  getSortedUsers(dealerId: string) {
+    const users = this.dealerUsers[dealerId] ?? [];
+    return [...users].sort((a, b) => {
+      // 1. Active users first
+      if (a.active && !b.active) return -1;
+      if (!a.active && b.active) return 1;
+
+      // 2. Alphabetical by user name (case insensitive)
+      return a.user.toLowerCase().localeCompare(b.user.toLowerCase());
+    });
+  }
 
   // get progressValue(): number {
   //   return Math.min(Math.abs(this.changeLeads), 100);
   // }
+  fetchKpiData() {
+    const token = sessionStorage.getItem('token') || '';
+    this.dashboardService.getKpiData(token).subscribe((res: any) => {
+      if (res.status === 200) {
+        this.kpiData = res.data; // <-- assign the whole data object
+      }
+    });
+  }
   private mapTimeToApi(time: string): 'MTD' | 'QTD' | 'YTD' {
     switch (time) {
       case '1M':
@@ -581,6 +696,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         return 'MTD'; // fallback
     }
   }
+
   onTimeChange(time: string) {
     this.selectedTime = time;
 
@@ -594,7 +710,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const apiType = this.mapTimeToApi(time);
 
     this.dashboardService.getDealers(apiType, token).subscribe((res: any) => {
-      console.log('API Response:', res);
+      console.log('API Response dealerssssssssssss:', res);
       if (res.status === 200 && res.data?.dealers) {
         this.dealers = res.data.dealers;
         this.expandedDealer = null;
@@ -608,9 +724,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   ngAfterViewInit() {
     // Ensure pie chart is created only once on initial load or when data changes
     if (this.totalTestDrives() && this.totalOrders()) {
-      this.createDoughnutChart(this.totalTestDrives(), this.totalOrders()); // 👈 changed
+      this.doughnutChart(this.totalTestDrives(), this.totalOrders()); // 👈 changed
     }
-    this.initLineChart();
+    // this.initLineChart();
   }
   onFilterClick(filter: 'MTD' | 'QTD' | 'YTD') {}
   // ✅ Dynamically updates values
@@ -627,120 +743,166 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   toggleShowAllSMs(dealerId: string) {
     this.showAllSMs[dealerId] = !this.showAllSMs[dealerId];
   }
-  // onFilterChange(
-  //   filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM'
-  // ): void {
-  //   this.selectedFilter = filter;
-  //   this.fetchDealers(filter);
-  //   const activeSMId = this.activeSM; // remember the currently active SM
 
-  //   // Fetch top cards (KPI data)
-  //   this.fetchDashboardDataForTopCards(filter);
-
-  //   // Fetch dealer KPIs
-  //   this.fetchSuperAdminDashboard(filter);
-
-  //   // Refresh SMs for any open dealer divs
-  //   // if (this.selectedDealerId) {
-  //   //   this.fetchDealerSMs(this.selectedDealerId, filter);
-
-  //   //   // Restore previously active SM if it still exists
-  //   //   const smList = this.dealerSMS[this.selectedDealerId] || [];
-  //   //   if (!smList.some((s) => s.sm_id === activeSMId)) {
-  //   //     this.activeSM = null; // previously active SM no longer exists
-  //   //   } else {
-  //   //     this.activeSM = activeSMId; // keep it open
-  //   //   }
-  //   // }
-  // }
   // Updated fetchDealerSMs to accept previous active SM
+
   // onFilterChange(
   //   filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM'
   // ): void {
   //   this.selectedFilter = filter;
-  //   const activeSMId = this.activeSM; // remember the currently active SM
+  //   const activeSMId = this.activeSM;
+
+  //   if (filter === 'CUSTOM') return;
 
   //   if (this.selectedDealerId) {
-  //     // ✅ We are on a dealer user page → fetch only that dealer's users
-  //     this.dashboardService
-  //       .getNoSMUsers(this.selectedDealerId, filter)
-  //       .subscribe({
-  //         next: (res: any) => {
-  //           const selectedDealer = res.data.dealers.find(
-  //             (d: any) => d.dealer_id === this.selectedDealerId
-  //           );
-  //           this.dealerUsers = selectedDealer?.user_list || [];
-  //           this.displayedDealerUsers = this.dealerUsers.slice(0, 10); // for pagination
+  //     const dealerId = this.selectedDealerId; // ✅ ensure it's a string
 
-  //           // Restore previously active SM if it still exists
-  //           const smList = this.selectedDealerId
-  //             ? this.dealerSMS[this.selectedDealerId] || []
-  //             : [];
-  //           if (!smList.some((s) => s.sm_id === activeSMId)) {
-  //             this.activeSM = null;
-  //           } else {
-  //             this.activeSM = activeSMId;
-  //           }
-  //         },
-  //         error: (err: any) => {
-  //           console.error('Error fetching dealer users:', err);
-  //           this.dealerUsers = [];
-  //           this.displayedDealerUsers = [];
-  //         },
-  //       });
+  //     this.dashboardService.getNoSMUsers(dealerId, filter).subscribe({
+  //       next: (res: any) => {
+  //         const selectedDealer = res.data.dealerData.find(
+  //           (d: any) => d.dealerId === dealerId
+  //         );
+
+  //         // ✅ assign to object keyed by dealerId safely
+  //         this.dealerUsers = {
+  //           ...this.dealerUsers,
+  //           [dealerId]: selectedDealer?.users || [],
+  //         };
+
+  //         // ✅ slice safely
+  //         this.displayedDealerUsers =
+  //           this.dealerUsers[dealerId]?.slice(0, 10) || [];
+
+  //         // Restore previously active SM
+  //         const smList = this.dealerSMS[dealerId] || [];
+  //         this.activeSM = smList.some((s) => s.sm_id === activeSMId)
+  //           ? activeSMId
+  //           : null;
+  //       },
+  //       error: (err: any) => {
+  //         console.error('Error fetching dealer users:', err);
+  //         this.dealerUsers = { ...this.dealerUsers, [dealerId]: [] };
+  //         this.displayedDealerUsers = [];
+  //       },
+  //     });
   //   } else {
-  //     // ✅ We are on the main dealer dashboard → fetch all dealers
-  //     this.fetchDealers(filter);
+  //     // Main dealer dashboard → fetch all dealers
+  //     // this.fetchDealers('MTD');
+  //     // this.fetchDashboardData();
   //     this.fetchDashboardDataForTopCards(filter);
   //     this.fetchSuperAdminDashboard(filter);
   //   }
   // }
-  onFilterChange(
-    filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM'
-  ): void {
-    this.selectedFilter = filter;
-    const activeSMId = this.activeSM; // remember the currently active SM
-
-    if (filter === 'CUSTOM') {
-      // Do nothing immediately, wait for Apply button to call fetchCustomDate()
-      return;
-    }
-
-    if (this.selectedDealerId) {
-      // ✅ Dealer user page → fetch only that dealer's users
-      this.dashboardService
-        .getNoSMUsers(this.selectedDealerId, filter)
-        .subscribe({
-          next: (res: any) => {
-            const selectedDealer = res.data.dealers.find(
-              (d: any) => d.dealer_id === this.selectedDealerId
-            );
-            this.dealerUsers = selectedDealer?.user_list || [];
-            this.displayedDealerUsers = this.dealerUsers.slice(0, 10); // for pagination
-
-            // Restore previously active SM if it still exists
-            const smList = this.selectedDealerId
-              ? this.dealerSMS[this.selectedDealerId] || []
-              : [];
-            if (!smList.some((s) => s.sm_id === activeSMId)) {
-              this.activeSM = null;
-            } else {
-              this.activeSM = activeSMId;
-            }
-          },
-          error: (err: any) => {
-            console.error('Error fetching dealer users:', err);
-            this.dealerUsers = [];
-            this.displayedDealerUsers = [];
-          },
-        });
-    } else {
-      // ✅ Main dealer dashboard → fetch all dealers
-      this.fetchDealers(filter);
-      this.fetchDashboardDataForTopCards(filter);
-      this.fetchSuperAdminDashboard(filter);
+  private mapFilterToApi(
+    filter:
+      | 'Today'
+      | 'Yesterday'
+      | 'This Week'
+      | 'Last Week'
+      | 'This Month'
+      | 'Last Month'
+      | 'This Quarter'
+      | 'Last Quarter'
+      | 'Last 6 Months'
+      | 'This Year'
+      | 'Lifetime'
+      | 'CUSTOM'
+  ):
+    | 'Today'
+    | 'Yesterday'
+    | 'This Week'
+    | 'Last Week'
+    | 'This month'
+    | 'Last month'
+    | 'This Quarter'
+    | 'Last Quarter'
+    | 'Last 6 Months'
+    | 'This Year'
+    | 'Lifetime'
+    | 'CUSTOM' {
+    switch (filter) {
+      case 'Today':
+        return 'Today';
+      case 'Yesterday':
+        return 'Yesterday';
+      case 'This Week':
+        return 'This Week';
+      case 'Last Week':
+        return 'Last Week';
+      case 'This Month':
+        return 'This month'; // ✅ backend expects lowercase "month"
+      case 'Last Month':
+        return 'Last month'; // ✅ backend expects lowercase "month"
+      case 'This Quarter':
+        return 'This Quarter';
+      case 'Last Quarter':
+        return 'Last Quarter';
+      case 'Last 6 Months':
+        return 'Last 6 Months';
+      case 'This Year':
+        return 'This Year';
+      case 'Lifetime':
+        return 'Lifetime';
+      case 'CUSTOM':
+        return 'CUSTOM';
     }
   }
+
+  onFilterChange(
+    filter:
+      | 'Today'
+      | 'Yesterday'
+      | 'This Week'
+      | 'Last Week'
+      | 'This Month'
+      | 'Last Month'
+      | 'This Quarter'
+      | 'Last Quarter'
+      | 'Last 6 Months'
+      | 'This Year'
+      | 'Lifetime'
+      | 'CUSTOM'
+  ): void {
+    this.selectedFilter = filter;
+    const apiFilter = this.mapFilterToApi(filter); // ✅ now strongly typed
+    const activeSMId = this.activeSM;
+
+    if (apiFilter === 'CUSTOM') return;
+
+    if (this.selectedDealerId) {
+      const dealerId = this.selectedDealerId;
+
+      this.dashboardService.getNoSMUsers(dealerId).subscribe({
+        next: (res: any) => {
+          const selectedDealer = res.data.dealerData.find(
+            (d: any) => d.dealerId === dealerId
+          );
+
+          this.dealerUsers = {
+            ...this.dealerUsers,
+            [dealerId]: selectedDealer?.users || [],
+          };
+
+          this.displayedDealerUsers =
+            this.dealerUsers[dealerId]?.slice(0, 10) || [];
+
+          const smList = this.dealerSMS[dealerId] || [];
+          this.activeSM = smList.some((s) => s.sm_id === activeSMId)
+            ? activeSMId
+            : null;
+        },
+        error: (err: any) => {
+          console.error('Error fetching dealer users:', err);
+          this.dealerUsers = { ...this.dealerUsers, [dealerId]: [] };
+          this.displayedDealerUsers = [];
+        },
+      });
+    } else {
+      this.fetchDashboardDataForTopCards(apiFilter);
+      this.fetchSuperAdminDashboard(apiFilter);
+    }
+  }
+
   fetchDealerSMs(
     dealerId: string,
     type: 'MTD' | 'QTD' | 'YTD',
@@ -1103,7 +1265,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     if (page >= 1 && page <= totalPages) {
       this.currentPage = page;
-      this.updatePaginatedDealers();
+      // this.updatePaginatedDealers();
     }
   }
 
@@ -1117,44 +1279,44 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   this.paginatedDealers = this.dealers.slice(start, end);
   // }
 
-  toggleSM(smId: string, dealerId: string): void {
-    if (this.activeSM === smId) {
-      // Closing SM
-      this.activeSM = null;
-      this.activePS = null;
-    } else {
-      // Opening SM
-      this.activeSM = smId;
-      this.activePS = null;
+  // toggleSM(smId: string, dealerId: string): void {
+  //   if (this.activeSM === smId) {
+  //     // Closing SM
+  //     this.activeSM = null;
+  //     this.activePS = null;
+  //   } else {
+  //     // Opening SM
+  //     this.activeSM = smId;
+  //     this.activePS = null;
 
-      const token = sessionStorage.getItem('token');
-      if (!token) return;
+  //     const token = sessionStorage.getItem('token');
+  //     if (!token) return;
 
-      const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+  //     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-      // Fetch PS for this SM
-      const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?dealer_id=${dealerId}&sm_id=${smId}&type=${this.selectedFilter}`;
+  //     // Fetch PS for this SM
+  //     const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?dealer_id=${dealerId}&sm_id=${smId}&type=${this.selectedFilter}`;
 
-      this.http.get<any>(url, { headers }).subscribe({
-        next: (res) => {
-          // Find the dealer
-          const dealer = res?.data?.dealers?.find(
-            (d: Dealer) => d.dealer_id === dealerId
-          );
-          this.dealerSMS[dealerId] = dealer?.sm_list || [];
+  //     this.http.get<any>(url, { headers }).subscribe({
+  //       next: (res) => {
+  //         // Find the dealer
+  //         const dealer = res?.data?.dealers?.find(
+  //           (d: Dealer) => d.dealer_id === dealerId
+  //         );
+  //         this.dealerSMS[dealerId] = dealer?.sm_list || [];
 
-          // Find the SM and set its PS data
-          const sm = this.dealerSMS[dealerId].find((s) => s.sm_id === smId);
-          this.psData[smId] = sm?.ps_list || [];
-        },
-        error: (err) => {
-          console.error('Failed to fetch SMs and PS:', err);
-          this.dealerSMS[dealerId] = [];
-          this.psData[smId] = [];
-        },
-      });
-    }
-  }
+  //         // Find the SM and set its PS data
+  //         const sm = this.dealerSMS[dealerId].find((s) => s.sm_id === smId);
+  //         this.psData[smId] = sm?.ps_list || [];
+  //       },
+  //       error: (err) => {
+  //         console.error('Failed to fetch SMs and PS:', err);
+  //         this.dealerSMS[dealerId] = [];
+  //         this.psData[smId] = [];
+  //       },
+  //     });
+  //   }
+  // }
 
   togglePS(id: string): void {
     this.activePS = this.activePS === id ? null : id;
@@ -1193,7 +1355,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.currentPage = 1;
     this.ps1Data = []; // Clear old PS data immediately
 
-    this.fetchPS1Data(); // no argument
+    // this.fetchPS1Data(); // no argument
   }
   // Toggle accordion functionality
   // toggleAccordion(id: string): void {
@@ -1358,11 +1520,100 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     },
   //   });
   // }
-  fetchSuperAdminDashboard(type: string = 'MTD'): void {
-    // const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${type}`;
-    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
+  // fetchSuperAdminDashboard(type: string = 'MTD'): void {
+  //   const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
+  //   const token = sessionStorage.getItem('token');
 
+  //   if (!token) {
+  //     console.error('No token found in sessionStorage!');
+  //     return;
+  //   }
+
+  //   const headers = new HttpHeaders({
+  //     Authorization: `Bearer ${token}`,
+  //   });
+
+  //   this.http.get<any>(url, { headers }).subscribe({
+  //     next: (res) => {
+  //       if (res?.status === 200) {
+  //         // ✅ KPI top card data
+  //         this.kpiData = {
+  //           dealers: res.data?.dealers || 0,
+  //           activeNetwork: res.data?.activeNetwork || 0,
+  //           users: res.data?.users || 0,
+  //           activeUsers: res.data?.activeUsers || 0,
+  //           leads: res.data?.leads || 0,
+  //           calls: res.data?.calls || 0,
+  //         };
+
+  //         // ✅ Dealer table data comes from dealerData
+  //         this.dealers = res.data?.dealerData || [];
+  //         console.log('Dealers loaded:', this.dealers.length, this.dealers);
+  //       } else {
+  //         console.error('Unexpected response:', res);
+  //         this.dealers = [];
+  //       }
+  //     },
+  //     error: (err) => {
+  //       console.error('Super Admin Dashboard API failed:', err);
+  //       this.dealers = [];
+  //     },
+  //   });
+  // }
+  // fetchSuperAdminDashboard(type: string = 'MTD'): void {
+  //   const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
+  //   const token = sessionStorage.getItem('token');
+
+  //   if (!token) {
+  //     console.error('No token found in sessionStorage!');
+  //     return;
+  //   }
+
+  //   const headers = new HttpHeaders({
+  //     Authorization: `Bearer ${token}`,
+  //   });
+
+  //   this.http.get<any>(url, { headers }).subscribe({
+  //     next: (res) => {
+  //       if (res?.status === 200) {
+  //         // ✅ KPI top card data
+  //         this.kpiData = {
+  //           dealers: res.data?.dealers || 0,
+  //           activeNetwork: res.data?.activeNetwork || 0,
+  //           users: res.data?.users || 0,
+  //           activeUsers: res.data?.activeUsers || 0,
+  //           leads: res.data?.leads || 0,
+  //           calls: res.data?.calls || 0,
+  //         };
+
+  //         // ✅ Dealer table data comes from dealerData
+  //         this.dealers = res.data?.dealerData || [];
+
+  //         // 🔑 Initialize filtered dealers so dropdown shows all on open
+  //         this.filteredDealers = [...this.dealers];
+
+  //         console.log('Dealers loaded:', this.dealers.length, this.dealers);
+  //       } else {
+  //         console.error('Unexpected response:', res);
+  //         this.dealers = [];
+  //         this.filteredDealers = [];
+  //       }
+  //     },
+  //     error: (err) => {
+  //       console.error('Super Admin Dashboard API failed:', err);
+  //       this.dealers = [];
+  //       this.filteredDealers = [];
+  //     },
+  //   });
+  // }
+  fetchSuperAdminDashboard(type: string = 'This month'): void {
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
     const token = sessionStorage.getItem('token');
+
+    if (!token) {
+      console.error('No token found in sessionStorage!');
+      return;
+    }
 
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -1370,36 +1621,43 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
-        this.loading = false; // ✅ Stop loading
+        if (res?.status === 200 && res.data) {
+          // ✅ KPI top card data
+          this.kpiData = {
+            dealers: res.data.dealers ?? 0,
+            activeNetwork: res.data.activeNetwork ?? 0,
+            users: res.data.users ?? 0,
+            activeUsers: res.data.activeUsers ?? 0,
+            leads: res.data.leads ?? 0,
+            calls: res.data.calls ?? 0,
+          };
 
-        if (res?.status === 200) {
-          this.dealers = res.data?.dealers || [];
+          // ✅ Dealer table data
+          this.dealers = res.data.dealerData ?? [];
+          this.originalDealers = [...this.dealers];
 
-          const allSMs = res.data?.sms || [];
-          this.dealerSMS = {};
+          // 🔑 Initialize filtered dealers for dropdown
+          this.filteredDealers = [...this.dealers];
 
-          // ✅ Group SMS by team_id (assumed to match dealer_id)
-          allSMs.forEach((sm: any) => {
-            const teamId = sm.team_id;
-            if (!this.dealerSMS[teamId]) {
-              this.dealerSMS[teamId] = [];
-            }
-            this.dealerSMS[teamId].push(sm);
-          });
-          this.ps1Data = res.data?.ps || []; // ✅ Add this
-
-          this.hoveredSM = null;
-
-          console.log('Grouped dealerSMS:', this.dealerSMS);
+          console.log(
+            'Dealers loadeddddddddddddddddd:',
+            this.dealers.length,
+            this.dealers
+          );
         } else {
-          console.error('Unexpected response format:', res);
+          console.error('Unexpected response:', res);
+          this.dealers = [];
+          this.filteredDealers = [];
         }
       },
       error: (err) => {
         console.error('Super Admin Dashboard API failed:', err);
+        this.dealers = [];
+        this.filteredDealers = [];
       },
     });
   }
+
   // THIS CODE FOR DEALER DIV CLICK  AND THIS IS COMING RIGHT DONT TOUCH THIS
 
   // toggleDealerSMs(dealerId: string): void {
@@ -1525,49 +1783,34 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     }
   //   );
   // }
-  // fetchDealers(filter: 'MTD' | 'QTD' | 'YTD') {
-  //   const token = sessionStorage.getItem('token');
-  //   const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+  fetchDealers(filter: 'MTD' | 'QTD' | 'YTD') {
+    const token = sessionStorage.getItem('token');
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-  //   const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
 
-  //   this.http.get<any>(url, { headers }).subscribe(
-  //     (res) => {
-  //       if (res?.status === 200 && res.data?.dealerData) {
-  //         this.dealers = res.data.dealerData;
+    this.http.get<any>(url, { headers }).subscribe(
+      (res) => {
+        if (res?.status === 200 && res.data?.dealerData) {
+          this.dealers = res.data.dealerData;
 
-  //         // Initialize dealerSMS for each dealer
-  //         this.dealers.forEach((dealer) => {
-  //           if (!this.dealerSMS[dealer.dealer_id]) {
-  //             this.dealerSMS[dealer.dealer_id] = [];
-  //           }
-  //         });
-  //       } else {
-  //         this.dealers = []; // clear if no data
-  //       }
-  //     },
-  //     (err) => {
-  //       console.error('Error fetching dealers:', err);
-  //       this.dealers = []; // clear on error
-  //     }
-  //   );
-  // }
-  // applyCustomDate() {
-  //   if (!this.customStartDate || !this.customEndDate) {
-  //     alert('Please select both start and end dates');
-  //     return;
-  //   }
+          // Initialize dealerSMS for each dealer
+          this.dealers.forEach((dealer) => {
+            if (!this.dealerSMS[dealer.dealer_id]) {
+              this.dealerSMS[dealer.dealer_id] = [];
+            }
+          });
+        } else {
+          this.dealers = []; // clear if no data
+        }
+      },
+      (err) => {
+        console.error('Error fetching dealers:', err);
+        this.dealers = []; // clear on error
+      }
+    );
+  }
 
-  //   // Keep dropdown selected as CUSTOM
-  //   this.selectedFilter = 'CUSTOM';
-
-  //   // Trigger change detection by updating variables first
-  //   const start = this.customStartDate;
-  //   const end = this.customEndDate;
-
-  //   // Call API
-  //   this.fetchDealersWithCustomDate(start, end);
-  // }
   applyCustomDate() {
     if (!this.customStartDate || !this.customEndDate) {
       alert('Please select both start and end dates');
@@ -1589,13 +1832,14 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       inputs.classList.add('applied');
     }
   }
+
   resetCustomDate() {
     // Clear custom dates
     this.customStartDate = '';
     this.customEndDate = '';
 
     // Reset dropdown to default filter (e.g., Today)
-    this.selectedFilter = 'DAY';
+    this.selectedFilter = 'Today';
 
     // Fetch default data
     this.onFilterChange(this.selectedFilter);
@@ -1607,94 +1851,86 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     }
   }
 
-  //  toggleRow(button: HTMLButtonElement, rowId: string): void {
-  //   const subRow = document.getElementById(rowId) as HTMLElement;
-  //   const icon = button.querySelector('i') as HTMLElement;
-
-  //   if (subRow.classList.contains('visible')) {
-  //     subRow.classList.remove('visible');
-  //     button.classList.remove('expanded');
-  //   } else {
-  //     subRow.classList.add('visible');
-  //     button.classList.add('expanded');
-  //   }
-  // }
-  //  toggleRow(button: any, rowId: string): void {
-  //     const subRow = document.getElementById(rowId) as HTMLElement;
-
-  //     if (subRow.classList.contains('visible')) {
-  //       subRow.classList.remove('visible');
-  //       button.classList.remove('expanded');
-  //     } else {
-  //       subRow.classList.add('visible');
-  //       button.classList.add('expanded');
-  //     }
-  //   }
-
-  // toggleRow(button: any, rowId: string): void {
-  //   const subRow = document.getElementById(rowId) as HTMLElement;
-  //   const expandBtn = button.closest('.expand-btn'); // Get the button element
-
-  //   if (subRow.classList.contains('visible')) {
-  //     subRow.classList.remove('visible');
-  //     expandBtn.classList.remove('expanded');
-  //   } else {
-  //     subRow.classList.add('visible');
-  //     expandBtn.classList.add('expanded');
-  //   }
-  // }
-  toggleRow(event: Event, dealer: any, rowId: string): void {
-    const id = dealer.dealer_id || dealer.dealerId;
-
-    if (!id) {
-      console.error('Dealer object missing id', dealer);
-      return;
-    }
-
-    if (this.expandedRow === rowId) {
-      this.expandedRow = null;
-    } else {
-      this.expandedRow = rowId;
-
-      if (!this.dealerUsers[id]) {
-        const token = sessionStorage.getItem('token');
-        this.dashboardService
-          .getDealerUsers(id, this.selectedFilter, token!)
-          .subscribe({
-           next: (res: any) => {
-  console.log('API success:', res);
-
-  const dealerData = res?.data?.dealers?.find((d: any) =>
-    d.dealerId === id || d.dealer_id === id
-  );
-
-  this.dealerUsers[id] = dealerData?.users || [];
-  console.log('Mapped Users for', id, ':', this.dealerUsers[id]);
-},
-
-            error: (err) => {
-              console.error('Failed to fetch users', err);
-              this.dealerUsers[id] = [];
-            },
-          });
-      }
-    }
+  formatDuration(sec: number): string {
+    const h = Math.floor(sec / 3600)
+      .toString()
+      .padStart(2, '0');
+    const m = Math.floor((sec % 3600) / 60)
+      .toString()
+      .padStart(2, '0');
+    const s = (sec % 60).toString().padStart(2, '0');
+    return `${h}:${m}:${s}`;
   }
 
-  // applyCustomDate() {
-  //   if (this.customStartDate && this.customEndDate) {
-  //     console.log(
-  //       'Custom date range:',
-  //       this.customStartDate,
-  //       this.customEndDate
-  //     );
-  //     this.fetchDealersWithCustomDate(this.customStartDate, this.customEndDate);
-  //     this.showCustomDatePicker = false;
-  //     this.selectedFilter = 'CUSTOM'; // mark as custom filter
+  // toggleRow(event: Event, dealer: any, rowId: string): void {
+  //   const id = dealer.dealerId;
+  //   if (!id) return;
+
+  //   // Toggle expanded row
+  //   if (this.expandedRow === rowId) {
+  //     this.expandedRow = null;
   //   } else {
-  //     alert('Please select both start and end dates');
+  //     this.expandedRow = rowId;
+
+  //     // Only fetch if not already fetched
+  //     if (!this.dealerUsers[id]) {
+  //       const token = sessionStorage.getItem('token');
+
+  //       this.dashboardService
+  //         .getDealerUsers(id, this.selectedFilter, token!)
+  //         .subscribe({
+  //           next: (res: any) => {
+  //             console.log('API success:', res);
+
+  //             // Find the dealer in response
+  //             const dealerData = res?.data?.dealerData?.find(
+  //               (d: any) => d.dealerId === id
+  //             );
+
+  //             // Map users
+  //             this.dealerUsers = {
+  //               ...this.dealerUsers,
+  //               [id]: dealerData?.users || [],
+  //             };
+
+  //             // Map call logs (if needed separately)
+  //             this.dealerCallLogs = {
+  //               ...this.dealerCallLogs,
+  //               [id]: dealerData?.callLogs
+  //                 ? {
+  //                     total: dealerData.callLogs.totalCalls,
+  //                     outgoing: dealerData.callLogs.outgoing,
+  //                     incoming: dealerData.callLogs.incoming,
+  //                     connected: dealerData.callLogs.connected,
+  //                     declined: dealerData.callLogs.declined,
+  //                     duration: this.formatDuration(
+  //                       dealerData.callLogs.durationSec
+  //                     ),
+  //                   }
+  //                 : null,
+  //             };
+
+  //             this.cd.detectChanges();
+
+  //             console.log('Mapped Users:', this.dealerUsers[id]);
+  //             console.log('Mapped Call Logs:', this.dealerCallLogs[id]);
+  //           },
+  //           error: (err) => {
+  //             console.error('Failed to fetch users', err);
+  //             this.dealerUsers = {
+  //               ...this.dealerUsers,
+  //               [id]: [],
+  //             };
+  //             this.dealerCallLogs = {
+  //               ...this.dealerCallLogs,
+  //               [id]: null,
+  //             };
+  //           },
+  //         });
+  //     }
   //   }
   // }
+
   // applyCustomDate() {
   //   if (this.customStartDate && this.customEndDate) {
   //     console.log(
@@ -1716,19 +1952,262 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     alert('Please select both start and end dates');
   //   }
   // }
+  // toggleRow(event: Event, dealer: any, rowId: string): void {
+  //   const id = dealer.dealerId;
+  //   if (!id) return;
 
-  // fetchDealersWithCustomDate(start: string, end: string) {
-  //   const token = sessionStorage.getItem('token');
-  //   this.dashboardService.getDealersByCustomDate(start, end, token!).subscribe({
-  //     next: (res: any) => {
-  //       this.dealers = res?.data?.dealers || [];
-  //     },
-  //     error: (err) => {
-  //       console.error(err);
-  //       this.dealers = [];
-  //     },
-  //   });
+  //   if (this.expandedRow === rowId) {
+  //     this.expandedRow = null;
+  //     return;
+  //   }
+
+  //   this.expandedRow = rowId;
+
+  //   // Only fetch if not already fetched
+  //   if (!this.dealerUsers[id]) {
+  //     const token = sessionStorage.getItem('token');
+
+  //     this.dashboardService
+  //       .getDealerUsers(id, this.selectedFilter, token!)
+  //       .subscribe({
+  //         next: (res: any) => {
+  //           console.log('API success:', res);
+
+  //           const dealerData = Array.isArray(res?.data?.dealerData)
+  //             ? res.data.dealerData.find((d: any) => d.dealerId === id)
+  //             : res?.data?.dealerData;
+
+  //           if (!dealerData) {
+  //             this.dealerUsers[id] = [];
+  //             this.dealerCallLogs[id] = null;
+  //             return;
+  //           }
+
+  //           // Map users
+  //           this.dealerUsers = {
+  //             ...this.dealerUsers,
+  //             [id]: dealerData.users || [],
+  //           };
+
+  //           // Map call logs
+  //           this.dealerCallLogs = {
+  //             ...this.dealerCallLogs,
+  //             [id]: dealerData.callLogs
+  //               ? {
+  //                   total: dealerData.callLogs.totalCalls,
+  //                   outgoing: dealerData.callLogs.outgoing,
+  //                   incoming: dealerData.callLogs.incoming,
+  //                   connected: dealerData.callLogs.connected,
+  //                   declined: dealerData.callLogs.declined,
+  //                   duration: this.formatDuration(
+  //                     dealerData.callLogs.durationSec || 0
+  //                   ),
+  //                 }
+  //               : null,
+  //           };
+
+  //           this.cd.detectChanges();
+  //           console.log('Mapped Users:', this.dealerUsers[id]);
+  //           console.log('Mapped Call Logs:', this.dealerCallLogs[id]);
+  //         },
+  //         error: (err) => {
+  //           console.error('Failed to fetch users', err);
+  //           this.dealerUsers[id] = [];
+  //           this.dealerCallLogs[id] = null;
+  //         },
+  //       });
+  //   }
   // }
+  // THIS IS  PRORPE WORDKING CODE DOWN OK
+  toggleRow(event: Event, dealer: any, rowId: string): void {
+    const id = dealer.dealerId;
+    if (!id) return;
+
+    if (this.expandedRow === rowId) {
+      this.expandedRow = null;
+      return;
+    }
+
+    this.expandedRow = rowId;
+
+    // Only fetch if not already fetched
+    if (!this.dealerUsers[id]) {
+      const token = sessionStorage.getItem('token');
+
+      this.dashboardService
+        .getDealerUsers(id, this.selectedFilter, token!)
+        .subscribe({
+          next: (res: any) => {
+            const dealerData = Array.isArray(res?.data?.dealerData)
+              ? res.data.dealerData.find((d: any) => d.dealerId === id)
+              : res?.data?.dealerData;
+
+            if (!dealerData) {
+              this.dealerUsers[id] = [];
+              this.dealerCallLogs[id] = null;
+              this.userCallLogs[id] = [];
+              return;
+            }
+
+            // Map users for Activities table
+            this.dealerUsers[id] = dealerData.users || [];
+
+            // Map dealer-level call logs
+            this.dealerCallLogs[id] = dealerData.callLogs
+              ? {
+                  total: dealerData.callLogs.totalCalls,
+                  outgoing: dealerData.callLogs.outgoing,
+                  incoming: dealerData.callLogs.incoming,
+                  connected: dealerData.callLogs.connected,
+                  declined: dealerData.callLogs.declined,
+                  duration: this.formatDuration(
+                    dealerData.callLogs.durationSec || 0
+                  ),
+                }
+              : null;
+
+            // Map user-level call logs
+            this.userCallLogs[id] =
+              dealerData.users?.map((user: any) => ({
+                userId: user.user_id,
+                name: user.user,
+                role: user.user_role,
+                active: user.active,
+                calls: user.calls
+                  ? {
+                      total: user.calls.totalCalls,
+                      outgoing: user.calls.outgoing,
+                      incoming: user.calls.incoming,
+                      connected: user.calls.connected,
+                      declined: user.calls.declined,
+                      duration: this.formatDuration(user.calls.durationSec),
+                    }
+                  : {
+                      total: 0,
+                      outgoing: 0,
+                      incoming: 0,
+                      connected: 0,
+                      declined: 0,
+                      duration: '0s',
+                    },
+              })) || [];
+
+            this.cd.detectChanges();
+            console.log('Mapped User Call Logs:', this.userCallLogs[id]);
+          },
+          error: (err) => {
+            console.error(err);
+            this.dealerUsers[id] = [];
+            this.dealerCallLogs[id] = null;
+            this.userCallLogs[id] = [];
+          },
+        });
+    }
+  }
+  // THIS CODE IS WITH ALPHABETICLA SORTING AND ACTIVE INACTIVE LOGIC
+  // toggleRow(event: Event, dealer: any, rowId: string): void {
+  //   const id = dealer.dealerId;
+  //   if (!id) return;
+
+  //   if (this.expandedRow === rowId) {
+  //     this.expandedRow = null;
+  //     return;
+  //   }
+
+  //   this.expandedRow = rowId;
+
+  //   // --- Default sort dealers by lowest totalUsers ---
+  //   if (this.dealers && this.dealers.length) {
+  //     this.dealers.sort((a: any, b: any) => {
+  //       if (a.totalUsers === b.totalUsers) {
+  //         return a.dealerName.localeCompare(b.dealerName); // tie-breaker by name
+  //       }
+  //       return a.totalUsers - b.totalUsers; // ascending (lowest first)
+  //     });
+  //   }
+
+  //   // Only fetch if not already fetched
+  //   if (!this.dealerUsers[id]) {
+  //     const token = sessionStorage.getItem('token');
+
+  //     this.dashboardService
+  //       .getDealerUsers(id, this.selectedFilter, token!)
+  //       .subscribe({
+  //         next: (res: any) => {
+  //           const dealerData = Array.isArray(res?.data?.dealerData)
+  //             ? res.data.dealerData.find((d: any) => d.dealerId === id)
+  //             : res?.data?.dealerData;
+
+  //           if (!dealerData) {
+  //             this.dealerUsers[id] = [];
+  //             this.dealerCallLogs[id] = null;
+  //             this.userCallLogs[id] = [];
+  //             return;
+  //           }
+
+  //           // Map users for Activities table
+  //           this.dealerUsers[id] = dealerData.users || [];
+
+  //           // Map dealer-level call logs
+  //           this.dealerCallLogs[id] = dealerData.callLogs
+  //             ? {
+  //                 total: dealerData.callLogs.totalCalls,
+  //                 outgoing: dealerData.callLogs.outgoing,
+  //                 incoming: dealerData.callLogs.incoming,
+  //                 connected: dealerData.callLogs.connected,
+  //                 declined: dealerData.callLogs.declined,
+  //                 duration: this.formatDuration(
+  //                   dealerData.callLogs.durationSec || 0
+  //                 ),
+  //               }
+  //             : null;
+
+  //           // Map user-level call logs
+  //           this.userCallLogs[id] =
+  //             dealerData.users?.map((user: any) => ({
+  //               userId: user.user_id,
+  //               name: user.user,
+  //               role: user.user_role,
+  //               active: user.active,
+  //               calls: user.calls
+  //                 ? {
+  //                     total: user.calls.totalCalls,
+  //                     outgoing: user.calls.outgoing,
+  //                     incoming: user.calls.incoming,
+  //                     connected: user.calls.connected,
+  //                     declined: user.calls.declined,
+  //                     duration: this.formatDuration(user.calls.durationSec),
+  //                   }
+  //                 : {
+  //                     total: 0,
+  //                     outgoing: 0,
+  //                     incoming: 0,
+  //                     connected: 0,
+  //                     declined: 0,
+  //                     duration: '0s',
+  //                   },
+  //             })) || [];
+
+  //           this.cd.detectChanges();
+  //           console.log(
+  //             'Mapped & Sorted User Activities:',
+  //             this.dealerUsers[id]
+  //           );
+  //           console.log(
+  //             'Mapped & Sorted User Call Logs:',
+  //             this.userCallLogs[id]
+  //           );
+  //         },
+  //         error: (err) => {
+  //           console.error(err);
+  //           this.dealerUsers[id] = [];
+  //           this.dealerCallLogs[id] = null;
+  //           this.userCallLogs[id] = [];
+  //         },
+  //       });
+  //   }
+  // }
+
   fetchDealersWithCustomDate(start: string, end: string) {
     const token = sessionStorage.getItem('token');
     this.dashboardService.getDealersByCustomDate(start, end, token!).subscribe({
@@ -1746,6 +2225,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       },
     });
   }
+
   // fetchDealers(filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM') {
   //   const token = sessionStorage.getItem('token');
   //   if (!token) {
@@ -1834,37 +2314,37 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     },
   //   });
   // }
-  updateDisplayedUsers() {
-    if (!this.dealerUsers) {
-      this.displayedDealerUsers = [];
-      this.showMoreUsersVisible = false;
-      return;
-    }
+  // updateDisplayedUsers() {
+  //   if (!this.dealerUsers) {
+  //     this.displayedDealerUsers = [];
+  //     this.showMoreUsersVisible = false;
+  //     return;
+  //   }
 
-    // Optional: filter out users whose all counts are zero
-    const filteredUsers = this.dealerUsers.filter((user: any) => {
-      return (
-        user.enquiries ||
-        user.followUps ||
-        user.overdueFollowups ||
-        user.testDrives ||
-        user.overdueTestDrives
-      );
-    });
+  //   // Optional: filter out users whose all counts are zero
+  //   const filteredUsers = this.dealerUsers.filter((user: any) => {
+  //     return (
+  //       user.enquiries ||
+  //       user.followUps ||
+  //       user.overdueFollowups ||
+  //       user.testDrives ||
+  //       user.overdueTestDrives
+  //     );
+  //   });
 
-    this.displayedDealerUsers = filteredUsers.slice(0, this.userItemsToShow);
-    this.showMoreUsersVisible = this.userItemsToShow < filteredUsers.length;
-  }
+  //   this.displayedDealerUsers = filteredUsers.slice(0, this.userItemsToShow);
+  //   this.showMoreUsersVisible = this.userItemsToShow < filteredUsers.length;
+  // }
 
   // Toggle Show More / Less
-  toggleShowMoreUsers() {
-    if (this.usersItemsToShow >= this.dealerUsers.length) {
-      this.usersItemsToShow = 10; // Show Less
-    } else {
-      this.usersItemsToShow = this.dealerUsers.length; // Show More
-    }
-    this.updateDisplayedUsers();
-  }
+  // toggleShowMoreUsers() {
+  //   if (this.usersItemsToShow >= this.dealerUsers.length) {
+  //     this.usersItemsToShow = 10; // Show Less
+  //   } else {
+  //     this.usersItemsToShow = this.dealerUsers.length; // Show More
+  //   }
+  //   this.updateDisplayedUsers();
+  // }
   // fetchDealers(filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM') {
   //   const token = sessionStorage.getItem('token');
   //   if (!token) {
@@ -1917,104 +2397,104 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     },
   //   });
   // }
-  fetchDealers(filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM') {
-    const token = sessionStorage.getItem('token');
-    if (!token) {
-      console.error('No token found in sessionStorage!');
-      this.dealers = [];
-      this.displayedDealers = [];
-      this.displayedCallLogs = [];
-      return;
-    }
+  // fetchDealers(filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM') {
+  //   const token = sessionStorage.getItem('token');
+  //   if (!token) {
+  //     console.error('No token found in sessionStorage!');
+  //     this.dealers = [];
+  //     this.displayedDealers = [];
+  //     this.displayedCallLogs = [];
+  //     return;
+  //   }
 
-    this.dashboardService.getDealers(filter, token).subscribe({
-      next: (res: any) => {
-        console.log('API Response:', res);
+  //   this.dashboardService.getDealers(filter, token).subscribe({
+  //     next: (res: any) => {
+  //       console.log('API Response:', res);
 
-        const dealers = res?.data?.dealers || res?.dealers || [];
+  //       const dealers = res?.data?.dealers || res?.dealers || [];
 
-        if (dealers.length > 0) {
-          this.dealers = dealers;
+  //       if (dealers.length > 0) {
+  //         this.dealers = dealers;
 
-          // Initialize dealerSMS
-          this.dealers.forEach((dealer: any) => {
-            if (!this.dealerSMS[dealer.dealer_id]) {
-              this.dealerSMS[dealer.dealer_id] = [];
-            }
-          });
+  //         // Initialize dealerSMS
+  //         this.dealers.forEach((dealer: any) => {
+  //           if (!this.dealerSMS[dealer.dealer_id]) {
+  //             this.dealerSMS[dealer.dealer_id] = [];
+  //           }
+  //         });
 
-          // --- POPULATE dealerUsers ---
-          this.dealerUsers = [];
-          this.dealers.forEach((dealer: any) => {
-            // Case 1: dealer has 'users' array
-            if (dealer.users && dealer.users.length) {
-              dealer.users.forEach((user: any) => {
-                this.dealerUsers.push({
-                  user_name: user.user_name || 'N/A',
-                  callLogs: user.callLogs || {
-                    connected: 0,
-                    incoming: 0,
-                    outgoing: 0,
-                    missed: 0,
-                    declined: 0,
-                    duration: 0,
-                  },
-                });
-              });
-            }
-            // Case 2: callLogs directly under dealer
-            else if (dealer.callLogs) {
-              this.dealerUsers.push({
-                user_name: dealer.dealer_name || 'N/A',
-                callLogs: dealer.callLogs,
-              });
-            }
-            // Case 3: no users or callLogs
-            else {
-              this.dealerUsers.push({
-                user_name: dealer.dealer_name || 'N/A',
-                callLogs: {
-                  connected: 0,
-                  incoming: 0,
-                  outgoing: 0,
-                  missed: 0,
-                  declined: 0,
-                  duration: 0,
-                },
-              });
-            }
-          });
+  //         // --- POPULATE dealerUsers ---
+  //         this.dealerUsers = [];
+  //         this.dealers.forEach((dealer: any) => {
+  //           // Case 1: dealer has 'users' array
+  //           if (dealer.users && dealer.users.length) {
+  //             dealer.users.forEach((user: any) => {
+  //               this.dealerUsers.push({
+  //                 user_name: user.user_name || 'N/A',
+  //                 callLogs: user.callLogs || {
+  //                   connected: 0,
+  //                   incoming: 0,
+  //                   outgoing: 0,
+  //                   missed: 0,
+  //                   declined: 0,
+  //                   duration: 0,
+  //                 },
+  //               });
+  //             });
+  //           }
+  //           // Case 2: callLogs directly under dealer
+  //           else if (dealer.callLogs) {
+  //             this.dealerUsers.push({
+  //               user_name: dealer.dealer_name || 'N/A',
+  //               callLogs: dealer.callLogs,
+  //             });
+  //           }
+  //           // Case 3: no users or callLogs
+  //           else {
+  //             this.dealerUsers.push({
+  //               user_name: dealer.dealer_name || 'N/A',
+  //               callLogs: {
+  //                 connected: 0,
+  //                 incoming: 0,
+  //                 outgoing: 0,
+  //                 missed: 0,
+  //                 declined: 0,
+  //                 duration: 0,
+  //               },
+  //             });
+  //           }
+  //         });
 
-          // Initialize pagination
-          this.itemsToShow = 10;
-          this.callLogsItemsToShow = 10;
-          this.displayedDealerUsers = this.dealerUsers.slice(
-            0,
-            this.itemsToShow
-          );
-          // ------------------------------------------
+  //         // Initialize pagination
+  //         this.itemsToShow = 10;
+  //         this.callLogsItemsToShow = 10;
+  //         this.displayedDealerUsers = this.dealerUsers.slice(
+  //           0,
+  //           this.itemsToShow
+  //         );
+  //         // ------------------------------------------
 
-          this.updateDisplayedDealers();
-          this.updateDisplayedCallLogs();
-        } else {
-          console.warn('No dealers found in response');
-          this.dealers = [];
-          this.displayedDealers = [];
-          this.displayedCallLogs = [];
-          this.dealerUsers = [];
-          this.displayedDealerUsers = [];
-        }
-      },
-      error: (err) => {
-        console.error('Error fetching dealers:', err);
-        this.dealers = [];
-        this.displayedDealers = [];
-        this.displayedCallLogs = [];
-        this.dealerUsers = [];
-        this.displayedDealerUsers = [];
-      },
-    });
-  }
+  //         this.updateDisplayedDealers();
+  //         this.updateDisplayedCallLogs();
+  //       } else {
+  //         console.warn('No dealers found in response');
+  //         this.dealers = [];
+  //         this.displayedDealers = [];
+  //         this.displayedCallLogs = [];
+  //         this.dealerUsers = [];
+  //         this.displayedDealerUsers = [];
+  //       }
+  //     },
+  //     error: (err) => {
+  //       console.error('Error fetching dealers:', err);
+  //       this.dealers = [];
+  //       this.displayedDealers = [];
+  //       this.displayedCallLogs = [];
+  //       this.dealerUsers = [];
+  //       this.displayedDealerUsers = [];
+  //     },
+  //   });
+  // }
 
   updatePaginatedDealers() {
     this.paginatedDealers = this.dealers.slice(0, this.currentDisplayCount);
@@ -2503,6 +2983,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     console.error('Token not found!');
   //     return;
   //   }
+
   // showMore() {
   //   const nextIndex = this.currentIndex + this.itemsPerPage;
   //   this.paginatedDealers = this.paginatedDealers.concat(
@@ -3005,35 +3486,35 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     });
   //   }
   // }
+  sortData(column: string) {
+    if (this.sortColumn !== column) {
+      // first click → descending
+      this.sortColumn = column;
+      this.sortDirection = 'desc';
+    } else if (this.sortDirection === 'desc') {
+      // second click → ascending
+      this.sortDirection = 'asc';
+    } else if (this.sortDirection === 'asc') {
+      // third click → back to default
+      this.sortDirection = 'default';
+    }
+
+    if (this.sortDirection === 'default') {
+      // reset to original order
+      this.dealers = [...this.originalDealers];
+      this.sortColumn = null; // hide arrow
+    } else {
+      // sort descending or ascending
+      this.dealers.sort((a, b) => {
+        const valA = a[column] ?? 0;
+        const valB = b[column] ?? 0;
+        return this.sortDirection === 'asc' ? valA - valB : valB - valA;
+      });
+    }
+  }
 
   // FOR CALL ANSLSYISI
   // Convert dealer.callLogs object to an array if it's a single object
-  getPaginatedLogs(dealer: any) {
-    const logsArray = Array.isArray(dealer.callLogs)
-      ? dealer.callLogs
-      : [dealer.callLogs];
-    const currentPage = this.currentPageMap[dealer.dealer_id] || 1;
-    const start = (currentPage - 1) * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-    return logsArray.slice(start, end);
-  }
-
-  getTotalPages(dealer: any) {
-    const logsArray = Array.isArray(dealer.callLogs)
-      ? dealer.callLogs
-      : [dealer.callLogs];
-    return Math.ceil(logsArray.length / this.itemsPerPage);
-  }
-
-  changePagesm(dealerId: string, page: number) {
-    const dealer = this.dealers.find((d) => d.dealer_id === dealerId);
-    if (!dealer) return;
-
-    const totalPages = this.getTotalPages(dealer);
-    if (page >= 1 && page <= totalPages) {
-      this.currentPageMap[dealerId] = page;
-    }
-  }
 
   // changePage(dealerId: string, page: number) {
   //   const totalPages = this.getTotalPages(
@@ -3043,25 +3524,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     this.currentPageMap[dealerId] = page;
   //   }
   // }
-  updateData(data: any) {
-    switch (this.selectedOption) {
-      case 'leads':
-        this.displayedData = data.rankings.leads; // Update table data for leads
-        break;
-      case 'testDrives':
-        this.displayedData = data.rankings.testDrives; // Update table data for testDrives
-        break;
-      case 'orders':
-        this.displayedData = data.rankings.orders; // Update table data for orders
-        break;
-      default:
-        this.displayedData = data.rankings.leads; // Default to "leads"
-    }
-
-    // Update maxValue for chart rendering (based on displayed data)
-    this.maxValue =
-      Math.max(...this.displayedData.map((item) => item.value)) || 1;
-  }
 
   // getChangeData(
   //   current: number,
@@ -3094,30 +3556,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     color,
   //   };
   // }
-  getChangeData(current: number, previous: number) {
-    if (previous === 0 && current === 0) {
-      return { value: '-0%', color: 'text-danger' }; // Changed to -0%
-    }
-    if (previous === 0 && current > 0) {
-      return { value: '+100%', color: 'text-success' };
-    }
-    if (previous > 0 && current === 0) {
-      return { value: '-100%', color: 'text-danger' };
-    }
-
-    const change = ((current - previous) / previous) * 100;
-    const roundedChange = Math.round(change);
-
-    // Show "-0%" when change is exactly zero
-    const valuePrefix =
-      change === 0 ? (current < previous ? '-' : '') : change > 0 ? '+' : '';
-
-    return {
-      value: valuePrefix + Math.abs(roundedChange) + '%',
-      color:
-        change > 0 ? 'text-success' : change < 0 ? 'text-danger' : 'text-muted',
-    };
-  }
 
   //
 
@@ -3166,17 +3604,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     );
   // }
 
-  getFilteredLeads(): number {
-    switch (this.selectedPeriod) {
-      case 'MTD':
-      case 'QTD':
-      case 'YTD':
-        return this.leads;
-      default:
-        return this.leads;
-    }
-  }
-
   // getFilteredTestDrives(): number {
   //   switch (this.selectedPeriod) {
   //     case 'MTD':
@@ -3189,16 +3616,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //       return 0;
   //   }
   // }
-  getFilteredTestDrives(): number {
-    switch (this.selectedPeriod) {
-      case 'MTD':
-      case 'QTD':
-      case 'YTD':
-        return this.testDrives;
-      default:
-        return this.testDrives;
-    }
-  }
+
   // Logic to get filtered orders based on selected filter
   // getFilteredOrders(): number {
   //   switch (this.selectedPeriod) {
@@ -3211,34 +3629,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     default:
   //       return 0;
   //   }
-  // }
-  getFilteredOrders(): number {
-    switch (this.selectedPeriod) {
-      case 'MTD':
-      case 'QTD':
-      case 'YTD':
-        return this.orders;
-      default:
-        return this.orders;
-    }
-  }
+
   // getColor(value: number): string {
   //   return '#007bff'; // Always return blue
   // }
-  showTooltip() {
-    const tooltip = document.querySelector('.tooltip-content') as HTMLElement;
-    if (tooltip) {
-      tooltip.style.opacity = '1';
-    }
-  }
 
-  hideTooltip() {
-    const tooltip = document.querySelector('.tooltip-content') as HTMLElement;
-    if (tooltip) {
-      tooltip.style.opacity = '0';
-      // console.log('hidetooltip');
-    }
-  }
   // fetchDashboardDataForTopCards(filter: string) {
   //   const token = sessionStorage.getItem('token');
 
@@ -3280,88 +3675,133 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     );
   // }
   fetchDashboardDataForTopCards(filter: string) {
-    const token = sessionStorage.getItem('token');
+    const token = sessionStorage.getItem('token') || '';
+    let url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM`;
 
-    if (!token) {
-      console.error('No token found!');
+    if (filter === 'CUSTOM' && this.customStartDate && this.customEndDate) {
+      url += `?startDate=${this.customStartDate}&endDate=${this.customEndDate}`;
+    } else if (filter !== 'CUSTOM') {
+      url += `?type=${filter}`;
+    }
+
+    this.http
+      .get(url, { headers: { Authorization: `Bearer ${token}` } })
+      .subscribe({
+        next: (res: any) => {
+          if (res.status === 200) {
+            this.kpiData = res.data; // top cards
+            this.dealers = res.data.dealerData; // table data
+          }
+        },
+        error: (err) => {
+          console.error('Error fetching dealer data:', err);
+          this.dealers = [];
+        },
+      });
+  }
+  filterDealers() {
+    const search = this.dealerSearch.toLowerCase();
+
+    if (!search) {
+      // 👉 If no search text, show all dealers
+      this.filteredDealers = [...this.dealers];
       return;
     }
 
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    this.http
-      .get<any>(
-        `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`,
-        { headers }
-      )
-      .subscribe(
-        (response) => {
-          if (response && response.status === 200) {
-            const kpi = response.data?.kpi;
-
-            if (kpi) {
-              this.dashboardMetrics = {
-                totalLeads: kpi.totalLeads || 0,
-                totalTestDrives: kpi.totalTestDrives || 0,
-                totalOrders: kpi.totalOrders || 0,
-                lostLeads: kpi.lostLeads || 0,
-                cancellations: kpi.cancellations || 0,
-                netOrders: kpi.netOrders || 0,
-                retail: kpi.retail || 0,
-              };
-
-              const totalTestDrives = this.dashboardMetrics.totalTestDrives;
-              const totalOrders = this.dashboardMetrics.totalOrders;
-
-              // ✅ Always run the chart creation (even if both values are 0)
-              setTimeout(() => {
-                this.createDoughnutChart(totalTestDrives, totalOrders);
-              }, 0);
-            } else {
-              console.warn('No KPI data found in response');
-            }
-          } else {
-            console.error(
-              'Error fetching data:',
-              response.message || 'Unknown error'
-            );
-          }
-        },
-        (error) => {
-          console.error('Error fetching data:', error);
-        }
-      );
+    this.filteredDealers = this.dealers.filter(
+      (d) => d.dealerName?.toLowerCase().includes(search) // use correct field
+    );
+  }
+  toggleDropdown() {
+    this.dropdownOpen = !this.dropdownOpen;
+    if (this.dropdownOpen) {
+      // reset list when dropdown opens
+      this.filteredDealers = [...this.dealers];
+    }
+  }
+  areAllSelected(): boolean {
+    return (
+      this.filteredDealers.length > 0 &&
+      this.filteredDealers.every((d) => this.isDealerSelected(d))
+    );
   }
 
-  fetchDashboardDataForTable(filter: string) {
-    const token = sessionStorage.getItem('token');
-
-    if (!token) {
-      console.error('No token found!');
-      return;
-    }
-
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    this.http
-      .get(
-        `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter};`,
-        { headers }
-      )
-      .subscribe(
-        (response: any) => {
-          if (response && response.status === 200) {
-            this.displayedData = response.data.tableData || [];
-            this.maxValue =
-              Math.max(...this.displayedData.map((item) => item.value)) || 1;
-          } else {
-            console.error('Failed to fetch table data:', response.message);
-          }
-        },
-        (error) => {
-          console.error('Fetch error:', error);
+  // Toggle select all dealers
+  toggleSelectAll(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.filteredDealers.forEach((d) => {
+        if (!this.isDealerSelected(d)) {
+          this.toggleDealerSelection(d);
         }
-      );
+      });
+    } else {
+      this.filteredDealers.forEach((d) => {
+        if (this.isDealerSelected(d)) {
+          this.toggleDealerSelection(d);
+        }
+      });
+    }
+  }
+
+  // Clear all selected dealers
+  clearSelection(): void {
+    this.selectedDealers = [];
+  }
+  selectDealer(dealer: any) {
+    this.selectedDealer = dealer;
+    this.dealerSearch = '';
+    this.dropdownOpen = false;
+
+    // refresh dashboard with dealer-specific logic
+    this.fetchSuperAdminDashboard('MTD');
+  }
+  @HostListener('document:click', ['$event'])
+  clickOutside(event: Event) {
+    if (this.dropdownOpen) {
+      const targetElement = event.target as HTMLElement;
+
+      // 👉 check if clicked button that toggles dropdown
+      const isToggleButton = targetElement.closest('.dropdown-toggle');
+
+      if (!isToggleButton) {
+        this.dropdownOpen = false;
+      }
+    }
+  }
+  // isDealerSelected(dealer: any): boolean {
+  //   return this.selectedDealers.some((d) => d.dealerId === dealer.dealerId);
+  // }
+  isDealerSelected(dealer: any): boolean {
+    return this.selectedDealers.some((d) => d.dealerId === dealer.dealerId);
+  }
+  // toggleDealerSelection(dealer: any): void {
+  //   const index = this.selectedDealers.findIndex(
+  //     (d) => d.dealerId === dealer.dealerId
+  //   );
+  //   if (index > -1) {
+  //     this.selectedDealers.splice(index, 1); // unselect
+  //   } else {
+  //     this.selectedDealers.push(dealer); // select
+  //   }
+  // }
+  // get selectedDealerNames(): string {
+  //   if (this.selectedDealers.length > 0) {
+  //     return this.selectedDealers.map((d) => d.dealerName).join(', ');
+  //   }
+  //   return 'Select Dealers';
+  // }
+
+  toggleDealerSelection(dealer: any): void {
+    const index = this.selectedDealers.findIndex(
+      (d) => d.dealerId === dealer.dealerId
+    );
+
+    if (index > -1) {
+      this.selectedDealers.splice(index, 1); // ✅ unselect
+    } else {
+      this.selectedDealers.push(dealer); // ✅ select (full dealer object)
+    }
   }
 
   // createDoughnutChart(totalTestDrives: number, totalOrders: number) {
@@ -3407,64 +3847,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     console.error('Canvas element with ID "doughnutChart" not found.');
   //   }
   // }
-  createDoughnutChart(totalTestDrives: number, totalOrders: number): void {
-    this.cdr.detectChanges(); // ensures view is refreshed before accessing DOM
-
-    const canvas = document.getElementById(
-      'doughnutChart'
-    ) as HTMLCanvasElement;
-
-    if (!canvas) {
-      console.error('Canvas element with ID "doughnutChart" not found.');
-      return;
-    }
-
-    // 🔴 Properly destroy previous chart instance
-    if (this.doughnutChart) {
-      this.doughnutChart.destroy();
-      this.doughnutChart = null;
-    }
-
-    // 🔄 Forcefully reset canvas
-    const ctx = canvas.getContext('2d');
-    ctx?.clearRect(0, 0, canvas.width, canvas.height);
-
-    // ✅ Recreate the chart
-    this.doughnutChart = new Chart(ctx!, {
-      type: 'doughnut',
-      data: {
-        labels: ['Test Drives', 'Orders'],
-        datasets: [
-          {
-            data: [totalTestDrives, totalOrders],
-            backgroundColor: ['#1E90FF', '#87CEFA'],
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: { position: 'top' },
-          tooltip: {
-            callbacks: {
-              label: function (tooltipItem) {
-                const value = tooltipItem.raw;
-                const label = tooltipItem.label;
-                return `${label}: ${value}`;
-              },
-            },
-          },
-        },
-      },
-    });
-  }
-
-  getPercentageChange(): number {
-    if (this.previousLeads === 0) return 100;
-    const diff = this.currentLeads - this.previousLeads;
-    return Math.round((diff / this.previousLeads) * 100);
-  }
 
   // getProgressPercentage(value: number, max: number): number {
   //   if (max <= 0) {
@@ -3473,15 +3855,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   }
   //   return (value / max) * 100;
   // }
-
-  updatePieChart(testDrives: number, orders: number): void {
-    if (this.pieChartInstance) {
-      this.pieChartInstance.data.datasets[0].data = [testDrives, orders];
-      this.pieChartInstance.update();
-    } else {
-      this.createDoughnutChart(testDrives, orders);
-    }
-  }
 
   // updateSelection(option: string) {
   //   this.selectedOption = option;
@@ -3559,60 +3932,18 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //       }
   //     );
   // }
-  paginateData() {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedData = this.displayedData.slice(startIndex, endIndex);
-  }
-  // Helper function to paginate
-  paginateDealers() {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-    this.paginatedDealers = [...this.dealers.slice(start, end)];
-  }
 
-  getFormattedChange(change: number): string {
-    if (Object.is(change, -0)) {
-      return '-0%';
-    }
-    return `${change >= 0 ? '+' : ''}${change}%`;
-  }
+  // loadMoreUsers() {
+  //   if (this.itemsToShow >= this.dealerUsers.length) {
+  //     // Show less
+  //     this.itemsToShow = 10;
+  //   } else {
+  //     // Show more
+  //     this.itemsToShow += 10;
+  //   }
 
-  // Calculate progress percentage based on value
-  getProgressPercentage(value: number, maxValue: number): number {
-    return (value / maxValue) * 100;
-  }
-
-  // Optionally, you can modify how you color the progress bar based on value
-  getColor(rank: number): string {
-    return rank <= 3 ? '#28a745' : '#dc3545'; // Green for rank 1, 2, 3, Red for others
-  }
-  changePage(page: number) {
-    if (page < 1 || page > this.totalPages()) return;
-    this.currentPage = page;
-    this.paginateData();
-  }
-
-  totalPages(): number {
-    return Math.ceil(this.displayedData.length / this.itemsPerPage);
-  }
-
-  getPageNumbers(): number[] {
-    return Array(this.totalPages())
-      .fill(0)
-      .map((_, index) => index + 1);
-  }
-  loadMoreUsers() {
-    if (this.itemsToShow >= this.dealerUsers.length) {
-      // Show less
-      this.itemsToShow = 10;
-    } else {
-      // Show more
-      this.itemsToShow += 10;
-    }
-
-    this.displayedDealerUsers = this.dealerUsers.slice(0, this.itemsToShow);
-  }
+  //   this.displayedDealerUsers = this.dealerUsers.slice(0, this.itemsToShow);
+  // }
 
   // getLeadChange() {
   //   console.log('DATA:', this.data);
@@ -3723,260 +4054,175 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //       return 0;
   //   }
   // }
-  clearCustomDateFilter() {
-    // Reset date fields
-    // this.customStartDate = null;
-    // this.customEndDate = null;
-    this.appliedStartDate = null;
-    this.appliedEndDate = null;
 
-    // Optionally, refresh table with current standard filter
-    this.applyFilter(this.selectedFilter);
-  }
-
-  // Apply the filter and update the selected period
-  applyFilter(period: string): void {
-    this.selectedPeriod = period;
-    // this.selectedFilter = period; // ✅ ADD THIS LINE to highlight the correct button
-
-    const token = sessionStorage.getItem('token');
-    if (!token) return;
-
-    let url =
-      'https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities';
-    if (period && period !== 'today') {
-      url += `?type=${period}`;
+  exportToCSV() {
+    console.log('Export clicked', this.dealers); // Debug
+    if (!this.dealers || this.dealers.length === 0) {
+      console.warn('No dealers to export');
+      return;
     }
 
-    const headers = { Authorization: `Bearer ${token}` };
+    const headers = [
+      'Dealer',
+      'Total Users',
+      'Active Users',
+      'Leads (Total)',
+      'Leads (sync to CXP)',
+      'Leads (sync to ICS)',
+      'Follow-ups (Total)',
+      'Follow-ups Open',
+      'Follow-ups Closed',
+      'Follow-ups (sync to CXP)',
+      'Test Drives (Total)',
+      'Test Drives Closed',
+      'Test Drives (sync to CXP)',
+    ];
 
-    this.http.get<any>(url, { headers }).subscribe({
-      next: (res) => {
-        const data = res.data;
+    const rows = this.dealers.map((dealer) => [
+      `"${dealer.dealerName}"`, // Wrap in quotes to handle commas
+      dealer.totalUsers,
+      dealer.activeUsers,
+      dealer.totalLeads,
+      dealer.cxpLeads,
+      dealer.icsLeads,
+      dealer.totalFollowUps,
+      dealer.openFollowUps,
+      dealer.closedFollowUps,
+      dealer.cxpFollowUps,
+      dealer.totalTestDrives,
+      dealer.closedTestDrives,
+      dealer.cxpTestDrives,
+    ]);
 
-        // ✅ Assign KPI values
-        this.leads = data.leads ?? 0;
-        this.currentLeads = data.current ?? 0;
-        this.previousLeads = data.previous ?? 0;
-        this.changeLeads = data.change ?? 0;
+    const csvContent = [
+      headers.join(','),
+      ...rows.map((r) => r.join(',')),
+    ].join('\n');
 
-        this.testDrives = data.testDrives ?? 0;
-        this.currentTestDrives = data.currentTestDrives ?? 0;
-        this.previousTestDrives = data.previousTestDrives ?? 0;
-        this.testDriveChange = data.testDriveChange ?? 0;
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
 
-        this.orders = data.orders ?? 0;
-        this.currentOrders = data.currentOrders ?? 0;
-        this.previousOrders = data.previousOrders ?? 0;
-        this.orderChange = data.orderChange ?? 0;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'dealer_summary.csv';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  exportUserCallLogsToCSV() {
+    console.log('Export User Call Logs clicked', this.dealers); // Debug
 
-        // ✅ Show Doughnut Chart for MTD, QTD, YTD
-        if (['MTD', 'QTD', 'YTD'].includes(period)) {
-          const totalTestDrives = data.totalTestDrives ?? 0;
-          const totalOrders = data.totalOrders ?? 0;
-          this.createDoughnutChart(totalTestDrives, totalOrders);
-        } else {
-          // ❌ Destroy chart for other filters (e.g., 'today')
-          if (this.doughnutChart) {
-            this.doughnutChart.destroy();
-            this.doughnutChart = null;
-          }
-        }
+    if (!this.dealers || this.dealers.length === 0) {
+      console.warn('No dealers to export');
+      return;
+    }
 
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('API error:', err);
-      },
+    const headers = [
+      'Dealer',
+      'User',
+      'Role',
+      'Active',
+      'Total Calls',
+      'Outgoing',
+      'Incoming',
+      'Connected',
+      'Declined',
+      'Duration',
+    ];
+
+    const rows: any[] = [];
+
+    const fetchPromises = this.dealers.map((dealer) => {
+      // If userCallLogs already exist, use them
+      if (this.userCallLogs[dealer.dealerId]?.length) {
+        return Promise.resolve({
+          dealer,
+          users: this.userCallLogs[dealer.dealerId],
+        });
+      }
+
+      // Otherwise, fetch from API
+      const token = sessionStorage.getItem('token')!;
+      return this.dashboardService
+        .getDealerUsers(dealer.dealerId, this.selectedFilter, token)
+        .toPromise()
+        .then((res: any) => {
+          const dealerData = Array.isArray(res?.data?.dealerData)
+            ? res.data.dealerData.find(
+                (d: any) => d.dealerId === dealer.dealerId
+              )
+            : res?.data?.dealerData;
+
+          const users =
+            dealerData?.users?.map((user: any) => ({
+              userId: user.user_id,
+              name: user.user,
+              role: user.user_role,
+              active: user.active,
+              calls: user.calls
+                ? {
+                    total: user.calls.totalCalls,
+                    outgoing: user.calls.outgoing,
+                    incoming: user.calls.incoming,
+                    connected: user.calls.connected,
+                    declined: user.calls.declined,
+                    duration: this.formatDuration(user.calls.durationSec),
+                  }
+                : {
+                    total: 0,
+                    outgoing: 0,
+                    incoming: 0,
+                    connected: 0,
+                    declined: 0,
+                    duration: '0s',
+                  },
+            })) || [];
+
+          // Save to userCallLogs for future use
+          this.userCallLogs[dealer.dealerId] = users;
+
+          return { dealer, users };
+        })
+        .catch(() => ({ dealer, users: [] }));
+    });
+
+    // Wait for all dealer user logs to be ready
+    Promise.all(fetchPromises).then((dealerUsersList) => {
+      dealerUsersList.forEach(({ dealer, users }) => {
+        users.forEach((user: any) => {
+          rows.push([
+            `"${dealer.dealerName}"`,
+            `"${user.name}"`,
+            `"${user.role}"`,
+            user.active ? 'Active' : 'Inactive',
+            user.calls?.total || 0,
+            user.calls?.outgoing || 0,
+            user.calls?.incoming || 0,
+            user.calls?.connected || 0,
+            user.calls?.declined || 0,
+            `"${user.calls?.duration || '0s'}"`,
+          ]);
+        });
+      });
+
+      // Generate CSV
+      const csvContent = [
+        headers.join(','),
+        ...rows.map((r) => r.join(',')),
+      ].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'dealer_calls.csv';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     });
   }
-  loadInitialDealers() {
-    this.paginatedDealers = this.dealers.slice(0, this.itemsPerPage);
-    this.currentIndex = this.paginatedDealers.length;
-    this.showMoreActive = false;
-  }
-  toggleShowMoreCallLogs() {
-    if (this.callLogsItemsToShow >= this.dealers.length) {
-      // Show Less → back to first 10
-      this.callLogsItemsToShow = 10;
-    } else {
-      // Show next 10
-      this.callLogsItemsToShow = Math.min(
-        this.callLogsItemsToShow + 10,
-        this.dealers.length
-      );
-    }
-    this.updateDisplayedCallLogs();
-  }
-  updateDisplayedCallLogs() {
-    this.displayedCallLogs = this.dealers.slice(0, this.callLogsItemsToShow);
-    this.showMoreCallLogsVisible =
-      this.callLogsItemsToShow < this.dealers.length;
-  }
-
-  // toggleShowMore() {
-  //   if (this.showMoreActive) {
-  //     // Show Less → reset to first 10 dealers
-  //     this.loadInitialDealers();
-  //   } else {
-  //     // Show More → next 10 dealers
-  //     const nextIndex = Math.min(
-  //       this.currentIndex + this.itemsPerPage,
-  //       this.dealers.length
-  //     );
-  //     this.paginatedDealers = this.dealers.slice(0, nextIndex);
-  //     this.currentIndex = nextIndex;
-  //     this.showMoreActive = true;
-  //   }
-  // }
-
-  // toggleShowMore() {
-  //   if (this.itemsToShow >= this.dealers.length) {
-  //     // Reset to initial 10
-  //     this.itemsToShow = 10;
-  //   } else {
-  //     // Show all remaining dealers
-  //     this.itemsToShow = this.dealers.length;
-  //   }
-  //   this.updateDisplayedDealers();
-  // }
-  toggleShowMore() {
-    if (this.itemsToShow >= this.dealers.length) {
-      // Show Less → back to first 10
-      this.itemsToShow = 10;
-    } else {
-      // Show next 10
-      this.itemsToShow = Math.min(this.itemsToShow + 10, this.dealers.length);
-    }
-    this.updateDisplayedDealers();
-  }
-  loadTodayData(): void {
-    this.selectedPeriod = ''; // ensure no filter is highlighted
-    this.applyFilter('today');
-  }
-  // Load More / Show Less button
-  loadMoreDealerUsers() {
-    if (this.itemsToShow >= this.dealerUsers.length) {
-      // Show Less
-      this.itemsToShow = 10;
-    } else {
-      // Load More
-      this.itemsToShow += 10;
-    }
-    this.displayedDealerUsers = this.dealerUsers.slice(0, this.itemsToShow);
-  }
-  populateDealerUsers(dealer: any) {
-    // Map dealer.users array to dealerUsers
-    this.dealerUsers =
-      dealer.users?.map((user: any) => ({
-        user_name: user.user_name || 'N/A',
-        user_role: user.user_role || 'N/A',
-        enquiries: user.enquiries || 0,
-        followUps: user.followUps || 0,
-        overdueFollowups: user.overdueFollowups || 0,
-        testDrives: user.testDrives || 0,
-        overdueTestDrives: user.overdueTestDrives || 0,
-      })) || [];
-
-    // Initialize pagination
-    this.itemsToShow = 10;
-    this.displayedDealerUsers = this.dealerUsers.slice(0, this.itemsToShow);
-  }
-
-  // Logic for calculating the color (green for positive, red for negative)
-  // getColor(value: number): string {
-  //   return value >= 0 ? 'green' : 'red';
-  // }
-
-  // Get change data for comparison (e.g., since last month)
-  // getChangeData(currentValue: number, prevValue: number) {
-  //   const change = currentValue - prevValue;
-  //   const changePercentage = ((change / prevValue) * 100).toFixed(2);
-  //   return {
-  //     color: change >= 0 ? 'green' : 'red',
-  //     value: `${change >= 0 ? '+' : ''}${changePercentage}%`,
-  //   };
-  // }
 }
-// calculateChange(current: number, previous: number): string {
-//   console.log('Current:', current, 'Previous:', previous);
-
-//   // If previous is null or undefined, display "No data"
-//   if (previous === null || previous === undefined) {
-//     return `<span style='color: grey;'>No data</span>`;
-//   }
-
-//   // Handle previous = 0 safely to avoid Infinity
-//   if (previous === 0) {
-//     if (current === 0) {
-//       return `<span style='color: grey;'>0%</span>`;
-//     }
-//     // If previous is 0 and current is non-zero, treat it as +100% or -100%
-//     const sign = current > 0 ? '+' : '-';
-//     const color = current > 0 ? 'green' : 'red';
-//     return `<span style='color: ${color};'>${sign}100%</span>`;
-//   }
-
-//   // Normal percentage calculation (for non-zero previous)
-//   const change = ((current - previous) / previous) * 100;
-//   const sign = change > 0 ? '+' : change < 0 ? '-' : '';
-//   const color = change > 0 ? 'green' : change < 0 ? 'red' : 'grey';
-
-//   return `<span style='color: ${color};'>${sign}${Math.abs(change).toFixed(
-//     1
-//   )}%</span>`;
-// }
-
-// calculateChange(current: number, previous: number): string {
-//   console.log('Current:', current, 'Previous:', previous);
-
-//   if (previous === null || previous === undefined) {
-//     return `<span style='color: grey;'>No data</span>`;
-//   }
-
-//   if (previous === 0) {
-//     if (current === 0) {
-//       return `<span style='color: grey;'>0%</span>`;
-//     }
-//     const sign = current > 0 ? '+' : '-'; // sign will be '+'
-//     const color = current > 0 ? 'green' : 'red'; // color will be 'green'
-//     return `<span style='color: ${color};'>${sign}100%</span>`; // This will return '<span style='color: green;'>+100%</span>'
-//   }
-
-//   const change = ((current - previous) / previous) * 100;
-//   const sign = change > 0 ? '+' : change < 0 ? '-' : '';
-//   const color = change > 0 ? 'green' : change < 0 ? 'red' : 'grey';
-
-//   return `<span style='color: ${color};'>${sign}${Math.abs(change).toFixed(
-//     1
-//   )}%</span>`;
-// }
-
-//   getChangeData(
-//     current: number,
-//     previous: number
-//   ): { value: string; color: string } {
-//     if (previous === null || previous === undefined) {
-//       return { value: 'No data', color: 'text-muted' };
-//     }
-
-//     if (previous === 0) {
-//       if (current === 0) {
-//         return { value: '0%', color: 'text-muted' };
-//       }
-//       const sign = current > 0 ? '+' : '-';
-//       const color = current > 0 ? 'text-success' : 'text-danger';
-//       return { value: `${sign}100%`, color };
-//     }
-
-//     const change = ((current - previous) / previous) * 100;
-//     const sign = change > 0 ? '+' : change < 0 ? '-' : '';
-//     const color =
-//       change > 0 ? 'text-success' : change < 0 ? 'text-danger' : 'text-muted';
-
-//     return {
-//       value: `${sign}${Math.abs(change).toFixed(1)}%`,
-//       color,
-//     };
-//   }
-// }

@@ -1,5 +1,5 @@
 <ng-container *ngIf="!selectedDealer && !selectedSM">
-  <div class="dashboard-container">
+  <!-- <div class="dashboard-container" > -->
 
     <div class="header2" [ngClass]="{ 'sidebar-open': isSidebarOpen, 'sidebar-closed': !isSidebarOpen }"
       style="border-radius:7px;padding:10px;margin-top:-10px;">
@@ -18,12 +18,32 @@
       </div>
       <div class="time-filter-container">
         <select [(ngModel)]="selectedFilter" (change)="onFilterChange(selectedFilter)" class="time-dropdown">
-          <option value="DAY">Today</option>
-          <option value="WEEK">1 Week</option>
-          <option value="MTD">1 Month</option>
-          <option value="QTD">1 Quarter</option>
-          <option value="YTD">1 Year</option>
-          <option value="CUSTOM">Custom</option>
+        
+               <option value="Today">Today</option> 
+                <option value="Yesterday">Yesterday</option>
+                <option value="This Week">This Week</option>
+                                <option value="Last Week">Last Week</option>
+
+               
+
+                                <option value="This Month">This Month</option>
+
+                                <option value="Last Month">Last Month</option>
+
+                                <option value="This Quarter">This Quarter</option>
+                                <option value="Last Quarter">Last Quarter</option>
+
+                                <option value="Last 6 Months">Last 6 Months</option>
+
+                              <option value="This Year">This Year</option>
+                              <option value="Lifetime">Lifetime</option>
+  <option value="CUSTOM">Custom</option> <!-- ✅ added -->
+
+
+
+
+
+
         </select>
 
         <div *ngIf="selectedFilter === 'CUSTOM'" class="custom-inputs">
@@ -59,23 +79,7 @@
 
     <!-- HOME TAB CONTENT -->
     <div *ngIf="selectedSection === 'activities'" class="content-section active">
-      <!-- Top bar -->
-      <!-- <header class="dashboard-header">
-  <div class="header-container">
-    <div class="header-content">
-      <div>
-        <h1 class="main-title">Dealer Performance Dashboard</h1>
-        <p class="subtitle">Track users, leads, follow-ups, test drives & calls.</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn btn-secondary" >
-          <i class="icon-refresh"></i>
-          Refresh
-        </button>
-      </div>
-    </div>
-  </div>
-</header> -->
+
 
       <!-- Content -->
       <main class="main-content">
@@ -124,385 +128,335 @@
     </div>
   </section> -->
 
-        <!-- KPI Cards -->
+
         <section class="kpi-section">
           <div class="kpi-card">
             <div class="kpi-label">Dealers</div>
-            <div class="kpi-value-container">
-              <div class="kpi-value">3</div>
-              <span class="chip">Active Network</span>
-            </div>
+            <div class="kpi-value" style="color:black;">{{ kpiData.dealers }}</div>
+            <!-- <span class="chip" style="color:black;">Active Network: {{ kpiData.activeNetwork }}</span> -->
+            <div class="kpi-secondary">Network: <span class="kpi-highlight">{{ kpiData.activeNetwork }}</span></div>
+
           </div>
+
           <div class="kpi-card">
             <div class="kpi-label">Users</div>
-            <div class="kpi-value">6</div>
-            <div class="kpi-secondary">Active: <span class="kpi-highlight">5</span></div>
+            <div class="kpi-value" style="color:black;">{{ kpiData.users }}</div>
+            <div class="kpi-secondary">Active: <span class="kpi-highlight">{{ kpiData.activeUsers }}</span></div>
           </div>
+
           <div class="kpi-card">
             <div class="kpi-label">Leads</div>
-            <div class="kpi-value">120</div>
+            <div class="kpi-value" style="color:black;">{{ kpiData.leads }}</div>
             <div class="kpi-secondary">Across all dealers</div>
           </div>
+
           <div class="kpi-card">
             <div class="kpi-label">Calls</div>
-            <div class="kpi-value">208</div>
+            <div class="kpi-value" style="color:black;">{{ kpiData.calls }}</div>
             <div class="kpi-secondary">Total volume</div>
           </div>
         </section>
 
+
         <!-- Table 1: Users / Leads / Follow-ups / Test Drives -->
         <div class="table-section">
-          <div class="table-header">
+          <!-- <div class="table-header">
             <div>
               <h2 class="table-title">Dealer Summary — Engagement</h2>
               <p class="table-subtitle">Users, Leads, Follow-ups, Test Drives (with CXP/ICS sync)</p>
             </div>
             <div class="table-actions">
-              <button class="btn btn-small btn-secondary">
+
+              <button type="button" class="btn btn-small btn-secondary" (click)="exportToCSV()">
+                <i class="icon-download"></i> Export CSV
+              </button>
+            </div>
+          </div> -->
+          <div class="table-header">
+            <div>
+              <h2 class="table-title">Dealer Summary — Engagement</h2>
+              <p class="table-subtitle">Users, Leads, Follow-ups, Test Drives (with CXP/ICS sync)</p>
+            </div>
+
+            <div class="table-actions flex items-center gap-2">
+
+          
+        <!-- Dealer Dropdown -->
+    <div class="dropdown" [class.show]="dropdownOpen">
+      <button class="btn btn-small btn-primary dropdown-toggle" type="button" (click)="toggleDropdown()">
+        {{ selectedDealers.length > 0 ? 'Dealers Selected (' + selectedDealers.length + ')' : 'Select Dealers' }}
+      </button>
+    
+      <div class="dropdown-menu show" *ngIf="dropdownOpen">
+        <!-- 🔍 Search box -->
+        <div class="px-2 py-1">
+          <input type="text" class="form-control" placeholder="Search dealers..." [(ngModel)]="dealerSearch"
+            (input)="filterDealers()" (click)="$event.stopPropagation()" />
+        </div>
+    
+        <!-- ✅ Select All + Clear row -->
+      <!-- ✅ Select All + Clear row -->  
+    <div class="d-flex justify-content-between align-items-center px-2 py-1 border-bottom">
+      <!-- Left: Select All -->
+      <label class="mb-0 d-flex align-items-center" (click)="$event.stopPropagation()">
+        <input type="checkbox" class="me-2" [checked]="areAllSelected()"
+          (change)="toggleSelectAll($event); $event.stopPropagation()" />
+        Select All
+      </label>
+    
+      <!-- Right: Clear -->
+      <button type="button" class="btn btn-link btn-sm text-danger p-0 ms-auto" style="margin-left:120px;"
+        (click)="clearSelection(); $event.stopPropagation()">
+        Clear
+      </button>
+    </div>
+
+    
+        <!-- Dealer list with checkboxes -->
+        <ng-container *ngIf="filteredDealers.length > 0; else noDealers">
+          <button *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
+            (click)="$event.stopPropagation()">
+            <input type="checkbox" class="me-2" [checked]="isDealerSelected(dealer)"
+              (change)="toggleDealerSelection(dealer)" style="border:1px solid black" />
+            {{ dealer.dealerName }}
+          </button>
+        </ng-container>
+    
+        <!-- 🚫 No dealers found fallback -->
+        <ng-template #noDealers>
+          <div class="dropdown-item text-muted text-center">
+            No dealers found
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+
+
+              <!-- Export CSV button -->
+              <button type="button" class="btn btn-small btn-secondary" (click)="exportToCSV()">
                 <i class="icon-download"></i> Export CSV
               </button>
             </div>
           </div>
+
 
           <div class="table-container">
             <table class="data-table">
               <thead class="table-thead">
                 <tr>
                   <th class="sticky-col-header th-left">Dealer</th>
-                  <th class="th-right">Total Users</th>
-                  <th class="th-right">Active Users</th>
-                  <th class="th-right">Leads (Total)</th>
-                  <th class="th-right">Leads (sync to CXP)</th>
-                  <th class="th-right">Leads (sync to ICS)</th>
-                  <th class="th-right">Follow-ups (Total)</th>
-                  <th class="th-right">Follow-ups Open</th>
-                  <th class="th-right">Follow-ups Closed</th>
-                  <th class="th-right">Follow-ups (sync to CXP)</th>
-                  <th class="th-right">Test Drives (Total)</th>
-                  <th class="th-right">Test Drives Closed</th>
-                  <th class="th-right th-rounded-right">Test Drives (sync to CXP)</th>
-                </tr>
-              </thead>
-<tbody>
-  <ng-container *ngFor="let dealer of dealers; let i = index">
-    <!-- Main Row -->
-    <tr class="table-row">
-      <td class="sticky-col td-font-medium">
-        <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
-          <span class="arrow">
-            {{ expandedRow === 'engagement-' + i ? 'v' : '>' }}
-          </span>
-          {{ dealer.dealerName }}
-        </button>
-      </td>
-      <td class="td-right">{{ dealer.totalUsers }}</td>
-      <td class="td-right">{{ dealer.activeUsers }}</td>
-      <td class="td-right">{{ dealer.totalLeads }}</td>
-      <td class="td-right">{{ dealer.cxpLeads }}</td>
-      <td class="td-right">{{ dealer.icsLeads }}</td>
-      <td class="td-right">{{ dealer.totalFollowUps }}</td>
-      <td class="td-right">{{ dealer.openFollowUps }}</td>
-      <td class="td-right">{{ dealer.closedFollowUps }}</td>
-      <td class="td-right">{{ dealer.cxpFollowUps }}</td>
-      <td class="td-right">{{ dealer.totalTestDrives }}</td>
-      <td class="td-right">{{ dealer.closedTestDrives }}</td>
-      <td class="td-right">{{ dealer.cxpTestDrives }}</td>
-    </tr>
+                  <!-- <th class="th-right">Total Users</th> -->
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('totalUsers')">
+                    Total Users
+                    <span *ngIf="sortColumn === 'totalUsers' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+                  <!-- <th class="th-right">Active Users</th> -->
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('activeUsers')">
+                    Active Users
+                    <span *ngIf="sortColumn === 'activeUsers' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
 
-    <!-- Sub Row -->
-    <tr *ngIf="expandedRow === 'engagement-' + i" class="sub-row">
-      <td colspan="13" class="sub-row-content">
-        <div class="sub-row-inner">
-          <div class="sub-row-title">
-            User-wise details — {{ dealer.dealerName }}
-          </div>
-          <div class="sub-table-container">
-            <table class="sub-table">
-              <thead class="sub-table-thead">
-                <tr>
-                  <th>User</th>
-                  <th>Active</th>
-                  <th>Leads (Total)</th>
-                  <th>Leads (CXP)</th>
-                  <th>Leads (ICS)</th>
-                  <th>Follow-ups (Total)</th>
-                  <th>Open</th>
-                  <th>Closed</th>
-                  <th>Follow-ups (CXP)</th>
-                  <th>Test Drives (Total)</th>
-                  <th>Closed</th>
-                  <th>Test Drives (CXP)</th>
+                  <!-- <th class="th-right">Leads (Total)</th> -->
+
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('Leads')">
+                    Leads
+                    <span *ngIf="sortColumn === 'Leads' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+
+
+                  <!-- <th class="th-right">Leads (sync to CXP)</th> -->
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('cxpLeads')">
+                    Leads (sync to CXP)
+                    <span *ngIf="sortColumn === 'cxpLeads' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+
+
+                  <!-- <th class="th-right">Leads (sync to ICS)</th> -->
+                    <th class="th-right" style="cursor: pointer;" (click)="sortData('icsLeads')">
+                    Leads (sync to ICS)
+                      <span *ngIf="sortColumn === 'icsLeads' && sortDirection !== 'default'">
+                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                      </span>
+                    </th>
+                  <!-- <th class="th-right">Follow-ups (Total)</th> -->
+                    <th class="th-right" style="cursor: pointer;" (click)="sortData('totalFollowUps')">
+                    Follow-ups (Total)
+                      <span *ngIf="sortColumn === 'totalFollowUps' && sortDirection !== 'default'">
+                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                      </span>
+                    </th>
+                  <!-- <th class="th-right">Follow-ups Open</th> -->
+                    <th class="th-right" style="cursor: pointer;" (click)="sortData('openFollowUps')">
+                      Follow-ups Open
+                      <span *ngIf="sortColumn === 'openFollowUps' && sortDirection !== 'default'">
+                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                      </span>
+                    </th>
+                  <!-- <th class="th-right">Follow-ups Closed</th> -->
+                    <th class="th-right" style="cursor: pointer;" (click)="sortData('closedFollowUps')">
+                      Follow-ups Closed
+                      <span *ngIf="sortColumn === 'closedFollowUps' && sortDirection !== 'default'">
+                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                      </span>
+                    </th>
+                  <!-- <th class="th-right">Follow-ups (sync to CXP)</th> -->
+                    <th class="th-right" style="cursor: pointer;" (click)="sortData('cxpFollowUps')">
+                    Follow-ups (sync to CXP)
+                      <span *ngIf="sortColumn === 'cxpFollowUps' && sortDirection !== 'default'">
+                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                      </span>
+                    </th>
+                  <!-- <th class="th-right">Test Drives (Total)</th> -->
+                    <th class="th-right" style="cursor: pointer;" (click)="sortData('totalTestDrives')">
+                    Test Drives (Total)
+                      <span *ngIf="sortColumn === 'totalTestDrives' && sortDirection !== 'default'">
+                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                      </span>
+                    </th>
+                  <!-- <th class="th-right">Test Drives Closed</th> -->
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('closedTestDrives')">
+                    Test Drives Closed
+                    <span *ngIf="sortColumn === 'closedTestDrives' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+
+                  <!-- <th class="th-right">Unique Test Drives</th> -->
+                      <th class="th-right" style="cursor: pointer;" (click)="sortData('uniqueTestDrives')">
+                      Unique Test Drives
+                        <span *ngIf="sortColumn === 'uniqueTestDrives' && sortDirection !== 'default'">
+                          {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                        </span>
+                      </th>
+                  <!-- <th class="th-right">Completed Test Drives</th> -->
+                    <th class="th-right" style="cursor: pointer;" (click)="sortData('completedTestDrives')">
+                    Completed Test Drives
+                      <span *ngIf="sortColumn === 'completedTestDrives' && sortDirection !== 'default'">
+                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                      </span>
+                    </th>
+                  <!-- <th class="th-right th-rounded-right">Test Drives (sync to CXP)</th> -->
+                    <th class="th-right" style="cursor: pointer;" (click)="sortData('cxpTestDrives')">
+                    Test Drives (sync to CXP)
+                      <span *ngIf="sortColumn === 'cxpTestDrives' && sortDirection !== 'default'">
+                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                      </span>
+                    </th>
                 </tr>
               </thead>
+
               <tbody>
-                <!-- ✅ FIX: only dealer.dealer_id -->
-                <!-- <tr *ngFor="let user of dealerUsers[dealer.dealer_id]"> -->
-              <tr *ngFor="let user of dealerUsers[dealer.dealerId]">
-                <td>{{ user.user }}</td>
-                <td class="td-center">
-                  <span class="chip" [ngClass]="user.active ? 'chip-success' : 'chip-inactive'">
-                    {{ user.active ? 'Active' : 'Inactive' }}
-                  </span>
-                </td>
-                <td class="td-right">{{ user.leads.total }}</td>
-                <td class="td-right">{{ user.leads.cxp }}</td>
-                <td class="td-right">{{ user.leads.ics }}</td>
-                <td class="td-right">{{ user.followups.total }}</td>
-                <td class="td-right">{{ user.followups.open }}</td>
-                <td class="td-right">{{ user.followups.closed }}</td>
-                <td class="td-right">{{ user.followups.cxp }}</td>
-                <td class="td-right">{{ user.testdrives.total }}</td>
-                <td class="td-right">{{ user.testdrives.closed }}</td>
-                <td class="td-right">{{ user.testdrives.cxp }}</td>
-              </tr>
-              
-              <tr *ngIf="dealerUsers[dealer.dealerId]?.length === 0">
-                <td colspan="12" class="td-center">No Users Found</td>
-              </tr>
+                <ng-container
+                  *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : dealers); let i = index">
+                  <tr *ngIf="dealer" class="table-row">
+                    <td class="sticky-col td-font-medium">
+                      <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
+                        <span class="arrow">{{ expandedRow === 'engagement-' + i ? 'v' : '>' }}</span>
+                        {{ dealer.dealerName }}
+                      </button>
+                    </td>
+                    <td class="td-right">{{ dealer.totalUsers ?? 0 }}</td>
+                    <td class="td-right">{{ dealer.activeUsers ?? 0 }}</td>
+                    <td class="td-right">{{ dealer.totalLeads ?? 0 }}</td>
+                    <td class="td-right">{{ dealer.cxpLeads ?? 0 }}</td>
+                    <td class="td-right">{{ dealer.icsLeads ?? 0 }}</td>
+                    <td class="td-right">{{ dealer.totalFollowUps ?? 0 }}</td>
+                    <td class="td-right">{{ dealer.openFollowUps ?? 0 }}</td>
+                    <td class="td-right">{{ dealer.closedFollowUps ?? 0 }}</td>
+                    <td class="td-right">{{ dealer.cxpFollowUps ?? 0 }}</td>
+                    <td class="td-right">{{ dealer.totalTestDrives ?? 0 }}</td>
+                    <td class="td-right">{{ dealer.closedTestDrives ?? 0 }}</td>
+                    <td class="td-right">{{ dealer.uniqueTestDrives ?? 0 }}</td>
+                    <td class="td-right">{{ dealer.completedTestDrives ?? 0 }}</td>
+                    <td class="td-right">{{ dealer.cxpTestDrives ?? 0 }}</td>
+                  </tr>
 
-
-              
+                  <!-- Sub Row -->
+                  <tr *ngIf="expandedRow === 'engagement-' + i" class="sub-row">
+                    <td colspan="15" class="sub-row-content">
+                      <div class="sub-row-inner">
+                        <div class="sub-row-title" style="text-align: left;">
+                          User-wise details — {{ dealer.dealerName }}
+                        </div>
+                        <div class="sub-table-container">
+                          <table class="sub-table">
+                            <thead class="sub-table-thead">
+                              <tr>
+                                <th style="text-align:left">User</th>
+                                <th>Active</th>
+                                <th>Leads (Total)</th>
+                                <th>Leads (CXP)</th>
+                                <th>Leads (ICS)</th>
+                                <th>Follow-ups (Total)</th>
+                                <th>Open</th>
+                                <th>Closed</th>
+                                <th>Follow-ups (CXP)</th>
+                                <th>Test Drives (Total)</th>
+                                <th>Unique Test Drives</th>
+                                <th>Completed Test Drives</th>
+                                <th>Closed</th>
+                                <th>Test Drives (CXP)</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <!-- <tr *ngFor="let user of dealerUsers[dealer.dealerId] ?? []">
+                                <td style="text-align:left">{{ user.user }}</td>
+                                <td class="td-center">
+                                  <span class="chip" [ngClass]="user.active ? 'chip-success' : 'chip-inactive'">
+                                    {{ user.active ? 'Active' : 'Inactive' }}
+                                  </span>
+                                </td> -->
+                                <tr *ngFor="let user of getSortedUsers(dealer.dealerId)">
+                                  <td style="text-align:left">{{ user.user }}</td>
+                                  <td class="td-center">
+                                    <span class="chip" [ngClass]="user.active ? 'chip-success' : 'chip-inactive'">
+                                      {{ user.active ? 'Active' : 'Inactive' }}
+                                    </span>
+                                  </td>
+                                <td class="td-right">{{ user.leads?.total ?? 0 }}</td>
+                                <td class="td-right">{{ user.leads?.cxp ?? 0 }}</td>
+                                <td class="td-right">{{ user.leads?.ics ?? 0 }}</td>
+                                <td class="td-right">{{ user.followups?.total ?? 0 }}</td>
+                                <td class="td-right">{{ user.followups?.open ?? 0 }}</td>
+                                <td class="td-right">{{ user.followups?.closed ?? 0 }}</td>
+                                <td class="td-right">{{ user.followups?.cxp ?? 0 }}</td>
+                                <td class="td-right">{{ user.testdrives?.total ?? 0 }}</td>
+                                <td class="td-right">{{ user.testdrives?.unique ?? 0 }}</td>
+                                <td class="td-right">{{ user.testdrives?.completed ?? 0 }}</td>
+                                <td class="td-right">{{ user.testdrives?.closed ?? 0 }}</td>
+                                <td class="td-right">{{ user.testdrives?.cxp ?? 0 }}</td>
+                              </tr>
+                              <tr *ngIf="!dealerUsers[dealer.dealerId] || dealerUsers[dealer.dealerId]?.length === 0">
+                                <td colspan="14" class="td-center">No Users Found</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
               </tbody>
             </table>
           </div>
-        </div>
-      </td>
-    </tr>
-  </ng-container>
-</tbody>
 
-
-
-            </table>
-          </div>
         </div>
 
-        <!-- Table 2: Calls -->
-        <!-- <section class="table-section">
-    <div class="table-header">
-      <div>
-        <h2 class="table-title">Dealer Summary — Calls</h2>
-        <p class="table-subtitle">Call volumes and outcomes</p>
-      </div>
-      <div class="table-actions">
-        <button class="btn btn-small btn-secondary" >
-          <i class="icon-download"></i> Export CSV
-        </button>
-      </div>
-    </div>
 
-    <div class="table-container">
-      <table class="data-table calls-table">
-        <thead class="table-thead">
-          <tr>
-            <th class="sticky-col-header th-left">Dealer</th>
-            <th class="th-right">Total Calls</th>
-            <th class="th-right">Outgoing</th>
-            <th class="th-right">Incoming</th>
-            <th class="th-right">Connected</th>
-            <th class="th-right">Declined</th>
-            <th class="th-right th-rounded-right">Duration</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="table-row">
-            <td class="sticky-col td-font-medium">
-              <button class="expand-btn" onclick="toggleRow(this, 'calls-0')">
-                <i class="icon-chevron-right"></i>
-                Navnit Motors
-              </button>
-            </td>
-            <td class="td-right">108</td>
-            <td class="td-right">77</td>
-            <td class="td-right">31</td>
-            <td class="td-right">76</td>
-            <td class="td-right">13</td>
-            <td class="td-right">06:22:30</td>
-          </tr>
-
-          <tr id="calls-0" class="sub-row hidden">
-            <td colspan="7" class="sub-row-content">
-              <div class="sub-row-inner">
-                <div class="sub-row-title">User-wise call details — Navnit Motors</div>
-                <div class="sub-table-container">
-                  <table class="sub-table calls-sub-table">
-                    <thead class="sub-table-thead">
-                      <tr>
-                        <th class="th-left th-rounded-left">User</th>
-                        <th class="th-right">Total</th>
-                        <th class="th-right">Outgoing</th>
-                        <th class="th-right">Incoming</th>
-                        <th class="th-right">Connected</th>
-                        <th class="th-right">Declined</th>
-                        <th class="th-right th-rounded-right">Duration</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr class="table-row">
-                        <td class="td-font-medium">Amit Sharma</td>
-                        <td class="td-right">58</td>
-                        <td class="td-right">44</td>
-                        <td class="td-right">14</td>
-                        <td class="td-right">41</td>
-                        <td class="td-right">7</td>
-                        <td class="td-right">03:27:30</td>
-                      </tr>
-                      <tr class="table-row">
-                        <td class="td-font-medium">Neha Verma</td>
-                        <td class="td-right">39</td>
-                        <td class="td-right">26</td>
-                        <td class="td-right">13</td>
-                        <td class="td-right">27</td>
-                        <td class="td-right">5</td>
-                        <td class="td-right">02:20:50</td>
-                      </tr>
-                      <tr class="table-row">
-                        <td class="td-font-medium">Rohit Mehra</td>
-                        <td class="td-right">11</td>
-                        <td class="td-right">7</td>
-                        <td class="td-right">4</td>
-                        <td class="td-right">8</td>
-                        <td class="td-right">1</td>
-                        <td class="td-right">00:38:20</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </td>
-          </tr>
-
-          <tr class="table-row">
-            <td class="sticky-col td-font-medium">
-              <button class="expand-btn" onclick="toggleRow(this, 'calls-1')">
-                <i class="icon-chevron-right"></i>
-                AMP Motors, Delhi
-              </button>
-            </td>
-            <td class="td-right">69</td>
-            <td class="td-right">50</td>
-            <td class="td-right">19</td>
-            <td class="td-right">48</td>
-            <td class="td-right">9</td>
-            <td class="td-right">04:00:50</td>
-          </tr>
-
-          <tr id="calls-1" class="sub-row hidden">
-            <td colspan="7" class="sub-row-content">
-              <div class="sub-row-inner">
-                <div class="sub-row-title">User-wise call details — AMP Motors, Delhi</div>
-                <div class="sub-table-container">
-                  <table class="sub-table calls-sub-table">
-                    <thead class="sub-table-thead">
-                      <tr>
-                        <th class="th-left th-rounded-left">User</th>
-                        <th class="th-right">Total</th>
-                        <th class="th-right">Outgoing</th>
-                        <th class="th-right">Incoming</th>
-                        <th class="th-right">Connected</th>
-                        <th class="th-right">Declined</th>
-                        <th class="th-right th-rounded-right">Duration</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr class="table-row">
-                        <td class="td-font-medium">Karan Patel</td>
-                        <td class="td-right">44</td>
-                        <td class="td-right">33</td>
-                        <td class="td-right">11</td>
-                        <td class="td-right">30</td>
-                        <td class="td-right">6</td>
-                        <td class="td-right">02:35:50</td>
-                      </tr>
-                      <tr class="table-row">
-                        <td class="td-font-medium">Isha Gupta</td>
-                        <td class="td-right">25</td>
-                        <td class="td-right">17</td>
-                        <td class="td-right">8</td>
-                        <td class="td-right">18</td>
-                        <td class="td-right">3</td>
-                        <td class="td-right">01:25:00</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </td>
-          </tr>
-
-          <tr class="table-row">
-            <td class="sticky-col td-font-medium">
-              <button class="expand-btn" onclick="toggleRow(this, 'calls-2')">
-                <i class="icon-chevron-right"></i>
-                AMP Motors, Jaipur
-              </button>
-            </td>
-            <td class="td-right">31</td>
-            <td class="td-right">20</td>
-            <td class="td-right">11</td>
-            <td class="td-right">22</td>
-            <td class="td-right">4</td>
-            <td class="td-right">01:55:00</td>
-          </tr>
-
-          <tr id="calls-2" class="sub-row hidden">
-            <td colspan="7" class="sub-row-content">
-              <div class="sub-row-inner">
-                <div class="sub-row-title">User-wise call details — AMP Motors, Jaipur</div>
-                <div class="sub-table-container">
-                  <table class="sub-table calls-sub-table">
-                    <thead class="sub-table-thead">
-                      <tr>
-                        <th class="th-left th-rounded-left">User</th>
-                        <th class="th-right">Total</th>
-                        <th class="th-right">Outgoing</th>
-                        <th class="th-right">Incoming</th>
-                        <th class="th-right">Connected</th>
-                        <th class="th-right">Declined</th>
-                        <th class="th-right th-rounded-right">Duration</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr class="table-row">
-                        <td class="td-font-medium">Sana Khan</td>
-                        <td class="td-right">31</td>
-                        <td class="td-right">20</td>
-                        <td class="td-right">11</td>
-                        <td class="td-right">22</td>
-                        <td class="td-right">4</td>
-                        <td class="td-right">01:55:00</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </td>
-          </tr>
-        </tbody> 
-      
-      </table>
-    </div>
-  </section> -->
       </main>
-      <!-- </div>
-    </td>
-    </tr>
-    </ng-container>
-    </tbody>
-    </table>
-    </div>
-  </section>
-</main> -->
-
-      <!-- <div class="text-center mt-2" *ngIf="dealers.length > 10">
-      <button class="btn btn-primary" (click)="toggleShowMore()">
-        {{ itemsToShow >= dealers.length ? 'Show Less' : 'Show More' }}
-      </button>
-    </div> -->
 
     </div>
 
-  </div>
+  <!-- </div> -->
 
 
 
@@ -519,9 +473,13 @@
           <p class="table-subtitle">Call volumes and outcomes</p>
         </div>
         <div class="table-actions">
-          <button class="btn btn-small btn-secondary">
+          <!-- <button class="btn btn-small btn-secondary">
+            <i class="icon-download"></i> Export CSV
+          </button> -->
+          <button class="btn btn-small btn-secondary" (click)="exportUserCallLogsToCSV()">
             <i class="icon-download"></i> Export CSV
           </button>
+
         </div>
       </div>
 
@@ -529,7 +487,7 @@
         <table class="data-table calls-table">
           <thead class="table-thead">
             <tr>
-              <th class="sticky-col-header th-left">Dealer</th>
+              <th class="sticky-col-header th-left" style="width:18%">Dealer</th>
               <th class="th-right">Total Calls</th>
               <th class="th-right">Outgoing</th>
               <th class="th-right">Incoming</th>
@@ -539,182 +497,66 @@
             </tr>
           </thead>
           <tbody>
-            <tr class="table-row">
-              <td class="sticky-col td-font-medium">
-                <button class="expand-btn" onclick="toggleRow(this, 'calls-0')">
-                  <i class="icon-chevron-right"></i>
-                  Navnit Motors
-                </button>
-              </td>
-              <td class="td-right">108</td>
-              <td class="td-right">77</td>
-              <td class="td-right">31</td>
-              <td class="td-right">76</td>
-              <td class="td-right">13</td>
-              <td class="td-right">06:22:30</td>
-            </tr>
+            <ng-container *ngFor="let dealer of dealers; let i = index">
+              <!-- Main dealer row -->
+              <tr>
+                <td class="sticky-col td-font-medium">
+                  <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
+                    <span class="arrow" style-="width:18%3">
+                      {{ expandedRow === 'engagement-' + i ? 'v' : '>' }}
+                    </span>
+                    {{ dealer.dealerName }}
+                  </button>
+                </td>
+                <td>{{ dealer.callLogs?.totalCalls || 0 }}</td>
+                <td>{{ dealer.callLogs?.outgoing || 0 }}</td>
+                <td>{{ dealer.callLogs?.incoming || 0 }}</td>
+                <td>{{ dealer.callLogs?.connected || 0 }}</td>
+                <td>{{ dealer.callLogs?.declined || 0 }}</td>
+                <td>{{ dealer.callLogs?.duration || '00:00:00' }}</td>
+              </tr>
 
-            <tr id="calls-0" class="sub-row hidden">
-              <td colspan="7" class="sub-row-content">
-                <div class="sub-row-inner">
-                  <div class="sub-row-title">User-wise call details — Navnit Motors</div>
-                  <div class="sub-table-container">
-                    <table class="sub-table calls-sub-table">
-                      <thead class="sub-table-thead">
-                        <tr>
-                          <th class="th-left th-rounded-left">User</th>
-                          <th class="th-right">Total</th>
-                          <th class="th-right">Outgoing</th>
-                          <th class="th-right">Incoming</th>
-                          <th class="th-right">Connected</th>
-                          <th class="th-right">Declined</th>
-                          <th class="th-right th-rounded-right">Duration</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr class="table-row">
-                          <td class="td-font-medium">Amit Sharma</td>
-                          <td class="td-right">58</td>
-                          <td class="td-right">44</td>
-                          <td class="td-right">14</td>
-                          <td class="td-right">41</td>
-                          <td class="td-right">7</td>
-                          <td class="td-right">03:27:30</td>
-                        </tr>
-                        <tr class="table-row">
-                          <td class="td-font-medium">Neha Verma</td>
-                          <td class="td-right">39</td>
-                          <td class="td-right">26</td>
-                          <td class="td-right">13</td>
-                          <td class="td-right">27</td>
-                          <td class="td-right">5</td>
-                          <td class="td-right">02:20:50</td>
-                        </tr>
-                        <tr class="table-row">
-                          <td class="td-font-medium">Rohit Mehra</td>
-                          <td class="td-right">11</td>
-                          <td class="td-right">7</td>
-                          <td class="td-right">4</td>
-                          <td class="td-right">8</td>
-                          <td class="td-right">1</td>
-                          <td class="td-right">00:38:20</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </td>
-            </tr>
+              <!-- Sub-row: user call logs -->
+              <tr *ngIf="expandedRow === 'engagement-' + i">
+                <td colspan="7">
+                  <table class="sub-table calls-sub-table">
+                    <thead>
+                      <tr>
+                        <th style="text-align:left;width:15%">User</th>
+                        <th>Total</th>
+                        <th>Outgoing</th>
+                        <th>Incoming</th>
+                        <th>Connected</th>
+                        <th>Declined</th>
+                        <th>Duration</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let userCall of userCallLogs[dealer.dealerId]">
+                        <td style="text-align:left"> {{ userCall.name }}</td>
+                        <td>{{ userCall.calls.total }}</td>
+                        <td>{{ userCall.calls.outgoing }}</td>
+                        <td>{{ userCall.calls.incoming }}</td>
+                        <td>{{ userCall.calls.connected }}</td>
+                        <td>{{ userCall.calls.declined }}</td>
+                        <td>{{ userCall.calls.duration }}</td>
+                      </tr>
+                      <tr *ngIf="!userCallLogs[dealer.dealerId] || userCallLogs[dealer.dealerId]?.length === 0">
+                        <td colspan="7" style="text-align: center; font-style: italic;">
+                          No call logs found
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
 
-            <tr class="table-row">
-              <td class="sticky-col td-font-medium">
-                <button class="expand-btn" onclick="toggleRow(this, 'calls-1')">
-                  <i class="icon-chevron-right"></i>
-                  AMP Motors, Delhi
-                </button>
-              </td>
-              <td class="td-right">69</td>
-              <td class="td-right">50</td>
-              <td class="td-right">19</td>
-              <td class="td-right">48</td>
-              <td class="td-right">9</td>
-              <td class="td-right">04:00:50</td>
-            </tr>
-
-            <tr id="calls-1" class="sub-row hidden">
-              <td colspan="7" class="sub-row-content">
-                <div class="sub-row-inner">
-                  <div class="sub-row-title">User-wise call details — AMP Motors, Delhi</div>
-                  <div class="sub-table-container">
-                    <table class="sub-table calls-sub-table">
-                      <thead class="sub-table-thead">
-                        <tr>
-                          <th class="th-left th-rounded-left">User</th>
-                          <th class="th-right">Total</th>
-                          <th class="th-right">Outgoing</th>
-                          <th class="th-right">Incoming</th>
-                          <th class="th-right">Connected</th>
-                          <th class="th-right">Declined</th>
-                          <th class="th-right th-rounded-right">Duration</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr class="table-row">
-                          <td class="td-font-medium">Karan Patel</td>
-                          <td class="td-right">44</td>
-                          <td class="td-right">33</td>
-                          <td class="td-right">11</td>
-                          <td class="td-right">30</td>
-                          <td class="td-right">6</td>
-                          <td class="td-right">02:35:50</td>
-                        </tr>
-                        <tr class="table-row">
-                          <td class="td-font-medium">Isha Gupta</td>
-                          <td class="td-right">25</td>
-                          <td class="td-right">17</td>
-                          <td class="td-right">8</td>
-                          <td class="td-right">18</td>
-                          <td class="td-right">3</td>
-                          <td class="td-right">01:25:00</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </td>
-            </tr>
-
-            <tr class="table-row">
-              <td class="sticky-col td-font-medium">
-                <button class="expand-btn" onclick="toggleRow(this, 'calls-2')">
-                  <i class="icon-chevron-right"></i>
-                  AMP Motors, Jaipur
-                </button>
-              </td>
-              <td class="td-right">31</td>
-              <td class="td-right">20</td>
-              <td class="td-right">11</td>
-              <td class="td-right">22</td>
-              <td class="td-right">4</td>
-              <td class="td-right">01:55:00</td>
-            </tr>
-
-            <tr id="calls-2" class="sub-row hidden">
-              <td colspan="7" class="sub-row-content">
-                <div class="sub-row-inner">
-                  <div class="sub-row-title">User-wise call details — AMP Motors, Jaipur</div>
-                  <div class="sub-table-container">
-                    <table class="sub-table calls-sub-table">
-                      <thead class="sub-table-thead">
-                        <tr>
-                          <th class="th-left th-rounded-left">User</th>
-                          <th class="th-right">Total</th>
-                          <th class="th-right">Outgoing</th>
-                          <th class="th-right">Incoming</th>
-                          <th class="th-right">Connected</th>
-                          <th class="th-right">Declined</th>
-                          <th class="th-right th-rounded-right">Duration</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr class="table-row">
-                          <td class="td-font-medium">Sana Khan</td>
-                          <td class="td-right">31</td>
-                          <td class="td-right">20</td>
-                          <td class="td-right">11</td>
-                          <td class="td-right">22</td>
-                          <td class="td-right">4</td>
-                          <td class="td-right">01:55:00</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </td>
-            </tr>
+            </ng-container>
           </tbody>
 
+
         </table>
+
       </div>
     </section>
 
@@ -724,105 +566,8 @@
   <!-- </div> -->
 </ng-container>
 
-<!-- PS1 & PS2 Cards Section (only shown when SM is selected) -->
-<div class="ps-cards-page" *ngIf="selectedSM" style="margin-top: 40px;">
-  <button class="back-arrow" (click)="goBack()" title="Go Back">←</button>
-  <h2 style="margin: 16px 0;">{{ selectedSM.sm_name }}</h2>
-
-  <div class="ps-section" style="display: flex; gap: 40px; flex-wrap: wrap;">
-
-    <!-- Show PS cards if data exists -->
-    <ng-container *ngIf="paginatedPs1Data.length > 0; else noPSData">
-      <h3 style="font-weight: 600; margin-bottom: 16px;"></h3>
-      <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-        <div *ngFor="let item of paginatedPs1Data; let i = index" (mouseenter)="hoveredPS = item.ps_id"
-          (mouseleave)="hoveredPS = null" (click)="onPSCardClick(item.ps_id)"
-          style="background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06); padding: 16px; width: 120px; text-align: center; cursor: pointer; position: relative;">
-
-          <!-- Avatar -->
-          <div [ngStyle]="getAvatarStyle(i)">
-            {{ item.ps_name.charAt(0).toUpperCase() }}
-          </div>
-
-          <!-- Name -->
-          <div
-            style="font-size: 12px; font-weight: 600; color: #2c2c2c; margin-top: 8px; font-family: 'Poppins', sans-serif;">
-            {{ item.ps_name }}
-          </div>
-
-          <!-- Tooltip -->
-          <div *ngIf="hoveredPS === item.ps_id"
-            style="position: absolute; top: 90%; left: 50%; transform: translateX(-50%); background: #f0f0ff; border: 1px solid #ccc; padding: 8px 12px; border-radius: 8px; font-size: 12px; color: #333; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.1); z-index: 10; text-align: left; line-height: 1.6;">
-            <div><strong>Enquiries:</strong> {{ item.enquiries }}</div>
-            <div><strong>Test Drives:</strong> {{ item.testDrives }}</div>
-            <div><strong>Orders:</strong> {{ item.orders }}</div>
-            <div><strong>Cancellations:</strong> {{ item.cancellations }}</div>
-            <div><strong>Net Orders:</strong> {{ item.netOrders }}</div>
-            <div><strong>Retail:</strong> {{ item.retail }}</div>
-          </div>
-        </div>
-      </div>
-      <div style="width: 100%; margin-top: 24px;">
-        <div style="display: flex; justify-content: flex-end; align-items: center; padding-right: 50px;">
-          <!-- <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1"
-            style="padding: 6px 12px; margin-right: 8px; border: 1px solid #ccc; background: #f5f5f5; color: #666; cursor: pointer;">
-            Prev
-          </button> -->
-          <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1" [ngStyle]="{
-              'padding': '6px 12px',
-              'margin-right': '8px',
-              'border': currentPage === 1 ? '1px solid #ccc' : '1px solid #222fb9',
-              'background': currentPage === 1 ? '#f5f5f5' : 'white',
-              'color': currentPage === 1 ? '#666' : '#222fb9',
-              'cursor': currentPage === 1 ? 'not-allowed' : 'pointer'
-            }">
-            Prev
-          </button>
 
 
-          <span style="margin: 0 8px; color: #555;">
-            Page {{ currentPage }} of {{ totalPs1Pages }}
-          </span>
-
-          <!-- <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPs1Pages"
-            style="padding: 6px 12px; margin-left: 8px; border: 1px solid #222fb9; background: white; color: #222fb9; cursor: pointer;">
-            Next
-          </button> -->
-          <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPs1Pages" [ngStyle]="{
-              'padding': '6px 12px',
-              'margin-left': '8px',
-              'border': currentPage === totalPs1Pages ? '1px solid #ccc' : '1px solid #222fb9',
-              'background': currentPage === totalPs1Pages ? '#f5f5f5' : 'white',
-              'color': currentPage === totalPs1Pages ? '#666' : '#222fb9',
-              'cursor': currentPage === totalPs1Pages ? 'not-allowed' : 'pointer'
-            }">
-            Next
-          </button>
-
-        </div>
-      </div>
-
-    </ng-container>
-
-    <!-- No PS message -->
-    <ng-template #noPSData>
-      <div *ngIf="!loadingPS" style="text-align: center; padding: 60px 20px; color: #666; font-style: italic;
-                  background-color: #f9f9f9; border-radius: 12px; margin-top: 20px;
-                  font-family: 'Poppins', sans-serif;  width: 100%;">
-        <!-- <div style="font-size: 48px; color: #ccc; margin-bottom: 16px;">
-          <i class="fas fa-user-slash"></i>
-        </div> -->
-        <!-- <div style="font-size: 18px; font-weight: 500; color: #888; margin-bottom: 8px;">
-          No PS data found
-        </div> -->
-        <div style="font-size: 14px; color: #aaa;">
-          There are no PS records available for <strong>{{ selectedSM.sm_name }}</strong>
-        </div>
-      </div>
-    </ng-template>
-
-  </div>
-</div>
 
 <!-- No PS data message -->
 
@@ -851,7 +596,7 @@
   });
 
   document.addEventListener('DOMContentLoaded', function () {
-    fetch('https://uat.smartassistapp.in/api/superAdmin/superAdmin-dashboardd') // Replace with your actual API endpoint
+    fetch('https://uat.smartassistapp.in/api/superAdmin / dashboardd') // Replace with your actual API endpoint
       .then(response => response.json())
       .then(data => {
         populateTable(data.data.rankings.leads); // Assuming the structure is data.data.rankings.leads

@@ -8211,7 +8211,8 @@ var il = class n {
     let i = sessionStorage.getItem("token"),
       e = new Kt({ Authorization: `Bearer ${i}` });
     return this.http.get(
-      "https://uat.smartassistapp.in/api/superAdmin/show-profile",
+      "https://uat.smartassistapp.in/api/
+superAdmin/show-profile",
       { headers: e }
     );
   }
@@ -20496,7 +20497,8 @@ var Ul = class n {
   constructor(i) {
     this.http = i;
   }
-  baseUrl = "https://uat.smartassistapp.in/api/superAdmin/dashboard";
+  baseUrl = "https://uat.smartassistapp.in/api/
+superAdmin/dashboard";
   getDealerActivities(i) {
     let e = sessionStorage.getItem("token"),
       t = new Kt({ Authorization: `Bearer ${e}` }),
@@ -21030,7 +21032,8 @@ var Wl = class n {
   progressValue = 0;
   strokeColor = "red";
   data;
-  apiUrl = "https://uat.smartassistapp.in/api/superAdmin/dashbaordNew";
+  apiUrl = "https://uat.smartassistapp.in/api/
+superAdmin/dashbaordNew";
   ngOnInit() {
     (this.currentDisplayCount = this.itemsPerPage),
       this.loadInitialDealers(),
@@ -21126,7 +21129,8 @@ var Wl = class n {
     let o = sessionStorage.getItem("token");
     if (!o) return;
     let r = new Kt({ Authorization: `Bearer ${o}` }),
-      a = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${i}&type=${e}`;
+      a = `https://uat.smartassistapp.in/api/
+superAdmin/dashboard/NoSM?dealer_id=${i}&type=${e}`;
     this.http.get(a, { headers: r }).subscribe({
       next: (s) => {
         (this.dealerSMS[i] =
@@ -21148,7 +21152,8 @@ var Wl = class n {
     let t = sessionStorage.getItem("token");
     if (!t) return;
     let o = new Kt({ Authorization: `Bearer ${t}` }),
-      r = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${e}&sm_id=${i}`;
+      r = `https://uat.smartassistapp.in/api/
+superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${e}&sm_id=${i}`;
     this.http.get(r, { headers: o }).subscribe({
       next: (a) => {
         this.psData[i] = a?.data?.ps || [];
@@ -21280,7 +21285,8 @@ var Wl = class n {
       let t = sessionStorage.getItem("token");
       if (!t) return;
       let o = new Kt({ Authorization: `Bearer ${t}` }),
-        r = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?dealer_id=${e}&sm_id=${i}&type=${this.selectedFilter}`;
+        r = `https://uat.smartassistapp.in/api/
+superAdmin/dashboard/view-activities?dealer_id=${e}&sm_id=${i}&type=${this.selectedFilter}`;
       this.http.get(r, { headers: o }).subscribe({
         next: (a) => {
           let s = a?.data?.dealers?.find((p) => p.dealer_id === e);
@@ -21396,7 +21402,8 @@ var Wl = class n {
     this.searchDealer(e.value);
   }
   fetchSuperAdminDashboard(i = "MTD") {
-    let e = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${i}`,
+    let e = `https://uat.smartassistapp.in/api/
+superAdmin/dashboard/NoSM?type=${i}`,
       t = sessionStorage.getItem("token"),
       o = new Kt({ Authorization: `Bearer ${t}` });
     this.http.get(e, { headers: o }).subscribe({
@@ -21445,7 +21452,8 @@ var Wl = class n {
     this.selectedDealerId = i;
     let e = sessionStorage.getItem("token"),
       t = new Kt({ Authorization: `Bearer ${e}` }),
-      o = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?dealer_id=${i}&type=${this.selectedFilter}`;
+      o = `https://uat.smartassistapp.in/api/
+superAdmin/dashboard/view-activities?dealer_id=${i}&type=${this.selectedFilter}`;
     this.http.get(o, { headers: t }).subscribe({
       next: (r) => {
         let a = r.data.dealers.find((s) => s.dealer_id === i);
@@ -21466,7 +21474,8 @@ var Wl = class n {
     }
     if (((this.selectedDealerId = i), !this.dealerSMS[i])) {
       this.loadingSM = !0;
-      let e = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${this.selectedFilter}&dealer_id=${i}`,
+      let e = `https://uat.smartassistapp.in/api/
+superAdmin/dashboard/view-activities?type=${this.selectedFilter}&dealer_id=${i}`,
         t = sessionStorage.getItem("token"),
         o = new Kt({ Authorization: `Bearer ${t}` });
       this.http.get(e, { headers: o }).subscribe({
@@ -21540,7 +21549,8 @@ var Wl = class n {
     }
     this.loadingPS = !0;
     let i = this.selectedFilter,
-      e = "https://uat.smartassistapp.in/api/superAdmin/dashbaordNew",
+      e = "https://uat.smartassistapp.in/api/
+superAdmin/dashbaordNew",
       t = this.selectedDealerId,
       o = this.selectedSM.sm_id,
       r = `${e}?type=${i}&dealer_id=${t}&sm_id=${o}`,
@@ -21603,7 +21613,8 @@ var Wl = class n {
       return;
     }
     let t = new Kt().set("Authorization", `Bearer ${e}`),
-      o = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${i}`;
+      o = `https://uat.smartassistapp.in/api/
+superAdmin/dashboard/view-activities?type=${i}`;
     this.http.get(o, { headers: t }).subscribe({
       next: (r) => {
         console.log(`API response for type=${i}:`, r);
@@ -21714,7 +21725,8 @@ var Wl = class n {
   }
   fetchData() {
     this.http
-      .get("https://uat.smartassistapp.in/api/superAdmin/dashbaordNew")
+      .get("https://uat.smartassistapp.in/api/
+superAdmin/dashbaordNew")
       .subscribe(
         (i) => {
           console.log("API Response:", i),
@@ -21836,7 +21848,8 @@ var Wl = class n {
     let t = new Kt().set("Authorization", `Bearer ${e}`);
     this.http
       .get(
-        `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${i}`,
+        `https://uat.smartassistapp.in/api/
+superAdmin/dashboard/view-activities?type=${i}`,
         { headers: t }
       )
       .subscribe(
@@ -21876,7 +21889,8 @@ var Wl = class n {
     let t = new Kt().set("Authorization", `Bearer ${e}`);
     this.http
       .get(
-        `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${i};`,
+        `https://uat.smartassistapp.in/api/
+superAdmin/dashboard/view-activities?type=${i};`,
         { headers: t }
       )
       .subscribe(
@@ -21981,7 +21995,8 @@ var Wl = class n {
     let e = sessionStorage.getItem("token");
     if (!e) return;
     let t =
-      "https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities";
+      "https://uat.smartassistapp.in/api/
+superAdmin/dashboard/view-activities";
     i && i !== "today" && (t += `?type=${i}`);
     let o = { Authorization: `Bearer ${e}` };
     this.http.get(t, { headers: o }).subscribe({
@@ -22179,7 +22194,8 @@ var Ye = class n {
     this.http = i;
     this.storageService = e;
   }
-  apiUrl = "https://uat.smartassistapp.in/api/superAdmin/";
+  apiUrl = "https://uat.smartassistapp.in/api/
+superAdmin/";
   getAuthHeaders() {
     let i = this.storageService.getItem("token");
     return (
@@ -44317,7 +44333,8 @@ var gs = class n {
   showConfirmPassword = !1;
   countdown = 0;
   countdownInterval;
-  API_BASE_URL = "https://uat.smartassistapp.in/api/";
+  API_BASE_URL = "https://uat.smartassistapp.in/api/
+";
   SESSION_TIMEOUT = 60 * 60 * 1e3;
   http = ne(ti);
   router = ne(Ti);
@@ -44860,7 +44877,8 @@ var bc = class n {
   }
   getProfileImage() {
     this.http
-      .get("https://uat.smartassistapp.in/api/superAdmin/show-profile")
+      .get("https://uat.smartassistapp.in/api/
+superAdmin/show-profile")
       .subscribe({
         next: (i) => {
           console.log("Fetched Profile Image:", i),

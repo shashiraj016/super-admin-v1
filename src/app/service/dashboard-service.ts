@@ -4,7 +4,7 @@
 
 // // @Injectable({ providedIn: 'root' })
 // // export class DashboardService {
-// //   private baseUrl = 'https://uat.smartassistapp.in/api/superAdmin/dashboard';
+// //   private baseUrl = 'https://uat.smartassistapp.in/api/
 
 // //   constructor(private http: HttpClient) {}
 
@@ -31,7 +31,7 @@
 
 // @Injectable({ providedIn: 'root' })
 // export class DashboardService {
-//   private baseUrl = 'https://uat.smartassistapp.in/api/superAdmin/dashboard';
+//   private baseUrl = 'https://uat.smartassistapp.in/api/
 
 //   constructor(private http: HttpClient) {}
 
@@ -71,7 +71,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
+type ApiFilter =
+  | 'DAY'
+  | 'Yesterday'
+  | 'Last Week'
+  | 'This Week'
+  | 'This month'
+  | 'Last month'
+  | 'This Quarter '
+  | 'Last Quarter'
+  | 'Last 6 Months'
+  | 'This Year'
+  | 'Lifetime'
+  | 'CUSTOM';
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
   private baseUrl = 'https://uat.smartassistapp.in/api/superAdmin/dashboard';
@@ -122,9 +134,41 @@ export class DashboardService {
   //     { headers }
   //   );
   // }
+  // getNoSMUsers(
+  //   dealerId: string,
+  //   type: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM' = 'MTD',
+  //   startDate?: string,
+  //   endDate?: string
+  // ): Observable<any> {
+  //   const sessionToken = sessionStorage.getItem('token');
+  //   const headers = new HttpHeaders({
+  //     Authorization: `Bearer ${sessionToken}`,
+  //   });
+
+  //   let url = `${this.baseUrl}/NoSM?dealer_id=${dealerId}&type=${type}`;
+
+  //   // Append custom date range if type is CUSTOM
+  //   if (type === 'CUSTOM' && startDate && endDate) {
+  //     url += `&start_date=${startDate}&end_date=${endDate}`;
+  //   }
+
+  //   return this.http.get(url, { headers });
+  // }
   getNoSMUsers(
     dealerId: string,
-    type: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM' = 'MTD',
+    type:
+      | 'Today'
+      | 'Yesterday'
+      | 'Last Week'
+      | 'This Week'
+      | 'This month'
+      | 'Last month'
+      | 'This Quarter'
+      | 'Last Quarter'
+      | 'Last 6 Months'
+      | 'This Year'
+      | 'Lifetime'
+      | 'CUSTOM' = 'This month',
     startDate?: string,
     endDate?: string
   ): Observable<any> {
@@ -135,7 +179,6 @@ export class DashboardService {
 
     let url = `${this.baseUrl}/NoSM?dealer_id=${dealerId}&type=${type}`;
 
-    // Append custom date range if type is CUSTOM
     if (type === 'CUSTOM' && startDate && endDate) {
       url += `&start_date=${startDate}&end_date=${endDate}`;
     }
@@ -162,6 +205,12 @@ export class DashboardService {
   }
   getDealerUsers(dealerId: string, type: string, token: string) {
     const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
+    return this.http.get(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }
+  getKpiData(token: string, type: string = 'MTD') {
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
     return this.http.get(url, {
       headers: { Authorization: `Bearer ${token}` },
     });

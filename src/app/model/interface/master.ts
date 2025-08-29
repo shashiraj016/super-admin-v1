@@ -207,19 +207,20 @@ export interface ApiResponse {
     dealers: Dealer[];
   };
 }
-interface CallLogs {
-  name?: string;
+
+export interface CallLogs {
+  totalCalls: number;
   outgoing: number;
   incoming: number;
   connected: number;
   declined: number;
-  duration: string;
+  durationSec: number; // API sends seconds, so keep it number
 }
 
 export interface User {
-  user_id: string;
-  user_name: string;
-  user_role: string;
+  userId: string;
+  userName: string;
+  userRole: string;
   upComingFollowups: number;
   overdueFollowups: number;
   upComingTestDrives: number;
@@ -230,31 +231,32 @@ export interface User {
   testDrives: number;
   orders: number;
   cancellations: number;
-  net_orders: number;
+  netOrders: number;
   retail: number;
   callLogs: CallLogs;
 }
 
 export interface Dealer {
-  dealer_id: string;
-  dealer_name: string;
-  dealer_email?: string;
-  upComingFollowups: number;
-  overdueFollowups: number;
-  upComingTestDrives: number;
-  completedTestDrives: number;
-  overdueTestDrives: number;
-  enquiries: number;
-  lostEnquiries: number;
-  testDrives: number;
-  cancellations: number;
-  orders: number;
-  net_orders: number;
-  retail: number;
-  totalUsersCount: number;
-  activeUsersCount: number;
+  dealerId: string;
+  dealerName: string;
+  dealerEmail?: string;
+  totalUsers: number;
+  activeUsers: number;
+  totalLeads: number;
+  cxpLeads: number;
+  icsLeads: number;
+  totalFollowUps: number;
+  openFollowUps: number;
+  closedFollowUps: number;
+  cxpFollowUps: number;
+  totalTestDrives: number;
+  uniqueTestDrives: number;
+  completedTestDrives:number;
+  closedTestDrives: number;
+  cxpTestDrives: number;
   callLogs: CallLogs;
-  user_list: User[];
+
+  users?: User[]; // optional, only if API returns it
 }
 
 // export interface SingleUserResponse {

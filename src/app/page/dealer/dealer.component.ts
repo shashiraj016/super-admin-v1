@@ -67,18 +67,18 @@ export class DealerComponent implements OnInit {
   pages: number[] = [];
   constructor(private modalService: NgbModal) {
     this.useForm = new FormGroup({
-      dealer_name: new FormControl(this.dealerObj.dealer_name, [
+      dealer_name: new FormControl(null, [
         Validators.required,
         Validators.minLength(2),
       ]),
-      dealer_code: new FormControl(this.dealerObj.dealer_code, [
+      dealer_code: new FormControl(null, [
         Validators.required,
         Validators.minLength(5),
       ]),
-      // dealer_email: new FormControl(this.dealerObj.dealer_email, [
-      //   Validators.required,
-      //   Validators.minLength(5),
-      // ]),
+      dealer_email: new FormControl(null, [
+        Validators.required,
+        Validators.email, // ✅ ensures proper email
+      ]),
     });
   }
 
@@ -88,7 +88,13 @@ export class DealerComponent implements OnInit {
     this.isModalOpen = true;
 
     console.log('open modal called');
-    this.useForm.reset();
+    // this.useForm.reset();
+    this.useForm.reset({
+      dealer_name: null,
+      dealer_code: null,
+      dealer_email: null,
+    });
+
     this.isModalVisible = true;
     if (dealer) {
       this.previousValue = dealer.dealer_name;
@@ -370,15 +376,49 @@ export class DealerComponent implements OnInit {
   closeDeleteModal() {
     this.isDeleteModalOpen = false;
   }
+  // onSave() {
+  //   if (this.useForm.invalid) {
+  //     this.useForm.markAllAsTouched(); // ✅ This ensures validation errors are shown
+  //     this.toastr.warning(
+  //       'Please fill all required fields correctly',
+  //       'Validation'
+  //     );
+  //     return;
+  //   }
+
+  //   // Proceed with creating or updating the dealer based on the mode
+  //   if (this.isEditMode) {
+  //     this.onUpdate(); // Update existing dealer
+  //   } else {
+  //     this.createNewDealer(); // Create new dealer
+  //   }
+
+  //   this.closeModal();
+  // }
+
+  // createNewDealer() {
+  //   this.masterSrv.createDealer(this.dealerObj).subscribe(
+  //     (res: dealers) => {
+  //       this.toastr.success('Dealer created successfully!', 'Success');
+  //       this.getAllDealer(); // Reload dealers list after creation
+  //     },
+  //     (error) => {
+  //       this.toastr.error('Error creating dealer', 'Error');
+  //     }
+  //   );
+  // }
   onSave() {
     if (this.useForm.invalid) {
-      this.useForm.markAllAsTouched(); // ✅ This ensures validation errors are shown
+      this.useForm.markAllAsTouched(); // ✅ Show validation errors
       this.toastr.warning(
         'Please fill all required fields correctly',
         'Validation'
       );
       return;
     }
+
+    // ✅ Log the form values before sending to backend
+    console.log('Form Values on Save:', this.useForm.value);
 
     // Proceed with creating or updating the dealer based on the mode
     if (this.isEditMode) {
@@ -394,7 +434,7 @@ export class DealerComponent implements OnInit {
   //   this.masterSrv.createDealer(this.dealerObj).subscribe(
   //     (res: dealers) => {
   //       this.toastr.success('Dealer created successfully!', 'Success');
-  //       this.getAllDealer(); // Reload dealers list after creation
+  //       this.getAllDealer(); // Reload the dealers list after creation
   //     },
   //     (error) => {
   //       this.toastr.error('Error creating dealer', 'Error');
@@ -402,16 +442,32 @@ export class DealerComponent implements OnInit {
   //   );
   // }
   createNewDealer() {
-    this.masterSrv.createDealer(this.dealerObj).subscribe(
+    if (this.useForm.invalid) {
+      this.useForm.markAllAsTouched();
+      this.toastr.warning(
+        'Please fill all required fields correctly',
+        'Validation'
+      );
+      return;
+    }
+
+    // ✅ Extract values from form
+    const payload = this.useForm.value;
+
+    console.log('Final Payload sent to API:', payload);
+
+    this.masterSrv.createDealer(payload).subscribe(
       (res: dealers) => {
         this.toastr.success('Dealer created successfully!', 'Success');
-        this.getAllDealer(); // Reload the dealers list after creation
+        this.getAllDealer();
       },
       (error) => {
+        console.error('Error creating dealer:', error);
         this.toastr.error('Error creating dealer', 'Error');
       }
     );
   }
+
   // onItemsPerPageChange(event: any) {
   //   this.itemsPerPage = parseInt(event.target.value, 10);
   //   this.currentPage = 1;
