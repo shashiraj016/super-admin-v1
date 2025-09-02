@@ -79,10 +79,10 @@
           <table id="example5" class="table display mb-4 dataTablesCard fs-14 w-100">
             <thead>
               <tr>
-                <th>Sr No</th>
-                <th>Dealer Name</th>
-                <th>Dealer Code</th>
-                <th>Dealer email</th>
+                <th  style="text-align: left;">Sr No</th>
+                <th style="text-align: left;">Dealer Name</th>
+                <th style="text-align: left;">Dealer Code</th>
+                <th style="text-align: left;">Dealer email</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -93,10 +93,10 @@
                 </td>
               </tr>
               <tr *ngFor="let dealer of paginatedDealers; let i = index">
-                <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
-                <td>{{ dealer.dealer_name }}</td>
-                <td>{{ dealer.dealer_code }}</td>
-                <td>{{dealer.dealer_email}}</td>
+                <td  style="text-align: left;">{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+                <td style="text-align: left;">{{ dealer.dealer_name }}</td>
+                <td style="text-align: left;">{{ dealer.dealer_code }}</td>
+                <td style="text-align: left;">{{dealer.dealer_email}}</td>
                 <td>
                   <div class="d-flex">
                     <a href="javascript:void(0);" class="btn shadow btn-xs sharp mr-1" (click)="onEdit(dealer.dealer_id)"

@@ -146,13 +146,13 @@
                             <thead>
 
                                 <tr>
-                                    <th>Sr No</th>
-                                    <th>Account ID</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Role</th>
-                                    <th>Dealer Code</th>
+                                    <th  style="text-align: left;">Sr No</th>
+                                    <th style="text-align: left;">Account ID</th>
+                                    <th style="text-align: left;">Name</th>
+                                    <th style="text-align: left;">Email</th>
+                                    <th style="text-align: left;">Phone</th>
+                                    <th style="text-align: left;">Role</th>
+                                    <th style="text-align: left;">Dealer Code</th>
                                     <!-- <th>Actions</th> -->
 
                                 </tr>
@@ -176,13 +176,13 @@
                                 </tr>
 
                                 <tr *ngFor="let user of paginatedUsers; let i = index">
-                                    <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
-                                    <td>{{ user.user_account_id || 'N/A' }}</td>
-                                    <td>{{ user.name || 'N/A' }}</td>
-                                    <td>{{ user.email || 'N/A' }}</td>
-                                    <td>{{ user.phone || 'N/A' }}</td>
-                                    <td>{{ user.user_role || 'N/A' }}</td>
-                                    <td>{{ user.dealer_code || 'N/A' }}</td>
+                                    <td style="text-align: left;">{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+                                    <td style="text-align: left;">{{ user.user_account_id || 'N/A' }}</td>
+                                    <td style="text-align: left;">{{ user.name || 'N/A' }}</td>
+                                    <td style="text-align: left;">{{ user.email || 'N/A' }}</td>
+                                    <td style="text-align: left;">{{ user.phone || 'N/A' }}</td>
+                                    <td style="text-align: left;">{{ user.user_role || 'N/A' }}</td>
+                                    <td style="text-align: left;">{{ user.dealer_code || 'N/A' }}</td>
 
                                     <!-- <td>
                                     <a [routerLink]="['/Admin/single-user', user.user_id]"
@@ -258,18 +258,18 @@
                         <table class="table mb-4 dataTablesCard fs-14">
                             <thead>
                                 <tr>
-                                    <th>Sr No</th>
-                                    <th>Lead<br> Code</th>
-                                    <th>Dealer <br>Name</th>
-                                    <th>Status</th>
-                                    <th>Purchase <br> Type</th>
-                                    <th>Type</th>
-                                    <th>Sub <br>Type</th>
-                                    <th>Brand</th>
-                                    <th>PMI</th>
-                                    <th>Lead<br> Source</th>
-                                    <th>Last<br> Name</th>
-                                    <th>Mobile</th>
+                                    <th style="text-align: left;">Sr No</th>
+                                    <th style="text-align: left;">Lead<br> Code</th>
+                                    <th style="text-align: left;">Dealer <br>Name</th>
+                                    <th style="text-align: left;">Status</th>
+                                    <th style="text-align: left;">Purchase <br> Type</th>
+                                    <th style="text-align: left;">Type</th>
+                                    <th style="text-align: left;">Sub <br>Type</th>
+                                    <th style="text-align: left;">Brand</th>
+                                    <th style="text-align: left;">PMI</th>
+                                    <th style="text-align: left;">Lead<br> Source</th>
+                                    <th style="text-align: left;">Last<br> Name</th>
+                                    <th style="text-align: left;">Mobile</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -287,7 +287,7 @@
                                     </td>
                                 </tr>
 
-                                <tr *ngFor="let lead of paginatedLeads; let i = index">
+                                <tr *ngFor="let lead of paginatedLeads; let i = index" style="text-align: left;">
                                     <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
                                     <td>{{ lead.lead_code || 'N/A' }}</td>
                                     <td>{{ lead.dealer_name || 'N/A' }}</td>
@@ -358,7 +358,7 @@
 
                     <div class="table-responsive" style="overflow-x: auto; width: 100%;">
                         <table class="table mb-4 dataTablesCard fs-14">
-                            <thead>
+                            <thead style="text-align:left">
                                 <tr>
                                     <th>Sr No</th>
                                     <th>Opportunity <br>Name</th>
@@ -396,7 +396,7 @@
                                 </tr>
 
 
-                                <tr *ngFor="let opp of paginatedOpportunities; let i = index">
+                                <tr *ngFor="let opp of paginatedOpportunities; let i = index" style="text-align:left">
                                     <td>{{ (currentOpportunityPage - 1) * opportunityItemsPerPage + i + 1 }}</td>
                                     <td>
                                         {{ opp.opportunity_name }}
@@ -525,7 +525,7 @@
 
                         <div class="table-responsive" style="overflow-x: auto; width: 100%;">
                             <table class="table mb-4 dataTablesCard fs-14">
-                                <thead>
+                                <thead style="text-align:left">
                                     <tr>
                                         <th>Sr No</th>
                                         <th>Subject</th>
@@ -560,7 +560,7 @@
                                         </td>
                                     </tr>
 
-                                    <tr *ngFor="let task of paginatedTasks; let i = index">
+                                    <tr *ngFor="let task of paginatedTasks; let i = index" style="text-align:left">
                                         <td>{{ (currentTaskPage - 1) * taskItemsPerPage + i + 1 }}</td>
                                         <td>
                                             {{ task.subject }}
@@ -670,7 +670,7 @@
 
                             <div class="table-responsive" style="overflow-x: auto; width: 100%;">
                                 <table class="table mb-4 dataTablesCard fs-14">
-                                    <thead>
+                                    <thead style="text-align:left">
                                         <tr>
                                             <th>Sr No</th>
                                             <th>Subject</th>
@@ -702,7 +702,7 @@
                                             </td>
                                         </tr>
 
-                                        <tr *ngFor="let event of paginatedEvents; let i = index">
+                                        <tr *ngFor="let event of paginatedEvents; let i = index" style="text-align:left">
                                             <td>{{ (currentEventPage - 1) * eventItemsPerPage + i + 1 }}</td>
                                             <td>{{ event.subject }}</td>
                                             <td>{{ event.assigned_to }}</td>

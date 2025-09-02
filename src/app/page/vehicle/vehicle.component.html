@@ -78,15 +78,15 @@
             <table id="example5" class="table display mb-4 dataTablesCard fs-14 w-100">
               <thead>
                 <tr>
-                  <th>Sr No</th>
-                  <th>Vehicle Name</th>
-                  <th>YOM</th>
-                  <th>Type</th>
-                  <th>VIN</th>
-                  <th>Chasis number</th>
-                  <th>Demo start date</th>
-                  <th>Demo end date</th>
-                  <th>Action</th>
+                  <th  style="text-align: left;">Sr No</th>
+                  <th style="text-align: left;">Vehicle Name</th>
+                  <th style="text-align: left;">YOM</th>
+                  <th style="text-align: left;">Type</th>
+                  <th style="text-align: left;">VIN</th>
+                  <th style="text-align: left;">Chasis number</th>
+                  <th style="text-align: left;">Demo start date</th>
+                  <th style="text-align: left;">Demo end date</th>
+                  <th style="text-align: left;">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -96,14 +96,14 @@
                   </td>
                 </tr>
                 <tr *ngFor="let vehicle of paginatedVehicles; let i = index">
-                  <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
-                  <td>{{ vehicle.vehicle_name }}</td>
-                  <td>{{ vehicle.YOM }}</td>
-                  <td>{{ vehicle.type }}</td>
-                  <td>{{ vehicle.VIN }}</td>
-                  <td>{{ vehicle.chasis_number }}</td>
-                  <td>{{ vehicle.demo_start_date }}</td>
-                  <td>{{ vehicle.demo_end_date }}</td>
+                  <td style="text-align: left;">{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+                  <td style="text-align: left;">{{ vehicle.vehicle_name }}</td>
+                  <td style="text-align: left;">{{ vehicle.YOM }}</td>
+                  <td style="text-align: left;">{{ vehicle.type }}</td>
+                  <td style="text-align: left;">{{ vehicle.VIN }}</td>
+                  <td style="text-align: left;">{{ vehicle.chasis_number }}</td>
+                  <td style="text-align: left;">{{ vehicle.demo_start_date }}</td>
+                  <td style="text-align: left;">{{ vehicle.demo_end_date }}</td>
                   <td>
                     <div class="d-flex">
                       <!-- <a href="javascript:void(0);" data-target=".bd-example-modal-lg" data-toggle="modal"

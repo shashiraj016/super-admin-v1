@@ -1,247 +1,127 @@
+
+
 <ng-container *ngIf="!selectedDealer && !selectedSM">
-  <!-- <div class="dashboard-container" > -->
-
-    <div class="header2" [ngClass]="{ 'sidebar-open': isSidebarOpen, 'sidebar-closed': !isSidebarOpen }"
-      style="border-radius:7px;padding:10px;margin-top:-10px;">
-      <div class="nav-button-group" style="margin-left:10px;">
-
-        <button class="nav-button" [ngClass]="{ 'active': selectedSection === 'activities' }"
-          (click)="selectSection('activities')">
-          <i class="fas fa-chart-line" style="margin-right: 6px; font-size:15px;"></i> Activities
+  <div class="header2" [ngClass]="{ 'sidebar-open': isSidebarOpen, 'sidebar-closed': !isSidebarOpen }"
+    style="border-radius:7px;padding:10px;margin-top:1rem;">
+    <div style=" display: inline-flex;">
+      <div class="dropdown" [class.show]="dropdownOpen" style="margin-right: 5px;">
+        <button class="time-dropdown dropdown-toggle" type="button" (click)="toggleDropdown()">
+          {{ selectedDealers.length > 0 ? 'Dealers Selected (' + selectedDealers.length + ')' : 'Select Dealers' }}
         </button>
+        <div class="dropdown-menu show" *ngIf="dropdownOpen">
+          <div class="px-2 py-1">
+            <input type="text" class="form-control" placeholder="Search dealers..." [(ngModel)]="dealerSearch"
+              (input)="filterDealers()" (click)="$event.stopPropagation()" />
+          </div>
 
-        <button class="nav-button" [ngClass]="{ 'active': selectedSection === 'callAnalysis' }"
-          (click)="selectSection('callAnalysis')">
-          <i class="fas fa-phone-alt" style="margin-right: 8px;"></i> Call Analysis
-        </button>
+          <div class="d-flex justify-content-between align-items-center px-2 py-1 border-bottom">
+            <label class="mb-0 d-flex align-items-center" (click)="$event.stopPropagation()">
+              <input type="checkbox" class="me-2" [checked]="areAllSelected()"
+                (change)="toggleSelectAll($event); $event.stopPropagation()" />
+              Select All
+            </label>
+            <button type="button" class="btn btn-link btn-sm text-danger p-0 ms-auto" style="margin-left:160px;"
+              (click)="clearSelection(); $event.stopPropagation()">
+              Clear
+            </button>
+          </div>
+          <ng-container *ngIf="filteredDealers.length > 0; else noDealers">
+            <button *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
+              (click)="$event.stopPropagation()">
+              <input type="checkbox" class="me-2" [checked]="isDealerSelected(dealer)"
+                (change)="toggleDealerSelection(dealer)" style="border:1px solid black" />
+              {{ dealer.dealerName }}
+            </button>
+          </ng-container>
 
-      </div>
-      <div class="time-filter-container">
-        <select [(ngModel)]="selectedFilter" (change)="onFilterChange(selectedFilter)" class="time-dropdown">
-        
-               <option value="Today">Today</option> 
-                <option value="Yesterday">Yesterday</option>
-                <option value="This Week">This Week</option>
-                                <option value="Last Week">Last Week</option>
-
-               
-
-                                <option value="This Month">This Month</option>
-
-                                <option value="Last Month">Last Month</option>
-
-                                <option value="This Quarter">This Quarter</option>
-                                <option value="Last Quarter">Last Quarter</option>
-
-                                <option value="Last 6 Months">Last 6 Months</option>
-
-                              <option value="This Year">This Year</option>
-                              <option value="Lifetime">Lifetime</option>
-  <option value="CUSTOM">Custom</option> <!-- ✅ added -->
-
-
-
-
-
-
-        </select>
-
-        <div *ngIf="selectedFilter === 'CUSTOM'" class="custom-inputs">
-          <input type="date" [(ngModel)]="customStartDate" placeholder="Start Date" class="custom-date" />
-          <input type="date" [(ngModel)]="customEndDate" placeholder="End Date" class="custom-date" />
-          <button (click)="applyCustomDate()" class="apply-btn">Apply</button>
-          <button (click)="resetCustomDate()" class="reset-btn">Reset</button>
+          <ng-template #noDealers>
+            <div class="dropdown-item text-muted text-center">
+              No dealers found
+            </div>
+          </ng-template>
         </div>
       </div>
+      <select [(ngModel)]="selectedFilter" (change)="onFilterChange(selectedFilter)" class="time-dropdown"
+        style="margin-right: 5px;">
+        <option value="Today">Today</option>
+        <option value="Yesterday">Yesterday</option>
+        <option value="This Week">This Week</option>
+        <option value="Last Week">Last Week</option>
+        <option value="This Month">This Month</option>
+        <option value="Last Month">Last Month</option>
+        <option value="This Quarter">This Quarter</option>
+        <option value="Last Quarter">Last Quarter</option>
+        <option value="Last 6 Months">Last 6 Months</option>
+        <option value="This Year">This Year</option>
+        <option value="Lifetime">Lifetime</option>
+        <option value="CUSTOM">Custom</option>
+      </select>
+      <div *ngIf="selectedFilter === 'CUSTOM'" class="custom-inputs">
+        <input type="date" [(ngModel)]="customStartDate" placeholder="Start Date" class="custom-date" />
+        <input type="date" [(ngModel)]="customEndDate" placeholder="End Date" class="custom-date" />
+        <button (click)="applyCustomDate()" class="apply-btn">Apply</button>
+        <button (click)="resetCustomDate()" class="reset-btn">Reset</button>
+      </div>
     </div>
-
-
-    <!--    
-<div class="time-filter-container">
-  <select [(ngModel)]="selectedFilter" (change)="onFilterChange(selectedFilter)" class="time-dropdown">
-    <option value="DAY">Today</option>
-    <option value="WEEK">1 Week</option>
-    <option value="MTD">1 Month</option>
-    <option value="QTD">1 Quarter</option>
-    <option value="YTD">1 Year</option>
-    <option value="CUSTOM">Custom</option>
-  </select>
-
-  <div *ngIf="selectedFilter === 'CUSTOM'" class="custom-inputs">
-    <input type="date" [(ngModel)]="customStartDate" placeholder="Start Date" class="custom-date" />
-    <input type="date" [(ngModel)]="customEndDate" placeholder="End Date" class="custom-date" />
-    <button (click)="applyCustomDate()" class="apply-btn">Apply</button>
-    <button (click)="resetCustomDate()" class="reset-btn">Reset</button>
   </div>
-</div> -->
+
+  <div class="content-section active" style="margin-bottom: 2rem;">
+    <main class="main-content">
+      <section class="kpi-section">
+        <div class="kpi-card">
+          <div class="kpi-label">Dealers</div>
+          <div class="kpi-value" style="color:black;">{{ kpiData.dealers }}</div>
+          <div class="kpi-secondary">Network: <span class="kpi-highlight">{{ kpiData.activeNetwork }}</span></div>
+
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Users</div>
+          <div class="kpi-value" style="color:black;">{{ kpiData.users }}</div>
+          <div class="kpi-secondary">Active: <span class="kpi-highlight">{{ kpiData.activeUsers }}</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Leads</div>
+          <div class="kpi-value" style="color:black;">{{ kpiData.leads }}</div>
+          <div class="kpi-secondary">Across all dealers</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Calls</div>
+          <div class="kpi-value" style="color:black;">{{ kpiData.calls }}</div>
+          <div class="kpi-secondary">Total volume</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Followups</div>
+          <div class="kpi-value" style="color:black;">{{ kpiData.calls }}</div>
+          <!-- <div class="kpi-secondary">Total volume</div> -->
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Unique/Completed Test Drives</div>
+          <div class="kpi-value" style="color:black;">
+            {{ kpiData.unique || 0 }}/{{ kpiData.completed || 0 }}
+          </div>
+          <!-- <div class="kpi-secondary">Total volume</div> -->
+        </div>
+      </section>
+
+      <div class="table-section">
+        <div class="table-header">
+          <div>
+            <h2 class="table-title">Dealer Summary — Engagement</h2>
+            <p class="table-subtitle">Users, Leads, Follow-ups, Test Drives (with CXP/ICS sync)</p>
+          </div>
+
+          <div class="table-actions flex items-center gap-2">
 
 
-
-    <!-- HOME TAB CONTENT -->
-    <div *ngIf="selectedSection === 'activities'" class="content-section active">
-
-
-      <!-- Content -->
-      <main class="main-content">
-        <!-- <section class="filter-section">
-    <div class="filter-container">
-      <div class="filter-grid">
-        <div class="form-group">
-          <label class="form-label">Quick Range</label>
-          <select class="form-select" >
-            <option value="today">Today</option>
-            <option value="yesterday">Yesterday</option>
-            <option value="this_week">This Week</option>
-            <option value="last_week">Last Week</option>
-            <option value="this_month">This Month</option>
-            <option value="last_month">Last Month</option>
-            <option value="this_quarter">This Quarter</option>
-            <option value="last_quarter">Last Quarter</option>
-            <option value="last_6_months">Last 6 Months</option>
-            <option value="this_year">This Year</option>
-            <option value="lifetime">Lifetime</option>
-            <option value="custom">Custom Range…</option>
-          </select>
+            <!-- Export CSV button -->
+            <button type="button" class="btn btn-small btn-secondary" (click)="exportToCSV()">
+              <i class="icon-download"></i> Export CSV
+            </button>
+          </div>
         </div>
 
-        <div class="form-group" >
-          <label class="form-label">From</label>
-          <input type="date" class="form-input" />
-        </div>
-
-        <div class="form-group" >
-          <label class="form-label">To</label>
-          <input type="date" class="form-input" />
-        </div>
-      </div>
-
-      <div class="filter-actions">
-        <button class="btn btn-primary" >
-          <i class="icon-filter"></i>
-          Apply
-        </button>
-        <button class="btn btn-secondary" >
-          <i class="icon-reset"></i>
-          Reset
-        </button>
-      </div>
-    </div>
-  </section> -->
-
-
-        <section class="kpi-section">
-          <div class="kpi-card">
-            <div class="kpi-label">Dealers</div>
-            <div class="kpi-value" style="color:black;">{{ kpiData.dealers }}</div>
-            <!-- <span class="chip" style="color:black;">Active Network: {{ kpiData.activeNetwork }}</span> -->
-            <div class="kpi-secondary">Network: <span class="kpi-highlight">{{ kpiData.activeNetwork }}</span></div>
-
-          </div>
-
-          <div class="kpi-card">
-            <div class="kpi-label">Users</div>
-            <div class="kpi-value" style="color:black;">{{ kpiData.users }}</div>
-            <div class="kpi-secondary">Active: <span class="kpi-highlight">{{ kpiData.activeUsers }}</span></div>
-          </div>
-
-          <div class="kpi-card">
-            <div class="kpi-label">Leads</div>
-            <div class="kpi-value" style="color:black;">{{ kpiData.leads }}</div>
-            <div class="kpi-secondary">Across all dealers</div>
-          </div>
-
-          <div class="kpi-card">
-            <div class="kpi-label">Calls</div>
-            <div class="kpi-value" style="color:black;">{{ kpiData.calls }}</div>
-            <div class="kpi-secondary">Total volume</div>
-          </div>
-        </section>
-
-
-        <!-- Table 1: Users / Leads / Follow-ups / Test Drives -->
-        <div class="table-section">
-          <!-- <div class="table-header">
-            <div>
-              <h2 class="table-title">Dealer Summary — Engagement</h2>
-              <p class="table-subtitle">Users, Leads, Follow-ups, Test Drives (with CXP/ICS sync)</p>
-            </div>
-            <div class="table-actions">
-
-              <button type="button" class="btn btn-small btn-secondary" (click)="exportToCSV()">
-                <i class="icon-download"></i> Export CSV
-              </button>
-            </div>
-          </div> -->
-          <div class="table-header">
-            <div>
-              <h2 class="table-title">Dealer Summary — Engagement</h2>
-              <p class="table-subtitle">Users, Leads, Follow-ups, Test Drives (with CXP/ICS sync)</p>
-            </div>
-
-            <div class="table-actions flex items-center gap-2">
-
-          
-        <!-- Dealer Dropdown -->
-    <div class="dropdown" [class.show]="dropdownOpen">
-      <button class="btn btn-small btn-primary dropdown-toggle" type="button" (click)="toggleDropdown()">
-        {{ selectedDealers.length > 0 ? 'Dealers Selected (' + selectedDealers.length + ')' : 'Select Dealers' }}
-      </button>
-    
-      <div class="dropdown-menu show" *ngIf="dropdownOpen">
-        <!-- 🔍 Search box -->
-        <div class="px-2 py-1">
-          <input type="text" class="form-control" placeholder="Search dealers..." [(ngModel)]="dealerSearch"
-            (input)="filterDealers()" (click)="$event.stopPropagation()" />
-        </div>
-    
-        <!-- ✅ Select All + Clear row -->
-      <!-- ✅ Select All + Clear row -->  
-    <div class="d-flex justify-content-between align-items-center px-2 py-1 border-bottom">
-      <!-- Left: Select All -->
-      <label class="mb-0 d-flex align-items-center" (click)="$event.stopPropagation()">
-        <input type="checkbox" class="me-2" [checked]="areAllSelected()"
-          (change)="toggleSelectAll($event); $event.stopPropagation()" />
-        Select All
-      </label>
-    
-      <!-- Right: Clear -->
-      <button type="button" class="btn btn-link btn-sm text-danger p-0 ms-auto" style="margin-left:120px;"
-        (click)="clearSelection(); $event.stopPropagation()">
-        Clear
-      </button>
-    </div>
-
-    
-        <!-- Dealer list with checkboxes -->
-        <ng-container *ngIf="filteredDealers.length > 0; else noDealers">
-          <button *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
-            (click)="$event.stopPropagation()">
-            <input type="checkbox" class="me-2" [checked]="isDealerSelected(dealer)"
-              (change)="toggleDealerSelection(dealer)" style="border:1px solid black" />
-            {{ dealer.dealerName }}
-          </button>
-        </ng-container>
-    
-        <!-- 🚫 No dealers found fallback -->
-        <ng-template #noDealers>
-          <div class="dropdown-item text-muted text-center">
-            No dealers found
-          </div>
-        </ng-template>
-      </div>
-    </div>
-
-
-
-              <!-- Export CSV button -->
-              <button type="button" class="btn btn-small btn-secondary" (click)="exportToCSV()">
-                <i class="icon-download"></i> Export CSV
-              </button>
-            </div>
-          </div>
-
-
-          <div class="table-container">
+        <div class="table-container">
+          <div class="table-scroll">
             <table class="data-table">
               <thead class="table-thead">
                 <tr>
@@ -263,9 +143,9 @@
 
                   <!-- <th class="th-right">Leads (Total)</th> -->
 
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('Leads')">
-                    Leads
-                    <span *ngIf="sortColumn === 'Leads' && sortDirection !== 'default'">
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('saLeads')">
+                    SA Leads
+                    <span *ngIf="sortColumn === 'saLeads' && sortDirection !== 'default'">
                       {{ sortDirection === 'asc' ? '▲' : '▼' }}
                     </span>
                   </th>
@@ -273,7 +153,7 @@
 
                   <!-- <th class="th-right">Leads (sync to CXP)</th> -->
                   <th class="th-right" style="cursor: pointer;" (click)="sortData('cxpLeads')">
-                    Leads (sync to CXP)
+                    Sync with CXP
                     <span *ngIf="sortColumn === 'cxpLeads' && sortDirection !== 'default'">
                       {{ sortDirection === 'asc' ? '▲' : '▼' }}
                     </span>
@@ -281,82 +161,107 @@
 
 
                   <!-- <th class="th-right">Leads (sync to ICS)</th> -->
-                    <th class="th-right" style="cursor: pointer;" (click)="sortData('icsLeads')">
-                    Leads (sync to ICS)
-                      <span *ngIf="sortColumn === 'icsLeads' && sortDirection !== 'default'">
-                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                      </span>
-                    </th>
-                  <!-- <th class="th-right">Follow-ups (Total)</th> -->
-                    <th class="th-right" style="cursor: pointer;" (click)="sortData('totalFollowUps')">
-                    Follow-ups (Total)
-                      <span *ngIf="sortColumn === 'totalFollowUps' && sortDirection !== 'default'">
-                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                      </span>
-                    </th>
-                  <!-- <th class="th-right">Follow-ups Open</th> -->
-                    <th class="th-right" style="cursor: pointer;" (click)="sortData('openFollowUps')">
-                      Follow-ups Open
-                      <span *ngIf="sortColumn === 'openFollowUps' && sortDirection !== 'default'">
-                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                      </span>
-                    </th>
-                  <!-- <th class="th-right">Follow-ups Closed</th> -->
-                    <th class="th-right" style="cursor: pointer;" (click)="sortData('closedFollowUps')">
-                      Follow-ups Closed
-                      <span *ngIf="sortColumn === 'closedFollowUps' && sortDirection !== 'default'">
-                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                      </span>
-                    </th>
-                  <!-- <th class="th-right">Follow-ups (sync to CXP)</th> -->
-                    <th class="th-right" style="cursor: pointer;" (click)="sortData('cxpFollowUps')">
-                    Follow-ups (sync to CXP)
-                      <span *ngIf="sortColumn === 'cxpFollowUps' && sortDirection !== 'default'">
-                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                      </span>
-                    </th>
-                  <!-- <th class="th-right">Test Drives (Total)</th> -->
-                    <th class="th-right" style="cursor: pointer;" (click)="sortData('totalTestDrives')">
-                    Test Drives (Total)
-                      <span *ngIf="sortColumn === 'totalTestDrives' && sortDirection !== 'default'">
-                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                      </span>
-                    </th>
-                  <!-- <th class="th-right">Test Drives Closed</th> -->
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('closedTestDrives')">
-                    Test Drives Closed
-                    <span *ngIf="sortColumn === 'closedTestDrives' && sortDirection !== 'default'">
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('icsLeads')">
+                    Sync with ICS
+                    <span *ngIf="sortColumn === 'icsLeads' && sortDirection !== 'default'">
                       {{ sortDirection === 'asc' ? '▲' : '▼' }}
                     </span>
                   </th>
 
-                  <!-- <th class="th-right">Unique Test Drives</th> -->
-                      <th class="th-right" style="cursor: pointer;" (click)="sortData('uniqueTestDrives')">
-                      Unique Test Drives
-                        <span *ngIf="sortColumn === 'uniqueTestDrives' && sortDirection !== 'default'">
+                    <th class="th-right" style="cursor: pointer;" (click)="sortData('manuallyEnteredLeads')">
+                    Manually Entered with CXP
+                      <span *ngIf="sortColumn === 'manuallyEnteredLeads' && sortDirection !== 'default'">
+                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                      </span>
+                    </th>
+
+
+                  <!-- <th class="th-right">Follow-ups (Total)</th> -->
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('totalFollowUps')">
+                    SA Followups
+                    <span *ngIf="sortColumn === 'totalFollowUps' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+
+                      <th class="th-right" style="cursor: pointer;" (click)="sortData('cxpFollowUps')">
+                        Sync with CXP
+                        <span *ngIf="sortColumn === 'cxpFollowUps' && sortDirection !== 'default'">
                           {{ sortDirection === 'asc' ? '▲' : '▼' }}
                         </span>
                       </th>
-                  <!-- <th class="th-right">Completed Test Drives</th> -->
-                    <th class="th-right" style="cursor: pointer;" (click)="sortData('completedTestDrives')">
-                    Completed Test Drives
-                      <span *ngIf="sortColumn === 'completedTestDrives' && sortDirection !== 'default'">
-                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                      </span>
-                    </th>
-                  <!-- <th class="th-right th-rounded-right">Test Drives (sync to CXP)</th> -->
-                    <th class="th-right" style="cursor: pointer;" (click)="sortData('cxpTestDrives')">
-                    Test Drives (sync to CXP)
-                      <span *ngIf="sortColumn === 'cxpTestDrives' && sortDirection !== 'default'">
-                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                      </span>
-                    </th>
+
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('openFollowUps')">
+                   Completed Followups
+                    <span *ngIf="sortColumn === 'openFollowUps' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+
+
+                  <!-- <th class="th-right">Follow-ups Closed</th> -->
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('openFollowUps')">
+                    Upcoming followups
+                    <span *ngIf="sortColumn === 'openFollowUps' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('closedFollowUps')">
+                    Overdue followups
+                    <span *ngIf="sortColumn === 'closedFollowUps' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+
+                  <!-- <th class="th-right">Follow-ups (sync to CXP)</th> -->
+              
+                  <!-- <th class="th-right">Test Drives (Total)</th> -->
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('totalTestDrives')">
+                     SA Test Drives
+                    <span *ngIf="sortColumn === 'totalTestDrives' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('cxpTestDrives')">
+                    sync to CXP
+                    <span *ngIf="sortColumn === 'cxpTestDrives' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('completedTestDrives')">
+                    Completed test drives 
+                    <span *ngIf="sortColumn === 'completedTestDrives' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('uniqueTestDrives')">
+                   Upcoming 
+                    <span *ngIf="sortColumn === 'uniqueTestDrives' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('closedTestDrives')">
+                    Overdue
+                    <span *ngIf="sortColumn === 'closedTestDrives' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('opportunitiesConverted')">
+                    Opportunities Converted
+                    <span *ngIf="sortColumn === 'opportunitiesConverted' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+                 
                 </tr>
               </thead>
 
               <tbody>
                 <ng-container
-                  *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : dealers); let i = index">
+                  *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : dealers) | slice:0:table1Length; let i = index">
                   <tr *ngIf="dealer" class="table-row">
                     <td class="sticky-col td-font-medium">
                       <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
@@ -366,18 +271,42 @@
                     </td>
                     <td class="td-right">{{ dealer.totalUsers ?? 0 }}</td>
                     <td class="td-right">{{ dealer.activeUsers ?? 0 }}</td>
-                    <td class="td-right">{{ dealer.totalLeads ?? 0 }}</td>
-                    <td class="td-right">{{ dealer.cxpLeads ?? 0 }}</td>
+
+                    <td class="td-right" style="color:#222fb9">{{ dealer.saLeads ?? 0 }}</td>
+                    <td class="td-right" [ngStyle]="{'color': dealer.saLeads === dealer.cxpLeads ? 'green' : 'red'}">
+                      {{ dealer.cxpLeads ?? 0 }}
+                    </td>
                     <td class="td-right">{{ dealer.icsLeads ?? 0 }}</td>
-                    <td class="td-right">{{ dealer.totalFollowUps ?? 0 }}</td>
+                    <td class="td-right">{{ dealer.manuallyEnteredLeads ?? 0 }}</td>
+
+
+
+                    <td class="td-right" style="color:#222fb9">{{ dealer.totalFollowUps ?? 0 }}</td> 
+                    <!-- SA FOLLOWUPS -->
+                    <td class="td-right" [ngStyle]="{'color': dealer.totalFollowUps === dealer.cxpFollowUps ? 'green' : 'red'}">
+                      {{ dealer.cxpFollowUps ?? 0 }}
+                    </td>
+                    
+                    <td class="td-right">{{ dealer.openFollowUps ?? 0 }}</td>
+                    <!-- Compeplteted followups -->
+
                     <td class="td-right">{{ dealer.openFollowUps ?? 0 }}</td>
                     <td class="td-right">{{ dealer.closedFollowUps ?? 0 }}</td>
-                    <td class="td-right">{{ dealer.cxpFollowUps ?? 0 }}</td>
-                    <td class="td-right">{{ dealer.totalTestDrives ?? 0 }}</td>
+                    <!-- <td class="td-right">{{ dealer.cxpFollowUps ?? 0 }}</td> -->
+                    
+                    <td class="td-right" style="color:#222fb9">{{ dealer.totalTestDrives ?? 0 }}</td>
+                      <td class="td-right" [ngStyle]="{'color': dealer.totalTestDrives === dealer.cxpTestDrives ? 'green' : 'red'}">
+                        {{ dealer.cxpTestDrives ?? 0 }}
+                      </td>
+                                          <td class="td-right">{{ dealer.completedTestDrives ?? 0 }}</td>
+                                          <td class="td-right">{{ dealer.upcomingTestDrives ?? 0 }}</td>
+                    <!-- upcomingtestfrives -->
                     <td class="td-right">{{ dealer.closedTestDrives ?? 0 }}</td>
-                    <td class="td-right">{{ dealer.uniqueTestDrives ?? 0 }}</td>
-                    <td class="td-right">{{ dealer.completedTestDrives ?? 0 }}</td>
-                    <td class="td-right">{{ dealer.cxpTestDrives ?? 0 }}</td>
+                    <!-- <td class="td-right">{{ dealer.uniqueTestDrives ?? 0 }}</td> -->
+                    <!-- <td class="td-right">{{ dealer.cxpTestDrives ?? 0 }}</td> -->
+                  
+                    <td class="td-right">{{ dealer.opportunitiesConverted ?? 0 }}</td>
+
                   </tr>
 
                   <!-- Sub Row -->
@@ -388,27 +317,29 @@
                           User-wise details — {{ dealer.dealerName }}
                         </div>
                         <div class="sub-table-container">
-                          <table class="sub-table">
-                            <thead class="sub-table-thead">
-                              <tr>
-                                <th style="text-align:left">User</th>
-                                <th>Active</th>
-                                <th>Leads (Total)</th>
-                                <th>Leads (CXP)</th>
-                                <th>Leads (ICS)</th>
-                                <th>Follow-ups (Total)</th>
-                                <th>Open</th>
-                                <th>Closed</th>
-                                <th>Follow-ups (CXP)</th>
-                                <th>Test Drives (Total)</th>
-                                <th>Unique Test Drives</th>
-                                <th>Completed Test Drives</th>
-                                <th>Closed</th>
-                                <th>Test Drives (CXP)</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <!-- <tr *ngFor="let user of dealerUsers[dealer.dealerId] ?? []">
+                          <div class="sub-table-scroll">
+
+                            <table class="sub-table">
+                              <thead class="sub-table-thead">
+                                <tr>
+                                  <th style="text-align:left">User</th>
+                                  <th>Active</th>
+                                  <th>Leads (Total)</th>
+                                  <th>Leads (CXP)</th>
+                                  <th>Leads (ICS)</th>
+                                  <th>Follow-ups (Total)</th>
+                                  <th>Open</th>
+                                  <th>Closed</th>
+                                  <th>Follow-ups (CXP)</th>
+                                  <th>Test Drives (Total)</th>
+                                  <th>Unique Test Drives</th>
+                                  <th>Completed Test Drives</th>
+                                  <th>Closed</th>
+                                  <th>Test Drives (CXP)</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <!-- <tr *ngFor="let user of dealerUsers[dealer.dealerId] ?? []">
                                 <td style="text-align:left">{{ user.user }}</td>
                                 <td class="td-center">
                                   <span class="chip" [ngClass]="user.active ? 'chip-success' : 'chip-inactive'">
@@ -416,27 +347,168 @@
                                   </span>
                                 </td> -->
                                 <tr *ngFor="let user of getSortedUsers(dealer.dealerId)">
-                                  <td style="text-align:left">{{ user.user }}</td>
+                                  <!-- <td style="text-align:left">{{ user.user }}</td> -->
+                                  <td style="text-align:left">
+                                    {{ user.user }} <span *ngIf="user.user_role">({{ user.user_role }})</span>
+                                  </td>
                                   <td class="td-center">
                                     <span class="chip" [ngClass]="user.active ? 'chip-success' : 'chip-inactive'">
                                       {{ user.active ? 'Active' : 'Inactive' }}
                                     </span>
                                   </td>
-                                <td class="td-right">{{ user.leads?.total ?? 0 }}</td>
-                                <td class="td-right">{{ user.leads?.cxp ?? 0 }}</td>
-                                <td class="td-right">{{ user.leads?.ics ?? 0 }}</td>
-                                <td class="td-right">{{ user.followups?.total ?? 0 }}</td>
-                                <td class="td-right">{{ user.followups?.open ?? 0 }}</td>
-                                <td class="td-right">{{ user.followups?.closed ?? 0 }}</td>
-                                <td class="td-right">{{ user.followups?.cxp ?? 0 }}</td>
-                                <td class="td-right">{{ user.testdrives?.total ?? 0 }}</td>
-                                <td class="td-right">{{ user.testdrives?.unique ?? 0 }}</td>
-                                <td class="td-right">{{ user.testdrives?.completed ?? 0 }}</td>
-                                <td class="td-right">{{ user.testdrives?.closed ?? 0 }}</td>
-                                <td class="td-right">{{ user.testdrives?.cxp ?? 0 }}</td>
+                                  <td class="td-right">{{ user.leads?.total ?? 0 }}</td>
+                                  <td class="td-right">{{ user.leads?.cxp ?? 0 }}</td>
+                                  <td class="td-right">{{ user.leads?.ics ?? 0 }}</td>
+                                  <td class="td-right">{{ user.followups?.total ?? 0 }}</td>
+                                  <td class="td-right">{{ user.followups?.open ?? 0 }}</td>
+                                  <td class="td-right">{{ user.followups?.closed ?? 0 }}</td>
+                                  <td class="td-right">{{ user.followups?.cxp ?? 0 }}</td>
+                                  <td class="td-right">{{ user.testdrives?.total ?? 0 }}</td>
+                                  <td class="td-right">{{ user.testdrives?.unique ?? 0 }}</td>
+                                  <td class="td-right">{{ user.testdrives?.completed ?? 0 }}</td>
+                                  <td class="td-right">{{ user.testdrives?.closed ?? 0 }}</td>
+                                  <td class="td-right">{{ user.testdrives?.cxp ?? 0 }}</td>
+                                </tr>
+                                <tr *ngIf="!dealerUsers[dealer.dealerId] || dealerUsers[dealer.dealerId]?.length === 0">
+                                  <td colspan="14" class="td-center">No Users Found</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+            <!-- Show More button -->
+            <button type="button" style="margin: 0.5rem; float: right;" class="btn btn-primary"
+              (click)="showMoreTable1()"
+              *ngIf="table1Length < (selectedDealers.length > 0 ? selectedDealers.length : dealers.length)">
+              Show More
+            </button>
+
+            <!-- Show Less button -->
+            <button type="button" style="margin: 0.5rem; float: right;" class="btn btn-secondary"
+              (click)="showLessTable1()"
+              *ngIf="table1Length > 5 && (selectedDealers.length > 0 ? selectedDealers.length : dealers.length) > 5">
+              Show Less
+            </button>
+
+          </div>
+        </div>
+
+
+
+
+
+      </div>
+
+      <!-- Table 2 -->
+      <div class="table-section">
+        <div class="table-header">
+          <div>
+            <h2 class="table-title">Dealer Summary — Calls</h2>
+            <p class="table-subtitle">Call volumes and outcomes</p>
+          </div>
+          <div class="table-actions">
+            <div class="nav-button-group" style="margin-left:10px;">
+
+              <button class="nav-button" [ngClass]="{ 'active': dealerSummaryCallsViewType === 'table' }"
+                (click)="dealerEngagementView('table')">
+                <i class="fas fa-table" style="margin-right: 6px; font-size:15px;"></i> Table
+              </button>
+
+              <button class="nav-button" [ngClass]="{ 'active': dealerSummaryCallsViewType === 'chart' }"
+                (click)="dealerEngagementView('chart')">
+                <i class="fas fa-chart-line" style="margin-right: 8px;"></i> Line Chart
+              </button>
+
+              <!-- <button class="nav-button" [ngClass]="{ 'active': dealerSummaryCallsViewType === 'enquiry' }"
+                  (click)="dealerEngagementView('enquiry')">
+                  <i class="fas fa-envelope" style="margin-right: 6px;"></i> Enquiry
+                </button>
+                
+                <button class="nav-button" [ngClass]="{ 'active': dealerSummaryCallsViewType === 'cold' }"
+                  (click)="dealerEngagementView('cold')">
+                  <i class="fas fa-phone-alt" style="margin-right: 6px;"></i> Cold Calls
+                </button> -->
+
+            </div>
+            <!-- <button class="btn btn-small btn-secondary">
+            <i class="icon-download"></i> Export CSV
+          </button> -->
+            <button class="btn btn-small btn-secondary" (click)="exportUserCallLogsToCSV()">
+              <i class="icon-download"></i> Export CSV
+            </button>
+
+          </div>
+        </div>
+        <!-- Table View -->
+        <div *ngIf="dealerSummaryCallsViewType === 'table'" class="table-container">
+          <div class="table-scroll">
+            <table class="data-table calls-table">
+              <thead class="table-thead">
+                <tr>
+                  <th class="sticky-col-header th-left" style="width:18%">Dealer</th>
+                  <th class="th-right">Total Calls</th>
+                  <th class="th-right">Outgoing</th>
+                  <th class="th-right">Incoming</th>
+                  <th class="th-right">Connected</th>
+                  <th class="th-right">Declined</th>
+                  <th class="th-right th-rounded-right">Duration</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngFor="let dealer of dealers | slice:0:table2Length; let i = index">
+                  <!-- Main dealer row -->
+                  <tr>
+                    <td class="sticky-col td-font-medium">
+                      <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
+                        <span class="arrow">{{ expandedRow === 'engagement-' + i ? 'v' : '>' }}</span>
+                        {{ dealer.dealerName }}
+                      </button>
+                    </td>
+                    <td>{{ dealer.callLogs?.totalCalls || 0 }}</td>
+                    <td>{{ dealer.callLogs?.outgoing || 0 }}</td>
+                    <td>{{ dealer.callLogs?.incoming || 0 }}</td>
+                    <td>{{ dealer.callLogs?.connected || 0 }}</td>
+                    <td>{{ dealer.callLogs?.declined || 0 }}</td>
+                    <td>{{ dealer.callLogs?.duration || '00:00:00' }}</td>
+                  </tr>
+
+                  <!-- Sub-row: user call logs -->
+                  <tr *ngIf="expandedRow === 'engagement-' + i">
+                    <td colspan="7">
+                      <div class="sub-table-container">
+                        <div class="sub-user-table-scroll">
+                          <table class="sub-table calls-sub-table">
+                            <thead>
+                              <tr>
+                                <th style="text-align:left;width:15%">User</th>
+                                <th>Total</th>
+                                <th>Outgoing</th>
+                                <th>Incoming</th>
+                                <th>Connected</th>
+                                <th>Declined</th>
+                                <th>Duration</th>
                               </tr>
-                              <tr *ngIf="!dealerUsers[dealer.dealerId] || dealerUsers[dealer.dealerId]?.length === 0">
-                                <td colspan="14" class="td-center">No Users Found</td>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let userCall of userCallLogs[dealer.dealerId]">
+                                <td style="text-align:left">{{ userCall.name }}</td>
+                                <td>{{ userCall.calls.total }}</td>
+                                <td>{{ userCall.calls.outgoing }}</td>
+                                <td>{{ userCall.calls.incoming }}</td>
+                                <td>{{ userCall.calls.connected }}</td>
+                                <td>{{ userCall.calls.declined }}</td>
+                                <td>{{ userCall.calls.duration }}</td>
+                              </tr>
+                              <tr *ngIf="!userCallLogs[dealer.dealerId] || userCallLogs[dealer.dealerId]?.length === 0">
+                                <td colspan="7" style="text-align: center; font-style: italic;">
+                                  No call logs found
+                                </td>
                               </tr>
                             </tbody>
                           </table>
@@ -447,185 +519,30 @@
                 </ng-container>
               </tbody>
             </table>
+
+            <!-- Show More / Show Less buttons -->
+            <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.5rem;">
+              <button type="button" class="btn btn-primary" (click)="showMoreTable2()"
+                *ngIf="table2Length < dealers.length">
+                Show More
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="showLessTable2()"
+                *ngIf="table2Length > 5 && dealers.length > 5">
+                Show Less
+              </button>
+            </div>
           </div>
-
         </div>
 
-
-      </main>
-
-    </div>
-
-  <!-- </div> -->
-
-
-
-
-
-  <!-- ANALYSIS TAB CONTENT -->
-  <div *ngIf="selectedSection === 'callAnalysis'" class="dashboard-content content-section active">
-    <!-- Analysis content will go here -->
-
-    <section class="table-section">
-      <div class="table-header">
-        <div>
-          <h2 class="table-title">Dealer Summary — Calls</h2>
-          <p class="table-subtitle">Call volumes and outcomes</p>
+        <!-- Chart View -->
+        <div *ngIf="dealerSummaryCallsViewType === 'chart'" class="chart-container"
+          style="min-height:400px; padding:20px; background:white; border-radius:10px;">
+          <h1>chart here</h1>
         </div>
-        <div class="table-actions">
-          <!-- <button class="btn btn-small btn-secondary">
-            <i class="icon-download"></i> Export CSV
-          </button> -->
-          <button class="btn btn-small btn-secondary" (click)="exportUserCallLogsToCSV()">
-            <i class="icon-download"></i> Export CSV
-          </button>
 
-        </div>
       </div>
 
-      <div class="table-container">
-        <table class="data-table calls-table">
-          <thead class="table-thead">
-            <tr>
-              <th class="sticky-col-header th-left" style="width:18%">Dealer</th>
-              <th class="th-right">Total Calls</th>
-              <th class="th-right">Outgoing</th>
-              <th class="th-right">Incoming</th>
-              <th class="th-right">Connected</th>
-              <th class="th-right">Declined</th>
-              <th class="th-right th-rounded-right">Duration</th>
-            </tr>
-          </thead>
-          <tbody>
-            <ng-container *ngFor="let dealer of dealers; let i = index">
-              <!-- Main dealer row -->
-              <tr>
-                <td class="sticky-col td-font-medium">
-                  <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
-                    <span class="arrow" style-="width:18%3">
-                      {{ expandedRow === 'engagement-' + i ? 'v' : '>' }}
-                    </span>
-                    {{ dealer.dealerName }}
-                  </button>
-                </td>
-                <td>{{ dealer.callLogs?.totalCalls || 0 }}</td>
-                <td>{{ dealer.callLogs?.outgoing || 0 }}</td>
-                <td>{{ dealer.callLogs?.incoming || 0 }}</td>
-                <td>{{ dealer.callLogs?.connected || 0 }}</td>
-                <td>{{ dealer.callLogs?.declined || 0 }}</td>
-                <td>{{ dealer.callLogs?.duration || '00:00:00' }}</td>
-              </tr>
 
-              <!-- Sub-row: user call logs -->
-              <tr *ngIf="expandedRow === 'engagement-' + i">
-                <td colspan="7">
-                  <table class="sub-table calls-sub-table">
-                    <thead>
-                      <tr>
-                        <th style="text-align:left;width:15%">User</th>
-                        <th>Total</th>
-                        <th>Outgoing</th>
-                        <th>Incoming</th>
-                        <th>Connected</th>
-                        <th>Declined</th>
-                        <th>Duration</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let userCall of userCallLogs[dealer.dealerId]">
-                        <td style="text-align:left"> {{ userCall.name }}</td>
-                        <td>{{ userCall.calls.total }}</td>
-                        <td>{{ userCall.calls.outgoing }}</td>
-                        <td>{{ userCall.calls.incoming }}</td>
-                        <td>{{ userCall.calls.connected }}</td>
-                        <td>{{ userCall.calls.declined }}</td>
-                        <td>{{ userCall.calls.duration }}</td>
-                      </tr>
-                      <tr *ngIf="!userCallLogs[dealer.dealerId] || userCallLogs[dealer.dealerId]?.length === 0">
-                        <td colspan="7" style="text-align: center; font-style: italic;">
-                          No call logs found
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </td>
-              </tr>
-
-            </ng-container>
-          </tbody>
-
-
-        </table>
-
-      </div>
-    </section>
-
+    </main>
   </div>
-
-
-  <!-- </div> -->
 </ng-container>
-
-
-
-
-<!-- No PS data message -->
-
-
-
-
-<!-- Pagination aligned to right -->
-
-<!-- </div> -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Chart.js Script -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  const ctx = document.getElementById('doughnutChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Red', 'Blue', 'Yellow'],
-      datasets: [{
-        data: [300, 50, 100],
-        backgroundColor: ['#ff0000', '#0000ff', '#ffff00'],
-        hoverOffset: 4
-      }]
-    }
-  });
-
-  document.addEventListener('DOMContentLoaded', function () {
-    fetch('https://uat.smartassistapp.in/api/superAdmin / dashboardd') // Replace with your actual API endpoint
-      .then(response => response.json())
-      .then(data => {
-        populateTable(data.data.rankings.leads); // Assuming the structure is data.data.rankings.leads
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-        // Optionally display an error message in the table
-      });
-
-    function populateTable(leadsData) {
-      const tableBody = document.querySelector('#dataTable tbody');
-      tableBody.innerHTML = ''; // Clear any existing rows
-
-      leadsData.forEach(dealer => {
-        const row = tableBody.insertRow();
-        const nameCell = row.insertCell();
-        const codeCell = row.insertCell();
-        const locationCell = row.insertCell();
-        const phoneCell = row.insertCell();
-        const countCell = row.insertCell();
-        const rankCell = row.insertCell();
-
-        nameCell.textContent = dealer.dealer_name;
-        codeCell.textContent = dealer.dealer_code;
-        locationCell.textContent = dealer.location;
-        phoneCell.textContent = dealer.phone || dealer.mobile || ''; // Use phone if available, otherwise mobile
-        countCell.textContent = dealer.value;
-        rankCell.textContent = dealer.rank;
-      });
-    }
-  });
-</script>

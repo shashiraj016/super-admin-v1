@@ -16,6 +16,7 @@ import {
   HttpHeaders,
 } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { NgApexchartsModule } from 'ng-apexcharts';
 
 import { Chart, ChartType, registerables } from 'chart.js';
 import { FormsModule } from '@angular/forms'; // Add this import
@@ -36,6 +37,30 @@ import { ContextService } from '../../service/context.service';
 import { ApiResponse, Dealer } from '../../model/interface/master';
 import { DashboardService } from '../../service/dashboard-service';
 import { SharedService } from '../../service/shared.service';
+import {
+  ApexAxisChartSeries,
+  ApexChart,
+  ApexXAxis,
+  ApexDataLabels,
+  ApexStroke,
+  ApexMarkers,
+  ApexTitleSubtitle,
+  ApexYAxis,
+  ApexLegend,
+} from 'ng-apexcharts';
+
+export type ChartOptions = {
+  series: ApexAxisChartSeries;
+  chart: ApexChart;
+  xaxis: ApexXAxis;
+  stroke: ApexStroke;
+  dataLabels: ApexDataLabels;
+  markers: ApexMarkers;
+  title: ApexTitleSubtitle;
+  yaxis: ApexYAxis;
+  legend: ApexLegend;
+};
+
 // Register all chart components
 Chart.register(...registerables);
 Chart.register(
@@ -48,6 +73,15 @@ Chart.register(
   Tooltip
 );
 
+//  export type CallChartOptions = {
+//   series: ApexAxisChartSeries;
+//   chart: ApexChart;
+//   xaxis: ApexXAxis;
+//   title: ApexTitleSubtitle;
+//   stroke: ApexStroke;
+//   markers: ApexMarkers;
+// };
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -56,33 +90,12 @@ Chart.register(
     HttpClientModule,
     FormsModule,
     NgCircleProgressModule,
+    NgApexchartsModule, // ✅ add this
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent implements AfterViewInit, OnInit {
-  // dashboardData: any;
-  // displayedData = [
-  //   {
-  //     dealer_name: 'Sonali',
-  //     dealer_code: 28,
-  //     MTD: { value: 5 },
-  //     QTD: { value: 8 },
-  //     YTD: { value: 12 },
-  //     value: 5,
-  //     rank: 1,
-  //   },
-  //   {
-  //     dealer_name: 'Mastafa',
-  //     dealer_code: 30,
-  //     MTD: { value: 3 },
-  //     QTD: { value: 7 },
-  //     YTD: { value: 10 },
-  //     value: 3,
-  //     rank: 2,
-  //   },
-  // ];
-
   dashboardMetrics: any = {
     totalLeads: 0,
     totalTestDrives: 0,
@@ -92,48 +105,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     netOrders: 0,
     retail: 0,
   };
-  // activeAccordion: number | null = null; // store which accordion is open
-  // dealers = [
-  //   {
-  //     dealer_name: 'Dealer 1',
-  //     sms: [
-  //       {
-  //         sm_name: 'SM 1',
-  //         ps: [{ ps_name: 'PS 1' }, { ps_name: 'PS 2' }],
-  //       },
-  //       {
-  //         sm_name: 'SM 2',
-  //         ps: [{ ps_name: 'PS 3' }],
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     dealer_name: 'Dealer 2',
-  //     sms: [
-  //       {
-  //         sm_name: 'SM 3',
-  //         ps: [{ ps_name: 'PS 4' }],
-  //       },
-  //     ],
-  //   },
-  // ];
-
   // NEW DESIGN CODE
   expandedDealer: any | null = null; // or better, create an interface for Dealer
-  // dealerUsers: any = {
-  //   'Dealer One': [
-  //     { name: 'User A', leads: 10, testDrives: 5, followups: 2 },
-  //     { name: 'User B', leads: 15, testDrives: 7, followups: 3 },
-  //   ],
-  //   'Dealer Two': [
-  //     { name: 'User C', leads: 8, testDrives: 4, followups: 2 },
-  //     { name: 'User D', leads: 10, testDrives: 3, followups: 1 },
-  //   ],
-  //   'Dealer Three': [
-  //     { name: 'User E', leads: 12, testDrives: 6, followups: 2 },
-  //     { name: 'User F', leads: 18, testDrives: 9, followups: 4 },
-  //   ],
-  // };
+
   sortColumn: string | null = null; // track which column is sorted
   // sortDirection: 'asc' | 'desc' = 'asc'; // track sort direction
   sortDirection: 'asc' | 'desc' | 'default' = 'default';
@@ -147,7 +121,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   itemsToShow: number = 10;
   expandedRow: string | null = null;
   filteredDealers: any[] = []; // filtered for dropdown
-
   totalLeads = signal<number>(0);
   totalTestDrives = signal<number>(0);
   totalOrders = signal<number>(0);
@@ -166,28 +139,27 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   ps1Data: any[] = [];
   ps2Data: any[] = [];
   pageSize = 20; // or any number you want
-  selectedSection: 'activities' | 'callAnalysis' = 'activities';
   ytdTestDrives = signal<number>(0);
   loadingSM: boolean = false;
   psData: { [smId: string]: any[] } = {};
   showDetails = false;
   paginatedDealers: any[] = [];
-  // dealerUsers: { [dealerId: string]: any[] } = {}; // store users per dealer
-  // dealerUsers: { [key: string]: any[] } = {};
   dealerCallData: any[] = [];
   dropdownOpen = false;
   selectedDealers: any[] = []; // ✅ store multiple selected dealers
-
   dealerPSL: any = null;
   userCallLogs: { [dealerId: string]: any[] } = {};
-
   callLogsItemsToShow = 10;
   displayedCallLogs: any[] = [];
   showMoreCallLogsVisible = true;
   mtdOrders = signal<number>(0);
   qtdOrders = signal<number>(0);
   ytdOrders = signal<number>(0);
-  // selectedFilter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM' = 'MTD';
+  table1Length = 5;
+  table2Length = 5;
+  // dealerSummaryCallsViewType: 'table' | 'chart' = 'table';
+  dealerSummaryCallsViewType: 'table' | 'chart' | 'enquiry' | 'cold' = 'table';
+
   selectedFilter:
     | 'Today'
     | 'Yesterday'
@@ -201,7 +173,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     | 'This Year'
     | 'CUSTOM'
     | 'Lifetime' = 'Today';
-
   dealerColors: string[] = [
     '#e6f2ff', // light blue
     '#f9f2ec', // light peach
@@ -236,9 +207,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   activeAccordion: string | null = null;
   dealerUsers: { [dealerId: string]: any[] } = {}; // store users per dealer
   dealerCallLogs: { [dealerId: string]: any } = {}; // ← add this
-
   showAll = false;
-
   orderStrokeColor: string = '#4CAF50';
   currentTestDrives: number = 0;
   previousTestDrives: number = 0;
@@ -361,33 +330,21 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     });
 
     this.fetchKpiData();
-
-    // this.updateDisplayedDealers();
-
     this.currentDisplayCount = this.itemsPerPage;
-
-    // this.loadInitialDealers();
     this.selectedFilter = 'Today';
     this.fetchSuperAdminDashboard(this.selectedFilter); // or 'QTD', 'MTD' based on dropdown
-
     this.onDropdownChange(); // Auto-trigger on page load with default values
-
     this.context.onSideBarClick$.next({
       role: 'dashboard',
       pageTitle: 'Dashboard',
     });
-
     this.selectedFilter = 'Today';
-    // this.fetchDashboardData('MTD');
-
-    // this.updateDataBasedOnSelection();
-    // this.applyFilter(this.selectedFilter);
   }
 
   initializeDisplay() {
     this.currentDisplayCount = this.itemsPerPage;
-    // this.updatePaginatedDealers();
   }
+
   toggleShow() {
     if (this.currentDisplayCount >= this.dealers.length) {
       // Show Less → reset to first 10
@@ -436,52 +393,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (value < 0) return '#F44336'; // red
     return '#9E9E9E'; // grey
   }
-
-  // toggleDealer(dealer: any) {
-  //   if (dealer) {
-  //     this.expandedDealer = dealer.dealer_name;
-  //     this.dealerUsers[dealer.dealer_id] = dealer.users || [];
-  //   } else {
-  //     this.expandedDealer = null;
-  //   }
-  // }
-  // toggleDealer(
-  //   dealer: any | null,
-  //   filter: 'MTD' | 'QTD' | 'YTD' = this.selectedFilter
-  // ): void {
-  //   if (dealer) {
-  //     this.expandedDealer = dealer; // store selected dealer
-  //     this.selectedDealerId = dealer.dealer_id;
-
-  //     if (this.selectedDealerId) {
-  //       // Fetch users for selected dealer
-  //       this.dashboardService
-  //         .getNoSMUsers(this.selectedDealerId, filter)
-  //         .subscribe({
-  //           next: (res: any) => {
-  //             if (res.status === 200 && res.data?.dealers?.length > 0) {
-  //               // Extract the users from the selected dealer
-  //               this.dealerUsers = res.data.dealers[0].user_list || [];
-  //             } else {
-  //               this.dealerUsers = [];
-  //             }
-  //           },
-  //           error: (err: any) => {
-  //             console.error('Error fetching dealer users:', err);
-  //             this.dealerUsers = [];
-  //           },
-  //         });
-  //     }
-  //   } else {
-  //     // Back to dealer list
-  //     this.expandedDealer = null;
-  //     this.selectedDealerId = null;
-  //     this.dealerUsers = [];
-  //   }
-  // }
-  // toggleCustomDatePicker(): void {
-  //   this.showCustomDatePicker = !this.showCustomDatePicker;
-  // }
   toggleCustomDatePicker() {
     if (!this.showCustomDatePicker) {
       // Picker is opening → reset inputs
@@ -490,160 +401,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     }
     this.showCustomDatePicker = !this.showCustomDatePicker;
   }
-
-  // toggleDealer(
-  //   dealer: any | null,
-  //   filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM' = this
-  //     .selectedFilter
-  // ): void {
-  //   if (dealer) {
-  //     this.expandedDealer = dealer; // store selected dealer
-  //     this.selectedDealerId = dealer.dealer_id;
-
-  //     // 🔹 Notify shared service about selected dealer
-  //     this.sharedService.setSelectedDealer(dealer);
-
-  //     if (this.selectedDealerId) {
-  //       // Fetch users for selected dealer with the selected filter
-  //       this.dashboardService
-  //         .getNoSMUsers(this.selectedDealerId, filter)
-  //         .subscribe({
-  //           next: (res: any) => {
-  //             if (res.status === 200 && res.data?.dealers?.length > 0) {
-  //               // Extract the users from the selected dealer
-  //               this.dealerUsers = res.data.dealers[0].user_list || [];
-  //             } else {
-  //               this.dealerUsers = [];
-  //             }
-  //           },
-  //           error: (err: any) => {
-  //             console.error('Error fetching dealer users:', err);
-  //             this.dealerUsers = [];
-  //           },
-  //         });
-  //     }
-  //   } else {
-  //     // Back to dealer list
-  //     this.expandedDealer = null;
-  //     this.selectedDealerId = null;
-  //     this.dealerUsers = [];
-
-  //     // 🔹 Reset shared service when going back
-  //     this.sharedService.setSelectedDealer(null);
-  //   }
-  // }
-
-  // toggleShowSMs(dealerId: string) {
-  //   this.showAllSMs[dealerId] = !this.showAllSMs[dealerId];
-  // }
-  // Add this method to your component class
-  // toggleDealer(
-  //   dealer: any | null,
-  //   filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM' = this
-  //     .selectedFilter
-  // ): void {
-  //   if (dealer) {
-  //     this.expandedDealer = dealer; // store selected dealer
-  //     this.selectedDealerId = dealer.dealer_id;
-
-  //     // Notify shared service about selected dealer
-  //     this.sharedService.setSelectedDealer(dealer);
-
-  //     if (this.selectedDealerId) {
-  //       // Fetch users for selected dealer with the selected filter
-  //       this.dashboardService
-  //         .getNoSMUsers(this.selectedDealerId, filter)
-  //         .subscribe({
-  //           next: (res: any) => {
-  //             if (res.status === 200 && res.data?.dealers?.length > 0) {
-  //               // ✅ Find the dealer matching selectedDealerId
-  //               const selectedDealer = res.data.dealers.find(
-  //                 (d: any) => d.dealer_id === this.selectedDealerId
-  //               );
-
-  //               // Populate users for the selected dealer
-  //               this.dealerUsers = selectedDealer?.user_list || [];
-  //             } else {
-  //               this.dealerUsers = [];
-  //             }
-  //           },
-  //           error: (err: any) => {
-  //             console.error('Error fetching dealer users:', err);
-  //             this.dealerUsers = [];
-  //           },
-  //         });
-  //     }
-  //   } else {
-  //     // Back to dealer list
-  //     this.expandedDealer = null;
-  //     this.selectedDealerId = null;
-  //     this.dealerUsers = [];
-
-  //     // Reset shared service when going back
-  //     this.sharedService.setSelectedDealer(null);
-  //   }
-  // }
-
-  // toggleDealer(
-  //   dealer: any | null,
-  //   filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM' = this
-  //     .selectedFilter
-  // ): void {
-  //   if (dealer) {
-  //     this.expandedDealer = dealer; // store selected dealer
-  //     this.selectedDealerId = dealer.dealerId; // use dealerId (consistent with API)
-
-  //     // Notify shared service about selected dealer
-  //     this.sharedService.setSelectedDealer(dealer);
-
-  //     if (this.selectedDealerId) {
-  //       // Fetch users for selected dealer with the selected filter
-  //       this.dashboardService
-  //         .getNoSMUsers(this.selectedDealerId, filter)
-  //         .subscribe({
-  //           next: (res: any) => {
-  //             if (res.status === 200 && res.data?.dealerData?.length > 0) {
-  //               // ✅ Find the dealer matching selectedDealerId
-  //               const selectedDealerData = res.data.dealerData.find(
-  //                 (d: any) => d.dealerId === this.selectedDealerId
-  //               );
-
-  //               // ✅ Store users keyed by dealerId
-  //               this.dealerUsers = {
-  //                 ...this.dealerUsers,
-  //                 [this.selectedDealerId]: selectedDealerData?.users || [],
-  //               };
-
-  //               console.log(
-  //                 'Mapped Users:',
-  //                 this.dealerUsers[this.selectedDealerId]
-  //               );
-  //             } else {
-  //               this.dealerUsers = {
-  //                 ...this.dealerUsers,
-  //                 [this.selectedDealerId]: [],
-  //               };
-  //             }
-  //           },
-  //           error: (err: any) => {
-  //             console.error('Error fetching dealer users:', err);
-  //             this.dealerUsers = {
-  //               ...this.dealerUsers,
-  //               [this.selectedDealerId]: [],
-  //             };
-  //           },
-  //         });
-  //     }
-  //   } else {
-  //     // Back to dealer list
-  //     this.expandedDealer = null;
-  //     this.selectedDealerId = null;
-  //     this.dealerUsers = {}; // reset object
-
-  //     // Reset shared service when going back
-  //     this.sharedService.setSelectedDealer(null);
-  //   }
-  // }
 
   getDealerBackground(index: number): string {
     const backgrounds = [
@@ -673,9 +430,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     });
   }
 
-  // get progressValue(): number {
-  //   return Math.min(Math.abs(this.changeLeads), 100);
-  // }
   fetchKpiData() {
     const token = sessionStorage.getItem('token') || '';
     this.dashboardService.getKpiData(token).subscribe((res: any) => {
@@ -684,6 +438,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       }
     });
   }
+
   private mapTimeToApi(time: string): 'MTD' | 'QTD' | 'YTD' {
     switch (time) {
       case '1M':
@@ -728,71 +483,13 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     }
     // this.initLineChart();
   }
+
   onFilterClick(filter: 'MTD' | 'QTD' | 'YTD') {}
-  // ✅ Dynamically updates values
-  // onFilterChange(filter: string): void {
-  //   this.selectedFilter = filter;
 
-  //   // Fetch top cards (KPI data)
-  //   this.fetchDashboardDataForTopCards(filter);
-
-  //   // Fetch dealer KPIs
-  //   this.fetchSuperAdminDashboard(filter);
-  //   this.fetchDealers('MTD');
-  // }
   toggleShowAllSMs(dealerId: string) {
     this.showAllSMs[dealerId] = !this.showAllSMs[dealerId];
   }
 
-  // Updated fetchDealerSMs to accept previous active SM
-
-  // onFilterChange(
-  //   filter: 'DAY' | 'WEEK' | 'MTD' | 'QTD' | 'YTD' | 'CUSTOM'
-  // ): void {
-  //   this.selectedFilter = filter;
-  //   const activeSMId = this.activeSM;
-
-  //   if (filter === 'CUSTOM') return;
-
-  //   if (this.selectedDealerId) {
-  //     const dealerId = this.selectedDealerId; // ✅ ensure it's a string
-
-  //     this.dashboardService.getNoSMUsers(dealerId, filter).subscribe({
-  //       next: (res: any) => {
-  //         const selectedDealer = res.data.dealerData.find(
-  //           (d: any) => d.dealerId === dealerId
-  //         );
-
-  //         // ✅ assign to object keyed by dealerId safely
-  //         this.dealerUsers = {
-  //           ...this.dealerUsers,
-  //           [dealerId]: selectedDealer?.users || [],
-  //         };
-
-  //         // ✅ slice safely
-  //         this.displayedDealerUsers =
-  //           this.dealerUsers[dealerId]?.slice(0, 10) || [];
-
-  //         // Restore previously active SM
-  //         const smList = this.dealerSMS[dealerId] || [];
-  //         this.activeSM = smList.some((s) => s.sm_id === activeSMId)
-  //           ? activeSMId
-  //           : null;
-  //       },
-  //       error: (err: any) => {
-  //         console.error('Error fetching dealer users:', err);
-  //         this.dealerUsers = { ...this.dealerUsers, [dealerId]: [] };
-  //         this.displayedDealerUsers = [];
-  //       },
-  //     });
-  //   } else {
-  //     // Main dealer dashboard → fetch all dealers
-  //     // this.fetchDealers('MTD');
-  //     // this.fetchDashboardData();
-  //     this.fetchDashboardDataForTopCards(filter);
-  //     this.fetchSuperAdminDashboard(filter);
-  //   }
-  // }
   private mapFilterToApi(
     filter:
       | 'Today'
@@ -957,60 +654,13 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     });
   }
 
-  // loadInitialDealers() {
-  //   this.paginatedDealers = this.dealers.slice(0, this.itemsPerPage);
-  //   this.showAll = false;
-  // }
-
-  // toggleShow() {
-  //   if (this.showAll) {
-  //     // Show less
-  //     this.paginatedDealers = this.dealers.slice(0, this.itemsPerPage);
-  //     this.showAll = false;
-  //   } else {
-  //     // Show all
-  //     this.paginatedDealers = [...this.dealers];
-  //     this.showAll = true;
-  //   }
-  // }
-  // toggleDetails(i: number) {
-  //   this.expandedRow = this.expandedRow === i ? null : i;
-  // }
-  // toggleDetails(i: number, dealer: any) {
-  //   if (this.expandedRow === i) {
-  //     this.expandedRow = null; // Close if already open
-  //     return;
-  //   }
-
-  //   this.expandedRow = i;
-
-  //   // Fetch users only if not already fetched
-  //   if (!this.dealerUsers[dealer.dealer_id]) {
-  //     this.dashboardService.getNoSMUsers(dealer.dealer_id, 'MTD').subscribe({
-  //       next: (res: any) => {
-  //         if (res.status === 200) {
-  //           const users = res.data?.dealers?.[0]?.user_list || [];
-  //           this.dealerUsers[dealer.dealer_id] = users;
-  //         } else {
-  //           this.dealerUsers[dealer.dealer_id] = [];
-  //         }
-  //       },
-  //       error: () => {
-  //         this.dealerUsers[dealer.dealer_id] = [];
-  //       },
-  //     });
-  //   }
-  // }
-
   updateProgressAndColor(change: number) {
     this.changeDisplay = change;
     this.progressValue = this.getProgressFromChange(change);
     this.strokeColor = this.getStrokeColor(change);
     this.cdr.detectChanges(); // ✅ trigger update
   }
-  selectSection(section: 'activities' | 'callAnalysis'): void {
-    this.selectedSection = section;
-  }
+
   // ✅ Maps change to 0–100%
   getProgressFromChange(change: number): number {
     const maxValue = 500;
@@ -1022,10 +672,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   getDashOffset(progressValue: number): number {
     return 100 - progressValue;
   }
-  // get paginatedDealers(): any[] {
-  //   const start = (this.currentdealerPage - 1) * this.itemsPerdealerPage;
-  //   return this.dealers.slice(start, start + this.itemsPerdealerPage);
-  // }
 
   get totalDealerPages(): number {
     return Math.ceil(this.dealers.length / this.itemsPerdealerPage);
@@ -1050,12 +696,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.selectedDealer = null;
     this.selectedDealerId = null; // Also reset this if you're using it
   }
-  // onDropdownChange() {
-  //   if (this.selectedCategory && this.selectedDuration) {
-  //     this.selectedOption = `${this.selectedCategory}-${this.selectedDuration}`;
-  //     this.updateDataBasedOnSelection();
-  //   }
-  // }
+
   getDealerColor(index: number): string {
     return this.dealerColors[index % this.dealerColors.length];
   }
@@ -1066,10 +707,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.activeAccordion = id; // open new one
     }
   }
-  // toggleDealer(id: string): void {
-  //   this.activeDealer = this.activeDealer === id ? null : id;
-  // }
-
   // DEALER PAGIANTOON
   get totalPagesdealer(): number {
     return Math.ceil(this.dealers.length / this.dealersPerPage);
@@ -1101,164 +738,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.currentPage++;
     }
   }
-  //   applyCustomDateFilter() {
-  //   if (!this.customStartDate || !this.customEndDate) {
-  //     alert('Please select both start and end dates');
-  //     return;
-  //   }
-
-  //   this.dashboardService.getDealerActivitiesCustom(this.customStartDate, this.customEndDate)
-  //     .subscribe((res: any) => {
-  //       if (res.status === 200) {
-  //         this.dealers = res.data.dealers || [];
-  //       }
-  //     });
-  // }
-  // applyCustomDateFilter() {
-  //   if (this.customStartDate && this.customEndDate) {
-  //     // Temporarily clear table to show refresh
-  //     const tempDealers = this.dealers;
-  //     this.dealers = [];
-  //     this.paginatedDealers = [];
-
-  //     this.dashboardService
-  //       .getDealerActivitiesCustom(
-  //         this.customStartDate,
-  //         this.customEndDate,
-  //         this.selectedFilter
-  //       )
-  //       .subscribe((res: any) => {
-  //         if (res.status === 200) {
-  //           // Update the main dealers array
-  //           this.dealers = res.data.dealers || [];
-
-  //           // Reset pagination to first page
-  //           this.currentPage = 1;
-  //           this.paginateDealers();
-
-  //           // Collapse any expanded rows
-  //           this.expandedRow = null;
-  //         }
-  //       });
-  //   } else {
-  //     alert('Please select both start and end dates.');
-  //   }
-  // }
-  // applyCustomDateFilter() {
-  //   if (this.customStartDate && this.customEndDate) {
-  //     // First, set the applied dates so the UI shows them immediately
-  //     this.appliedStartDate = this.customStartDate;
-  //     this.appliedEndDate = this.customEndDate;
-
-  //     // Temporarily clear table to show refresh
-  //     this.dealers = [];
-  //     this.paginatedDealers = [];
-  //     this.expandedRow = null;
-
-  //     // Call API
-  //     this.dashboardService
-  //       .getDealerActivitiesCustom(
-  //         this.customStartDate,
-  //         this.customEndDate,
-  //         this.selectedFilter
-  //       )
-  //       .subscribe((res: any) => {
-  //         if (res.status === 200) {
-  //           // Update the main dealers array
-  //           this.dealers = res.data.dealers || [];
-
-  //           // Reset pagination to first page
-  //           this.currentPage = 1;
-  //           this.paginateDealers();
-
-  //           // Collapse any expanded rows (already done)
-  //           this.expandedRow = null;
-  //         }
-  //       });
-  //   } else {
-  //     alert('Please select both start and end dates.');
-  //   }
-  // }
-
-  // toggleSM(id: string): void {
-  //   this.activeSM = this.activeSM === id ? null : id;
-  // }
-  // toggleSM(smId: string, dealerId: string): void {
-  //   if (this.activeSM === smId) {
-  //     // Closing SM
-  //     this.activeSM = null;
-  //     this.activePS = null; // <-- Reset PS when SM closes
-  //   } else {
-  //     // Opening new SM
-  //     this.activeSM = smId;
-  //     this.activePS = null; // <-- Optionally reset PS when switching SMs
-
-  //     // Fetch PS data only if not fetched yet
-  //     if (!this.psData[smId]) {
-  //       const token = sessionStorage.getItem('token');
-  //       if (!token) return;
-
-  //       const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-  //       const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
-
-  //       this.http.get<any>(url, { headers }).subscribe({
-  //         next: (res) => {
-  //           this.psData[smId] = res?.data?.ps || [];
-  //         },
-  //         error: (err) => {
-  //           console.error('Failed to fetch PS data:', err);
-  //           this.psData[smId] = [];
-  //         },
-  //       });
-  //     }
-  //   }
-  // }
-  // toggleSM(smId: string, dealerId: string): void {
-  //   if (this.activeSM === smId) {
-  //     // Closing SM
-  //     this.activeSM = null;
-  //     this.activePS = null;
-  //   } else {
-  //     // Opening SM
-  //     this.activeSM = smId;
-  //     this.activePS = null;
-
-  //     // Fetch dealer SMs if not already fetched
-  //     if (!this.dealerSMS[dealerId]) {
-  //       const token = sessionStorage.getItem('token');
-  //       if (!token) return;
-
-  //       const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-  //       const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?dealer_id=${dealerId}&type=${this.selectedFilter}`;
-
-  //       this.http.get<any>(url, { headers }).subscribe({
-  //         next: (res) => {
-  //           // const dealer = res?.data?.dealers?.find(
-  //           //   (d) => d.dealer_id === dealerId
-  //           // );
-  //           const dealer = res?.data?.dealers?.find(
-  //             (d: any) => d.dealer_id === dealerId
-  //           );
-
-  //           this.dealerSMS[dealerId] = dealer?.sm_list || [];
-
-  //           // Set PS data for the clicked SM
-  //           const sm = this.dealerSMS[dealerId].find((s) => s.sm_id === smId);
-  //           this.psData[smId] = sm?.ps_list || [];
-  //         },
-  //         error: (err) => {
-  //           console.error('Failed to fetch SMs and PS:', err);
-  //           this.dealerSMS[dealerId] = [];
-  //           this.psData[smId] = [];
-  //         },
-  //       });
-  //     } else {
-  //       // Already fetched: just load PS for this SM
-  //       const sm = this.dealerSMS[dealerId].find((s) => s.sm_id === smId);
-  //       this.psData[smId] = sm?.ps_list || [];
-  //     }
-  //   }
-  // }
 
   onPageChange(page: number): void {
     const totalPages = Math.ceil(this.dealers.length / this.itemsPerPage);
@@ -1268,55 +747,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       // this.updatePaginatedDealers();
     }
   }
-
-  // updatePaginatedDealers() {
-  //   if (!this.dealers || !this.dealers.length) {
-  //     this.paginatedDealers = [];
-  //     return;
-  //   }
-  //   const start = (this.currentPage - 1) * this.itemsPerPagedeal;
-  //   const end = start + this.itemsPerPagedeal;
-  //   this.paginatedDealers = this.dealers.slice(start, end);
-  // }
-
-  // toggleSM(smId: string, dealerId: string): void {
-  //   if (this.activeSM === smId) {
-  //     // Closing SM
-  //     this.activeSM = null;
-  //     this.activePS = null;
-  //   } else {
-  //     // Opening SM
-  //     this.activeSM = smId;
-  //     this.activePS = null;
-
-  //     const token = sessionStorage.getItem('token');
-  //     if (!token) return;
-
-  //     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-
-  //     // Fetch PS for this SM
-  //     const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?dealer_id=${dealerId}&sm_id=${smId}&type=${this.selectedFilter}`;
-
-  //     this.http.get<any>(url, { headers }).subscribe({
-  //       next: (res) => {
-  //         // Find the dealer
-  //         const dealer = res?.data?.dealers?.find(
-  //           (d: Dealer) => d.dealer_id === dealerId
-  //         );
-  //         this.dealerSMS[dealerId] = dealer?.sm_list || [];
-
-  //         // Find the SM and set its PS data
-  //         const sm = this.dealerSMS[dealerId].find((s) => s.sm_id === smId);
-  //         this.psData[smId] = sm?.ps_list || [];
-  //       },
-  //       error: (err) => {
-  //         console.error('Failed to fetch SMs and PS:', err);
-  //         this.dealerSMS[dealerId] = [];
-  //         this.psData[smId] = [];
-  //       },
-  //     });
-  //   }
-  // }
 
   togglePS(id: string): void {
     this.activePS = this.activePS === id ? null : id;
@@ -1334,20 +764,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       console.warn('⚠️ One or both dropdowns not selected. Skipping fetch.');
     }
   }
-  // onSMClick(sm: any) {
-  //   this.selectedSM = sm;
 
-  //   setTimeout(() => {
-  //     const section = document.querySelector('.ps-cards-page');
-  //     if (section) {
-  //       section.scrollIntoView({ behavior: 'smooth' });
-  //     }
-  //   }, 100);
-
-  //   this.selectedDealer = null;
-
-  //   this.fetchPS1Data();
-  //  }
   // Your existing onSMClick method with PS data fetching added
   onSMClick(sm: any): void {
     this.selectedSM = sm;
@@ -1357,20 +774,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     // this.fetchPS1Data(); // no argument
   }
-  // Toggle accordion functionality
-  // toggleAccordion(id: string): void {
-  //   const content = document.getElementById(`content-${id}`) as HTMLElement;
-  //   const toggle = document.getElementById(`toggle-${id}`) as HTMLElement;
-  //   const header = toggle?.parentElement as HTMLElement;
-
-  //   if (content && toggle && header) {
-  //     // Toggle current accordion
-  //     const isActive = content.classList.contains('active');
-  //     content.classList.toggle('active');
-  //     header.classList.toggle('active');
-  //     toggle.textContent = isActive ? '▼' : '▲';
-  //   }
-  // }
 
   // Dealer pagination functions
   changeDealerPage(direction: number): void {
@@ -1499,113 +902,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.searchDealer(target.value);
   }
 
-  // fetchSuperAdminDashboard(type: string = 'MTD'): void {
-  //   const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${type}`;
-  //   const token = sessionStorage.getItem('token');
-
-  //   const headers = new HttpHeaders({
-  //     Authorization: `Bearer ${token}`,
-  //   });
-
-  //   this.http.get<any>(url, { headers }).subscribe({
-  //     next: (res) => {
-  //       if (res?.status === 200) {
-  //         this.dealers = res.data?.dealers || [];
-  //       } else {
-  //         console.error('Unexpected response format:', res);
-  //       }
-  //     },
-  //     error: (err) => {
-  //       console.error('Super Admin Dashboard API failed:', err);
-  //     },
-  //   });
-  // }
-  // fetchSuperAdminDashboard(type: string = 'MTD'): void {
-  //   const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
-  //   const token = sessionStorage.getItem('token');
-
-  //   if (!token) {
-  //     console.error('No token found in sessionStorage!');
-  //     return;
-  //   }
-
-  //   const headers = new HttpHeaders({
-  //     Authorization: `Bearer ${token}`,
-  //   });
-
-  //   this.http.get<any>(url, { headers }).subscribe({
-  //     next: (res) => {
-  //       if (res?.status === 200) {
-  //         // ✅ KPI top card data
-  //         this.kpiData = {
-  //           dealers: res.data?.dealers || 0,
-  //           activeNetwork: res.data?.activeNetwork || 0,
-  //           users: res.data?.users || 0,
-  //           activeUsers: res.data?.activeUsers || 0,
-  //           leads: res.data?.leads || 0,
-  //           calls: res.data?.calls || 0,
-  //         };
-
-  //         // ✅ Dealer table data comes from dealerData
-  //         this.dealers = res.data?.dealerData || [];
-  //         console.log('Dealers loaded:', this.dealers.length, this.dealers);
-  //       } else {
-  //         console.error('Unexpected response:', res);
-  //         this.dealers = [];
-  //       }
-  //     },
-  //     error: (err) => {
-  //       console.error('Super Admin Dashboard API failed:', err);
-  //       this.dealers = [];
-  //     },
-  //   });
-  // }
-  // fetchSuperAdminDashboard(type: string = 'MTD'): void {
-  //   const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
-  //   const token = sessionStorage.getItem('token');
-
-  //   if (!token) {
-  //     console.error('No token found in sessionStorage!');
-  //     return;
-  //   }
-
-  //   const headers = new HttpHeaders({
-  //     Authorization: `Bearer ${token}`,
-  //   });
-
-  //   this.http.get<any>(url, { headers }).subscribe({
-  //     next: (res) => {
-  //       if (res?.status === 200) {
-  //         // ✅ KPI top card data
-  //         this.kpiData = {
-  //           dealers: res.data?.dealers || 0,
-  //           activeNetwork: res.data?.activeNetwork || 0,
-  //           users: res.data?.users || 0,
-  //           activeUsers: res.data?.activeUsers || 0,
-  //           leads: res.data?.leads || 0,
-  //           calls: res.data?.calls || 0,
-  //         };
-
-  //         // ✅ Dealer table data comes from dealerData
-  //         this.dealers = res.data?.dealerData || [];
-
-  //         // 🔑 Initialize filtered dealers so dropdown shows all on open
-  //         this.filteredDealers = [...this.dealers];
-
-  //         console.log('Dealers loaded:', this.dealers.length, this.dealers);
-  //       } else {
-  //         console.error('Unexpected response:', res);
-  //         this.dealers = [];
-  //         this.filteredDealers = [];
-  //       }
-  //     },
-  //     error: (err) => {
-  //       console.error('Super Admin Dashboard API failed:', err);
-  //       this.dealers = [];
-  //       this.filteredDealers = [];
-  //     },
-  //   });
-  // }
   fetchSuperAdminDashboard(type: string = 'This month'): void {
     const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
     const token = sessionStorage.getItem('token');
@@ -2997,6 +2293,35 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
   showMoreVisible: boolean = true;
 
+  showMoreTable1() {
+    const list =
+      this.selectedDealers.length > 0 ? this.selectedDealers : this.dealers;
+    if (this.table1Length < list.length) {
+      this.table1Length += 5;
+    }
+  }
+
+  showLessTable1() {
+    this.table1Length = 5;
+  }
+
+  showMoreTable2() {
+    const list = this.dealers; // yaha selectedDealers ka concept nahi hai, sirf dealers hai
+    if (this.table2Length < list.length) {
+      this.table2Length += 5;
+    }
+  }
+
+  showLessTable2() {
+    this.table2Length = 5;
+  }
+
+  // dealerEngagementView(section: 'table' | 'chart'): void {
+  //   this.dealerSummaryCallsViewType = section;
+  // }
+  dealerEngagementView(viewType: 'table' | 'chart' | 'enquiry' | 'cold') {
+    this.dealerSummaryCallsViewType = viewType;
+  }
   // updateDisplayedDealers() {
   //   this.displayedDealers = this.dealers.slice(0, this.itemsToShow);
   //   this.showMoreVisible = this.itemsToShow < this.dealers.length;
