@@ -1,13 +1,6 @@
-<!-- <img class="wave" src="assets/admin-img/Untitled-1.png" alt="Wave Image" /> -->
 <div class=" custom-container">
-
   <div class="login-content">
-    <!-- Login Form -->
-    <!-- <form *ngIf="currentStep === 'login'"> -->
     <form *ngIf="currentStep === 'login'" #loginForm="ngForm">
-
-      <!-- <img class="mx-auto inline-flex items-center justify-center" src="../../../assets/admin-img/avatar (1).png"
-        alt="Avatar Image" /> -->
       <img class="mx-auto inline-flex items-center justify-center" src="../../../assets/admin-img/jlr logo.svg"
         alt="Avatar Image" />
       <h2 class="title" style="color:#222fb9;font-size:20px;text-transform: capitalize;margin-top:15px;">Login to Smart
@@ -18,66 +11,18 @@
         </div>
 
         <div class="div relative">
-          <h5 class="absolute left-2 top-1 text-gray-500 text-sm">Username</h5>
+          <h5 class="absolute left-2 top-1 text-gray-500 text-sm">Email</h5>
           <input [(ngModel)]="loginObj.email" #inputElement type="text" name="username" required
             class="forms-control" />
         </div>
-        <!-- <div class="relative z-0 w-full mb-1 group flex flex-col">
-          <input
-            type="email"
-            name="username"
-            required="true"
-            [(ngModel)]="loginObj.email"
-            id="floating_email"
-            class="form-control block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-            placeholder=" "
-            required
-          />
-          <label
-            for="floating_email"
-            class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-            >Email address</label
-          >
-        </div> -->
       </div>
 
       <div class="input-div pass">
         <div class="i mr-3">
           <i class="fas fa-lock"></i>
         </div>
-
-
-        <!-- <div class="relative z-0 w-full mb-1 group flex flex-col">
-          
-          <input
-          [(ngModel)]="loginObj.password"
-          [type]="showPassword ? 'text' : 'password'"
-          name="password"
-          required
-            id="floating_email"
-            class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-            placeholder=" "
-            required
-          />
-          <label
-            for="floating_email"
-            class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-            > Password</label
-          >
-          <i
-            [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
-            class="icon11 absolute right-8 top-1/2 transform -translate-y-1/2 cursor-pointer"
-            (click)="togglePassword('password')"
-          ></i>
-        </div> -->
         <div class="div relative">
           <h5>Password</h5>
-          <!-- <input [(ngModel)]="loginObj.password" [type]="showPassword ? 'text' : 'password'" name="password" required
-                    class="inputt  focus:outline-none focus:border-none border-transparent focus:ring-0 py-2 px-4 bg-transparent text-gray-800"
-                    #inputElement style="padding-left: 1px !important;" />
-                  <i [class]="showPassword ? 'fas fa-eye-slash eye' : 'fas fa-eye eye'"
-                    class="icon11 absolute right-8 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                    (click)="togglePassword('password')"></i> -->
           <input [(ngModel)]="loginObj.password" [type]="showPassword ? 'text' : 'password'" name="password" required
             autocomplete="new-password"
             class="inputt focus:outline-none focus:border-none border-transparent focus:ring-0 py-2 px-4 bg-transparent text-gray-800"
@@ -88,16 +33,10 @@
 
         </div>
       </div>
-
       <a href="javascript:void(0)" class="forgot-password" (click)="showVerifyEmail()">Forgot Password?</a>
-      <!-- <input type="submit" class="btn" value="Login" (click)="onLogin()" /> -->
-      <!-- <input type="submit" class="btn" value="Login" 
-        [ngClass]="{ 'opacity-50 cursor-not-allowed': !loginObj.email || !loginObj.password }" (click)="onLogin()" style="background-color:#222fb9 !important"/> -->
       <input type="submit" class="btn" value="Login" (click)="onLogin()" />
 
     </form>
-
-    <!-- Verify Email Form -->
     <form *ngIf="currentStep === 'verifyEmail'" #verifyForm="ngForm">
       <div class="flex justify-center">
         <img class="mx-auto inline-flex items-center justify-center" src="../../../assets/admin-img/jlr logo.svg"
@@ -117,15 +56,9 @@
             placeholder="E-mail" #dealerEmail="ngModel" />
         </div>
       </div>
-
       <a href="javascript:void(0)" class="back-to-login" (click)="backToLogin()">Back to Login</a>
-
-      <!-- Disable if the form is invalid -->
       <input type="submit" class="btn" value="Send OTP" (click)="onVerifyEmail()" />
     </form>
-
-
-    <!-- Verify OTP Form -->
     <form *ngIf="currentStep === 'verifyOtp'" #otpForm="ngForm">
       <div class="flex justify-center">
         <img class="mx-auto inline-flex items-center justify-center" src="../../../assets/admin-img/jlr logo.svg"
@@ -155,11 +88,9 @@
         <a style="cursor: pointer" class="resend-otp" *ngIf="countdown === 0" (click)="onVerifyEmail()">Resend OTP</a>
       </div>
 
-      <!-- Disable button if OTP input is invalid -->
       <input type="submit" class="btn" value="Verify OTP" (click)="onVerifyOtp()" [disabled]="otpForm.invalid" />
     </form>
 
-    <!-- New Password Form -->
     <form *ngIf="currentStep === 'newPassword'">
       <h2 class="title">Set New Password</h2>
 
@@ -200,4 +131,3 @@
     </form>
   </div>
 </div>
-<!-- <script src="https://cdn.tailwindcss.com"></script> -->

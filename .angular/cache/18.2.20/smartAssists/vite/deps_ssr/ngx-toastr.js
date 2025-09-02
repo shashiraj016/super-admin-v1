@@ -1,15 +1,15 @@
 import { createRequire } from 'module';const require = createRequire(import.meta.url);
 import {
+  DomSanitizer
+} from "./chunk-TLZC2Y3Y.js";
+import "./chunk-VE4VKEY2.js";
+import {
   animate,
   state,
   style,
   transition,
   trigger
 } from "./chunk-NWV7VZUM.js";
-import {
-  DomSanitizer
-} from "./chunk-TLZC2Y3Y.js";
-import "./chunk-VE4VKEY2.js";
 import {
   DOCUMENT,
   NgIf

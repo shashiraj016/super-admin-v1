@@ -50,7 +50,7 @@ export class ProfileComponent implements OnInit {
   getProfileImage() {
     this.http
       .get<any>(
-        'https://uat.smartassistapp.in/api/superAdmin/show-profile'
+        'https://api.prod.smartassistapp.in/api/superAdmin/show-profile'
       )
       .subscribe({
         next: (res) => {

@@ -1,9 +1,7 @@
 <div class="container-fluid">
   <div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-    <!-- shadow -->
     <div class="card rounded-4  p-4" style=" width: 100%;">
       <div *ngIf="profile() as profile" class="row g-3 align-items-center">
-        <!-- Profile Image / Initials -->
         <div class="col-auto">
           <div *ngIf="!isCustomProfileImage(); else profilePic" class="avatar-circle shadow-sm">
             {{ getInitials(profile.name) }}
@@ -13,16 +11,9 @@
           </ng-template>
         </div>
 
-        <!-- Profile Details -->
         <div class="col">
           <h5 class="text-dark mb-1 " style="font-size:22px;">{{ profile.name }}</h5>
           <p class="text-muted mb-2" style="font-size:17px;">{{ profile.email }}</p>
-          <!-- <p class="mb-1" style="font-size:17px;"><strong class="text-dark" style="font-size:17px;">Location : </strong>
-            {{ profile. }}
-          </p> -->
-          <!-- <p class="mb-0" style="font-size:17px;"><strong class="text-dark" style="font-size:17px;">Mobile : </strong>
-            {{
-            profile.mobile }}</p> -->
         </div>
       </div>
 
