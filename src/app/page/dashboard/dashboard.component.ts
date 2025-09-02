@@ -9,6 +9,7 @@ import {
   NgZone,
   HostListener,
   ElementRef,
+  ViewChild,
 } from '@angular/core';
 import {
   HttpClient,
@@ -17,7 +18,7 @@ import {
 } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { NgApexchartsModule } from 'ng-apexcharts';
-
+import { ApexNonAxisChartSeries, ApexResponsive } from 'ng-apexcharts';
 import { Chart, ChartType, registerables } from 'chart.js';
 import { FormsModule } from '@angular/forms'; // Add this import
 import { NgCircleProgressModule } from 'ng-circle-progress'; // Import the circle progress module
@@ -37,41 +38,37 @@ import { ContextService } from '../../service/context.service';
 import { ApiResponse, Dealer } from '../../model/interface/master';
 import { DashboardService } from '../../service/dashboard-service';
 import { SharedService } from '../../service/shared.service';
+
 import {
   ApexAxisChartSeries,
   ApexChart,
   ApexXAxis,
   ApexDataLabels,
   ApexStroke,
-  ApexMarkers,
   ApexTitleSubtitle,
-  ApexYAxis,
-  ApexLegend,
+  ChartComponent,
 } from 'ng-apexcharts';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
   chart: ApexChart;
   xaxis: ApexXAxis;
-  stroke: ApexStroke;
   dataLabels: ApexDataLabels;
-  markers: ApexMarkers;
+  stroke: ApexStroke;
   title: ApexTitleSubtitle;
-  yaxis: ApexYAxis;
-  legend: ApexLegend;
 };
 
 // Register all chart components
-Chart.register(...registerables);
-Chart.register(
-  LineController,
-  LineElement,
-  PointElement,
-  LinearScale,
-  Title,
-  CategoryScale,
-  Tooltip
-);
+// Chart.register(...registerables);
+// Chart.register(
+//   LineController,
+//   LineElement,
+//   PointElement,
+//   LinearScale,
+//   Title,
+//   CategoryScale,
+//   Tooltip
+// );
 
 //  export type CallChartOptions = {
 //   series: ApexAxisChartSeries;
@@ -105,9 +102,20 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     netOrders: 0,
     retail: 0,
   };
+  // ✅ initialize callLogs so template won’t break
+  callLogs = {
+    totalCalls: 120,
+    outgoing: 50,
+    incoming: 40,
+    connected: 20,
+    declined: 10,
+    durationSec: 500,
+  };
   // NEW DESIGN CODE
   expandedDealer: any | null = null; // or better, create an interface for Dealer
-
+  // chartOptions!: ChartOptions;
+  @ViewChild('chart') chart!: ChartComponent;
+  public chartOptions!: Partial<ChartOptions>;
   sortColumn: string | null = null; // track which column is sorted
   // sortDirection: 'asc' | 'desc' = 'asc'; // track sort direction
   sortDirection: 'asc' | 'desc' | 'default' = 'default';
@@ -261,7 +269,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   sidebarLeads = signal<number>(0);
   private pieChartInstance: any;
   leadsData: any = {}; // Holds your backend data
-  chart: any; // Reference to the chart
+  //chart: any; // Reference to the chart
   miniChart: any;
   hoveredPS: number | null = null;
   activeDealer: string | null = null;
@@ -314,7 +322,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   ) {}
   data: any; // To hold your data
   apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
-
   ngOnInit() {
     this.selectedTime = 'MTD'; // or 'ALL'
     this.onTimeChange(this.selectedTime); // <-- this ensures API call on load
@@ -930,6 +937,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
           // ✅ Dealer table data
           this.dealers = res.data.dealerData ?? [];
+
+          console.log(this.dealers, 'this.dealers===========================');
           this.originalDealers = [...this.dealers];
 
           // 🔑 Initialize filtered dealers for dropdown
@@ -940,6 +949,69 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             this.dealers.length,
             this.dealers
           );
+
+          const categories = this.dealers.map((d: any) => d.dealerName);
+
+          // Series Data
+          const connected = this.dealers.map((d: any) => d.callLogs.connected);
+          const declined = this.dealers.map((d: any) => d.callLogs.declined);
+          const durationSec = this.dealers.map(
+            (d: any) => d.callLogs.durationSec
+          );
+          const incoming = this.dealers.map((d: any) => d.callLogs.incoming);
+          const outgoing = this.dealers.map((d: any) => d.callLogs.outgoing);
+          const totalCalls = this.dealers.map(
+            (d: any) => d.callLogs.totalCalls
+          );
+
+          this.chartOptions = {
+            series: [
+              {
+                name: 'Total Calls',
+                data: totalCalls,
+              },
+              {
+                name: 'Outgoing Calls',
+                data: outgoing,
+              },
+              {
+                name: 'Incoming Calls',
+                data: incoming,
+              },
+              {
+                name: 'Duration Sec',
+                data: durationSec,
+              },
+              {
+                name: 'Declined Calls',
+                data: declined,
+              },
+              {
+                name: 'Connected Calls',
+                data: connected,
+              },
+            ],
+            chart: {
+              type: 'line',
+              height: 350,
+              toolbar: { show: true },
+            },
+            dataLabels: {
+              enabled: false,
+            },
+            stroke: {
+              curve: 'smooth',
+              width: 3,
+            },
+            title: {
+              text: 'Dealer-wise Calls Analysis',
+              align: 'center',
+            },
+            xaxis: {
+              categories: categories,
+              labels: { rotate: -45 },
+            },
+          };
         } else {
           console.error('Unexpected response:', res);
           this.dealers = [];
@@ -2592,47 +2664,47 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   // CODE FOR LINE GRPAH ON THREEE CARDS
-  renderChart(data: any): void {
-    // Sample data extraction (adjust as per your API response)
-    const chartData = {
-      labels: ['Leads', 'Test Drives', 'Orders'], // X-Axis labels
-      datasets: [
-        {
-          label: 'MTD Data',
-          data: [data.mtdLeads, data.mtdTestDrives, data.mtdOrders], // Y-Axis data
-          backgroundColor: ['#FF5733', '#33FF57', '#3357FF'],
-          borderColor: ['#FF5733', '#33FF57', '#3357FF'],
-          borderWidth: 1,
-        },
-      ],
-    };
+  // renderChart(data: any): void {
+  //   // Sample data extraction (adjust as per your API response)
+  //   const chartData = {
+  //     labels: ['Leads', 'Test Drives', 'Orders'], // X-Axis labels
+  //     datasets: [
+  //       {
+  //         label: 'MTD Data',
+  //         data: [data.mtdLeads, data.mtdTestDrives, data.mtdOrders], // Y-Axis data
+  //         backgroundColor: ['#FF5733', '#33FF57', '#3357FF'],
+  //         borderColor: ['#FF5733', '#33FF57', '#3357FF'],
+  //         borderWidth: 1,
+  //       },
+  //     ],
+  //   };
 
-    this.chart = new Chart('myColumnChart', {
-      type: 'bar', // Change to 'bar' for column chart
-      data: chartData,
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              stepSize: 1,
-            },
-          },
-        },
-        plugins: {
-          legend: {
-            position: 'top',
-          },
-          tooltip: {
-            callbacks: {
-              label: (context: any) => `${context.label}: ${context.raw}`,
-            },
-          },
-        },
-      },
-    });
-  }
+  //   this.chart = new Chart('myColumnChart', {
+  //     type: 'bar', // Change to 'bar' for column chart
+  //     data: chartData,
+  //     options: {
+  //       responsive: true,
+  //       scales: {
+  //         y: {
+  //           beginAtZero: true,
+  //           ticks: {
+  //             stepSize: 1,
+  //           },
+  //         },
+  //       },
+  //       plugins: {
+  //         legend: {
+  //           position: 'top',
+  //         },
+  //         tooltip: {
+  //           callbacks: {
+  //             label: (context: any) => `${context.label}: ${context.raw}`,
+  //           },
+  //         },
+  //       },
+  //     },
+  //   });
+  // }
 
   fetchData(): void {
     this.http

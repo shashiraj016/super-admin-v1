@@ -1,5 +1,3 @@
-
-
 <ng-container *ngIf="!selectedDealer && !selectedSM">
   <div class="header2" [ngClass]="{ 'sidebar-open': isSidebarOpen, 'sidebar-closed': !isSidebarOpen }"
     style="border-radius:7px;padding:10px;margin-top:1rem;">
@@ -168,32 +166,32 @@
                     </span>
                   </th>
 
-                    <th class="th-right" style="cursor: pointer;" (click)="sortData('manuallyEnteredLeads')">
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('manuallyEnteredLeads')">
                     Manually Entered with CXP
-                      <span *ngIf="sortColumn === 'manuallyEnteredLeads' && sortDirection !== 'default'">
-                        {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                      </span>
-                    </th>
-
-
-                  <!-- <th class="th-right">Follow-ups (Total)</th> -->
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('totalFollowUps')">
-                    SA Followups
-                    <span *ngIf="sortColumn === 'totalFollowUps' && sortDirection !== 'default'">
+                    <span *ngIf="sortColumn === 'manuallyEnteredLeads' && sortDirection !== 'default'">
                       {{ sortDirection === 'asc' ? '▲' : '▼' }}
                     </span>
                   </th>
 
-                      <th class="th-right" style="cursor: pointer;" (click)="sortData('cxpFollowUps')">
-                        Sync with CXP
-                        <span *ngIf="sortColumn === 'cxpFollowUps' && sortDirection !== 'default'">
-                          {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                        </span>
-                      </th>
 
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('openFollowUps')">
-                   Completed Followups
-                    <span *ngIf="sortColumn === 'openFollowUps' && sortDirection !== 'default'">
+                  <!-- <th class="th-right">Follow-ups (Total)</th> -->
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('saFollowUps')">
+                    SA Followups
+                    <span *ngIf="sortColumn === 'saFollowUps' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('cxpFollowUps')">
+                    Sync with CXP
+                    <span *ngIf="sortColumn === 'cxpFollowUps' && sortDirection !== 'default'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </span>
+                  </th>
+
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('completedFollowUps')">
+                    Completed Followups
+                    <span *ngIf="sortColumn === 'completedFollowUps' && sortDirection !== 'default'">
                       {{ sortDirection === 'asc' ? '▲' : '▼' }}
                     </span>
                   </th>
@@ -215,11 +213,11 @@
                   </th>
 
                   <!-- <th class="th-right">Follow-ups (sync to CXP)</th> -->
-              
+
                   <!-- <th class="th-right">Test Drives (Total)</th> -->
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('totalTestDrives')">
-                     SA Test Drives
-                    <span *ngIf="sortColumn === 'totalTestDrives' && sortDirection !== 'default'">
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('saTestDrives')">
+                    SA Test Drives
+                    <span *ngIf="sortColumn === 'saTestDrives' && sortDirection !== 'default'">
                       {{ sortDirection === 'asc' ? '▲' : '▼' }}
                     </span>
                   </th>
@@ -231,15 +229,15 @@
                     </span>
                   </th>
                   <th class="th-right" style="cursor: pointer;" (click)="sortData('completedTestDrives')">
-                    Completed test drives 
+                    Completed test drives
                     <span *ngIf="sortColumn === 'completedTestDrives' && sortDirection !== 'default'">
                       {{ sortDirection === 'asc' ? '▲' : '▼' }}
                     </span>
                   </th>
 
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('uniqueTestDrives')">
-                   Upcoming 
-                    <span *ngIf="sortColumn === 'uniqueTestDrives' && sortDirection !== 'default'">
+                  <th class="th-right" style="cursor: pointer;" (click)="sortData('upcomingTestDrives')">
+                    Upcoming
+                    <span *ngIf="sortColumn === 'upcomingTestDrives' && sortDirection !== 'default'">
                       {{ sortDirection === 'asc' ? '▲' : '▼' }}
                     </span>
                   </th>
@@ -255,7 +253,7 @@
                       {{ sortDirection === 'asc' ? '▲' : '▼' }}
                     </span>
                   </th>
-                 
+
                 </tr>
               </thead>
 
@@ -281,30 +279,32 @@
 
 
 
-                    <td class="td-right" style="color:#222fb9">{{ dealer.totalFollowUps ?? 0 }}</td> 
+                    <td class="td-right" style="color:#222fb9">{{ dealer.saFollowUps ?? 0 }}</td>
                     <!-- SA FOLLOWUPS -->
-                    <td class="td-right" [ngStyle]="{'color': dealer.totalFollowUps === dealer.cxpFollowUps ? 'green' : 'red'}">
+                    <td class="td-right"
+                      [ngStyle]="{'color': dealer.saFollowUps === dealer.cxpFollowUps ? 'green' : 'red'}">
                       {{ dealer.cxpFollowUps ?? 0 }}
                     </td>
-                    
-                    <td class="td-right">{{ dealer.openFollowUps ?? 0 }}</td>
+
+                    <td class="td-right">{{ dealer.completedFollowUps ?? 0 }}</td>
                     <!-- Compeplteted followups -->
 
                     <td class="td-right">{{ dealer.openFollowUps ?? 0 }}</td>
                     <td class="td-right">{{ dealer.closedFollowUps ?? 0 }}</td>
                     <!-- <td class="td-right">{{ dealer.cxpFollowUps ?? 0 }}</td> -->
-                    
-                    <td class="td-right" style="color:#222fb9">{{ dealer.totalTestDrives ?? 0 }}</td>
-                      <td class="td-right" [ngStyle]="{'color': dealer.totalTestDrives === dealer.cxpTestDrives ? 'green' : 'red'}">
-                        {{ dealer.cxpTestDrives ?? 0 }}
-                      </td>
-                                          <td class="td-right">{{ dealer.completedTestDrives ?? 0 }}</td>
-                                          <td class="td-right">{{ dealer.upcomingTestDrives ?? 0 }}</td>
+
+                    <td class="td-right" style="color:#222fb9">{{ dealer.saTestDrives ?? 0 }}</td>
+                    <td class="td-right"
+                      [ngStyle]="{'color': dealer.saTestDrives === dealer.cxpTestDrives ? 'green' : 'red'}">
+                      {{ dealer.cxpTestDrives ?? 0 }}
+                    </td>
+                    <td class="td-right">{{ dealer.completedTestDrives ?? 0 }}</td>
+                    <td class="td-right">{{ dealer.upcomingTestDrives ?? 0 }}</td>
                     <!-- upcomingtestfrives -->
                     <td class="td-right">{{ dealer.closedTestDrives ?? 0 }}</td>
                     <!-- <td class="td-right">{{ dealer.uniqueTestDrives ?? 0 }}</td> -->
                     <!-- <td class="td-right">{{ dealer.cxpTestDrives ?? 0 }}</td> -->
-                  
+
                     <td class="td-right">{{ dealer.opportunitiesConverted ?? 0 }}</td>
 
                   </tr>
@@ -324,18 +324,27 @@
                                 <tr>
                                   <th style="text-align:left">User</th>
                                   <th>Active</th>
-                                  <th>Leads (Total)</th>
+
+                                  <th>SA Leads</th>
                                   <th>Leads (CXP)</th>
                                   <th>Leads (ICS)</th>
-                                  <th>Follow-ups (Total)</th>
+                                  <th>Manually entered with cxp</th>
+
+                                  <th>SA Follow-ups </th>
+                                  <th>Sync with cxp</th>
                                   <th>Open</th>
                                   <th>Closed</th>
-                                  <th>Follow-ups (CXP)</th>
-                                  <th>Test Drives (Total)</th>
-                                  <th>Unique Test Drives</th>
-                                  <th>Completed Test Drives</th>
-                                  <th>Closed</th>
+                                  <th>Completed</th>
+                                  <!-- <th>Follow-ups (CXP)</th> -->
+
+                                  
+                                  <th>SA Test Drives </th>
                                   <th>Test Drives (CXP)</th>
+
+                                  <th>Upcoming Test Drives</th>
+                                  <th>Completed Test Drives</th>
+                                  <th>Overdue</th>
+                                  <th>Opp converted</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -356,18 +365,28 @@
                                       {{ user.active ? 'Active' : 'Inactive' }}
                                     </span>
                                   </td>
-                                  <td class="td-right">{{ user.leads?.total ?? 0 }}</td>
+                                  <td class="td-right">{{ user.leads?.sa ?? 0 }}</td>
                                   <td class="td-right">{{ user.leads?.cxp ?? 0 }}</td>
                                   <td class="td-right">{{ user.leads?.ics ?? 0 }}</td>
-                                  <td class="td-right">{{ user.followups?.total ?? 0 }}</td>
+                                  <td class="td-right">{{ user.leads?.manuallyEntered ?? 0 }}</td>
+
+
+                                  <td class="td-right">{{ user.followups?.sa ?? 0 }}</td>
                                   <td class="td-right">{{ user.followups?.open ?? 0 }}</td>
                                   <td class="td-right">{{ user.followups?.closed ?? 0 }}</td>
                                   <td class="td-right">{{ user.followups?.cxp ?? 0 }}</td>
-                                  <td class="td-right">{{ user.testdrives?.total ?? 0 }}</td>
-                                  <td class="td-right">{{ user.testdrives?.unique ?? 0 }}</td>
+                                    <td class="td-right">{{ user.followups?.completed ?? 0 }}</td>
+
+
+                                  <td class="td-right">{{ user.testdrives?.sa ?? 0 }}</td>
+                                  <!-- <td class="td-right">{{ user.testdrives?.unique ?? 0 }}</td> -->
                                   <td class="td-right">{{ user.testdrives?.completed ?? 0 }}</td>
                                   <td class="td-right">{{ user.testdrives?.closed ?? 0 }}</td>
                                   <td class="td-right">{{ user.testdrives?.cxp ?? 0 }}</td>
+                                <td class="td-right">{{ user.testdrives?.upcoming ?? 0 }}</td>
+
+<td class="td-right">{{ user.opportunitiesConverted ?? 0 }}</td>
+
                                 </tr>
                                 <tr *ngIf="!dealerUsers[dealer.dealerId] || dealerUsers[dealer.dealerId]?.length === 0">
                                   <td colspan="14" class="td-center">No Users Found</td>
@@ -537,9 +556,23 @@
         <!-- Chart View -->
         <div *ngIf="dealerSummaryCallsViewType === 'chart'" class="chart-container"
           style="min-height:400px; padding:20px; background:white; border-radius:10px;">
-          <h1>chart here</h1>
-        </div>
+          <!-- <h1>chart here</h1> -->
+          <div id="chart">
+            <apx-chart [series]="chartOptions.series!" [chart]="chartOptions.chart!" [xaxis]="chartOptions.xaxis!"
+              [stroke]="chartOptions.stroke!" [dataLabels]="chartOptions.dataLabels!" [title]="chartOptions.title!">
+            </apx-chart>
 
+          </div>
+
+        </div>
+        <!-- <div *ngIf="dealerSummaryCallsViewType === 'chart'" class="chart-container"
+  style="min-height:400px; padding:20px; background:white; border-radius:10px;">
+
+  <apx-chart #chart [series]="chartOptions.series" [chart]="chartOptions.chart" [xaxis]="chartOptions.xaxis"
+    [stroke]="chartOptions.stroke" [dataLabels]="chartOptions.dataLabels" [markers]="chartOptions.markers">
+  </apx-chart>
+
+</div> -->
       </div>
 
 
