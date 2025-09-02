@@ -4,7 +4,7 @@
 
 // // @Injectable({ providedIn: 'root' })
 // // export class DashboardService {
-// //   private baseUrl = 'https://api.prod.smartassistapp.in/api/
+// //   private baseUrl = 'https://uat.smartassistapp.in/api/
 
 // //   constructor(private http: HttpClient) {}
 
@@ -31,7 +31,7 @@
 
 // @Injectable({ providedIn: 'root' })
 // export class DashboardService {
-//   private baseUrl = 'https://api.prod.smartassistapp.in/api/
+//   private baseUrl = 'https://uat.smartassistapp.in/api/
 
 //   constructor(private http: HttpClient) {}
 
@@ -86,8 +86,7 @@ type ApiFilter =
   | 'CUSTOM';
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
-  private baseUrl =
-    'https://api.prod.smartassistapp.in/api/superAdmin/dashboard';
+  private baseUrl = 'https://uat.smartassistapp.in/api/superAdmin/dashboard';
 
   constructor(private http: HttpClient) {}
 
@@ -192,7 +191,7 @@ export class DashboardService {
     token: string
   ) {
     return this.http.get(
-      `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${filter}`,
+      `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${filter}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -200,18 +199,18 @@ export class DashboardService {
   }
   getDealersByCustomDate(startDate: string, endDate: string, token: string) {
     return this.http.get(
-      `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${startDate}&end_date=${endDate}`,
+      `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${startDate}&end_date=${endDate}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
   }
   getDealerUsers(dealerId: string, type: string, token: string) {
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
     return this.http.get(url, {
       headers: { Authorization: `Bearer ${token}` },
     });
   }
   getKpiData(token: string, type: string = 'MTD') {
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
     return this.http.get(url, {
       headers: { Authorization: `Bearer ${token}` },
     });

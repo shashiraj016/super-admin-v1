@@ -283,8 +283,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private eRef: ElementRef
   ) {}
   data: any; // To hold your data
-  apiUrl: string =
-    'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew';
+  apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
   ngOnInit() {
     this.selectedTime = 'MTD'; // or 'ALL'
     this.onTimeChange(this.selectedTime); // <-- this ensures API call on load
@@ -568,7 +567,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -599,7 +598,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (!token) return;
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -844,7 +843,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   fetchSuperAdminDashboard(type: string = 'This month'): void {
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
     const token = sessionStorage.getItem('token');
 
     if (!token) {
@@ -964,7 +963,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const token = sessionStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
 
     this.http.get<any>(url, { headers }).subscribe(
       (res) => {
@@ -1263,7 +1262,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (!this.dealerSMS[dealerId]) {
       this.loadingSM = true; // Set loading state to true
 
-      const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${this.selectedFilter}&dealer_id=${dealerId}`;
+      const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${this.selectedFilter}&dealer_id=${dealerId}`;
       const token = sessionStorage.getItem('token');
 
       const headers = new HttpHeaders({
@@ -1351,8 +1350,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.loadingPS = true; // start loading
 
     const type = this.selectedFilter;
-    const baseUrl =
-      'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew';
+    const baseUrl = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
     const dealerId = this.selectedDealerId;
     const smId = this.selectedSM.sm_id;
     const url = `${baseUrl}?type=${type}&dealer_id=${dealerId}&sm_id=${smId}`;
@@ -1472,7 +1470,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -1576,9 +1574,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   fetchData(): void {
     this.http
-      .get<any>(
-        'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew'
-      )
+      .get<any>('https://uat.smartassistapp.in/api/superAdmin/dashbaordNew')
       .subscribe(
         (response) => {
           console.log('API Response:', response); // Log the response to check its structure
@@ -1645,7 +1641,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   fetchDashboardDataForTopCards(filter: string) {
     const token = sessionStorage.getItem('token') || '';
-    let url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM`;
+    let url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM`;
 
     if (filter === 'CUSTOM' && this.customStartDate && this.customEndDate) {
       url += `?startDate=${this.customStartDate}&endDate=${this.customEndDate}`;

@@ -1,18 +1,18 @@
 import { createRequire } from 'module';const require = createRequire(import.meta.url);
 import {
-  Directionality,
-  MatCommonModule,
-  ObserversModule,
-  Platform,
-  coerceBooleanProperty
-} from "./chunk-LHXJES2R.js";
-import {
   animate,
   state,
   style,
   transition,
   trigger
 } from "./chunk-NWV7VZUM.js";
+import {
+  Directionality,
+  MatCommonModule,
+  ObserversModule,
+  Platform,
+  coerceBooleanProperty
+} from "./chunk-LHXJES2R.js";
 import {
   CommonModule,
   DOCUMENT,
@@ -1651,4 +1651,4 @@ export {
   MatFormField,
   MatFormFieldModule
 };
-//# sourceMappingURL=chunk-E2JQ7Y4S.js.map
+//# sourceMappingURL=chunk-3EHQM5ER.js.map

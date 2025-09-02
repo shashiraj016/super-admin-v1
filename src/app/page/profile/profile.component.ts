@@ -49,9 +49,7 @@ export class ProfileComponent implements OnInit {
 
   getProfileImage() {
     this.http
-      .get<any>(
-        'https://api.prod.smartassistapp.in/api/superAdmin/show-profile'
-      )
+      .get<any>('https://uat.smartassistapp.in/api/superAdmin/show-profile')
       .subscribe({
         next: (res) => {
           console.log('Fetched Profile Image:', res);
