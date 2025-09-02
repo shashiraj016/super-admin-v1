@@ -157,18 +157,18 @@ export class DashboardService {
   getNoSMUsers(
     dealerId: string,
     type:
-      | 'Today'
-      | 'Yesterday'
-      | 'Last Week'
-      | 'This Week'
-      | 'This month'
-      | 'Last month'
-      | 'This Quarter'
-      | 'Last Quarter'
-      | 'Last 6 Months'
-      | 'This Year'
-      | 'Lifetime'
-      | 'CUSTOM' = 'This month',
+      | 'TODAY'
+      | 'YESTERDAY'
+      | 'LAST_WEEK'
+      | 'WEEK'
+      | 'MTD'
+      | 'LAST_MONTH'
+      | 'QTD'
+      | 'LAST_QUARTER'
+      | 'SIX_MONTH'
+      | 'YTD'
+      | 'LIFETIME'
+      | 'CUSTOM' = 'MTD',
     startDate?: string,
     endDate?: string
   ): Observable<any> {

@@ -432,3 +432,6 @@ input[type="password"] {
 .btn:hover {
   background-position: right;
 }
+input[type="password"] {
+  -webkit-text-security: disc; /* forces dots on iOS */
+}

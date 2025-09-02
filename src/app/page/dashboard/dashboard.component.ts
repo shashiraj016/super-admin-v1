@@ -56,6 +56,7 @@ export type ChartOptions = {
   dataLabels: ApexDataLabels;
   stroke: ApexStroke;
   title: ApexTitleSubtitle;
+  responsive?: ApexResponsive[]; // ✅ add this line
 };
 @Component({
   selector: 'app-dashboard',
@@ -147,18 +148,18 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   dealerSummaryCallsViewType: 'table' | 'chart' | 'enquiry' | 'cold' = 'table';
 
   selectedFilter:
-    | 'Today'
-    | 'Yesterday'
-    | 'This Week'
-    | 'Last Week'
-    | 'This Month'
-    | 'Last Month'
-    | 'This Quarter'
-    | 'Last Quarter'
-    | 'Last 6 Months'
-    | 'This Year'
+    | 'DAY'
+    | 'YESTERDAY'
+    | 'WEEK'
+    | 'LAST_WEEK'
+    | 'MTD'
+    | 'LAST_MONTH'
+    | 'QTD'
+    | 'LAST_QUARTER'
+    | 'SIX_MONTH'
+    | 'YTD'
     | 'CUSTOM'
-    | 'Lifetime' = 'Today';
+    | 'LIFETIME' = 'DAY';
   dealerColors: string[] = [
     '#e6f2ff', // light blue
     '#f9f2ec', // light peach
@@ -205,6 +206,25 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   Math = Math;
   itemsPerPagedeal: number = 10; // or 4
   currentDisplayCount: number = 10; // Track current number of items shown (initialize in ngOnInit)
+  // kpiData: any = {
+  //   dealers: 0,
+  //   activeNetwork: 0,
+  //   users: 0,
+  //   activeUsers: 0,
+  //   leads: 0,
+  //   calls: 0,
+  // };
+  // kpiData: any = {
+  //   dealers: 0,
+  //   activeNetwork: 0,
+  //   users: 0,
+  //   activeUsers: 0,
+  //   leads: 0,
+  //   calls: 0,
+  //   totalFollowUps: 0,
+  //   uniqueTestDrives: 0,
+  //   completedTestDrives: 0,
+  // };
   kpiData: any = {
     dealers: 0,
     activeNetwork: 0,
@@ -212,6 +232,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     activeUsers: 0,
     leads: 0,
     calls: 0,
+    totalFollowUps: 0,
+    uniqueTestDrives: 0,
+    completedTestDrives: 0,
   };
   orders: number = 0;
   currentOrders: number = 0;
@@ -285,29 +308,38 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   data: any; // To hold your data
   apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
   ngOnInit() {
+    const savedData = localStorage.getItem('kpiData');
+    if (savedData) {
+      // Always parse full object
+      this.kpiData = { ...JSON.parse(savedData) };
+    }
+    this.loadKpiData('DAY'); // fetch fresh data
+
+    // this.loadKpiData('DAY');
+
     this.selectedTime = 'MTD'; // or 'ALL'
     this.onTimeChange(this.selectedTime); // <-- this ensures API call on load
-    this.dashboardService.getKpiData('MTD').subscribe({
-      next: (res: any) => {
-        if (res.status === 200) {
-          this.kpiData = res.data; // <--- assign the nested 'data' object
-        }
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
+    // this.dashboardService.getKpiData('MTD').subscribe({
+    //   next: (res: any) => {
+    //     if (res.status === 200) {
+    //       this.kpiData = res.data; // <--- assign the nested 'data' object
+    //     }
+    //   },
+    //   error: (err) => {
+    //     console.error(err);
+    //   },
+    // });
 
-    this.fetchKpiData();
+    // this.fetchKpiData();
     this.currentDisplayCount = this.itemsPerPage;
-    this.selectedFilter = 'Today';
+    this.selectedFilter = 'DAY';
     this.fetchSuperAdminDashboard(this.selectedFilter); // or 'QTD', 'MTD' based on dropdown
     this.onDropdownChange(); // Auto-trigger on page load with default values
     this.context.onSideBarClick$.next({
       role: 'dashboard',
       pageTitle: 'Dashboard',
     });
-    this.selectedFilter = 'Today';
+    this.selectedFilter = 'DAY';
   }
 
   initializeDisplay() {
@@ -390,14 +422,14 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     });
   }
 
-  fetchKpiData() {
-    const token = sessionStorage.getItem('token') || '';
-    this.dashboardService.getKpiData(token).subscribe((res: any) => {
-      if (res.status === 200) {
-        this.kpiData = res.data; // <-- assign the whole data object
-      }
-    });
-  }
+  // fetchKpiData() {
+  //   const token = sessionStorage.getItem('token') || '';
+  //   this.dashboardService.getKpiData(token).subscribe((res: any) => {
+  //     if (res.status === 200) {
+  //       this.kpiData = res.data; // <-- assign the whole data object
+  //     }
+  //   });
+  // }
 
   private mapTimeToApi(time: string): 'MTD' | 'QTD' | 'YTD' {
     switch (time) {
@@ -449,54 +481,54 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   private mapFilterToApi(
     filter:
-      | 'Today'
-      | 'Yesterday'
-      | 'This Week'
-      | 'Last Week'
-      | 'This Month'
-      | 'Last Month'
-      | 'This Quarter'
-      | 'Last Quarter'
-      | 'Last 6 Months'
-      | 'This Year'
-      | 'Lifetime'
+      | 'DAY'
+      | 'YESTERDAY'
+      | 'WEEK'
+      | 'LAST_WEEK'
+      | 'MTD'
+      | 'LAST_MONTH'
+      | 'QTD'
+      | 'LAST_QUARTER'
+      | 'SIX_MONTH'
+      | 'YTD'
+      | 'LIFETIME'
       | 'CUSTOM'
   ):
-    | 'Today'
-    | 'Yesterday'
-    | 'This Week'
-    | 'Last Week'
-    | 'This month'
-    | 'Last month'
-    | 'This Quarter'
-    | 'Last Quarter'
-    | 'Last 6 Months'
-    | 'This Year'
-    | 'Lifetime'
+    | 'DAY'
+    | 'YESTERDAY'
+    | 'WEEK'
+    | 'LAST_WEEK'
+    | 'MTD'
+    | 'LAST_MONTH'
+    | 'QTD'
+    | 'LAST_QUARTER'
+    | 'SIX_MONTH'
+    | 'YTD'
+    | 'LIFETIME'
     | 'CUSTOM' {
     switch (filter) {
-      case 'Today':
-        return 'Today';
-      case 'Yesterday':
-        return 'Yesterday';
-      case 'This Week':
-        return 'This Week';
-      case 'Last Week':
-        return 'Last Week';
-      case 'This Month':
-        return 'This month'; // ✅ backend expects lowercase "month"
-      case 'Last Month':
-        return 'Last month'; // ✅ backend expects lowercase "month"
-      case 'This Quarter':
-        return 'This Quarter';
-      case 'Last Quarter':
-        return 'Last Quarter';
-      case 'Last 6 Months':
-        return 'Last 6 Months';
-      case 'This Year':
-        return 'This Year';
-      case 'Lifetime':
-        return 'Lifetime';
+      case 'DAY':
+        return 'DAY';
+      case 'YESTERDAY':
+        return 'YESTERDAY';
+      case 'WEEK':
+        return 'WEEK';
+      case 'LAST_WEEK':
+        return 'LAST_WEEK';
+      case 'MTD':
+        return 'MTD'; // ✅ backend expects lowercase "month"
+      case 'LAST_MONTH':
+        return 'LAST_MONTH'; // ✅ backend expects lowercase "month"
+      case 'QTD':
+        return 'QTD';
+      case 'LAST_QUARTER':
+        return 'LAST_QUARTER';
+      case 'SIX_MONTH':
+        return 'SIX_MONTH';
+      case 'YTD':
+        return 'YTD';
+      case 'LIFETIME':
+        return 'LIFETIME';
       case 'CUSTOM':
         return 'CUSTOM';
     }
@@ -504,17 +536,17 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   onFilterChange(
     filter:
-      | 'Today'
-      | 'Yesterday'
-      | 'This Week'
-      | 'Last Week'
-      | 'This Month'
-      | 'Last Month'
-      | 'This Quarter'
-      | 'Last Quarter'
-      | 'Last 6 Months'
-      | 'This Year'
-      | 'Lifetime'
+      | 'DAY'
+      | 'YESTERDAY'
+      | 'WEEK'
+      | 'LAST_WEEK'
+      | 'MTD'
+      | 'LAST_MONTH'
+      | 'QTD'
+      | 'LAST_QUARTER'
+      | 'SIX_MONTH'
+      | 'YTD'
+      | 'LIFETIME'
       | 'CUSTOM'
   ): void {
     this.selectedFilter = filter;
@@ -667,6 +699,52 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // DEALER PAGIANTOON
   get totalPagesdealer(): number {
     return Math.ceil(this.dealers.length / this.dealersPerPage);
+  }
+  // loadKpiData(type: string = 'DAY') {
+  //   this.http
+  //     .get<any>(
+  //       `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`
+  //     )
+  //     .subscribe({
+  //       next: (res) => {
+  //         if (res.status === 200) {
+  //           this.kpiData = res.data; // ✅ directly bind data
+  //         }
+  //       },
+  //       error: (err) => {
+  //         console.error('Error fetching KPI data:', err);
+  //       },
+  //     });
+  // }
+  loadKpiData(type: string = 'DAY') {
+    // Get token from session storage
+    const token = sessionStorage.getItem('token');
+
+    // Set headers with Bearer token
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    this.http
+      .get<any>(
+        `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`,
+        { headers }
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200 && res.data) {
+            // Replace entire object with API response
+            this.kpiData = { ...res.data };
+
+            // Persist full object in localStorage
+            localStorage.setItem('kpiData', JSON.stringify(this.kpiData));
+
+            // Force Angular to detect changes
+            this.cd.detectChanges();
+          }
+        },
+        error: (err) => console.error('Error fetching KPI data:', err),
+      });
   }
 
   prevPage() {
@@ -866,6 +944,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             activeUsers: res.data.activeUsers ?? 0,
             leads: res.data.leads ?? 0,
             calls: res.data.calls ?? 0,
+            totalFollowUps: res.data.totalFollowUps ?? 0,
+            uniqueTestDrives: res.data.uniqueTestDrives ?? 0,
+            completedTestDrives: res.data.completedTestDrives ?? 0,
           };
 
           // ✅ Dealer table data
@@ -924,10 +1005,26 @@ export class DashboardComponent implements AfterViewInit, OnInit {
                 data: connected,
               },
             ],
+            // chart: {
+            //   type: 'line',
+            //   height: 350,
+            //   toolbar: { show: true },
+            // },
             chart: {
               type: 'line',
               height: 350,
-              toolbar: { show: true },
+              toolbar: {
+                show: true,
+                tools: {
+                  download: true, // ✅ allow download/export
+                  selection: false, // ❌ remove selection zoom
+                  zoom: false, // ❌ remove zoom
+                  zoomin: true, // ❌ remove zoom-in
+                  zoomout: true, // ❌ remove zoom-out
+                  pan: false, // ❌ remove panning
+                  reset: false, // ❌ remove reset zoom
+                },
+              },
             },
             dataLabels: {
               enabled: false,
@@ -938,12 +1035,22 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             },
             title: {
               text: 'Dealer-wise Calls Analysis',
-              align: 'center',
+              align: 'left',
             },
             xaxis: {
               categories: categories,
               labels: { rotate: -45 },
             },
+            responsive: [
+              {
+                breakpoint: 768, // 👈 mobile devices
+                options: {
+                  title: {
+                    align: 'left', // 👈 mobile pe left ho jayega
+                  },
+                },
+              },
+            ],
           };
         } else {
           console.error('Unexpected response:', res);
@@ -1015,7 +1122,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.customEndDate = '';
 
     // Reset dropdown to default filter (e.g., Today)
-    this.selectedFilter = 'Today';
+    this.selectedFilter = 'DAY';
 
     // Fetch default data
     this.onFilterChange(this.selectedFilter);
@@ -1751,6 +1858,62 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     }
   }
 
+  // exportToCSV() {
+  //   console.log('Export clicked', this.dealers); // Debug
+  //   if (!this.dealers || this.dealers.length === 0) {
+  //     console.warn('No dealers to export');
+  //     return;
+  //   }
+
+  //   const headers = [
+  //     'Dealer',
+  //     'Total Users',
+  //     'Active Users',
+  //     'Leads (Total)',
+  //     'Leads (sync to CXP)',
+  //     'Leads (sync to ICS)',
+  //     'Follow-ups (Total)',
+  //     'Follow-ups Open',
+  //     'Follow-ups Closed',
+  //     'Follow-ups (sync to CXP)',
+  //     'Test Drives (Total)',
+  //     'Test Drives Closed',
+  //     'Test Drives (sync to CXP)',
+  //   ];
+
+  //   const rows = this.dealers.map((dealer) => [
+  //     `"${dealer.dealerName}"`, // Wrap in quotes to handle commas
+  //     dealer.totalUsers,
+  //     dealer.activeUsers,
+  //     dealer.totalLeads,
+  //     dealer.cxpLeads,
+  //     dealer.icsLeads,
+  //     dealer.totalFollowUps,
+  //     dealer.openFollowUps,
+  //     dealer.closedFollowUps,
+  //     dealer.cxpFollowUps,
+  //     dealer.totalTestDrives,
+  //     dealer.closedTestDrives,
+  //     dealer.cxpTestDrives,
+  //   ]);
+
+  //   const csvContent = [
+  //     headers.join(','),
+  //     ...rows.map((r) => r.join(',')),
+  //   ].join('\n');
+
+  //   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  //   const url = URL.createObjectURL(blob);
+
+  //   const a = document.createElement('a');
+  //   a.href = url;
+  //   a.download = 'dealer_summary.csv';
+  //   a.style.display = 'none';
+  //   document.body.appendChild(a);
+  //   a.click();
+  //   document.body.removeChild(a);
+  //   URL.revokeObjectURL(url);
+  // }
   exportToCSV() {
     console.log('Export clicked', this.dealers); // Debug
     if (!this.dealers || this.dealers.length === 0) {
@@ -1758,36 +1921,48 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       return;
     }
 
+    // Updated headers according to your table
     const headers = [
       'Dealer',
       'Total Users',
       'Active Users',
-      'Leads (Total)',
-      'Leads (sync to CXP)',
-      'Leads (sync to ICS)',
-      'Follow-ups (Total)',
-      'Follow-ups Open',
-      'Follow-ups Closed',
-      'Follow-ups (sync to CXP)',
-      'Test Drives (Total)',
-      'Test Drives Closed',
-      'Test Drives (sync to CXP)',
+      'Leads SA',
+      'Leads Sync with CXP',
+      'Leads Sync with ICS',
+      'Leads Manually Entered with CXP',
+      'Follow-ups SA',
+      'Follow-ups Sync with CXP',
+      'Follow-ups Completed',
+      'Follow-ups Upcoming',
+      'Follow-ups Overdue',
+      'Test Drives SA',
+      'Test Drives Sync with CXP',
+      'Test Drives Completed',
+      'Test Drives Upcoming',
+      'Test Drives Overdue',
+      'Opportunities Converted',
     ];
 
+    // Map dealers to match new headers
     const rows = this.dealers.map((dealer) => [
-      `"${dealer.dealerName}"`, // Wrap in quotes to handle commas
-      dealer.totalUsers,
-      dealer.activeUsers,
-      dealer.totalLeads,
-      dealer.cxpLeads,
-      dealer.icsLeads,
-      dealer.totalFollowUps,
-      dealer.openFollowUps,
-      dealer.closedFollowUps,
-      dealer.cxpFollowUps,
-      dealer.totalTestDrives,
-      dealer.closedTestDrives,
-      dealer.cxpTestDrives,
+      `"${dealer.dealerName}"`, // Dealer name in quotes to handle commas
+      dealer.totalUsers || 0,
+      dealer.activeUsers || 0,
+      dealer.saLeads || 0,
+      dealer.cxpLeads || 0,
+      dealer.icsLeads || 0,
+      dealer.manuallyEnteredLeads || 0,
+      dealer.saFollowUps || 0,
+      dealer.cxpFollowUps || 0,
+      dealer.completedFollowUps || 0,
+      dealer.openFollowUps || 0,
+      dealer.closedFollowUps || 0,
+      dealer.saTestDrives || 0,
+      dealer.cxpTestDrives || 0,
+      dealer.completedTestDrives || 0,
+      dealer.upcomingTestDrives || 0,
+      dealer.closedTestDrives || 0,
+      dealer.opportunitiesConverted || 0,
     ]);
 
     const csvContent = [
@@ -1807,118 +1982,164 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
-  exportUserCallLogsToCSV() {
-    console.log('Export User Call Logs clicked', this.dealers); // Debug
 
-    if (!this.dealers || this.dealers.length === 0) {
-      console.warn('No dealers to export');
-      return;
-    }
+  // exportUserCallLogsToCSV() {
+  //   console.log('Export User Call Logs clicked', this.dealers); // Debug
 
-    const headers = [
-      'Dealer',
-      'User',
-      'Role',
-      'Active',
-      'Total Calls',
-      'Outgoing',
-      'Incoming',
-      'Connected',
-      'Declined',
-      'Duration',
-    ];
+  //   if (!this.dealers || this.dealers.length === 0) {
+  //     console.warn('No dealers to export');
+  //     return;
+  //   }
 
-    const rows: any[] = [];
+  //   const headers = [
+  //     'Dealer',
+  //     'Active',
+  //     'Total Calls',
+  //     'Outgoing',
+  //     'Incoming',
+  //     'Connected',
+  //     'Declined',
+  //     'Duration',
+  //   ];
 
-    const fetchPromises = this.dealers.map((dealer) => {
-      // If userCallLogs already exist, use them
-      if (this.userCallLogs[dealer.dealerId]?.length) {
-        return Promise.resolve({
-          dealer,
-          users: this.userCallLogs[dealer.dealerId],
-        });
-      }
+  //   const rows: any[] = [];
 
-      // Otherwise, fetch from API
-      const token = sessionStorage.getItem('token')!;
-      return this.dashboardService
-        .getDealerUsers(dealer.dealerId, this.selectedFilter, token)
-        .toPromise()
-        .then((res: any) => {
-          const dealerData = Array.isArray(res?.data?.dealerData)
-            ? res.data.dealerData.find(
-                (d: any) => d.dealerId === dealer.dealerId
-              )
-            : res?.data?.dealerData;
+  //   const fetchPromises = this.dealers.map((dealer) => {
+  //     // If userCallLogs already exist, use them
+  //     if (this.userCallLogs[dealer.dealerId]?.length) {
+  //       return Promise.resolve({
+  //         dealer,
+  //         users: this.userCallLogs[dealer.dealerId],
+  //       });
+  //     }
 
-          const users =
-            dealerData?.users?.map((user: any) => ({
-              userId: user.user_id,
-              name: user.user,
-              role: user.user_role,
-              active: user.active,
-              calls: user.calls
-                ? {
-                    total: user.calls.totalCalls,
-                    outgoing: user.calls.outgoing,
-                    incoming: user.calls.incoming,
-                    connected: user.calls.connected,
-                    declined: user.calls.declined,
-                    duration: this.formatDuration(user.calls.durationSec),
-                  }
-                : {
-                    total: 0,
-                    outgoing: 0,
-                    incoming: 0,
-                    connected: 0,
-                    declined: 0,
-                    duration: '0s',
-                  },
-            })) || [];
+  //     // Otherwise, fetch from API
+  //     const token = sessionStorage.getItem('token')!;
+  //     return this.dashboardService
+  //       .getDealerUsers(dealer.dealerId, this.selectedFilter, token)
+  //       .toPromise()
+  //       .then((res: any) => {
+  //         const dealerData = Array.isArray(res?.data?.dealerData)
+  //           ? res.data.dealerData.find(
+  //               (d: any) => d.dealerId === dealer.dealerId
+  //             )
+  //           : res?.data?.dealerData;
 
-          // Save to userCallLogs for future use
-          this.userCallLogs[dealer.dealerId] = users;
+  //         const users =
+  //           dealerData?.users?.map((user: any) => ({
+  //             userId: user.user_id,
+  //             name: user.user,
+  //             role: user.user_role,
+  //             active: user.active,
+  //             calls: user.calls
+  //               ? {
+  //                   total: user.calls.totalCalls,
+  //                   outgoing: user.calls.outgoing,
+  //                   incoming: user.calls.incoming,
+  //                   connected: user.calls.connected,
+  //                   declined: user.calls.declined,
+  //                   duration: this.formatDuration(user.calls.durationSec),
+  //                 }
+  //               : {
+  //                   total: 0,
+  //                   outgoing: 0,
+  //                   incoming: 0,
+  //                   connected: 0,
+  //                   declined: 0,
+  //                   duration: '0s',
+  //                 },
+  //           })) || [];
 
-          return { dealer, users };
-        })
-        .catch(() => ({ dealer, users: [] }));
-    });
+  //         // Save to userCallLogs for future use
+  //         this.userCallLogs[dealer.dealerId] = users;
 
-    // Wait for all dealer user logs to be ready
-    Promise.all(fetchPromises).then((dealerUsersList) => {
-      dealerUsersList.forEach(({ dealer, users }) => {
-        users.forEach((user: any) => {
-          rows.push([
-            `"${dealer.dealerName}"`,
-            `"${user.name}"`,
-            `"${user.role}"`,
-            user.active ? 'Active' : 'Inactive',
-            user.calls?.total || 0,
-            user.calls?.outgoing || 0,
-            user.calls?.incoming || 0,
-            user.calls?.connected || 0,
-            user.calls?.declined || 0,
-            `"${user.calls?.duration || '0s'}"`,
-          ]);
-        });
-      });
+  //         return { dealer, users };
+  //       })
+  //       .catch(() => ({ dealer, users: [] }));
+  //   });
 
-      // Generate CSV
-      const csvContent = [
-        headers.join(','),
-        ...rows.map((r) => r.join(',')),
-      ].join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
+  //   // Wait for all dealer user logs to be ready
+  //   Promise.all(fetchPromises).then((dealerUsersList) => {
+  //     dealerUsersList.forEach(({ dealer, users }) => {
+  //       users.forEach((user: any) => {
+  //         rows.push([
+  //           `"${dealer.dealerName}"`,
+  //           `"${user.name}"`,
+  //           `"${user.role}"`,
+  //           user.active ? 'Active' : 'Inactive',
+  //           user.calls?.total || 0,
+  //           user.calls?.outgoing || 0,
+  //           user.calls?.incoming || 0,
+  //           user.calls?.connected || 0,
+  //           user.calls?.declined || 0,
+  //           `"${user.calls?.duration || '0s'}"`,
+  //         ]);
+  //       });
+  //     });
 
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'dealer_calls.csv';
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    });
+  //     // Generate CSV
+  //     const csvContent = [
+  //       headers.join(','),
+  //       ...rows.map((r) => r.join(',')),
+  //     ].join('\n');
+  //     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  //     const url = URL.createObjectURL(blob);
+
+  //     const a = document.createElement('a');
+  //     a.href = url;
+  //     a.download = 'dealer_calls.csv';
+  //     a.style.display = 'none';
+  //     document.body.appendChild(a);
+  //     a.click();
+  //     document.body.removeChild(a);
+  //     URL.revokeObjectURL(url);
+  //   });
+  // }
+  exportDealerCalllogstocxp() {
+  if (!this.dealers || this.dealers.length === 0) {
+    console.warn('No dealers to export');
+    return;
   }
+
+  // Only include columns visible in the dealer summary table
+  const headers = [
+    'Dealer',
+    'Total Calls',
+    'Outgoing',
+    'Incoming',
+    'Connected',
+    'Declined',
+    'Duration'
+  ];
+
+  const rows = this.dealers.map((dealer) => [
+    `"${dealer.dealerName}"`,
+    dealer.callLogs?.totalCalls || 0,
+    dealer.callLogs?.outgoing || 0,
+    dealer.callLogs?.incoming || 0,
+    dealer.callLogs?.connected || 0,
+    dealer.callLogs?.declined || 0,
+    dealer.callLogs?.duration || '00:00:00'
+  ]);
+
+  const csvContent = [
+    headers.join(','),
+    ...rows.map((r) => r.join(','))
+  ].join('\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'dealer_summary_calls.csv';
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  console.log('Dealer summary CSV exported successfully');
+}
+
 }

@@ -458,7 +458,12 @@ body {
   width: 100%;
   max-width: 100%; /* or 1200px if you want to limit container width */
 }
-
+@media (max-width: 768px) {
+  .apexcharts-title-text {
+    text-anchor: start !important; /* 👈 left align */
+    x: 0 !important; /* left edge se start */
+  }
+}
 .card {
   width: 100%;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
@@ -4116,6 +4121,7 @@ body {
   padding: 6px 10px;
   font-size: 14px;
   border-radius: 6px;
+  margin-left:8px;
   border: 1px solid #ccc;
   background: #f9f9f9;
   cursor: pointer;
@@ -4762,18 +4768,53 @@ body {
   position: relative;
   scrollbar-width: thin;
 }
+.fltt {
+  display: inline-flex;
+}
 
 @media (max-width: 844px) {
   /* Ye CSS sirf tab chalega jab screen 767px ya usse chhoti ho (mobiles) */
-
+  .header2 {
+    display: block !important;
+  }
+  .fltt {
+    display: ruby !important;
+  }
+  .time-dropdown {
+    width: 100% !important;
+    margin-top:8px;
+  }
+  .dropdown-menu {
+    z-index: 99999 !important;
+    width: 100% !important;
+  }
+  .custom-inputs {
+    display: ruby !important;
+    width: 100% !important;
+  }
+  .custom-inputs input {
+    width: 100% !important;
+    margin-bottom: 10px !important;
+  }
+  .custom-inputs button {
+    margin-right: 10px !important;
+  }
   .content-body {
     margin-left: 0px !important;
   }
+  .kpi-section {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .time-dropdown {
+    min-width: 0px !important;
+    margin-left:0px !important;
+  }
+
 }
 
 /* Make table headers sticky */
 .table-thead th {
-  position: sticky;
+  /* position: sticky; */
   top: 0; /* stick to top */
   background: #fff; /* match header background */
   z-index: 5; /* stay above rows */
@@ -4920,7 +4961,7 @@ body {
 
 /* Sticky header optional */
 .table-thead th {
-  position: sticky;
+  /* position: sticky; */
   top: 0;
   z-index: 3; /* higher than sticky column */
   background-color: #f5f5f5; /* same as before or your header color */
@@ -4945,3 +4986,10 @@ body {
   background: #fff; /* row background */
   border-radius: 8px; /* optional rounded corners */
 }
+/* vertical divider between column groups */
+/* Make vertical divider appear between column groups */
+.group-divider {
+  border-right: 2px solid #222 !important; /* bold vertical line */
+}
+
+/* Optional: maintain borders for all cells */

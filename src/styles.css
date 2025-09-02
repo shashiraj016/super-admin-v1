@@ -115,6 +115,13 @@ body {
   .content-body {
     margin-left: 0px !important;
   }
+  .flt1 {
+    margin-bottom: 10px !important;
+    width: 100% !important;
+  }
+  .flt1 {
+    margin-right: 10px !important;
+  }
 }
 
 /*  */

@@ -1,8 +1,30 @@
 <ng-container *ngIf="!selectedDealer && !selectedSM">
   <div class="header2" [ngClass]="{ 'sidebar-open': isSidebarOpen, 'sidebar-closed': !isSidebarOpen }"
     style="border-radius:7px;padding:10px;margin-top:1rem;">
-    <div style=" display: inline-flex;">
-      <div class="dropdown" [class.show]="dropdownOpen" style="margin-right: 5px;">
+    <div class="fltt">
+
+      <select [(ngModel)]="selectedFilter" (change)="onFilterChange(selectedFilter)" class="time-dropdown flt1"
+        style="margin-right: 5px;">
+        <option value="DAY">Day</option>
+        <option value="YESTERDAY">Yesterday</option>
+        <option value="WEEK">This Week</option>
+        <option value="LAST_WEEK">Last Week</option>
+        <option value="MTD">This Month</option>
+        <option value="LAST_MONTH">Last Month</option>
+        <option value="QTD">This Quarter</option>
+        <option value="LAST_QUARTER">Last Quarter</option>
+        <option value="SIX_MONTH">Last 6 Months</option>
+        <option value="YTD">This Year</option>
+        <option value="LIFETIME">Lifetime</option>
+        <option value="CUSTOM">Custom</option>
+      </select>
+      <div *ngIf="selectedFilter === 'CUSTOM'" class="custom-inputs flt1">
+        <input type="date" [(ngModel)]="customStartDate" placeholder="Start Date" class="custom-date" />
+        <input type="date" [(ngModel)]="customEndDate" placeholder="End Date" class="custom-date" />
+        <button (click)="applyCustomDate()" class="apply-btn flt2">Apply</button>
+        <button (click)="resetCustomDate()" class="reset-btn flt2">Reset</button>
+      </div>
+      <div class="dropdown flt1" [class.show]="dropdownOpen" style="margin-right: 5px;">
         <button class="time-dropdown dropdown-toggle" type="button" (click)="toggleDropdown()">
           {{ selectedDealers.length > 0 ? 'Dealers Selected (' + selectedDealers.length + ')' : 'Select Dealers' }}
         </button>
@@ -39,66 +61,49 @@
           </ng-template>
         </div>
       </div>
-      <select [(ngModel)]="selectedFilter" (change)="onFilterChange(selectedFilter)" class="time-dropdown"
-        style="margin-right: 5px;">
-        <option value="Today">Today</option>
-        <option value="Yesterday">Yesterday</option>
-        <option value="This Week">This Week</option>
-        <option value="Last Week">Last Week</option>
-        <option value="This Month">This Month</option>
-        <option value="Last Month">Last Month</option>
-        <option value="This Quarter">This Quarter</option>
-        <option value="Last Quarter">Last Quarter</option>
-        <option value="Last 6 Months">Last 6 Months</option>
-        <option value="This Year">This Year</option>
-        <option value="Lifetime">Lifetime</option>
-        <option value="CUSTOM">Custom</option>
-      </select>
-      <div *ngIf="selectedFilter === 'CUSTOM'" class="custom-inputs">
-        <input type="date" [(ngModel)]="customStartDate" placeholder="Start Date" class="custom-date" />
-        <input type="date" [(ngModel)]="customEndDate" placeholder="End Date" class="custom-date" />
-        <button (click)="applyCustomDate()" class="apply-btn">Apply</button>
-        <button (click)="resetCustomDate()" class="reset-btn">Reset</button>
-      </div>
     </div>
   </div>
 
   <div class="content-section active" style="margin-bottom: 2rem;">
     <main class="main-content">
       <section class="kpi-section">
+
         <div class="kpi-card">
           <div class="kpi-label">Dealers</div>
-          <div class="kpi-value" style="color:black;">{{ kpiData.dealers }}</div>
-          <div class="kpi-secondary">Network: <span class="kpi-highlight">{{ kpiData.activeNetwork }}</span></div>
-
+          <div class="kpi-value" style="color:black;">{{ kpiData?.dealers }}</div>
+          <div class="kpi-secondary">Network: <span class="kpi-highlight">{{ kpiData?.activeNetwork }}</span></div>
         </div>
+
         <div class="kpi-card">
           <div class="kpi-label">Users</div>
-          <div class="kpi-value" style="color:black;">{{ kpiData.users }}</div>
-          <div class="kpi-secondary">Active: <span class="kpi-highlight">{{ kpiData.activeUsers }}</span></div>
+          <div class="kpi-value" style="color:black;">{{ kpiData?.users }}</div>
+          <div class="kpi-secondary">Active: <span class="kpi-highlight">{{ kpiData?.activeUsers }}</span></div>
         </div>
+
         <div class="kpi-card">
           <div class="kpi-label">Leads</div>
-          <div class="kpi-value" style="color:black;">{{ kpiData.leads }}</div>
+          <div class="kpi-value" style="color:black;">{{ kpiData?.leads }}</div>
           <div class="kpi-secondary">Across all dealers</div>
         </div>
+
         <div class="kpi-card">
           <div class="kpi-label">Calls</div>
-          <div class="kpi-value" style="color:black;">{{ kpiData.calls }}</div>
+          <div class="kpi-value" style="color:black;">{{ kpiData?.calls }}</div>
           <div class="kpi-secondary">Total volume</div>
         </div>
+
         <div class="kpi-card">
           <div class="kpi-label">Total Followups</div>
-          <div class="kpi-value" style="color:black;">{{ kpiData.totalFollowUps || 0}}</div>
-          <!-- <div class="kpi-secondary">Total volume</div> -->
+          <div class="kpi-value" style="color:black;">{{ kpiData?.totalFollowUps }}</div>
         </div>
+
         <div class="kpi-card">
-          <div class="kpi-label">Unique/Completed Test Drives</div>
+          <div class="kpi-label">Unique / Completed Test Drives</div>
           <div class="kpi-value" style="color:black;">
-            {{ kpiData.uniqueTestDrives || 0 }}/{{ kpiData.completedTestDrives || 0 }}
+            {{ kpiData?.uniqueTestDrives }} / {{ kpiData?.completedTestDrives }}
           </div>
-          <!-- <div class="kpi-secondary">Total volume</div> -->
         </div>
+
       </section>
 
       <div class="table-section">
@@ -121,17 +126,15 @@
         <div class="table-container">
           <div class="table-scroll">
             <table class="data-table">
-              <thead class="table-thead">
+              <!-- <thead class="table-thead">
                 <tr>
-                  <th class="th-right">Dealer</th>
-                  <!-- <th class="th-right">Total Users</th> -->
+                  <th class="sticky-col-header th-left">Dealer</th>
                   <th class="th-right " style="cursor: pointer;" (click)="sortData('totalUsers')">
                     Total Users
                     <span *ngIf="sortColumn === 'totalUsers' && sortDirection !== 'default'">
                       {{ sortDirection === 'asc' ? '▲' : '▼' }}
                     </span>
                   </th>
-                  <!-- <th class="th-right">Active Users</th> -->
                   <th class="th-right" style="cursor: pointer;" (click)="sortData('activeUsers')">
                     Active Users
                     <span *ngIf="sortColumn === 'activeUsers' && sortDirection !== 'default'">
@@ -139,7 +142,6 @@
                     </span>
                   </th>
 
-                  <!-- <th class="th-right">Leads (Total)</th> -->
 
                   <th class="th-right" style="cursor: pointer;" (click)="sortData('saLeads')">
                     SA Leads
@@ -149,7 +151,6 @@
                   </th>
 
 
-                  <!-- <th class="th-right">Leads (sync to CXP)</th> -->
                   <th class="th-right" style="cursor: pointer;" (click)="sortData('cxpLeads')">
                     Sync with CXP
                     <span *ngIf="sortColumn === 'cxpLeads' && sortDirection !== 'default'">
@@ -158,7 +159,6 @@
                   </th>
 
 
-                  <!-- <th class="th-right">Leads (sync to ICS)</th> -->
                   <th class="th-right" style="cursor: pointer;" (click)="sortData('icsLeads')">
                     Sync with ICS
                     <span *ngIf="sortColumn === 'icsLeads' && sortDirection !== 'default'">
@@ -174,7 +174,6 @@
                   </th>
 
 
-                  <!-- <th class="th-right">Follow-ups (Total)</th> -->
                   <th class="th-right" style="cursor: pointer;" (click)="sortData('saFollowUps')">
                     SA Followups
                     <span *ngIf="sortColumn === 'saFollowUps' && sortDirection !== 'default'">
@@ -197,7 +196,6 @@
                   </th>
 
 
-                  <!-- <th class="th-right">Follow-ups Closed</th> -->
                   <th class="th-right" style="cursor: pointer;" (click)="sortData('openFollowUps')">
                     Upcoming followups
                     <span *ngIf="sortColumn === 'openFollowUps' && sortDirection !== 'default'">
@@ -212,9 +210,7 @@
                     </span>
                   </th>
 
-                  <!-- <th class="th-right">Follow-ups (sync to CXP)</th> -->
-
-                  <!-- <th class="th-right">Test Drives (Total)</th> -->
+                 
                   <th class="th-right" style="cursor: pointer;" (click)="sortData('saTestDrives')">
                     SA Test Drives
                     <span *ngIf="sortColumn === 'saTestDrives' && sortDirection !== 'default'">
@@ -255,13 +251,110 @@
                   </th>
 
                 </tr>
+              </thead> -->
+              <thead class="table-thead">
+                <tr>
+                  <th rowspan="2" class="sticky-col-header th-left">Dealer</th>
+                  <th colspan="2" class="th-right">Users</th>
+                  <th colspan="4" class="th-right">Leads</th>
+                  <th colspan="5" class="th-right">Follow-ups</th>
+                  <th colspan="6" class="th-right">Test Drives</th>
+                </tr>
+                <tr>
+                  <!-- Users -->
+                  <th class="th-right" style="cursor:pointer;" (click)="sortData('totalUsers')">Total
+                    <span *ngIf="sortColumn==='totalUsers' && sortDirection!=='default'">{{
+                      sortDirection==='asc'?'▲':'▼' }}</span>
+                  </th>
+                  <th class="th-right group-divider" style="cursor:pointer;" (click)="sortData('activeUsers')">Active
+                    <span *ngIf="sortColumn==='activeUsers' && sortDirection!=='default'">{{
+                      sortDirection==='asc'?'▲':'▼' }}</span>
+                  </th>
+
+                  <!-- Leads -->
+                  <th class="th-right" style="cursor:pointer;" (click)="sortData('saLeads')">SA
+                    <span *ngIf="sortColumn==='saLeads' && sortDirection!=='default'">{{ sortDirection==='asc'?'▲':'▼'
+                      }}</span>
+                  </th>
+                  <th class="th-right" style="cursor:pointer;" (click)="sortData('cxpLeads')">Sync with CXP
+                    <span *ngIf="sortColumn==='cxpLeads' && sortDirection!=='default'">{{ sortDirection==='asc'?'▲':'▼'
+                      }}</span>
+                  </th>
+                  <th class="th-right" style="cursor:pointer;" (click)="sortData('icsLeads')">Sync with ICS
+                    <span *ngIf="sortColumn==='icsLeads' && sortDirection!=='default'">{{ sortDirection==='asc'?'▲':'▼'
+                      }}</span>
+                  </th>
+                  <th class="th-right  group-divider" style="cursor:pointer;"
+                    (click)="sortData('manuallyEnteredLeads')">Manually Entered with CXP
+                    <span *ngIf="sortColumn==='manuallyEnteredLeads' && sortDirection!=='default'">{{
+                      sortDirection==='asc'?'▲':'▼'
+                      }}</span>
+                  </th>
+
+                  <!-- Followups -->
+                  <th class="th-right" style="cursor:pointer;" (click)="sortData('saFollowUps')">SA
+                    <span *ngIf="sortColumn==='saFollowUps' && sortDirection!=='default'">{{
+                      sortDirection==='asc'?'▲':'▼' }}</span>
+                  </th>
+                  <th class="th-right" style="cursor:pointer;" (click)="sortData('cxpFollowUps')">Sync with CXP
+                    <span *ngIf="sortColumn==='cxpFollowUps' && sortDirection!=='default'">{{
+                      sortDirection==='asc'?'▲':'▼' }}</span>
+                  </th>
+                  <th class="th-right" style="cursor:pointer;" (click)="sortData('completedFollowUps')">Completed
+                    <span *ngIf="sortColumn==='completedFollowUps' && sortDirection!=='default'">{{
+                      sortDirection==='asc'?'▲':'▼'
+                      }}</span>
+                  </th>
+                  <th class="th-right" style="cursor:pointer;" (click)="sortData('openFollowUps')">Upcoming
+                    <span *ngIf="sortColumn==='openFollowUps' && sortDirection!=='default'">{{
+                      sortDirection==='asc'?'▲':'▼' }}</span>
+                  </th>
+                  <th class="th-right  group-divider" style="cursor:pointer;" (click)="sortData('closedFollowUps')">
+                    Overdue
+                    <span *ngIf="sortColumn==='closedFollowUps' && sortDirection!=='default'">{{
+                      sortDirection==='asc'?'▲':'▼'
+                      }}</span>
+                  </th>
+
+                  <!-- Test Drives -->
+                  <th class="th-right" style="cursor:pointer;" (click)="sortData('saTestDrives')">SA
+                    <span *ngIf="sortColumn==='saTestDrives' && sortDirection!=='default'">{{
+                      sortDirection==='asc'?'▲':'▼' }}</span>
+                  </th>
+                  <th class="th-right" style="cursor:pointer;" (click)="sortData('cxpTestDrives')">Sync with CXP
+                    <span *ngIf="sortColumn==='cxpTestDrives' && sortDirection!=='default'">{{
+                      sortDirection==='asc'?'▲':'▼' }}</span>
+                  </th>
+                  <th class="th-right" style="cursor:pointer;" (click)="sortData('completedTestDrives')">Completed
+                    <span *ngIf="sortColumn==='completedTestDrives' && sortDirection!=='default'">{{
+                      sortDirection==='asc'?'▲':'▼'
+                      }}</span>
+                  </th>
+                  <th class="th-right" style="cursor:pointer;" (click)="sortData('upcomingTestDrives')">Upcoming
+                    <span *ngIf="sortColumn==='upcomingTestDrives' && sortDirection!=='default'">{{
+                      sortDirection==='asc'?'▲':'▼'
+                      }}</span>
+                  </th>
+                  <th class="th-right  group-divider" style="cursor:pointer;" (click)="sortData('closedTestDrives')">
+                    Overdue
+                    <span *ngIf="sortColumn==='closedTestDrives' && sortDirection!=='default'">{{
+                      sortDirection==='asc'?'▲':'▼'
+                      }}</span>
+                  </th>
+                  <th class="th-right" style="cursor:pointer;" (click)="sortData('opportunitiesConverted')">
+                    Opportunities Converted
+                    <span *ngIf="sortColumn==='opportunitiesConverted' && sortDirection!=='default'">{{
+                      sortDirection==='asc'?'▲':'▼'
+                      }}</span>
+                  </th>
+                </tr>
               </thead>
 
               <tbody>
                 <ng-container
                   *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : dealers) | slice:0:table1Length; let i = index">
                   <tr *ngIf="dealer" class="table-row">
-                    <td class=" td-right">
+                    <td class="sticky-col-header  td-left">
                       <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
                         <span class="arrow">{{ expandedRow === 'engagement-' + i ? 'v' : '>' }}</span>
                         {{ dealer.dealerName }}
@@ -325,26 +418,27 @@
                                   <th style="text-align:left">User</th>
                                   <th>Active</th>
 
-                                  <th>SA Leads</th>
-                                  <th>Leads (CXP)</th>
-                                  <th>Leads (ICS)</th>
-                                  <th>Manually entered with cxp</th>
+                                  <th>SA </th>
+                                  <th>Sync with CXP</th>
+                                  <th>Sync with ICS</th>
+                                  <th>Manually Entered with CXP</th>
 
-                                  <th>SA Follow-ups </th>
-                                  <th>Sync with cxp</th>
-                                  <th>Open</th>
-                                  <th>Closed</th>
+                                  <th>SA </th>
+                                  <th>Sync with CXP</th>
                                   <th>Completed</th>
+
+                                  <th>Upcoming</th>
+                                  <th>Overdue</th>
                                   <!-- <th>Follow-ups (CXP)</th> -->
 
 
-                                  <th>SA Test Drives </th>
-                                  <th>Test Drives (CXP)</th>
+                                  <th>SA </th>
+                                  <th>Sync with CXP</th>
 
-                                  <th>Upcoming Test Drives</th>
-                                  <th>Completed Test Drives</th>
+                                  <th>Upcoming </th>
+                                  <th>Completed </th>
                                   <th>Overdue</th>
-                                  <th>Opp converted</th>
+                                  <th>Opportunities Converted</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -427,7 +521,7 @@
                 <i class="fas fa-chart-line" style="margin-right: 8px;"></i> Line Chart
               </button>
             </div>
-            <button class="btn btn-small btn-secondary" (click)="exportUserCallLogsToCSV()">
+            <button class="btn btn-small btn-secondary" (click)="exportDealerCalllogstocxp()">
               <i class="icon-download"></i> Export CSV
             </button>
 
@@ -458,11 +552,66 @@
                         {{ dealer.dealerName }}
                       </button>
                     </td>
-                    <td>{{ dealer.callLogs?.totalCalls || 0 }}</td>
-                    <td>{{ dealer.callLogs?.outgoing || 0 }}</td>
+                    <td>
+                      <i class="fa fa-phone" style="margin-right: 4px; color: black;"></i>
+                      {{ dealer.callLogs?.totalCalls || 0 }}
+                    </td>
+                    <!-- <td>{{ dealer.callLogs?.outgoing || 0 }}</td>
                     <td>{{ dealer.callLogs?.incoming || 0 }}</td>
                     <td>{{ dealer.callLogs?.connected || 0 }}</td>
-                    <td>{{ dealer.callLogs?.declined || 0 }}</td>
+                    <td>{{ dealer.callLogs?.declined || 0 }}</td> -->
+                    <!-- Outgoing Call -->
+                    <!-- Outgoing Call -->
+                    <!-- Outgoing Call -->
+                    <td>
+                      <span style="color: green; margin-right: 4px; font-size: 18px;">&#8593;</span> <!-- ↑ -->
+                      <span style="color: green;">{{ dealer.callLogs?.outgoing || 0 }}</span>
+                    </td>
+
+                    <!-- Incoming Call -->
+                    <td>
+                      <span style="color: green; margin-right: 4px; font-size: 18px;">&#8595;</span> <!-- ↓ -->
+                      <span style="color: green;">{{ dealer.callLogs?.incoming || 0 }}</span>
+                    </td>
+                    <!-- Connected Call -->
+                    <!-- Connected Call -->
+                    <td>
+                      <span style="
+                      display: inline-flex;
+                      justify-content: center;
+                      align-items: center;
+                      width: 16px;
+                      height: 16px;
+                      border-radius: 50%;
+                      background-color: #007bff; /* blue */
+                      color: white;
+                      font-size: 10px;
+                      margin-right: 4px;
+                    ">
+                        &#10003; <!-- check mark -->
+                      </span>
+                      <span style="color: #007bff;">{{ dealer.callLogs?.connected || 0 }}</span>
+                    </td>
+
+                    <!-- Declined Call -->
+                    <td>
+                      <span style="
+                      display: inline-flex;
+                      justify-content: center;
+                      align-items: center;
+                      width: 16px;
+                      height: 16px;
+                      border-radius: 50%;
+                      background-color: red;
+                      color: white;
+                      font-size: 10px;
+                      margin-right: 4px;
+                    ">
+                        &times; <!-- cross mark -->
+                      </span>
+                      <span style="color: red;">{{ dealer.callLogs?.declined || 0 }}</span>
+                    </td>
+
                     <td>{{ dealer.callLogs?.duration || '00:00:00' }}</td>
                   </tr>
                   <!-- Sub-row: user call logs -->

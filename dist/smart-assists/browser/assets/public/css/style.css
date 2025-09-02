@@ -11799,23 +11799,23 @@ a.active {
 
 .content-body .container-fluid {
   padding-top: 60px;
-  padding-right: 40px;
-  padding-left: 40px;
+  /* padding-right: 40px;
+  padding-left: 40px; */
 }
 
 @media only screen and (max-width: 1600px) {
   .content-body .container-fluid {
     padding-top: 30px;
-    padding-right: 70px;
-    padding-left: 15px;
+    /* padding-right: 70px;
+    padding-left: 15px; */
   }
 }
 
 @media only screen and (max-width: 767px) {
   .content-body .container-fluid {
     padding-top: 20px;
-    padding-right: 20px;
-    padding-left: 20px;
+    /* padding-right: 20px;
+    padding-left: 20px; */
   }
 }
 
@@ -18348,11 +18348,11 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 @media (min-width: 1400px) {
   [data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .content-body {
-    margin-left: 7rem;
+    /* margin-left: 7rem; */
   }
 
   [direction="rtl"][data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .content-body {
-    margin-right: 5rem;
+    /* margin-right: 5rem; */
     margin-left: auto;
     border: 0;
   }
@@ -18522,13 +18522,13 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 @media only screen and (min-width: 768px) {
   [data-sidebar-style="mini"] .content-body {
-    margin-left: 2rem;
+    /* margin-left: 2rem; */
   }
 }
 
 @media only screen and (min-width: 768px) and (max-width: 1400px) {
   [data-sidebar-style="mini"] .content-body {
-    margin-left: 5rem;
+    /* margin-left: 5rem; */
   }
 }
 
@@ -71790,7 +71790,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
   [data-sidebar-style="full"][data-layout="vertical"]
     .menu-toggle
     .content-body {
-    margin-left: 4rem;
+    /* margin-left: 4rem; */
   }
 
   [direction="rtl"][data-sidebar-style="full"][data-layout="vertical"]
@@ -71972,13 +71972,13 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 @media only screen and (min-width: 768px) {
   [data-sidebar-style="mini"] .content-body {
-    margin-left: 2rem;
+    /* margin-left: 2rem; */
   }
 }
 
 @media only screen and (min-width: 768px) and (max-width: 1400px) {
   [data-sidebar-style="mini"] .content-body {
-    margin-left: 5rem;
+    /* margin-left: 5rem; */
   }
 }
 
