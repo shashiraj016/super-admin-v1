@@ -1005,8 +1005,23 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             completedTestDrives: res.data.completedTestDrives ?? 0,
           };
 
-          // ✅ Dealer table data
           this.dealers = res.data.dealerData ?? [];
+          // THIS IS CODE OF DEALERS WITH HIG LEADS WILL COME BY DEAFULT IN UI (DISCUSS WITH MUSTAFA AND)
+          this.dealers.sort((a: any, b: any) => {
+            const leadsA =
+              (a.saLeads || 0) +
+              (a.cxpLeads || 0) +
+              (a.icsLeads || 0) +
+              (a.manuallyEnteredLeads || 0);
+
+            const leadsB =
+              (b.saLeads || 0) +
+              (b.cxpLeads || 0) +
+              (b.icsLeads || 0) +
+              (b.manuallyEnteredLeads || 0);
+
+            return leadsB - leadsA;
+          });
 
           console.log(this.dealers, 'this.dealers===========================');
           this.originalDealers = [...this.dealers];
@@ -1287,6 +1302,90 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //       });
   //   }
   // }
+  // toggleRow(event: Event, dealer: any, rowId: string): void {
+  //   const id = dealer.dealerId;
+  //   if (!id) return;
+
+  //   if (this.expandedRow === rowId) {
+  //     this.expandedRow = null;
+  //     return;
+  //   }
+
+  //   this.expandedRow = rowId;
+
+  //   const token = sessionStorage.getItem('token');
+  //   if (!token) return;
+
+  //   // Always fetch users on toggle (based on current filter)
+  //   this.dashboardService
+  //     .getDealerUsers(id, this.selectedFilter, token)
+  //     .subscribe({
+  //       next: (res: any) => {
+  //         const dealerData = Array.isArray(res?.data?.dealerData)
+  //           ? res.data.dealerData.find((d: any) => d.dealerId === id)
+  //           : res?.data?.dealerData;
+
+  //         if (!dealerData) {
+  //           this.dealerUsers[id] = [];
+  //           this.dealerCallLogs[id] = null;
+  //           this.userCallLogs[id] = [];
+  //           return;
+  //         }
+
+  //         // Map users
+  //         this.dealerUsers[id] = dealerData.users || [];
+
+  //         // Dealer-level call logs
+  //         this.dealerCallLogs[id] = dealerData.callLogs
+  //           ? {
+  //               total: dealerData.callLogs.totalCalls,
+  //               outgoing: dealerData.callLogs.outgoing,
+  //               incoming: dealerData.callLogs.incoming,
+  //               connected: dealerData.callLogs.connected,
+  //               declined: dealerData.callLogs.declined,
+  //               duration: this.formatDuration(
+  //                 dealerData.callLogs.durationSec || 0
+  //               ),
+  //             }
+  //           : null;
+
+  //         // User-level call logs
+  //         this.userCallLogs[id] =
+  //           dealerData.users?.map((user: any) => ({
+  //             userId: user.user_id,
+  //             name: user.user,
+  //             role: user.user_role,
+  //             active: user.active,
+  //             calls: user.calls
+  //               ? {
+  //                   total: user.calls.totalCalls,
+  //                   outgoing: user.calls.outgoing,
+  //                   incoming: user.calls.incoming,
+  //                   connected: user.calls.connected,
+  //                   declined: user.calls.declined,
+  //                   duration: this.formatDuration(user.calls.durationSec),
+  //                 }
+  //               : {
+  //                   total: 0,
+  //                   outgoing: 0,
+  //                   incoming: 0,
+  //                   connected: 0,
+  //                   declined: 0,
+  //                   duration: '0s',
+  //                 },
+  //           })) || [];
+
+  //         this.cd.detectChanges();
+  //         console.log('Mapped User Call Logs:', this.userCallLogs[id]);
+  //       },
+  //       error: (err) => {
+  //         console.error(err);
+  //         this.dealerUsers[id] = [];
+  //         this.dealerCallLogs[id] = null;
+  //         this.userCallLogs[id] = [];
+  //       },
+  //     });
+  // }
   toggleRow(event: Event, dealer: any, rowId: string): void {
     const id = dealer.dealerId;
     if (!id) return;
@@ -1360,8 +1459,18 @@ export class DashboardComponent implements AfterViewInit, OnInit {
                   },
             })) || [];
 
+          // ✅ Sort alphabetically by name
+          this.userCallLogs[id].sort((a, b) =>
+            (a?.name ?? '')
+              .toString()
+              .trim()
+              .localeCompare((b?.name ?? '').toString().trim(), undefined, {
+                sensitivity: 'base',
+              })
+          );
+
           this.cd.detectChanges();
-          console.log('Mapped User Call Logs:', this.userCallLogs[id]);
+          console.log('Mapped + Sorted User Call Logs:', this.userCallLogs[id]);
         },
         error: (err) => {
           console.error(err);
@@ -1371,6 +1480,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         },
       });
   }
+
   // THIS CODE IS WITH ALPHABETICLA SORTING AND ACTIVE INACTIVE LOGIC
   // toggleRow(event: Event, dealer: any, rowId: string): void {
   //   const id = dealer.dealerId;

@@ -69,16 +69,21 @@
       <section class="kpi-section">
 
         <div class="kpi-card">
-          <div class="kpi-label">Dealers</div>
-          <div class="kpi-value" style="color:black;">{{ kpiData?.dealers }}</div>
-          <div class="kpi-secondary">Network: <span class="kpi-highlight">{{ kpiData?.activeNetwork }}</span></div>
+          <div class="kpi-label">Network:</div>
+          <div class="kpi-value" style="color:black;">{{ kpiData?.activeNetwork }}</div>
+          <div class="kpi-secondary">Dealers: <span class="kpi-highlight">{{ kpiData?.dealers }}</span></div>
         </div>
 
-        <div class="kpi-card">
+        <!-- <div class="kpi-card">
           <div class="kpi-label">Users</div>
           <div class="kpi-value" style="color:black;">{{ kpiData?.users }}</div>
           <div class="kpi-secondary">Active: <span class="kpi-highlight">{{ kpiData?.activeUsers }}</span></div>
-        </div>
+        </div> -->
+              <div class="kpi-card">
+                        <div class="kpi-label">Active</div>
+                        <div class="kpi-value" style="color:black;">{{ kpiData?.activeUsers }}</div>
+                        <div class="kpi-secondary">Users: <span class="kpi-highlight">{{ kpiData?.users }}</span></div>
+                      </div>
 
         <div class="kpi-card">
           <div class="kpi-label">Leads</div>

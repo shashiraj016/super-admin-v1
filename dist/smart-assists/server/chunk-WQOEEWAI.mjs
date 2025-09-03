@@ -77,7 +77,7 @@ import {
   Wa as Ec,
   Wb as X,
   Wc as Bt,
-  X as ne,
+  X as ie,
   Xb as Yr,
   Xc as Ke,
   Y as ge,
@@ -168,7 +168,7 @@ import {
   x as er,
   xa as Oe,
   xb as tn,
-  xc as et,
+  xc as Je,
   y as Di,
   yb as nr,
   z as Lh,
@@ -176,8 +176,8 @@ import {
   zb as or,
 } from "./chunk-7NQSXCRL.mjs";
 import {
-  a as ie,
-  b as Je,
+  a as ne,
+  b as tt,
   e as b0,
   g as v0,
   h as bc,
@@ -545,7 +545,7 @@ var s_ = b0((a_, Al) => {
           `)(?:\\((('((?:\\\\.|[^\\\\'])*)'|"((?:\\\\.|[^\\\\"])*)")|((?:\\\\.|[^\\\\()[\\]]|` +
           Qe +
           ")*)|.*)\\)|)",
-        tt = new RegExp(Ie + "+", "g"),
+        et = new RegExp(Ie + "+", "g"),
         Mt = new RegExp("^" + Ie + "*," + Ie + "*"),
         jr = new RegExp("^" + Ie + "*([>+~]|" + Ie + ")" + Ie + "*"),
         uc = new RegExp(Ie + "|>"),
@@ -1038,7 +1038,7 @@ var s_ = b0((a_, Al) => {
                         : V === "$="
                         ? W && K.slice(-W.length) === W
                         : V === "~="
-                        ? (" " + K.replace(tt, " ") + " ").indexOf(W) > -1
+                        ? (" " + K.replace(et, " ") + " ").indexOf(W) > -1
                         : V === "|="
                         ? K === W || K.slice(0, W.length + 1) === W + "-"
                         : !1)
@@ -5029,7 +5029,7 @@ var s_ = b0((a_, Al) => {
           mn = "canceled",
           Qe = {
             readyState: 0,
-            getResponseHeader: function (tt) {
+            getResponseHeader: function (et) {
               var Mt;
               if (P) {
                 if (!C)
@@ -5037,33 +5037,33 @@ var s_ = b0((a_, Al) => {
                     C[Mt[1].toLowerCase() + " "] = (
                       C[Mt[1].toLowerCase() + " "] || []
                     ).concat(Mt[2]);
-                Mt = C[tt.toLowerCase() + " "];
+                Mt = C[et.toLowerCase() + " "];
               }
               return Mt == null ? null : Mt.join(", ");
             },
             getAllResponseHeaders: function () {
               return P ? x : null;
             },
-            setRequestHeader: function (tt, Mt) {
+            setRequestHeader: function (et, Mt) {
               return (
                 P == null &&
-                  ((tt = pn[tt.toLowerCase()] = pn[tt.toLowerCase()] || tt),
-                  (Ht[tt] = Mt)),
+                  ((et = pn[et.toLowerCase()] = pn[et.toLowerCase()] || et),
+                  (Ht[et] = Mt)),
                 this
               );
             },
-            overrideMimeType: function (tt) {
-              return P == null && (G.mimeType = tt), this;
+            overrideMimeType: function (et) {
+              return P == null && (G.mimeType = et), this;
             },
-            statusCode: function (tt) {
+            statusCode: function (et) {
               var Mt;
-              if (tt)
-                if (P) Qe.always(tt[Qe.status]);
-                else for (Mt in tt) Gt[Mt] = [Gt[Mt], tt[Mt]];
+              if (et)
+                if (P) Qe.always(et[Qe.status]);
+                else for (Mt in et) Gt[Mt] = [Gt[Mt], et[Mt]];
               return this;
             },
-            abort: function (tt) {
-              var Mt = tt || mn;
+            abort: function (et) {
+              var Mt = et || mn;
               return f && f.abort(Mt), vo(0, Mt), this;
             },
           };
@@ -5151,12 +5151,12 @@ var s_ = b0((a_, Al) => {
             }, G.timeout));
           try {
             (P = !1), f.send(Ht, vo);
-          } catch (tt) {
-            if (P) throw tt;
-            vo(-1, tt);
+          } catch (et) {
+            if (P) throw et;
+            vo(-1, et);
           }
         }
-        function vo(tt, Mt, jr, uc) {
+        function vo(et, Mt, jr, uc) {
           var fn,
             zr,
             gn,
@@ -5168,8 +5168,8 @@ var s_ = b0((a_, Al) => {
             D && n.clearTimeout(D),
             (f = void 0),
             (x = uc || ""),
-            (Qe.readyState = tt > 0 ? 4 : 0),
-            (fn = (tt >= 200 && tt < 300) || tt === 304),
+            (Qe.readyState = et > 0 ? 4 : 0),
+            (fn = (et >= 200 && et < 300) || et === 304),
             jr && (Qn = r0(G, Qe, jr)),
             !fn &&
               _.inArray("script", G.dataTypes) > -1 &&
@@ -5182,17 +5182,17 @@ var s_ = b0((a_, Al) => {
                   Xn && (_.lastModified[g] = Xn),
                   (Xn = Qe.getResponseHeader("etag")),
                   Xn && (_.etag[g] = Xn)),
-                tt === 204 || G.type === "HEAD"
+                et === 204 || G.type === "HEAD"
                   ? (Ri = "nocontent")
-                  : tt === 304
+                  : et === 304
                   ? (Ri = "notmodified")
                   : ((Ri = Qn.state),
                     (zr = Qn.data),
                     (gn = Qn.error),
                     (fn = !gn)))
               : ((gn = Ri),
-                (tt || !Ri) && ((Ri = "error"), tt < 0 && (tt = 0))),
-            (Qe.status = tt),
+                (et || !Ri) && ((Ri = "error"), et < 0 && (et = 0))),
+            (Qe.status = et),
             (Qe.statusText = (Mt || Ri) + ""),
             fn
               ? Ze.resolveWith(te, [zr, Ri, Qe])
@@ -6032,7 +6032,7 @@ function Mp(n) {
   let i = {};
   return (
     n.forEach((e) => {
-      i = e != null ? ie(ie({}, i), e) : i;
+      i = e != null ? ne(ne({}, i), e) : i;
     }),
     Object.keys(i).length === 0 ? null : i
   );
@@ -6234,7 +6234,7 @@ var fs = class {
     "[class.ng-invalid]": "isInvalid",
     "[class.ng-pending]": "isPending",
   },
-  KE = Je(ie({}, I0), { "[class.ng-submitted]": "isSubmitted" }),
+  KE = tt(ne({}, I0), { "[class.ng-submitted]": "isSubmitted" }),
   ti = (() => {
     class n extends gs {
       constructor(e) {
@@ -6484,7 +6484,7 @@ var bs = class {
       let t = i.sourceControl ?? this;
       this._parent &&
         !i.onlySelf &&
-        this._parent.markAsTouched(Je(ie({}, i), { sourceControl: t })),
+        this._parent.markAsTouched(tt(ne({}, i), { sourceControl: t })),
         e && i.emitEvent !== !1 && this._events.next(new Jr(!0, t));
     }
     markAllAsTouched(i = {}) {
@@ -6515,7 +6515,7 @@ var bs = class {
       let t = i.sourceControl ?? this;
       this._parent &&
         !i.onlySelf &&
-        this._parent.markAsDirty(Je(ie({}, i), { sourceControl: t })),
+        this._parent.markAsDirty(tt(ne({}, i), { sourceControl: t })),
         e && i.emitEvent !== !1 && this._events.next(new Zr(!1, t));
     }
     markAsPristine(i = {}) {
@@ -6536,14 +6536,14 @@ var bs = class {
         this.statusChanges.emit(this.status)),
         this._parent &&
           !i.onlySelf &&
-          this._parent.markAsPending(Je(ie({}, i), { sourceControl: e }));
+          this._parent.markAsPending(tt(ne({}, i), { sourceControl: e }));
     }
     disable(i = {}) {
       let e = this._parentMarkedDirty(i.onlySelf);
       (this.status = Qr),
         (this.errors = null),
         this._forEachChild((o) => {
-          o.disable(Je(ie({}, i), { onlySelf: !0 }));
+          o.disable(tt(ne({}, i), { onlySelf: !0 }));
         }),
         this._updateValue();
       let t = i.sourceControl ?? this;
@@ -6552,17 +6552,17 @@ var bs = class {
         this._events.next(new lr(this.status, t)),
         this.valueChanges.emit(this.value),
         this.statusChanges.emit(this.status)),
-        this._updateAncestors(Je(ie({}, i), { skipPristineCheck: e }), this),
+        this._updateAncestors(tt(ne({}, i), { skipPristineCheck: e }), this),
         this._onDisabledChange.forEach((o) => o(!0));
     }
     enable(i = {}) {
       let e = this._parentMarkedDirty(i.onlySelf);
       (this.status = Kr),
         this._forEachChild((t) => {
-          t.enable(Je(ie({}, i), { onlySelf: !0 }));
+          t.enable(tt(ne({}, i), { onlySelf: !0 }));
         }),
         this.updateValueAndValidity({ onlySelf: !0, emitEvent: i.emitEvent }),
-        this._updateAncestors(Je(ie({}, i), { skipPristineCheck: e }), this),
+        this._updateAncestors(tt(ne({}, i), { skipPristineCheck: e }), this),
         this._onDisabledChange.forEach((t) => t(!1));
     }
     _updateAncestors(i, e) {
@@ -6595,7 +6595,7 @@ var bs = class {
         this._parent &&
           !i.onlySelf &&
           this._parent.updateValueAndValidity(
-            Je(ie({}, i), { sourceControl: e })
+            tt(ne({}, i), { sourceControl: e })
           );
     }
     _updateTreeValidity(i = { emitEvent: !0 }) {
@@ -7302,7 +7302,7 @@ var $0 = { provide: Mo, useExisting: Zt(() => Ei) },
             H(To, 10),
             H(Cs, 10),
             H(Eo, 10),
-            H(et, 8),
+            H(Je, 8),
             H(ea, 8)
           );
         };
@@ -8066,7 +8066,7 @@ var xn = class n {
   static ɵfac = function (e) {
     return new (e || n)();
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var cr = class n {
   isOpen = new Xi(!0);
@@ -8083,7 +8083,7 @@ var cr = class n {
   static ɵfac = function (e) {
     return new (e || n)();
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var ib = (n) => ({ "collapsed-sidebar": n }),
   nb = (n) => ({ collapsed: n });
@@ -15600,7 +15600,7 @@ var nl = class n {
   static ɵfac = function (e) {
     return new (e || n)(J(Jt));
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var rl = class n {
   selectedDealerSource = new Xi(null);
@@ -15611,7 +15611,7 @@ var rl = class n {
   static ɵfac = function (e) {
     return new (e || n)();
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var q1 = ["chart"],
   K1 = (n, i) => ({ "sidebar-open": n, "sidebar-closed": i }),
@@ -17235,7 +17235,7 @@ var al = class n {
   apiUrl = "https://uat.smartassistapp.in/api/superAdmin/dashbaordNew";
   ngOnInit() {
     let i = localStorage.getItem("kpiData");
-    i && (this.kpiData = ie({}, JSON.parse(i))),
+    i && (this.kpiData = ne({}, JSON.parse(i))),
       this.loadKpiData("DAY"),
       (this.selectedTime = "MTD"),
       this.onTimeChange(this.selectedTime),
@@ -17382,25 +17382,29 @@ var al = class n {
   }
   onFilterChange(i) {
     this.selectedFilter = i;
-    let e = this.mapFilterToApi(i),
-      t = this.activeSM;
+    let e = this.mapFilterToApi(i);
     if (e !== "CUSTOM")
-      if (this.selectedDealerId) {
-        let o = this.selectedDealerId;
-        this.dashboardService.getNoSMUsers(o).subscribe({
+      if (
+        ((this.expandedRow = null),
+        (this.dealerUsers = {}),
+        (this.userCallLogs = {}),
+        (this.dealerCallLogs = {}),
+        this.selectedDealerId)
+      ) {
+        let t = this.selectedDealerId,
+          o = this.activeSM;
+        this.dashboardService.getNoSMUsers(t).subscribe({
           next: (r) => {
-            let a = r.data.dealerData.find((m) => m.dealerId === o);
-            (this.dealerUsers = Je(ie({}, this.dealerUsers), {
-              [o]: a?.users || [],
-            })),
+            let a = r.data.dealerData.find((m) => m.dealerId === t);
+            (this.dealerUsers[t] = a?.users || []),
               (this.displayedDealerUsers =
-                this.dealerUsers[o]?.slice(0, 10) || []);
-            let d = this.dealerSMS[o] || [];
-            this.activeSM = d.some((m) => m.sm_id === t) ? t : null;
+                this.dealerUsers[t]?.slice(0, 10) || []);
+            let d = this.dealerSMS[t] || [];
+            this.activeSM = d.some((m) => m.sm_id === o) ? o : null;
           },
           error: (r) => {
             console.error("Error fetching dealer users:", r),
-              (this.dealerUsers = Je(ie({}, this.dealerUsers), { [o]: [] })),
+              (this.dealerUsers[t] = []),
               (this.displayedDealerUsers = []);
           },
         });
@@ -17499,7 +17503,7 @@ var al = class n {
         next: (o) => {
           o.status === 200 &&
             o.data &&
-            ((this.kpiData = ie({}, o.data)),
+            ((this.kpiData = ne({}, o.data)),
             localStorage.setItem("kpiData", JSON.stringify(this.kpiData)),
             this.cd.detectChanges());
         },
@@ -17763,75 +17767,72 @@ var al = class n {
   }
   toggleRow(i, e, t) {
     let o = e.dealerId;
-    if (o) {
-      if (this.expandedRow === t) {
-        this.expandedRow = null;
-        return;
-      }
-      if (((this.expandedRow = t), !this.dealerUsers[o])) {
-        let r = sessionStorage.getItem("token");
-        this.dashboardService
-          .getDealerUsers(o, this.selectedFilter, r)
-          .subscribe({
-            next: (a) => {
-              let d = Array.isArray(a?.data?.dealerData)
-                ? a.data.dealerData.find((m) => m.dealerId === o)
-                : a?.data?.dealerData;
-              if (!d) {
-                (this.dealerUsers[o] = []),
-                  (this.dealerCallLogs[o] = null),
-                  (this.userCallLogs[o] = []);
-                return;
-              }
-              (this.dealerUsers[o] = d.users || []),
-                (this.dealerCallLogs[o] = d.callLogs
-                  ? {
-                      total: d.callLogs.totalCalls,
-                      outgoing: d.callLogs.outgoing,
-                      incoming: d.callLogs.incoming,
-                      connected: d.callLogs.connected,
-                      declined: d.callLogs.declined,
-                      duration: this.formatDuration(
-                        d.callLogs.durationSec || 0
-                      ),
-                    }
-                  : null),
-                (this.userCallLogs[o] =
-                  d.users?.map((m) => ({
-                    userId: m.user_id,
-                    name: m.user,
-                    role: m.user_role,
-                    active: m.active,
-                    calls: m.calls
-                      ? {
-                          total: m.calls.totalCalls,
-                          outgoing: m.calls.outgoing,
-                          incoming: m.calls.incoming,
-                          connected: m.calls.connected,
-                          declined: m.calls.declined,
-                          duration: this.formatDuration(m.calls.durationSec),
-                        }
-                      : {
-                          total: 0,
-                          outgoing: 0,
-                          incoming: 0,
-                          connected: 0,
-                          declined: 0,
-                          duration: "0s",
-                        },
-                  })) || []),
-                this.cd.detectChanges(),
-                console.log("Mapped User Call Logs:", this.userCallLogs[o]);
-            },
-            error: (a) => {
-              console.error(a),
-                (this.dealerUsers[o] = []),
+    if (!o) return;
+    if (this.expandedRow === t) {
+      this.expandedRow = null;
+      return;
+    }
+    this.expandedRow = t;
+    let r = sessionStorage.getItem("token");
+    r &&
+      this.dashboardService
+        .getDealerUsers(o, this.selectedFilter, r)
+        .subscribe({
+          next: (a) => {
+            let d = Array.isArray(a?.data?.dealerData)
+              ? a.data.dealerData.find((m) => m.dealerId === o)
+              : a?.data?.dealerData;
+            if (!d) {
+              (this.dealerUsers[o] = []),
                 (this.dealerCallLogs[o] = null),
                 (this.userCallLogs[o] = []);
-            },
-          });
-      }
-    }
+              return;
+            }
+            (this.dealerUsers[o] = d.users || []),
+              (this.dealerCallLogs[o] = d.callLogs
+                ? {
+                    total: d.callLogs.totalCalls,
+                    outgoing: d.callLogs.outgoing,
+                    incoming: d.callLogs.incoming,
+                    connected: d.callLogs.connected,
+                    declined: d.callLogs.declined,
+                    duration: this.formatDuration(d.callLogs.durationSec || 0),
+                  }
+                : null),
+              (this.userCallLogs[o] =
+                d.users?.map((m) => ({
+                  userId: m.user_id,
+                  name: m.user,
+                  role: m.user_role,
+                  active: m.active,
+                  calls: m.calls
+                    ? {
+                        total: m.calls.totalCalls,
+                        outgoing: m.calls.outgoing,
+                        incoming: m.calls.incoming,
+                        connected: m.calls.connected,
+                        declined: m.calls.declined,
+                        duration: this.formatDuration(m.calls.durationSec),
+                      }
+                    : {
+                        total: 0,
+                        outgoing: 0,
+                        incoming: 0,
+                        connected: 0,
+                        declined: 0,
+                        duration: "0s",
+                      },
+                })) || []),
+              this.cd.detectChanges(),
+              console.log("Mapped User Call Logs:", this.userCallLogs[o]);
+          },
+          error: (a) => {
+            console.error(a),
+              (this.dealerUsers[o] = []),
+              (this.dealerCallLogs[o] = null),
+              (this.userCallLogs[o] = []);
+          },
+        });
   }
   fetchDealersWithCustomDate(i, e) {
     let t = sessionStorage.getItem("token");
@@ -18315,13 +18316,13 @@ var al = class n {
   static ɵfac = function (e) {
     return new (e || n)(
       H(Jt),
-      H(et),
+      H(Je),
       H(xn),
       H(Hi),
       H(nl),
       H(rl),
       H(Oe),
-      H(et),
+      H(Je),
       H(ke)
     );
   };
@@ -18740,7 +18741,7 @@ var sl = class n {
   static ɵfac = function (e) {
     return new (e || n)();
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var We = class n {
   constructor(i, e) {
@@ -18959,7 +18960,7 @@ var We = class n {
   static ɵfac = function (e) {
     return new (e || n)(J(Jt), J(sl));
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var Yn = class n {
   dealer_id;
@@ -18977,7 +18978,7 @@ var Yn = class n {
   static ɵfac = function (e) {
     return new (e || n)();
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var Rf = ["toast-component", ""];
 function Ny(n, i) {
@@ -19301,7 +19302,7 @@ var zd = class {
       static ɵfac = function (t) {
         return new (t || n)();
       };
-      static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+      static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
     }
     return n;
   })(),
@@ -19356,7 +19357,7 @@ var zd = class {
       static ɵfac = function (t) {
         return new (t || n)();
       };
-      static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+      static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
     }
     return n;
   })(),
@@ -19377,10 +19378,10 @@ var zd = class {
           (this._injector = o),
           (this.sanitizer = r),
           (this.ngZone = a),
-          (this.toastrConfig = ie(ie({}, e.default), e.config)),
+          (this.toastrConfig = ne(ne({}, e.default), e.config)),
           e.config.iconClasses &&
-            (this.toastrConfig.iconClasses = ie(
-              ie({}, e.default.iconClasses),
+            (this.toastrConfig.iconClasses = ne(
+              ne({}, e.default.iconClasses),
               e.config.iconClasses
             ));
       }
@@ -19442,7 +19443,7 @@ var zd = class {
         return null;
       }
       applyConfig(e = {}) {
-        return ie(ie({}, this.toastrConfig), e);
+        return ne(ne({}, this.toastrConfig), e);
       }
       _findToast(e) {
         for (let t = 0; t < this.toasts.length; t++)
@@ -19510,7 +19511,7 @@ var zd = class {
       static ɵfac = function (t) {
         return new (t || n)(J(Nf), J(Ky), J(xt), J(sp), J(Oe));
       };
-      static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+      static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
     }
     return n;
   })(),
@@ -19578,7 +19579,7 @@ var zd = class {
           clearTimeout(this.timeout);
       }
       activateToast() {
-        this.state.update((e) => Je(ie({}, e), { value: "active" })),
+        this.state.update((e) => tt(ne({}, e), { value: "active" })),
           !(
             this.options.disableTimeOut === !0 ||
             this.options.disableTimeOut === "timeOut"
@@ -19603,7 +19604,7 @@ var zd = class {
       resetTimeout() {
         clearTimeout(this.timeout),
           clearInterval(this.intervalId),
-          this.state.update((e) => Je(ie({}, e), { value: "active" })),
+          this.state.update((e) => tt(ne({}, e), { value: "active" })),
           this.outsideTimeout(() => this.remove(), this.originalTimeout),
           (this.options.timeOut = this.originalTimeout),
           (this.hideTime = new Date().getTime() + (this.options.timeOut || 0)),
@@ -19614,7 +19615,7 @@ var zd = class {
       remove() {
         this.state().value !== "removed" &&
           (clearTimeout(this.timeout),
-          this.state.update((e) => Je(ie({}, e), { value: "removed" })),
+          this.state.update((e) => tt(ne({}, e), { value: "removed" })),
           this.outsideTimeout(
             () => this.toastrService.remove(this.toastPackage.toastId),
             +this.toastPackage.config.easeTime
@@ -19768,7 +19769,7 @@ var zd = class {
     }
     return n;
   })(),
-  Xy = Je(ie({}, Ff), { toastComponent: Qy }),
+  Xy = tt(ne({}, Ff), { toastComponent: Qy }),
   Zy = (n = {}) => ns([{ provide: Nf, useValue: { default: Xy, config: n } }]),
   Vf = (() => {
     class n {
@@ -19995,7 +19996,7 @@ var Jy = (() => {
     }
     return n;
   })(),
-  Uk = Je(ie({}, Ff), { toastComponent: Jy });
+  Uk = tt(ne({}, Ff), { toastComponent: Jy });
 var ix = ["*"];
 var nx = ["dialog"];
 var Lf = { animation: !0, transitionTimerDelayMs: 5 },
@@ -20010,7 +20011,7 @@ var Lf = { animation: !0, transitionTimerDelayMs: 5 },
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -20171,7 +20172,7 @@ var mx = (() => {
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -20210,7 +20211,7 @@ var fx = (() => {
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -20807,7 +20808,7 @@ var fx = (() => {
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -20820,8 +20821,8 @@ var fx = (() => {
           (this._config = Z(mx));
       }
       open(e, t = {}) {
-        let o = ie(
-          Je(ie({}, this._config), { animation: this._config.animation }),
+        let o = ne(
+          tt(ne({}, this._config), { animation: this._config.animation }),
           t
         );
         return this._modalStack.open(this._injector, e, o);
@@ -20841,7 +20842,7 @@ var fx = (() => {
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -21223,7 +21224,7 @@ var dl = class n {
             dealer_code: i.dealer_code,
             dealer_email: i.dealer_email,
           }),
-          (this.dealerObj = ie({}, i)))
+          (this.dealerObj = ne({}, i)))
         : (this.dealerObj = new Yn());
   }
   isDealerNameChanged() {
@@ -21381,7 +21382,7 @@ var dl = class n {
   }
   onUpdate() {
     this.useForm.valid
-      ? ((this.dealerObj = ie(ie({}, this.dealerObj), this.useForm.value)),
+      ? ((this.dealerObj = ne(ne({}, this.dealerObj), this.useForm.value)),
         console.log(
           "\u{1F680} Updated Payload before API call:",
           this.dealerObj
@@ -21417,14 +21418,14 @@ var dl = class n {
         (e) => {
           let t = e?.data?.dealer;
           t
-            ? ((this.dealerObj = Je(ie({}, t), {
+            ? ((this.dealerObj = tt(ne({}, t), {
                 dealer_code: Number(t.dealer_code),
               })),
               this.useForm.patchValue({
                 dealer_name: t.dealer_name,
                 dealer_code: Number(t.dealer_code),
               }),
-              (this.originalFormValue = ie({}, this.useForm.value)),
+              (this.originalFormValue = ne({}, this.useForm.value)),
               (this.isModalOpen = !0))
             : this.toastr.error("Dealer data not found", "Error");
         },
@@ -22138,7 +22139,7 @@ var Sa = class n {
   static ɵfac = function (e) {
     return new (e || n)();
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var Jd;
 try {
@@ -22187,7 +22188,7 @@ var mt = (() => {
       };
     }
     static {
-      this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+      this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
     }
   }
   return n;
@@ -22288,7 +22289,7 @@ var Bx = (() => {
       };
     }
     static {
-      this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+      this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
     }
   }
   return n;
@@ -22333,7 +22334,7 @@ var Yf = new Set(),
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -22419,7 +22420,7 @@ var Kf = (() => {
       };
     }
     static {
-      this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+      this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
     }
   }
   return n;
@@ -22478,7 +22479,7 @@ var Wx = (() => {
       };
     }
     static {
-      this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+      this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
     }
   }
   return n;
@@ -22720,7 +22721,7 @@ var iu = class {
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -22837,7 +22838,7 @@ var iC = new qe("cdk-input-modality-detector-options"),
               this._modality.next("touch"),
               (this._mostRecentTarget = Wi(a));
           }),
-          (this._options = ie(ie({}, nC), r)),
+          (this._options = ne(ne({}, nC), r)),
           (this.modalityDetected = this._modality.pipe(Wr(1))),
           (this.modalityChanged = this.modalityDetected.pipe(is())),
           e.isBrowser &&
@@ -22860,7 +22861,7 @@ var iC = new qe("cdk-input-modality-detector-options"),
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -23089,7 +23090,7 @@ var pl = (function (n) {
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -23207,7 +23208,7 @@ var pl = (function (n) {
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -23265,7 +23266,7 @@ var Dr = (() => {
       };
     }
     static {
-      this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+      this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
     }
   }
   return n;
@@ -23375,7 +23376,7 @@ var pC = 20,
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -23455,7 +23456,7 @@ var mC = 20,
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -23960,7 +23961,7 @@ var mu = class {
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -24007,7 +24008,7 @@ var pg = (() => {
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -24057,7 +24058,7 @@ var pg = (() => {
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -24133,7 +24134,7 @@ var pg = (() => {
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -24183,7 +24184,7 @@ var mg = (() => {
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -24344,10 +24345,10 @@ var mg = (() => {
         this.hasAttached() && (i.attach(this), this.updatePosition()));
     }
     updateSize(i) {
-      (this._config = ie(ie({}, this._config), i)), this._updateElementSize();
+      (this._config = ne(ne({}, this._config), i)), this._updateElementSize();
     }
     setDirection(i) {
-      (this._config = Je(ie({}, this._config), { direction: i })),
+      (this._config = tt(ne({}, this._config), { direction: i })),
         this._updateElementDirection();
     }
     addPanelClass(i) {
@@ -25198,7 +25199,7 @@ var hg = "cdk-global-overlay-wrapper",
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -25289,7 +25290,7 @@ var hg = "cdk-global-overlay-wrapper",
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -25490,7 +25491,7 @@ var OC = (() => {
           throw Error("NativeDateAdapter: Cannot format invalid date.");
         let o = new Intl.DateTimeFormat(
           this.locale,
-          Je(ie({}, t), { timeZone: "utc" })
+          tt(ne({}, t), { timeZone: "utc" })
         );
         return this._format(o, e);
       }
@@ -25572,7 +25573,7 @@ var OC = (() => {
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac });
       }
     }
     return n;
@@ -25686,7 +25687,7 @@ var $i = (function (n) {
       let o = (this._containerRect =
           this._containerRect ||
           this._containerElement.getBoundingClientRect()),
-        r = ie(ie({}, bg), t.animation);
+        r = ne(ne({}, bg), t.animation);
       t.centered && ((i = o.left + o.width / 2), (e = o.top + o.height / 2));
       let a = t.radius || RC(i, e, o),
         d = i - o.left,
@@ -25741,7 +25742,7 @@ var $i = (function (n) {
     fadeOutRipple(i) {
       if (i.state === $i.FADING_OUT || i.state === $i.HIDDEN) return;
       let e = i.element,
-        t = ie(ie({}, bg), i.config.animation);
+        t = ne(ne({}, bg), i.config.animation);
       (e.style.transitionDuration = `${t.exitDuration}ms`),
         (e.style.opacity = "0"),
         (i.state = $i.FADING_OUT),
@@ -25901,9 +25902,9 @@ var Sg = new qe("mat-ripple-global-options"),
           centered: this.centered,
           radius: this.radius,
           color: this.color,
-          animation: ie(
-            ie(
-              ie({}, this._globalOptions.animation),
+          animation: ne(
+            ne(
+              ne({}, this._globalOptions.animation),
               this._animationMode === "NoopAnimations"
                 ? { enterDuration: 0, exitDuration: 0 }
                 : {}
@@ -25926,12 +25927,12 @@ var Sg = new qe("mat-ripple-global-options"),
           ? this._rippleRenderer.fadeInRipple(
               e,
               t,
-              ie(ie({}, this.rippleConfig), o)
+              ne(ne({}, this.rippleConfig), o)
             )
           : this._rippleRenderer.fadeInRipple(
               0,
               0,
-              ie(ie({}, this.rippleConfig), e)
+              ne(ne({}, this.rippleConfig), e)
             );
       }
       static {
@@ -26072,7 +26073,7 @@ var Cg = { capture: !0 },
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -26689,7 +26690,7 @@ var Aa = (() => {
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
       }
     }
     return n;
@@ -27135,7 +27136,7 @@ var Gi = class {
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac });
       }
     }
     return n;
@@ -27166,7 +27167,7 @@ var Gi = class {
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac });
       }
     }
     return n;
@@ -27520,7 +27521,7 @@ var Iu = 7,
       }
       static {
         this.ɵfac = function (t) {
-          return new (t || n)(H(et), H(Mr, 8), H(wi, 8), H(Dr, 8), H(Lg, 8));
+          return new (t || n)(H(Je), H(Mr, 8), H(wi, 8), H(Dr, 8), H(Lg, 8));
         };
       }
       static {
@@ -27888,7 +27889,7 @@ var Iu = 7,
       }
       static {
         this.ɵfac = function (t) {
-          return new (t || n)(H(et), H(wi, 8), H(Dr, 8));
+          return new (t || n)(H(Je), H(wi, 8), H(Dr, 8));
         };
       }
       static {
@@ -28252,7 +28253,7 @@ var Fg = (() => {
       }
       static {
         this.ɵfac = function (t) {
-          return new (t || n)(H(et), H(Mr, 8), H(wi, 8), H(Dr, 8));
+          return new (t || n)(H(Je), H(Mr, 8), H(wi, 8), H(Dr, 8));
         };
       }
       static {
@@ -28473,7 +28474,7 @@ var Fg = (() => {
             H(Zt(() => Au)),
             H(wi, 8),
             H(Mr, 8),
-            H(et)
+            H(Je)
           );
         };
       }
@@ -28762,7 +28763,7 @@ var Fg = (() => {
       }
       static {
         this.ɵfac = function (t) {
-          return new (t || n)(H(Aa), H(wi, 8), H(Mr, 8), H(et));
+          return new (t || n)(H(Aa), H(wi, 8), H(Mr, 8), H(Je));
         };
       }
       static {
@@ -29030,7 +29031,7 @@ var yw = { provide: bw, deps: [Sr], useFactory: vw },
       }
       static {
         this.ɵfac = function (t) {
-          return new (t || n)(H(ke), H(et), H(Sl), H(wi), H(Lg, 8), H(Aa));
+          return new (t || n)(H(ke), H(Je), H(Sl), H(wi), H(Lg, 8), H(Aa));
         };
       }
       static {
@@ -29255,7 +29256,7 @@ var Cw = (() => {
       }
       static {
         this.ɵfac = function (t) {
-          return new (t || n)(H(Aa), H(et), os("tabindex"));
+          return new (t || n)(H(Aa), H(Je), os("tabindex"));
         };
       }
       static {
@@ -29417,7 +29418,7 @@ var zu = new qe("@sweetalert2/ngx-sweetalert2#swalProvider"),
       static ɵfac = function (t) {
         return new (t || n)(J(zu));
       };
-      static ɵprov = ne({ token: n, factory: n.ɵfac });
+      static ɵprov = ie({ token: n, factory: n.ɵfac });
     }
     return n;
   })();
@@ -30059,7 +30060,7 @@ var El = class n {
       (this.isEditMode = !!i),
       console.log("hello"),
       i
-        ? ((this.vehicleObj = ie({}, i)),
+        ? ((this.vehicleObj = ne({}, i)),
           this.useForm.patchValue({
             vehicle_name: i.vehicle_name || "",
             VIN: i.VIN || "",
@@ -30155,7 +30156,7 @@ var El = class n {
       this.toastr.warning("No vehicle selected for update!", "Warning");
       return;
     }
-    (this.vehicleObj = ie(ie({}, this.vehicleObj), this.useForm.value)),
+    (this.vehicleObj = ne(ne({}, this.vehicleObj), this.useForm.value)),
       console.log("Updating vehicle:", this.vehicleObj),
       this.masterSrv.updateVehicle(this.vehicleObj).subscribe(
         (i) => {
@@ -30275,7 +30276,7 @@ var El = class n {
     (this.isEditMode = !0),
       (this.isModalOpen = !0),
       console.log("user.userObj before setting:", i?.vehicle_id),
-      (this.vehicleObj = ie({}, i)),
+      (this.vehicleObj = ne({}, i)),
       (this.previousValue = i.vehicle_name),
       this.useForm.patchValue({
         vehicle_name: i.vehicle_name,
@@ -30310,7 +30311,7 @@ var El = class n {
     return this.useForm.value.vehicle_name !== this.previousValue;
   }
   static ɵfac = function (e) {
-    return new (e || n)(H(et));
+    return new (e || n)(H(Je));
   };
   static ɵcmp = oe({
     type: n,
@@ -31200,7 +31201,7 @@ var Pi = class n {
             (i == null || typeof i == "object") &&
             (e == null || typeof e == "object")
           )
-            return ie(ie({}, i || {}), e || {});
+            return ne(ne({}, i || {}), e || {});
           if (
             (i == null || typeof i == "string") &&
             (e == null || typeof e == "string")
@@ -31332,7 +31333,7 @@ var Yg = (() => {
     static ɵfac = function (t) {
       return new (t || n)();
     };
-    static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+    static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
   }
   return n;
 })();
@@ -31528,13 +31529,13 @@ var Tl = (() => {
       return this.translation[e];
     }
     setTranslation(e) {
-      (this.translation = ie(ie({}, this.translation), e)),
+      (this.translation = ne(ne({}, this.translation), e)),
         this.translationSource.next(this.translation);
     }
     static ɵfac = function (t) {
       return new (t || n)();
     };
-    static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+    static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
   }
   return n;
 })();
@@ -37086,7 +37087,7 @@ var lM = { provide: Eo, useExisting: Zt(() => cM), multi: !0 },
           this.onOverlayHide();
       }
       static ɵfac = function (t) {
-        return new (t || n)(H(Le), H(ke), H(ci), H(et), H(Oe), H(Tl), H(Yg));
+        return new (t || n)(H(Le), H(ke), H(ci), H(Je), H(Oe), H(Tl), H(Yg));
       };
       static ɵcmp = oe({
         type: n,
@@ -38099,7 +38100,7 @@ var Pl = class n {
       (this.isModalVisible = !0),
       i
         ? (console.log("\u{1F680} Customer Data:", i),
-          (this.customerObj = ie({}, i)),
+          (this.customerObj = ne({}, i)),
           (this.previousValue = i.account_name || ""),
           this.useForm.patchValue({
             account_type: i.account_type || "",
@@ -38208,8 +38209,8 @@ var Pl = class n {
   onUpdate() {
     console.log("onupdate called "),
       this.useForm.valid
-        ? ((this.customerObj = ie(
-            ie({}, this.customerObj),
+        ? ((this.customerObj = ne(
+            ne({}, this.customerObj),
             this.useForm.value
           )),
           console.log(
@@ -38256,7 +38257,7 @@ var Pl = class n {
         (e) => {
           if ((console.log("API Response:", e), e?.data)) {
             let t = e.data;
-            (this.customerObj = Je(ie({}, t), {
+            (this.customerObj = tt(ne({}, t), {
               dealer_code: Number(t.dealer_code),
             })),
               this.useForm.patchValue({
@@ -38326,7 +38327,7 @@ var Pl = class n {
     );
   }
   static ɵfac = function (e) {
-    return new (e || n)(H(Mn), H(et));
+    return new (e || n)(H(Mn), H(Je));
   };
   static ɵcmp = oe({
     type: n,
@@ -40552,7 +40553,7 @@ var Ba = class n {
         : console.warn("dealer_id is missing, previousRoute not stored.");
   }
   static ɵfac = function (e) {
-    return new (e || n)(H(Bi), H(Jt), H(ss), H(et), H(Oe));
+    return new (e || n)(H(Bi), H(Jt), H(ss), H(Je), H(Oe));
   };
   static ɵcmp = oe({
     type: n,
@@ -41675,7 +41676,7 @@ var ja = class n {
   static ɵfac = function (e) {
     return new (e || n)(J(We));
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var za = class n {
   user_id;
@@ -41724,7 +41725,7 @@ var za = class n {
   static ɵfac = function (e) {
     return new (e || n)();
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var c_ = (() => {
   class n {
@@ -41790,7 +41791,7 @@ var Ir = class n {
   static ɵfac = function (e) {
     return new (e || n)();
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var Wo = (n) => ({ "is-invalid": n });
 function D2(n, i) {
@@ -42590,7 +42591,7 @@ var Fl = class n {
             team_id: this.useForm.get("team_id")?.value,
             team_name: this.useForm.get("team_name")?.value,
           }),
-          (this.userObj = ie({}, i)))
+          (this.userObj = ne({}, i)))
         : (this.userObj = {});
   }
   onDealerChange() {
@@ -42677,7 +42678,7 @@ var Fl = class n {
           " "
         );
       (i.name = e),
-        (this.userObj = ie(ie({}, this.userObj), i)),
+        (this.userObj = ne(ne({}, this.userObj), i)),
         console.log("\u{1F4E4} Payload sent to backend:", this.userObj),
         console.log("\u{1F50D} Form Status:", this.useForm.status),
         console.log("\u{1F680} Updated Payload before API call:", this.userObj),
@@ -42690,7 +42691,7 @@ var Fl = class n {
                 this.userList.set(
                   this.userList().map((o) =>
                     o.user_id === this.userObj.user_id
-                      ? Je(ie(ie({}, o), this.userObj), { name: e })
+                      ? tt(ne(ne({}, o), this.userObj), { name: e })
                       : o
                   )
                 ),
@@ -42716,7 +42717,7 @@ var Fl = class n {
     (this.isEditMode = !0),
       (this.isModalOpen = !0),
       console.log("user.userObj before setting:", i?.user_id),
-      (this.userObj = ie({}, i)),
+      (this.userObj = ne({}, i)),
       (this.previousValue = i.name);
     let e = `${i.fname || ""} ${i.lname || ""}`.trim().replace(/\s+/g, " ");
     console.log("Formatted name onEdit:", e),
@@ -42793,7 +42794,7 @@ var Fl = class n {
     return this.useForm.get("email")?.value !== this.previousEmail;
   }
   static ɵfac = function (e) {
-    return new (e || n)(H(Ir), H(et));
+    return new (e || n)(H(Ir), H(Je));
   };
   static ɵcmp = oe({
     type: n,
@@ -43876,7 +43877,7 @@ var Ll = class n {
   static ɵfac = function (e) {
     return new (e || n)(J(We));
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var Bl = class n {
   constructor(i) {
@@ -43889,7 +43890,7 @@ var Bl = class n {
   static ɵfac = function (e) {
     return new (e || n)(J(We));
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var Hl = class n {
   constructor(i) {
@@ -43902,7 +43903,7 @@ var Hl = class n {
   static ɵfac = function (e) {
     return new (e || n)(J(We));
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var eE = () => ["/Admin/dealer"],
   m_ = (n) => ["/Admin/singleUser", n];
@@ -44159,7 +44160,7 @@ var zl = class n {
   static ɵfac = function (e) {
     return new (e || n)(J(We));
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var iE = () => ["/Admin/dealer"],
   f_ = (n) => ["/Admin/singleUser", n];
@@ -44429,7 +44430,7 @@ var Wl = class n {
   static ɵfac = function (e) {
     return new (e || n)(J(Hi));
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var rE = () => ["/Admin/dealer"],
   aE = (n) => ["/Admin/singleUser", n];
@@ -44760,7 +44761,7 @@ var Gl = class n {
   static ɵfac = function (e) {
     return new (e || n)(J(We));
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var Ut = class n {
   constructor(i, e) {
@@ -44820,7 +44821,7 @@ var Ut = class n {
   static ɵfac = function (e) {
     return new (e || n)(J(Hi), J(Ji));
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var Ua = class n {
   role_id;
@@ -44832,7 +44833,7 @@ var Ua = class n {
   static ɵfac = function (e) {
     return new (e || n)();
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var lE = (n) => ({ "is-invalid": n });
 function cE(n, i) {
@@ -45050,7 +45051,7 @@ var Yl = class n {
             role_name: i.role_name || "",
             description: i.description || "",
           }),
-          (this.roleObj = ie({}, i)))
+          (this.roleObj = ne({}, i)))
         : (this.roleObj = new Ua());
   }
   onSaveAndClose() {
@@ -45183,7 +45184,7 @@ var Yl = class n {
     return this.useForm.value.role_name !== this.previousValue;
   }
   static ɵfac = function (e) {
-    return new (e || n)(H(et));
+    return new (e || n)(H(Je));
   };
   static ɵcmp = oe({
     type: n,
@@ -45590,7 +45591,7 @@ var Pr = class n {
   static ɵfac = function (e) {
     return new (e || n)();
   };
-  static ɵprov = ne({ token: n, factory: n.ɵfac, providedIn: "root" });
+  static ɵprov = ie({ token: n, factory: n.ɵfac, providedIn: "root" });
 };
 var _E = (n) => ({ "is-invalid": n });
 function bE(n, i) {
@@ -45857,7 +45858,7 @@ var Kl = class n {
       this.useForm.reset(),
       (this.isEditMode = !!i),
       i
-        ? ((this.teamObj = ie({}, i)),
+        ? ((this.teamObj = ne({}, i)),
           this.useForm.patchValue({
             team_name: i.team_name,
             team_lead_email: i.team_lead_email,
@@ -45877,7 +45878,7 @@ var Kl = class n {
     console.log("Edit button clicked. Team ID:", i?.team_id),
       (this.isEditMode = !0),
       (this.isModalOpen = !0),
-      (this.teamObj = ie({}, i)),
+      (this.teamObj = ne({}, i)),
       this.masterSrv.getTeamById(i.team_id).subscribe(
         (e) => {
           if (e?.status === 200) {
@@ -46056,7 +46057,7 @@ var Kl = class n {
   }
   onUpdate() {
     this.useForm.valid
-      ? ((this.teamObj = ie(ie({}, this.teamObj), this.useForm.value)),
+      ? ((this.teamObj = ne(ne({}, this.teamObj), this.useForm.value)),
         console.log("\u{1F680} Updated Payload before API call:", this.teamObj),
         this.masterSrv.updateTeam(this.teamObj).subscribe(
           (i) => {
@@ -46068,7 +46069,7 @@ var Kl = class n {
                 this.userList.set(
                   this.userList().map((e) =>
                     e.team_id === this.teamObj.team_id
-                      ? ie(ie({}, e), this.teamObj)
+                      ? ne(ne({}, e), this.teamObj)
                       : e
                   )
                 ),
@@ -46135,7 +46136,7 @@ var Kl = class n {
     });
   }
   static ɵfac = function (e) {
-    return new (e || n)(H(Ir), H(et));
+    return new (e || n)(H(Ir), H(Je));
   };
   static ɵcmp = oe({
     type: n,
@@ -46734,7 +46735,7 @@ var EE = "@",
         };
       }
       static {
-        this.ɵprov = ne({ token: n, factory: n.ɵfac });
+        this.ɵprov = ie({ token: n, factory: n.ɵfac });
       }
     }
     return n;
