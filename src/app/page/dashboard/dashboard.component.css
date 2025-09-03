@@ -22,6 +22,10 @@
   /* width: 80%; */
   overflow-x: auto;
 }
+:host ::ng-deep .apexcharts-xaxis-label {
+  text-anchor: middle !important;   /* center align */
+  dominant-baseline: hanging !important; /* align top of line */
+}
 
 table {
   width: 100% !important;
@@ -4808,6 +4812,16 @@ body {
   .time-dropdown {
     min-width: 0px !important;
     margin-left:0px !important;
+  }
+   .table-actions {
+    display: flex;
+    flex-direction: column; /* stack top-down */
+    align-items: flex-end; /* optional, left-align items */
+    gap: 6px; /* spacing between buttons */
+  }
+  .btn-small{
+    align-items: flex-end;
+    margin-top:6px;
   }
 
 }

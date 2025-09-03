@@ -1040,9 +1040,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           //   return leadsB - leadsA;
           // });
 
-          console.log(this.dealers, 'this.dealers===========================');
+          // console.log(this.dealers, 'this.dealers===========================');
           // force new array reference for reactivity
-          this.dealers = [...this.dealers];
+          // this.dealers = [...this.dealers];
           this.filteredDealers = [...this.dealers];
           this.originalDealers = [...this.dealers];
 
@@ -1068,7 +1068,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             const hrs = Math.floor(val / 3600);
             const mins = Math.floor((val % 3600) / 60);
             const secs = val % 60;
-            return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            return `${hrs.toString().padStart(2, '0')}:${mins
+              .toString()
+              .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
           });
           console.log(durationSec, 'nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn');
           const incoming = this.dealers.map((d: any) => d.callLogs.incoming);
@@ -1112,6 +1114,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             chart: {
               type: 'line',
               height: 350,
+              offsetX: 0, // move chart closer to left
+              offsetY: 0, // move chart closer to top
               toolbar: {
                 show: true,
                 tools: {
@@ -1138,8 +1142,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             },
             xaxis: {
               categories: categories,
-              labels: { rotate: -45 },
+              labels: { rotate: -30 },
             },
+
             responsive: [
               {
                 breakpoint: 768, // 👈 mobile devices

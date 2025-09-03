@@ -515,7 +515,7 @@
       <div class="table-section">
         <div class="table-header">
           <div>
-            <h2 class="table-title">Dealer Summary — Calls</h2>
+            <h2 class="table-title" id="ds">Dealer Summary — Calls</h2>
             <p class="table-subtitle">Call volumes and outcomes</p>
           </div>
           <div class="table-actions">
@@ -669,9 +669,10 @@
               </tbody>
             </table>
             <!-- Show More / Show Less buttons -->
+         
+          </div>
             <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.5rem;">
-              <button type="button" class="btn btn-primary" (click)="showMoreTable2()"
-                *ngIf="table2Length < dealers.length">
+              <button type="button" class="btn btn-primary" (click)="showMoreTable2()" *ngIf="table2Length < dealers.length">
                 Show More
               </button>
               <button type="button" class="btn btn-secondary" (click)="showLessTable2()"
@@ -679,7 +680,6 @@
                 Show Less
               </button>
             </div>
-          </div>
         </div>
         <!-- Chart View -->
         <div *ngIf="dealerSummaryCallsViewType === 'chart'" class="chart-container"
