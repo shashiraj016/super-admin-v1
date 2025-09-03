@@ -534,6 +534,61 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     }
   }
 
+  // onFilterChange(
+  //   filter:
+  //     | 'DAY'
+  //     | 'YESTERDAY'
+  //     | 'WEEK'
+  //     | 'LAST_WEEK'
+  //     | 'MTD'
+  //     | 'LAST_MONTH'
+  //     | 'QTD'
+  //     | 'LAST_QUARTER'
+  //     | 'SIX_MONTH'
+  //     | 'YTD'
+  //     | 'LIFETIME'
+  //     | 'CUSTOM'
+  // ): void {
+  //   this.selectedFilter = filter;
+  //   const apiFilter = this.mapFilterToApi(filter); // ✅ now strongly typed
+  //   const activeSMId = this.activeSM;
+
+  //   if (apiFilter === 'CUSTOM') return;
+
+  //   if (this.selectedDealerId) {
+  //     const dealerId = this.selectedDealerId;
+
+  //     this.dashboardService.getNoSMUsers(dealerId).subscribe({
+  //       next: (res: any) => {
+  //         const selectedDealer = res.data.dealerData.find(
+  //           (d: any) => d.dealerId === dealerId
+  //         );
+
+  //         this.dealerUsers = {
+  //           ...this.dealerUsers,
+  //           [dealerId]: selectedDealer?.users || [],
+  //         };
+
+  //         this.displayedDealerUsers =
+  //           this.dealerUsers[dealerId]?.slice(0, 10) || [];
+
+  //         const smList = this.dealerSMS[dealerId] || [];
+  //         this.activeSM = smList.some((s) => s.sm_id === activeSMId)
+  //           ? activeSMId
+  //           : null;
+  //       },
+  //       error: (err: any) => {
+  //         console.error('Error fetching dealer users:', err);
+  //         this.dealerUsers = { ...this.dealerUsers, [dealerId]: [] };
+  //         this.displayedDealerUsers = [];
+  //       },
+  //     });
+  //   } else {
+  //     this.fetchDashboardDataForTopCards(apiFilter);
+  //     this.fetchSuperAdminDashboard(apiFilter);
+  //   }
+  // }
+  // On filter change
   onFilterChange(
     filter:
       | 'DAY'
@@ -550,13 +605,19 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       | 'CUSTOM'
   ): void {
     this.selectedFilter = filter;
-    const apiFilter = this.mapFilterToApi(filter); // ✅ now strongly typed
-    const activeSMId = this.activeSM;
+    const apiFilter = this.mapFilterToApi(filter);
 
     if (apiFilter === 'CUSTOM') return;
 
+    // Clear previous expanded rows and user data
+    this.expandedRow = null;
+    this.dealerUsers = {};
+    this.userCallLogs = {};
+    this.dealerCallLogs = {};
+
     if (this.selectedDealerId) {
       const dealerId = this.selectedDealerId;
+      const activeSMId = this.activeSM;
 
       this.dashboardService.getNoSMUsers(dealerId).subscribe({
         next: (res: any) => {
@@ -564,11 +625,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             (d: any) => d.dealerId === dealerId
           );
 
-          this.dealerUsers = {
-            ...this.dealerUsers,
-            [dealerId]: selectedDealer?.users || [],
-          };
-
+          this.dealerUsers[dealerId] = selectedDealer?.users || [];
           this.displayedDealerUsers =
             this.dealerUsers[dealerId]?.slice(0, 10) || [];
 
@@ -579,7 +636,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         },
         error: (err: any) => {
           console.error('Error fetching dealer users:', err);
-          this.dealerUsers = { ...this.dealerUsers, [dealerId]: [] };
+          this.dealerUsers[dealerId] = [];
           this.displayedDealerUsers = [];
         },
       });
@@ -588,7 +645,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.fetchSuperAdminDashboard(apiFilter);
     }
   }
-
   fetchDealerSMs(
     dealerId: string,
     type: 'MTD' | 'QTD' | 'YTD',
@@ -1146,6 +1202,91 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   // THIS IS  PRORPE WORDKING CODE DOWN OK
+  // toggleRow(event: Event, dealer: any, rowId: string): void {
+  //   const id = dealer.dealerId;
+  //   if (!id) return;
+
+  //   if (this.expandedRow === rowId) {
+  //     this.expandedRow = null;
+  //     return;
+  //   }
+
+  //   this.expandedRow = rowId;
+
+  //   // Only fetch if not already fetched
+  //   if (!this.dealerUsers[id]) {
+  //     const token = sessionStorage.getItem('token');
+
+  //     this.dashboardService
+  //       .getDealerUsers(id, this.selectedFilter, token!)
+  //       .subscribe({
+  //         next: (res: any) => {
+  //           const dealerData = Array.isArray(res?.data?.dealerData)
+  //             ? res.data.dealerData.find((d: any) => d.dealerId === id)
+  //             : res?.data?.dealerData;
+
+  //           if (!dealerData) {
+  //             this.dealerUsers[id] = [];
+  //             this.dealerCallLogs[id] = null;
+  //             this.userCallLogs[id] = [];
+  //             return;
+  //           }
+
+  //           // Map users for Activities table
+  //           this.dealerUsers[id] = dealerData.users || [];
+
+  //           // Map dealer-level call logs
+  //           this.dealerCallLogs[id] = dealerData.callLogs
+  //             ? {
+  //                 total: dealerData.callLogs.totalCalls,
+  //                 outgoing: dealerData.callLogs.outgoing,
+  //                 incoming: dealerData.callLogs.incoming,
+  //                 connected: dealerData.callLogs.connected,
+  //                 declined: dealerData.callLogs.declined,
+  //                 duration: this.formatDuration(
+  //                   dealerData.callLogs.durationSec || 0
+  //                 ),
+  //               }
+  //             : null;
+
+  //           // Map user-level call logs
+  //           this.userCallLogs[id] =
+  //             dealerData.users?.map((user: any) => ({
+  //               userId: user.user_id,
+  //               name: user.user,
+  //               role: user.user_role,
+  //               active: user.active,
+  //               calls: user.calls
+  //                 ? {
+  //                     total: user.calls.totalCalls,
+  //                     outgoing: user.calls.outgoing,
+  //                     incoming: user.calls.incoming,
+  //                     connected: user.calls.connected,
+  //                     declined: user.calls.declined,
+  //                     duration: this.formatDuration(user.calls.durationSec),
+  //                   }
+  //                 : {
+  //                     total: 0,
+  //                     outgoing: 0,
+  //                     incoming: 0,
+  //                     connected: 0,
+  //                     declined: 0,
+  //                     duration: '0s',
+  //                   },
+  //             })) || [];
+
+  //           this.cd.detectChanges();
+  //           console.log('Mapped User Call Logs:', this.userCallLogs[id]);
+  //         },
+  //         error: (err) => {
+  //           console.error(err);
+  //           this.dealerUsers[id] = [];
+  //           this.dealerCallLogs[id] = null;
+  //           this.userCallLogs[id] = [];
+  //         },
+  //       });
+  //   }
+  // }
   toggleRow(event: Event, dealer: any, rowId: string): void {
     const id = dealer.dealerId;
     if (!id) return;
@@ -1157,79 +1298,78 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.expandedRow = rowId;
 
-    // Only fetch if not already fetched
-    if (!this.dealerUsers[id]) {
-      const token = sessionStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
+    if (!token) return;
 
-      this.dashboardService
-        .getDealerUsers(id, this.selectedFilter, token!)
-        .subscribe({
-          next: (res: any) => {
-            const dealerData = Array.isArray(res?.data?.dealerData)
-              ? res.data.dealerData.find((d: any) => d.dealerId === id)
-              : res?.data?.dealerData;
+    // Always fetch users on toggle (based on current filter)
+    this.dashboardService
+      .getDealerUsers(id, this.selectedFilter, token)
+      .subscribe({
+        next: (res: any) => {
+          const dealerData = Array.isArray(res?.data?.dealerData)
+            ? res.data.dealerData.find((d: any) => d.dealerId === id)
+            : res?.data?.dealerData;
 
-            if (!dealerData) {
-              this.dealerUsers[id] = [];
-              this.dealerCallLogs[id] = null;
-              this.userCallLogs[id] = [];
-              return;
-            }
-
-            // Map users for Activities table
-            this.dealerUsers[id] = dealerData.users || [];
-
-            // Map dealer-level call logs
-            this.dealerCallLogs[id] = dealerData.callLogs
-              ? {
-                  total: dealerData.callLogs.totalCalls,
-                  outgoing: dealerData.callLogs.outgoing,
-                  incoming: dealerData.callLogs.incoming,
-                  connected: dealerData.callLogs.connected,
-                  declined: dealerData.callLogs.declined,
-                  duration: this.formatDuration(
-                    dealerData.callLogs.durationSec || 0
-                  ),
-                }
-              : null;
-
-            // Map user-level call logs
-            this.userCallLogs[id] =
-              dealerData.users?.map((user: any) => ({
-                userId: user.user_id,
-                name: user.user,
-                role: user.user_role,
-                active: user.active,
-                calls: user.calls
-                  ? {
-                      total: user.calls.totalCalls,
-                      outgoing: user.calls.outgoing,
-                      incoming: user.calls.incoming,
-                      connected: user.calls.connected,
-                      declined: user.calls.declined,
-                      duration: this.formatDuration(user.calls.durationSec),
-                    }
-                  : {
-                      total: 0,
-                      outgoing: 0,
-                      incoming: 0,
-                      connected: 0,
-                      declined: 0,
-                      duration: '0s',
-                    },
-              })) || [];
-
-            this.cd.detectChanges();
-            console.log('Mapped User Call Logs:', this.userCallLogs[id]);
-          },
-          error: (err) => {
-            console.error(err);
+          if (!dealerData) {
             this.dealerUsers[id] = [];
             this.dealerCallLogs[id] = null;
             this.userCallLogs[id] = [];
-          },
-        });
-    }
+            return;
+          }
+
+          // Map users
+          this.dealerUsers[id] = dealerData.users || [];
+
+          // Dealer-level call logs
+          this.dealerCallLogs[id] = dealerData.callLogs
+            ? {
+                total: dealerData.callLogs.totalCalls,
+                outgoing: dealerData.callLogs.outgoing,
+                incoming: dealerData.callLogs.incoming,
+                connected: dealerData.callLogs.connected,
+                declined: dealerData.callLogs.declined,
+                duration: this.formatDuration(
+                  dealerData.callLogs.durationSec || 0
+                ),
+              }
+            : null;
+
+          // User-level call logs
+          this.userCallLogs[id] =
+            dealerData.users?.map((user: any) => ({
+              userId: user.user_id,
+              name: user.user,
+              role: user.user_role,
+              active: user.active,
+              calls: user.calls
+                ? {
+                    total: user.calls.totalCalls,
+                    outgoing: user.calls.outgoing,
+                    incoming: user.calls.incoming,
+                    connected: user.calls.connected,
+                    declined: user.calls.declined,
+                    duration: this.formatDuration(user.calls.durationSec),
+                  }
+                : {
+                    total: 0,
+                    outgoing: 0,
+                    incoming: 0,
+                    connected: 0,
+                    declined: 0,
+                    duration: '0s',
+                  },
+            })) || [];
+
+          this.cd.detectChanges();
+          console.log('Mapped User Call Logs:', this.userCallLogs[id]);
+        },
+        error: (err) => {
+          console.error(err);
+          this.dealerUsers[id] = [];
+          this.dealerCallLogs[id] = null;
+          this.userCallLogs[id] = [];
+        },
+      });
   }
   // THIS CODE IS WITH ALPHABETICLA SORTING AND ACTIVE INACTIVE LOGIC
   // toggleRow(event: Event, dealer: any, rowId: string): void {
@@ -2096,50 +2236,49 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   });
   // }
   exportDealerCalllogstocxp() {
-  if (!this.dealers || this.dealers.length === 0) {
-    console.warn('No dealers to export');
-    return;
+    if (!this.dealers || this.dealers.length === 0) {
+      console.warn('No dealers to export');
+      return;
+    }
+
+    // Only include columns visible in the dealer summary table
+    const headers = [
+      'Dealer',
+      'Total Calls',
+      'Outgoing',
+      'Incoming',
+      'Connected',
+      'Declined',
+      'Duration',
+    ];
+
+    const rows = this.dealers.map((dealer) => [
+      `"${dealer.dealerName}"`,
+      dealer.callLogs?.totalCalls || 0,
+      dealer.callLogs?.outgoing || 0,
+      dealer.callLogs?.incoming || 0,
+      dealer.callLogs?.connected || 0,
+      dealer.callLogs?.declined || 0,
+      dealer.callLogs?.duration || '00:00:00',
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map((r) => r.join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'dealer_summary_calls.csv';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    console.log('Dealer summary CSV exported successfully');
   }
-
-  // Only include columns visible in the dealer summary table
-  const headers = [
-    'Dealer',
-    'Total Calls',
-    'Outgoing',
-    'Incoming',
-    'Connected',
-    'Declined',
-    'Duration'
-  ];
-
-  const rows = this.dealers.map((dealer) => [
-    `"${dealer.dealerName}"`,
-    dealer.callLogs?.totalCalls || 0,
-    dealer.callLogs?.outgoing || 0,
-    dealer.callLogs?.incoming || 0,
-    dealer.callLogs?.connected || 0,
-    dealer.callLogs?.declined || 0,
-    dealer.callLogs?.duration || '00:00:00'
-  ]);
-
-  const csvContent = [
-    headers.join(','),
-    ...rows.map((r) => r.join(','))
-  ].join('\n');
-
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'dealer_summary_calls.csv';
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-
-  console.log('Dealer summary CSV exported successfully');
-}
-
 }
