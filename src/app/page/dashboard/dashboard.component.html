@@ -1,3 +1,5 @@
+
+
 <ng-container *ngIf="!selectedDealer && !selectedSM">
   <div *ngIf="isLoading" class="loader-overlay">
     <div class="spinner"></div>
@@ -8,7 +10,7 @@
 
       <select [(ngModel)]="selectedFilter" (change)="onFilterChange(selectedFilter)" class="time-dropdown flt1"
         style="margin-right: 5px;">
-        <option value="DAY">Day</option>
+        <option value="DAY">Today</option>
         <option value="YESTERDAY">Yesterday</option>
         <option value="WEEK">This Week</option>
         <option value="LAST_WEEK">Last Week</option>
@@ -43,19 +45,29 @@
                 (change)="toggleSelectAll($event); $event.stopPropagation()" />
               Select All
             </label>
-            <button type="button" class="btn btn-link btn-sm text-danger p-0 ms-auto" style="margin-left:120px;"
+            <button type="button" class="btn btn-link btn-sm text-danger p-0 ms-auto" id="clearbtn" style="margin-left:120px;"
               (click)="clearSelection(); $event.stopPropagation()">
               Clear
             </button>
           </div>
-          <ng-container *ngIf="filteredDealers.length > 0; else noDealers">
+          <!-- <ng-container *ngIf="filteredDealers.length > 0; else noDealers">
             <button *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
               (click)="$event.stopPropagation()">
               <input type="checkbox" class="me-2" [checked]="isDealerSelected(dealer)"
                 (change)="toggleDealerSelection(dealer)" style="border:1px solid black" />
               {{ dealer.dealerName }}
             </button>
-          </ng-container>
+          </ng-container> -->
+      <ng-container *ngIf="filteredDealers.length > 0; else noDealers">
+        <div *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
+          (click)="toggleDealerSelection(dealer); $event.stopPropagation()">
+      
+          <input type="checkbox" class="me-2" [checked]="isDealerSelected(dealer)" style="border:1px solid black"
+            (click)="$event.stopPropagation()" />
+      
+          {{ dealer.dealerName }}
+        </div>
+      </ng-container>
 
           <ng-template #noDealers>
             <div class="dropdown-item text-muted text-center">
@@ -125,7 +137,7 @@
 
 
             <!-- Export CSV button -->
-            <button type="button" class="btn btn-small btn-secondary" (click)="exportToCSV()">
+            <button type="button" class="btn btn-small btn-secondary" id="exportsummary" (click)="exportToCSV()">
               <i class="icon-download"></i> Export CSV
             </button>
           </div>
@@ -363,10 +375,18 @@
                   *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : dealers) | slice:0:table1Length; let i = index">
                   <tr *ngIf="dealer" class="table-row">
                     <td class="sticky-col-header  td-left">
-                      <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
+                      <!-- <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
                         <span class="arrow">{{ expandedRow === 'engagement-' + i ? 'v' : '>' }}</span>
                         {{ dealer.dealerName }}
-                      </button>
+                      </button> -->
+              <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
+                <i class="fa" [ngClass]="expandedRow === 'engagement-' + i ? 'fa-chevron-down' : 'fa-chevron-right'"
+                  style="font-size: 10px; margin-right: 5px; color: rgb(15 95 184 / var(--tw-text-opacity, 1));"></i>
+                <span style="color: rgb(15 95 184 / var(--tw-text-opacity, 1));">
+                  {{ dealer.dealerName }}
+                </span>
+              </button>
+
                     </td>
                     <td class="td-right">{{ dealer.totalUsers ?? 0 }}</td>
                     <td class="td-right">{{ dealer.activeUsers ?? 0 }}</td>
@@ -418,7 +438,6 @@
                           User-wise details — {{ dealer.dealerName }}
                         </div>
                         <div class="sub-table-container">
-                          <div class="sub-table-scroll">
 
                             <table class="sub-table">
                               <thead class="sub-table-thead">
@@ -450,7 +469,8 @@
                                 </tr>
                               </thead>
                               <tbody>
-                                <tr *ngFor="let user of getSortedUsers(dealer.dealerId)">
+                                <!-- <tr *ngFor="let user of getSortedUsers(dealer.dealerId)"> -->
+                                  <tr *ngFor="let user of getSortedUsers(dealer.dealerId); let i = index" [ngClass]="{'bg-alt': i % 2 === 1}">
                                   <td style="text-align:left">
                                     {{ user.user }} <span *ngIf="user.user_role">({{ user.user_role }})</span>
                                   </td>
@@ -491,7 +511,6 @@
                             </table>
                           </div>
                         </div>
-                      </div>
                     </td>
                   </tr>
                 </ng-container>
@@ -557,9 +576,16 @@
                   <!-- Main dealer row -->
                   <tr>
                     <td class="sticky-col td-font-medium">
-                      <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
+                      <!-- <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
                         <span class="arrow">{{ expandedRow === 'engagement-' + i ? 'v' : '>' }}</span>
                         {{ dealer.dealerName }}
+                      </button> -->
+                      <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
+                        <i class="fa" [ngClass]="expandedRow === 'engagement-' + i ? 'fa-chevron-down' : 'fa-chevron-right'"
+                          style="font-size: 10px; margin-right: 5px; color: rgb(15 95 184 / var(--tw-text-opacity, 1));"></i>
+                        <span style="color: rgb(15 95 184 / var(--tw-text-opacity, 1));">
+                          {{ dealer.dealerName }}
+                        </span>
                       </button>
                     </td>
                     <td>
@@ -631,9 +657,8 @@
                   <tr *ngIf="expandedRow === 'engagement-' + i">
                     <td colspan="7">
                       <div class="sub-table-container">
-                        <div class="sub-user-table-scroll">
                           <table class="sub-table calls-sub-table">
-                            <thead>
+                            <thead class="sub-table-thead">
                               <tr>
                                 <th style="text-align:left;width:15%">User</th>
                                 <th>Total</th>
@@ -662,7 +687,6 @@
                             </tbody>
                           </table>
                         </div>
-                      </div>
                     </td>
                   </tr>
                 </ng-container>

@@ -590,6 +590,27 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   }
   // }
   // On filter change
+  toggleNameSelection(dealer: any): void {
+    // show loader
+    this.isLoading = true;
+
+    if (this.isDealerSelected(dealer)) {
+      // remove if already selected
+      this.selectedDealers = this.selectedDealers.filter(
+        (d) => d.dealerName !== dealer.dealerName
+      );
+    } else {
+      // add dealer
+      this.selectedDealers.push(dealer);
+    }
+
+    // 👉 call your API (same as onFilterChange)
+    // or refresh dashboard data
+    this.fetchSuperAdminDashboard(this.selectedFilter);
+
+    // loader will be stopped inside fetchSuperAdminDashboard() after response
+  }
+
   onFilterChange(
     filter:
       | 'DAY'
@@ -1024,21 +1045,21 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             }))
           );
           // THIS IS CODE OF DEALERS WITH HIG LEADS WILL COME BY DEAFULT IN UI (DISCUSS WITH MUSTAFA AND)
-          // this.dealers.sort((a: any, b: any) => {
-          //   const leadsA =
-          //     (a.saLeads || 0) +
-          //     (a.cxpLeads || 0) +
-          //     (a.icsLeads || 0) +
-          //     (a.manuallyEnteredLeads || 0);
+          this.dealers.sort((a: any, b: any) => {
+            const leadsA =
+              (a.saLeads || 0) +
+              (a.cxpLeads || 0) +
+              (a.icsLeads || 0) +
+              (a.manuallyEnteredLeads || 0);
 
-          //   const leadsB =
-          //     (b.saLeads || 0) +
-          //     (b.cxpLeads || 0) +
-          //     (b.icsLeads || 0) +
-          //     (b.manuallyEnteredLeads || 0);
+            const leadsB =
+              (b.saLeads || 0) +
+              (b.cxpLeads || 0) +
+              (b.icsLeads || 0) +
+              (b.manuallyEnteredLeads || 0);
 
-          //   return leadsB - leadsA;
-          // });
+            return leadsB - leadsA;
+          });
 
           // console.log(this.dealers, 'this.dealers===========================');
           // force new array reference for reactivity
@@ -1199,6 +1220,45 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     );
   }
 
+  // applyCustomDate() {
+  //   if (!this.customStartDate || !this.customEndDate) {
+  //     alert('Please select both start and end dates');
+  //     return;
+  //   }
+
+  //   this.selectedFilter = 'CUSTOM';
+
+  //   // Assign local variables to avoid stale ngModel values
+  //   const start = this.customStartDate;
+  //   const end = this.customEndDate;
+
+  //   // Call API
+  //   this.fetchDealersWithCustomDate(start, end);
+
+  //   // Optional: add a CSS class for applied effect
+  //   const inputs = document.querySelector('.custom-inputs');
+  //   if (inputs) {
+  //     inputs.classList.add('applied');
+  //   }
+  // }
+
+  // resetCustomDate() {
+  //   // Clear custom dates
+  //   this.customStartDate = '';
+  //   this.customEndDate = '';
+
+  //   // Reset dropdown to default filter (e.g., Today)
+  //   this.selectedFilter = 'DAY';
+
+  //   // Fetch default data
+  //   this.onFilterChange(this.selectedFilter);
+
+  //   // Remove applied visual effect
+  //   const inputs = document.querySelector('.custom-inputs');
+  //   if (inputs) {
+  //     inputs.classList.remove('applied');
+  //   }
+  // }
   applyCustomDate() {
     if (!this.customStartDate || !this.customEndDate) {
       alert('Please select both start and end dates');
@@ -1207,14 +1267,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.selectedFilter = 'CUSTOM';
 
-    // Assign local variables to avoid stale ngModel values
     const start = this.customStartDate;
     const end = this.customEndDate;
 
-    // Call API
+    // ✅ Show loader
+    this.isLoading = true;
+
+    // Call API for custom date
     this.fetchDealersWithCustomDate(start, end);
 
-    // Optional: add a CSS class for applied effect
+    // Optional: add CSS class for applied effect
     const inputs = document.querySelector('.custom-inputs');
     if (inputs) {
       inputs.classList.add('applied');
@@ -1222,12 +1284,13 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   resetCustomDate() {
-    // Clear custom dates
     this.customStartDate = '';
     this.customEndDate = '';
 
-    // Reset dropdown to default filter (e.g., Today)
     this.selectedFilter = 'DAY';
+
+    // ✅ Show loader
+    this.isLoading = true;
 
     // Fetch default data
     this.onFilterChange(this.selectedFilter);
@@ -1863,6 +1926,88 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   });
   // }
 
+  // fetchDealersWithCustomDate(start: string, end: string) {
+  //   const token = sessionStorage.getItem('token');
+  //   this.dashboardService.getDealersByCustomDate(start, end, token!).subscribe({
+  //     next: (res: any) => {
+  //       this.ngZone.run(() => {
+  //         if (res?.status === 200 && res.data) {
+  //           // ✅ KPI top card data
+  //           this.kpiData = {
+  //             dealers: res.data.dealers ?? 0,
+  //             activeNetwork: res.data.activeNetwork ?? 0,
+  //             users: res.data.users ?? 0,
+  //             activeUsers: res.data.activeUsers ?? 0,
+  //             leads: res.data.leads ?? 0,
+  //             calls: res.data.calls ?? 0,
+  //             totalFollowUps: res.data.totalFollowUps ?? 0,
+  //             uniqueTestDrives: res.data.uniqueTestDrives ?? 0,
+  //             completedTestDrives: res.data.completedTestDrives ?? 0,
+  //           };
+
+  //           // ✅ Table data
+  //           this.dealers = res.data.dealerData ?? [];
+
+  //           // ✅ Sort dealers by leads
+  //           this.dealers.sort((a: any, b: any) => {
+  //             const leadsA =
+  //               (a.saLeads || 0) +
+  //               (a.cxpLeads || 0) +
+  //               (a.icsLeads || 0) +
+  //               (a.manuallyEnteredLeads || 0);
+  //             const leadsB =
+  //               (b.saLeads || 0) +
+  //               (b.cxpLeads || 0) +
+  //               (b.icsLeads || 0) +
+  //               (b.manuallyEnteredLeads || 0);
+  //             return leadsB - leadsA;
+  //           });
+
+  //           // ✅ Chart refresh
+  //           const categories = this.dealers.map((d: any) => d.dealerName);
+  //           const connected = this.dealers.map(
+  //             (d: any) => d.callLogs.connected
+  //           );
+  //           const declined = this.dealers.map((d: any) => d.callLogs.declined);
+  //           const durationSec = this.dealers.map(
+  //             (d: any) => d.callLogs.durationSec
+  //           );
+  //           const incoming = this.dealers.map((d: any) => d.callLogs.incoming);
+  //           const outgoing = this.dealers.map((d: any) => d.callLogs.outgoing);
+  //           const totalCalls = this.dealers.map(
+  //             (d: any) => d.callLogs.totalCalls
+  //           );
+
+  //           this.chartOptions = {
+  //             ...this.chartOptions, // keep previous config
+  //             series: [
+  //               { name: 'Total Calls', data: totalCalls },
+  //               { name: 'Outgoing Calls', data: outgoing },
+  //               { name: 'Incoming Calls', data: incoming },
+  //               { name: 'Duration Sec', data: durationSec },
+  //               { name: 'Declined Calls', data: declined },
+  //               { name: 'Connected Calls', data: connected },
+  //             ],
+  //             xaxis: { categories },
+  //           };
+
+  //           // ✅ Force UI refresh
+  //           this.cdr.detectChanges();
+  //         } else {
+  //           this.dealers = [];
+  //           this.kpiData = {};
+  //         }
+  //       });
+  //     },
+  //     error: (err) => {
+  //       console.error(err);
+  //       this.ngZone.run(() => {
+  //         this.dealers = [];
+  //         this.kpiData = {};
+  //       });
+  //     },
+  //   });
+  // }
   fetchDealersWithCustomDate(start: string, end: string) {
     const token = sessionStorage.getItem('token');
     this.dashboardService.getDealersByCustomDate(start, end, token!).subscribe({
@@ -1934,6 +2079,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             this.dealers = [];
             this.kpiData = {};
           }
+
+          // ✅ Hide loader when API success finishes
+          this.isLoading = false;
         });
       },
       error: (err) => {
@@ -1941,6 +2089,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         this.ngZone.run(() => {
           this.dealers = [];
           this.kpiData = {};
+          // ✅ Hide loader even on error
+          this.isLoading = false;
         });
       },
     });
@@ -2468,7 +2618,22 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     return this.selectedDealers.some((d) => d.dealerId === dealer.dealerId);
   }
 
+  // toggleDealerSelection(dealer: any): void {
+  //   const index = this.selectedDealers.findIndex(
+  //     (d) => d.dealerId === dealer.dealerId
+  //   );
+
+  //   if (index > -1) {
+  //     this.selectedDealers.splice(index, 1); // ✅ unselect
+  //   } else {
+  //     this.selectedDealers.push(dealer); // ✅ select (full dealer object)
+  //   }
+  // }
+
   toggleDealerSelection(dealer: any): void {
+    // show loader immediately
+    this.isLoading = true;
+
     const index = this.selectedDealers.findIndex(
       (d) => d.dealerId === dealer.dealerId
     );
@@ -2476,8 +2641,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (index > -1) {
       this.selectedDealers.splice(index, 1); // ✅ unselect
     } else {
-      this.selectedDealers.push(dealer); // ✅ select (full dealer object)
+      this.selectedDealers.push(dealer); // ✅ select
     }
+
+    // 👉 Refresh dashboard data after dealer selection
+    this.fetchSuperAdminDashboard(this.selectedFilter);
   }
 
   // exportToCSV() {

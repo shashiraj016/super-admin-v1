@@ -22,10 +22,7 @@
   /* width: 80%; */
   overflow-x: auto;
 }
-:host ::ng-deep .apexcharts-xaxis-label {
-  text-anchor: middle !important;   /* center align */
-  dominant-baseline: hanging !important; /* align top of line */
-}
+/* */
 
 table {
   width: 100% !important;
@@ -4348,6 +4345,7 @@ body {
   flex-direction: column;
 }
 
+
 .form-label {
   display: block;
   font-size: 0.875rem;
@@ -4360,7 +4358,7 @@ body {
 .form-input {
   width: 100%;
   border-radius: 0.75rem;
-  border: 1px solid #cbd5e1;
+  /* border: 1px solid #cbd5e1; */
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   background: white;
@@ -4369,8 +4367,8 @@ body {
 .form-select:focus,
 .form-input:focus {
   outline: none;
-  ring: 2px solid #2563eb;
-  border-color: #2563eb;
+  /* ring: 2px solid #2563eb; */
+  /* border-color: #2563eb; */
 }
 
 .filter-actions {
@@ -4645,13 +4643,12 @@ body {
   background: #f8fafc;
   color: #475569;
 }
-
 /* Chips */
 .chip {
   display: inline-flex;
   align-items: center;
   padding: 0.15rem 0.5rem;
-  border-radius: 999px;
+  border-radius: 999px; /* fully rounded */
   font-size: 0.75rem;
   line-height: 1rem;
   border: 1px solid rgba(0, 0, 0, 0.05);
@@ -4662,12 +4659,15 @@ body {
 .chip-success {
   background: #ecfdf5;
   color: #047857;
+  border-radius: 10px; /* add this if you want */
 }
 
 .chip-inactive {
   background: #f1f5f9;
   color: #64748b;
+  border-radius: 999px; /* add this if you want */
 }
+
 
 /* Icons - You'll need to implement these based on your icon library */
 .icon-refresh::before {
@@ -4744,7 +4744,19 @@ body {
   @apply text-[#047857]; /* rgb(4 120 87) */
   background-color: #d1fae5; /* optional: light green bg */
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: 10px;
+}
+.sub-table-thead th {
+  color: #475569;
+  text-align: left; /* optional if you want all left-aligned */
+  font-weight: 600; /* optional for emphasis */
+}
+.sub-table-thead th,
+.sub-table tbody td:not(.td-center .chip) {
+  color: #475569;
+}
+.sub-table-row-alt:nth-child(even) {
+    background: #f9fafb;
 }
 
 .chip-inactive {
@@ -4823,6 +4835,17 @@ body {
     align-items: flex-end;
     margin-top:6px;
   }
+  /* .btn{
+    margin-left:160px !important;
+    } */
+     #clearbtn{
+      margin-left:160px !important;
+     }
+
+     #exportsummary{
+      align-items: flex-end !important;
+      margin-top:-40% !important;
+     }
 
 }
 
@@ -5003,7 +5026,7 @@ body {
 /* vertical divider between column groups */
 /* Make vertical divider appear between column groups */
 .group-divider {
-  border-right: 2px solid #222 !important; /* bold vertical line */
+  border-right: 2px solid #e2e8f0 !important; /* bold vertical line */
 }
 
 /* Optional: maintain borders for all cells */
@@ -5034,4 +5057,24 @@ body {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+/*  */
+.sub-table {
+  border-collapse: collapse; /* remove spacing between cells */
+  width: 100%;
+}
+
+.sub-table th,
+.sub-table td {
+  border: none; /* remove all borders */
+  padding: 4px 8px; /* optional padding */
+}
+
+.sub-table-thead th {
+  border-bottom: none; /* remove header border */
+  background: transparent; /* optional */
 }
