@@ -403,7 +403,7 @@ export class Login1Component {
         this.toastr.error('Failed to navigate to dashboard', 'Error');
       });
 
-    this.setupAutoLogout();
+    // this.setupAutoLogout();
   }
 
   // private setupAutoLogout(): void {
@@ -423,23 +423,23 @@ export class Login1Component {
   //   }, this.SESSION_TIMEOUT);
   // }
 
-  private setupAutoLogout(): void {
-    // Use localStorage timeout instead of sessionStorage
-    setTimeout(() => {
-      sessionStorage.removeItem('token');
-      this.router
-        .navigateByUrl('/login')
-        .then(() => {
-          this.toastr.info(
-            'Session expired. Please log in again.',
-            'Session Expired'
-          );
-        })
-        .catch((error) => {
-          console.error('Logout navigation error:', error);
-        });
-    }, this.SESSION_TIMEOUT);
-  }
+  // private setupAutoLogout(): void {
+  //   // Use localStorage timeout instead of sessionStorage
+  //   setTimeout(() => {
+  //     sessionStorage.removeItem('token');
+  //     this.router
+  //       .navigateByUrl('/login')
+  //       .then(() => {
+  //         this.toastr.info(
+  //           'Session expired. Please log in again.',
+  //           'Session Expired'
+  //         );
+  //       })
+  //       .catch((error) => {
+  //         console.error('Logout navigation error:', error);
+  //       });
+  //   }, this.SESSION_TIMEOUT);
+  // }
 
   private startCountdown() {
     this.countdown = 5 * 60;

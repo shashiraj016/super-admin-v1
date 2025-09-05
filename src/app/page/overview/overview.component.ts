@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { SharedModule } from '../../shared/shared.module';
-import { DashboardComponent } from '../dashboard/dashboard.component';
+import { SharedModule } from '../../shared/shared.module'
+import { DashboardComponent } from "../dashboard/dashboard.component";
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { SidebarService } from '../../service/sidebar.service';
 
@@ -13,7 +13,8 @@ import { SidebarService } from '../../service/sidebar.service';
   styleUrl: './overview.component.css',
 })
 export class OverviewComponent {
-  constructor(private sidebarService: SidebarService) {}
+
+  constructor(private sidebarService: SidebarService) { }
 
   ngOnInit(): void {
     this.sidebarService.isOpen$.subscribe((open) => {
@@ -27,4 +28,5 @@ export class OverviewComponent {
     // this.isSidebarOpen = !this.isSidebarOpen;
     this.sidebarService.toggleSidebar();
   }
+
 }

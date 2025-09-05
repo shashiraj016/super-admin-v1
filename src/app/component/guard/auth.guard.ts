@@ -74,7 +74,7 @@ export class AuthGuard implements CanActivate {
         return false;
       }
 
-     //  Optional: Role-based check if needed
+      //  Optional: Role-based check if needed
       if (route.data['roles']) {
         const userRoles = tokenData.roles || [];
         const requiredRoles = route.data['roles'];
@@ -95,10 +95,11 @@ export class AuthGuard implements CanActivate {
   }
 
   // Safely get token
+  // auth.guard.ts
   private getToken(): string | null {
     try {
-      return typeof sessionStorage !== 'undefined'
-        ? sessionStorage.getItem('token')
+      return typeof localStorage !== 'undefined'
+        ? localStorage.getItem('token')
         : null;
     } catch (error) {
       console.error('Error accessing token:', error);
@@ -106,11 +107,10 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  // Safely remove token
   private removeToken(): void {
     try {
-      if (typeof sessionStorage !== 'undefined') {
-        sessionStorage.removeItem('token');
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('token');
       }
     } catch (error) {
       console.error('Error removing token:', error);

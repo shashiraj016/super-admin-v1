@@ -1,5 +1,3 @@
-
-
 <ng-container *ngIf="!selectedDealer && !selectedSM">
   <div *ngIf="isLoading" class="loader-overlay">
     <div class="spinner"></div>
@@ -45,8 +43,8 @@
                 (change)="toggleSelectAll($event); $event.stopPropagation()" />
               Select All
             </label>
-            <button type="button" class="btn btn-link btn-sm text-danger p-0 ms-auto" id="clearbtn" style="margin-left:120px;"
-              (click)="clearSelection(); $event.stopPropagation()">
+            <button type="button" class="btn btn-link btn-sm text-danger p-0 ms-auto" id="clearbtn"
+              style="margin-left:120px;" (click)="clearSelection(); $event.stopPropagation()">
               Clear
             </button>
           </div>
@@ -58,16 +56,16 @@
               {{ dealer.dealerName }}
             </button>
           </ng-container> -->
-      <ng-container *ngIf="filteredDealers.length > 0; else noDealers">
-        <div *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
-          (click)="toggleDealerSelection(dealer); $event.stopPropagation()">
-      
-          <input type="checkbox" class="me-2" [checked]="isDealerSelected(dealer)" style="border:1px solid black"
-            (click)="$event.stopPropagation()" />
-      
-          {{ dealer.dealerName }}
-        </div>
-      </ng-container>
+          <ng-container *ngIf="filteredDealers.length > 0; else noDealers">
+            <div *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
+              (click)="toggleDealerSelection(dealer); $event.stopPropagation()">
+
+              <input type="checkbox" class="me-2" [checked]="isDealerSelected(dealer)" style="border:1px solid black"
+                (click)="$event.stopPropagation()" />
+
+              {{ dealer.dealerName }}
+            </div>
+          </ng-container>
 
           <ng-template #noDealers>
             <div class="dropdown-item text-muted text-center">
@@ -379,13 +377,14 @@
                         <span class="arrow">{{ expandedRow === 'engagement-' + i ? 'v' : '>' }}</span>
                         {{ dealer.dealerName }}
                       </button> -->
-              <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
-                <i class="fa" [ngClass]="expandedRow === 'engagement-' + i ? 'fa-chevron-down' : 'fa-chevron-right'"
-                  style="font-size: 10px; margin-right: 5px; color: rgb(15 95 184 / var(--tw-text-opacity, 1));"></i>
-                <span style="color: rgb(15 95 184 / var(--tw-text-opacity, 1));">
-                  {{ dealer.dealerName }}
-                </span>
-              </button>
+                      <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
+                        <i class="fa"
+                          [ngClass]="expandedRow === 'engagement-' + i ? 'fa-chevron-down' : 'fa-chevron-right'"
+                          style="font-size: 10px; margin-right: 5px; color: rgb(15 95 184 / var(--tw-text-opacity, 1));"></i>
+                        <span style="color: rgb(15 95 184 / var(--tw-text-opacity, 1));">
+                          {{ dealer.dealerName }}
+                        </span>
+                      </button>
 
                     </td>
                     <td class="td-right">{{ dealer.totalUsers ?? 0 }}</td>
@@ -439,78 +438,79 @@
                         </div>
                         <div class="sub-table-container">
 
-                            <table class="sub-table">
-                              <thead class="sub-table-thead">
-                                <tr>
-                                  <th style="text-align:left">User</th>
-                                  <th>Active</th>
+                          <table class="sub-table">
+                            <thead class="sub-table-thead">
+                              <tr>
+                                <th style="text-align:left">User</th>
+                                <th>Active</th>
 
-                                  <th>SA Leads</th>
-                                  <th>Sync with CXP</th>
-                                  <th>Sync with ICS</th>
-                                  <th>Manually Entered with CXP</th>
+                                <th>SA Leads</th>
+                                <th>Sync with CXP</th>
+                                <th>Sync with ICS</th>
+                                <th>Manually Entered with CXP</th>
 
-                                  <th>SA Follow-ups</th>
-                                  <th>Sync with CXP</th>
-                                  <th>Completed</th>
+                                <th>SA Follow-ups</th>
+                                <th>Sync with CXP</th>
+                                <th>Completed</th>
 
-                                  <th>Upcoming</th>
-                                  <th>Overdue</th>
-                                  <!-- <th>Follow-ups (CXP)</th> -->
-
-
-                                  <th>SA Test Drives</th>
-                                  <th>Sync with CXP</th>
-
-                                  <th>Upcoming </th>
-                                  <th>Completed </th>
-                                  <th>Overdue</th>
-                                  <th>Opportunities Converted</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <!-- <tr *ngFor="let user of getSortedUsers(dealer.dealerId)"> -->
-                                  <tr *ngFor="let user of getSortedUsers(dealer.dealerId); let i = index" [ngClass]="{'bg-alt': i % 2 === 1}">
-                                  <td style="text-align:left">
-                                    {{ user.user }} <span *ngIf="user.user_role">({{ user.user_role }})</span>
-                                  </td>
-                                  <td class="td-center">
-                                    <span class="chip" [ngClass]="user.active ? 'chip-success' : 'chip-inactive'">
-                                      {{ user.active ? 'Active' : 'Inactive' }}
-                                    </span>
-                                  </td>
-                                  <td class="td-right">{{ user.leads?.sa ?? 0 }}</td>
-                                  <td class="td-right">{{ user.leads?.cxp ?? 0 }}</td>
-                                  <td class="td-right">{{ user.leads?.ics ?? 0 }}</td>
-                                  <td class="td-right">{{ user.leads?.manuallyEntered ?? 0 }}</td>
+                                <th>Upcoming</th>
+                                <th>Overdue</th>
+                                <!-- <th>Follow-ups (CXP)</th> -->
 
 
-                                  <td class="td-right">{{ user.followups?.sa ?? 0 }}</td>
-                                  <td class="td-right">{{ user.followups?.cxp ?? 0 }}</td>
-                                  <td class="td-right">{{ user.followups?.completed ?? 0 }}</td>
-                                  <td class="td-right">{{ user.followups?.open ?? 0 }}</td>
-                                  <td class="td-right">{{ user.followups?.closed ?? 0 }}</td>
+                                <th>SA Test Drives</th>
+                                <th>Sync with CXP</th>
+
+                                <th>Upcoming </th>
+                                <th>Completed </th>
+                                <th>Overdue</th>
+                                <th>Opportunities Converted</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <!-- <tr *ngFor="let user of getSortedUsers(dealer.dealerId)"> -->
+                              <tr *ngFor="let user of getSortedUsers(dealer.dealerId); let i = index"
+                                [ngClass]="{'bg-alt': i % 2 === 1}" class="table-row-alt">
+                                <td style="text-align:left">
+                                  {{ user.user }} <span *ngIf="user.user_role">({{ user.user_role }})</span>
+                                </td>
+                                <td class="td-center">
+                                  <span class="chip" [ngClass]="user.active ? 'chip-success' : 'chip-inactive'">
+                                    {{ user.active ? 'Active' : 'Inactive' }}
+                                  </span>
+                                </td>
+                                <td class="td-right">{{ user.leads?.sa ?? 0 }}</td>
+                                <td class="td-right">{{ user.leads?.cxp ?? 0 }}</td>
+                                <td class="td-right">{{ user.leads?.ics ?? 0 }}</td>
+                                <td class="td-right">{{ user.leads?.manuallyEntered ?? 0 }}</td>
 
 
-                                  <td class="td-right">{{ user.testdrives?.sa ?? 0 }}</td>
-                                  <td class="td-right">{{ user.testdrives?.cxp ?? 0 }}</td>
+                                <td class="td-right">{{ user.followups?.sa ?? 0 }}</td>
+                                <td class="td-right">{{ user.followups?.cxp ?? 0 }}</td>
+                                <td class="td-right">{{ user.followups?.completed ?? 0 }}</td>
+                                <td class="td-right">{{ user.followups?.open ?? 0 }}</td>
+                                <td class="td-right">{{ user.followups?.closed ?? 0 }}</td>
 
-                                  <!-- <td class="td-right">{{ user.testdrives?.unique ?? 0 }}</td> -->
-                                  <td class="td-right">{{ user.testdrives?.completed ?? 0 }}</td>
-                                  <td class="td-right">{{ user.testdrives?.upcoming ?? 0 }}</td>
 
-                                  <td class="td-right">{{ user.testdrives?.closed ?? 0 }}</td>
+                                <td class="td-right">{{ user.testdrives?.sa ?? 0 }}</td>
+                                <td class="td-right">{{ user.testdrives?.cxp ?? 0 }}</td>
 
-                                  <td class="td-right">{{ user.opportunitiesConverted ?? 0 }}</td>
+                                <!-- <td class="td-right">{{ user.testdrives?.unique ?? 0 }}</td> -->
+                                <td class="td-right">{{ user.testdrives?.completed ?? 0 }}</td>
+                                <td class="td-right">{{ user.testdrives?.upcoming ?? 0 }}</td>
 
-                                </tr>
-                                <tr *ngIf="!dealerUsers[dealer.dealerId] || dealerUsers[dealer.dealerId]?.length === 0">
-                                  <td colspan="14" class="td-center">No Users Found</td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
+                                <td class="td-right">{{ user.testdrives?.closed ?? 0 }}</td>
+
+                                <td class="td-right">{{ user.opportunitiesConverted ?? 0 }}</td>
+
+                              </tr>
+                              <tr *ngIf="!dealerUsers[dealer.dealerId] || dealerUsers[dealer.dealerId]?.length === 0">
+                                <td colspan="14" class="td-center">No Users Found</td>
+                              </tr>
+                            </tbody>
+                          </table>
                         </div>
+                      </div>
                     </td>
                   </tr>
                 </ng-container>
@@ -581,7 +581,8 @@
                         {{ dealer.dealerName }}
                       </button> -->
                       <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
-                        <i class="fa" [ngClass]="expandedRow === 'engagement-' + i ? 'fa-chevron-down' : 'fa-chevron-right'"
+                        <i class="fa"
+                          [ngClass]="expandedRow === 'engagement-' + i ? 'fa-chevron-down' : 'fa-chevron-right'"
                           style="font-size: 10px; margin-right: 5px; color: rgb(15 95 184 / var(--tw-text-opacity, 1));"></i>
                         <span style="color: rgb(15 95 184 / var(--tw-text-opacity, 1));">
                           {{ dealer.dealerName }}
@@ -657,53 +658,54 @@
                   <tr *ngIf="expandedRow === 'engagement-' + i">
                     <td colspan="7">
                       <div class="sub-table-container">
-                          <table class="sub-table calls-sub-table">
-                            <thead class="sub-table-thead">
-                              <tr>
-                                <th style="text-align:left;width:15%">User</th>
-                                <th>Total</th>
-                                <th>Outgoing</th>
-                                <th>Incoming</th>
-                                <th>Connected</th>
-                                <th>Declined</th>
-                                <th>Duration</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr *ngFor="let userCall of userCallLogs[dealer.dealerId]">
-                                <td style="text-align:left">{{ userCall.name }}</td>
-                                <td>{{ userCall.calls.total }}</td>
-                                <td>{{ userCall.calls.outgoing }}</td>
-                                <td>{{ userCall.calls.incoming }}</td>
-                                <td>{{ userCall.calls.connected }}</td>
-                                <td>{{ userCall.calls.declined }}</td>
-                                <td>{{ userCall.calls.duration }}</td>
-                              </tr>
-                              <tr *ngIf="!userCallLogs[dealer.dealerId] || userCallLogs[dealer.dealerId]?.length === 0">
-                                <td colspan="7" style="text-align: center; font-style: italic;">
-                                  No call logs found
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
+                        <table class="sub-table calls-sub-table">
+                          <thead class="sub-table-thead">
+                            <tr>
+                              <th style="text-align:left;width:15%">User</th>
+                              <th>Total</th>
+                              <th>Outgoing</th>
+                              <th>Incoming</th>
+                              <th>Connected</th>
+                              <th>Declined</th>
+                              <th>Duration</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let userCall of userCallLogs[dealer.dealerId]">
+                              <td style="text-align:left">{{ userCall.name }}</td>
+                              <td>{{ userCall.calls.total }}</td>
+                              <td>{{ userCall.calls.outgoing }}</td>
+                              <td>{{ userCall.calls.incoming }}</td>
+                              <td>{{ userCall.calls.connected }}</td>
+                              <td>{{ userCall.calls.declined }}</td>
+                              <td>{{ userCall.calls.duration }}</td>
+                            </tr>
+                            <tr *ngIf="!userCallLogs[dealer.dealerId] || userCallLogs[dealer.dealerId]?.length === 0">
+                              <td colspan="7" style="text-align: center; font-style: italic;">
+                                No call logs found
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </td>
                   </tr>
                 </ng-container>
               </tbody>
             </table>
             <!-- Show More / Show Less buttons -->
-         
+
           </div>
-            <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.5rem;">
-              <button type="button" class="btn btn-primary" (click)="showMoreTable2()" *ngIf="table2Length < dealers.length">
-                Show More
-              </button>
-              <button type="button" class="btn btn-secondary" (click)="showLessTable2()"
-                *ngIf="table2Length > 5 && dealers.length > 5">
-                Show Less
-              </button>
-            </div>
+          <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.5rem;">
+            <button type="button" class="btn btn-primary" (click)="showMoreTable2()"
+              *ngIf="table2Length < dealers.length">
+              Show More
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="showLessTable2()"
+              *ngIf="table2Length > 5 && dealers.length > 5">
+              Show Less
+            </button>
+          </div>
         </div>
         <!-- Chart View -->
         <div *ngIf="dealerSummaryCallsViewType === 'chart'" class="chart-container"

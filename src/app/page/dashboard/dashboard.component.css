@@ -4746,6 +4746,7 @@ body {
   padding: 2px 6px;
   border-radius: 10px;
 }
+
 .sub-table-thead th {
   color: #475569;
   text-align: left; /* optional if you want all left-aligned */
@@ -4755,15 +4756,34 @@ body {
 .sub-table tbody td:not(.td-center .chip) {
   color: #475569;
 }
+.row-even {
+  background-color: #f8f9fa;
+}
+.table-row-alt:nth-child(even) {
+    background: #f9fafb;
+}
+.row-odd {
+  background-color: #ffffff;
+}
+tbody tr:nth-child(even) {
+  background-color: #f8f9fa !important;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: transparent !important;
+}
 .sub-table-row-alt:nth-child(even) {
     background: #f9fafb;
 }
-
+/* Sub-table alternate row coloring */
+.sub-table tbody tr.bg-alt {
+  background-color: #f5f5f5; /* light gray */
+}
 .chip-inactive {
   @apply text-gray-500; /* or any color for inactive */
   background-color: #f3f4f6; /* optional: light gray bg */
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: 10px;
 }
 @media (min-width: 1200px) and (max-width: 1366px) {
   .dashboard-container {
