@@ -2069,6 +2069,62 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           // 🔥 FORCE UI UPDATE
           this.cdr.detectChanges();
 
+          // ✅ Generate Chart Data for Dealer-wise Calls Analysis
+          const categories = [
+            'Total Calls',
+            'Outgoing Calls',
+            'Incoming Calls',
+            'Declined Calls',
+            'Connected Calls',
+          ];
+
+          const series = this.dealers.map((d: any) => {
+            const callLogs = d.callLogs || {};
+            return {
+              name: d.dealerName || 'Unknown Dealer',
+              data: [
+                callLogs.totalCalls ?? 0,
+                callLogs.outgoing ?? 0,
+                callLogs.incoming ?? 0,
+                callLogs.declined ?? 0,
+                callLogs.connected ?? 0,
+              ],
+            };
+          });
+
+          this.chartOptions = {
+            series: series,
+            chart: {
+              type: 'line',
+              height: 350,
+              offsetX: 0,
+              offsetY: 0,
+              toolbar: {
+                show: true,
+                tools: {
+                  download: true,
+                  selection: false,
+                  zoom: false,
+                  zoomin: true,
+                  zoomout: true,
+                  pan: false,
+                  reset: false,
+                },
+              },
+            },
+            dataLabels: { enabled: false },
+            stroke: { curve: 'smooth', width: 3 },
+            title: { text: 'Dealer-wise Calls Analysis', align: 'left' },
+            xaxis: { categories: categories, labels: { rotate: -45 } },
+            // colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26A69A', '#D4526E'],
+            responsive: [
+              {
+                breakpoint: 768,
+                options: { title: { align: 'left' } },
+              },
+            ],
+          };
+
           console.log('✅ Change detection triggered');
         } else {
           console.warn('⚠️ Unexpected response structure:', res);
