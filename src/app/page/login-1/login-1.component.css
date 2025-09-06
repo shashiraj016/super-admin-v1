@@ -110,7 +110,9 @@ form {
   font-size: 18px;
   transition: 0.3s;
 }
-
+#pass input {
+  left: -15px !important;
+}
 .input-div:before,
 .input-div:after {
   content: "";
@@ -409,8 +411,6 @@ input[type="password"] {
   align-items: center;
   justify-content: center;
 }
-
-
 
 .btn {
   display: block;
