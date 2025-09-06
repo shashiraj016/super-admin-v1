@@ -2070,6 +2070,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           this.cdr.detectChanges();
 
           // ✅ Generate Chart Data for Dealer-wise Calls Analysis
+
+          // ✅ Generate Chart Data for Dealer-wise Calls Analysis
           const categories = [
             'Total Calls',
             'Outgoing Calls',
@@ -2078,7 +2080,27 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             'Connected Calls',
           ];
 
-          const series = this.dealers.map((d: any) => {
+          // 🎯 Filter dealers based on selection
+          let dealersToShow = [];
+
+          if (this.selectedDealers?.length > 0) {
+            // Show only selected dealers
+            dealersToShow = this.dealers.filter((dealer: any) =>
+              this.selectedDealers.some(
+                (selected: any) => selected.dealerId === dealer.dealerId
+              )
+            );
+            console.log(
+              '📊 Chart showing selected dealers:',
+              dealersToShow.map((d) => d.dealerName)
+            );
+          } else {
+            // Show all dealers when none are selected
+            dealersToShow = this.dealers;
+            console.log('📊 Chart showing all dealers:', dealersToShow.length);
+          }
+
+          const series = dealersToShow.map((d: any) => {
             const callLogs = d.callLogs || {};
             return {
               name: d.dealerName || 'Unknown Dealer',
@@ -2091,6 +2113,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
               ],
             };
           });
+
+          // 🎯 Update chart title based on selection
+          let chartTitle = 'Dealer-wise Calls Analysis';
+          if (this.selectedDealers?.length === 1) {
+            chartTitle = `Calls Analysis - ${
+              this.selectedDealers[0].dealerName || 'Selected Dealer'
+            }`;
+          } else if (this.selectedDealers?.length > 1) {
+            chartTitle = `Calls Analysis - ${this.selectedDealers.length} Selected Dealers`;
+          }
 
           this.chartOptions = {
             series: series,
@@ -2114,8 +2146,18 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             },
             dataLabels: { enabled: false },
             stroke: { curve: 'smooth', width: 3 },
-            title: { text: 'Dealer-wise Calls Analysis', align: 'left' },
+            title: { text: chartTitle, align: 'left' },
             xaxis: { categories: categories, labels: { rotate: -45 } },
+            legend: {
+              show: true,
+              position: 'bottom',
+              horizontalAlign: 'center',
+              showForSingleSeries: false,
+              markers: {
+                width: 12,
+                height: 12,
+              },
+            },
             // colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26A69A', '#D4526E'],
             responsive: [
               {
@@ -2123,7 +2165,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
                 options: { title: { align: 'left' } },
               },
             ],
-          };
+          } as any;
 
           console.log('✅ Change detection triggered');
         } else {
