@@ -48,22 +48,25 @@
               Clear
             </button>
           </div>
-          <!-- <ng-container *ngIf="filteredDealers.length > 0; else noDealers">
-            <button *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
-              (click)="$event.stopPropagation()">
-              <input type="checkbox" class="me-2" [checked]="isDealerSelected(dealer)"
-                (change)="toggleDealerSelection(dealer)" style="border:1px solid black" />
-              {{ dealer.dealerName }}
-            </button>
-          </ng-container> -->
+         
           <ng-container *ngIf="filteredDealers.length > 0; else noDealers">
-            <div *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
+            <!-- <div *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
               (click)="toggleDealerSelection(dealer); $event.stopPropagation()">
 
               <input type="checkbox" class="me-2" [checked]="isDealerSelected(dealer)" style="border:1px solid black"
                 (click)="$event.stopPropagation()" />
 
               {{ dealer.dealerName }}
+            </div> -->
+            <div *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
+              (click)="$event.stopPropagation()">
+            
+              <input type="checkbox" class="me-2" [checked]="isDealerSelected(dealer)" style="border:1px solid black"
+                (change)="toggleDealerSelection(dealer); $event.stopPropagation()" />
+            
+              <span (click)="toggleDealerSelection(dealer); $event.stopPropagation()">
+                {{ dealer.dealerName }}
+              </span>
             </div>
           </ng-container>
 
@@ -273,7 +276,7 @@
               <thead class="table-thead">
                 <tr>
                   <th rowspan="2" class="sticky-col-header th-left">Dealer</th>
-                  <th colspan="2" class="th-right">Users</th>
+                  <th colspan="2" class="th-right ">Users</th>
                   <th colspan="4" class="th-right">Leads</th>
                   <th colspan="5" class="th-right">Follow-ups</th>
                   <th colspan="6" class="th-right">Test Drives</th>
@@ -371,7 +374,7 @@
               <tbody>
                 <ng-container
                   *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : dealers) | slice:0:table1Length; let i = index">
-                  <tr *ngIf="dealer" class="table-row">
+                  <tr *ngIf="dealer" class="table-row" >
                     <td class="sticky-col-header  td-left">
                       <!-- <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
                         <span class="arrow">{{ expandedRow === 'engagement-' + i ? 'v' : '>' }}</span>
@@ -439,8 +442,8 @@
                         <div class="sub-table-container">
 
                           <table class="sub-table">
-                            <thead class="sub-table-thead">
-                              <tr>
+                            <thead class="sub-table-thead" style="border-radius:20px !important">
+                              <tr style="border-radius:20px !important">
                                 <th style="text-align:left">User</th>
                                 <th>Active</th>
 
@@ -469,8 +472,10 @@
                             </thead>
                             <tbody>
                               <!-- <tr *ngFor="let user of getSortedUsers(dealer.dealerId)"> -->
-                              <tr *ngFor="let user of getSortedUsers(dealer.dealerId); let i = index"
-                                [ngClass]="{'bg-alt': i % 2 === 1}" class="table-row-alt">
+                              <!-- <tr *ngFor="let user of getSortedUsers(dealer.dealerId); let i = index"
+                                [ngClass]="{'bg-alt': i % 2 === 1}" class="table-row-alt"> -->
+                                <tr *ngFor="let user of getSortedUsers(dealer.dealerId); let i = index"
+                                  [ngClass]="{ 'row-alt': i % 2 === 0, 'row-normal': i % 2 !== 0 }">
                                 <td style="text-align:left">
                                   {{ user.user }} <span *ngIf="user.user_role">({{ user.user_role }})</span>
                                 </td>
@@ -572,7 +577,10 @@
                 </tr>
               </thead>
               <tbody>
-                <ng-container *ngFor="let dealer of dealers | slice:0:table2Length; let i = index">
+                <!-- <ng-container *ngFor="let dealer of dealers | slice:0:table2Length; let i = index"> -->
+<ng-container
+  *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : dealers) | slice:0:table2Length; let i = index">
+
                   <!-- Main dealer row -->
                   <tr>
                     <td class="sticky-col td-font-medium">
@@ -671,7 +679,9 @@
                             </tr>
                           </thead>
                           <tbody>
-                            <tr *ngFor="let userCall of userCallLogs[dealer.dealerId]">
+                            <!-- <tr *ngFor="let userCall of userCallLogs[dealer.dealerId]"> -->
+                              <tr *ngFor="let userCall of userCallLogs[dealer.dealerId]">
+
                               <td style="text-align:left">{{ userCall.name }}</td>
                               <td>{{ userCall.calls.total }}</td>
                               <td>{{ userCall.calls.outgoing }}</td>

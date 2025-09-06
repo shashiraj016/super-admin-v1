@@ -374,7 +374,7 @@ export class Login1Component {
 
   // private handleSuccessfulLogin(token: string): void {
   //   this.toastr.success('Login Successful', 'Success');
-  //   sessionStorage.setItem('adminToken', token);
+  //   localStorage.setItem('adminToken', token);
 
   //   this.router
   //     .navigate(['/Admin/dashboard'])
@@ -387,28 +387,49 @@ export class Login1Component {
   //   this.setupAutoLogout();
   // }
 
-  private handleSuccessfulLogin(token: string): void {
-    // Store token in localStorage instead of sessionStorage
-    sessionStorage.setItem('token', token);
+  // private handleSuccessfulLogin(token: string): void {
+  //   // Store token in localStorage instead of localStorage
+  //   localStorage.setItem('token', token);
 
-    // Navigate to dashboard using router without page reload
+  //   // Navigate to dashboard using router without page reload
+  //   this.router
+  //     .navigate(['/Admin/dashboard'])
+  //     .then(() => {
+  //       window.location.reload();
+  //       // this.toastr.success('Login Successful', 'Success');
+  //     })
+  //     .catch((error) => {
+  //       console.error('Navigation error:', error);
+  //       this.toastr.error('Failed to navigate to dashboard', 'Error');
+  //     });
+
+  //   this.setupAutoLogout();
+  // }
+  private handleSuccessfulLogin(token: string): void {
+    console.log('Storing token in localStorage:', token);
+    localStorage.setItem('token', token); // ✅ Use localStorage for persistence
+
+    console.log('Navigating to /admin/dashboard...');
     this.router
-      .navigate(['/Admin/dashboard'])
+      .navigate(['/Admin/dashboard']) // ✅ check exact route casing
       .then(() => {
         window.location.reload();
-        // this.toastr.success('Login Successful', 'Success');
+
+        console.log('Navigation successful.');
+        this.toastr.success('Login Successful', 'Success');
       })
       .catch((error) => {
         console.error('Navigation error:', error);
         this.toastr.error('Failed to navigate to dashboard', 'Error');
       });
 
-    // this.setupAutoLogout();
+    console.log('Setting up auto logout...');
+    this.setupAutoLogout();
   }
 
   // private setupAutoLogout(): void {
   //   setTimeout(() => {
-  //     sessionStorage.removeItem('adminToken');
+  //     localStorage.removeItem('adminToken');
   //     this.router
   //       .navigateByUrl('/login')
   //       .then(() => {
@@ -423,23 +444,23 @@ export class Login1Component {
   //   }, this.SESSION_TIMEOUT);
   // }
 
-  // private setupAutoLogout(): void {
-  //   // Use localStorage timeout instead of sessionStorage
-  //   setTimeout(() => {
-  //     sessionStorage.removeItem('token');
-  //     this.router
-  //       .navigateByUrl('/login')
-  //       .then(() => {
-  //         this.toastr.info(
-  //           'Session expired. Please log in again.',
-  //           'Session Expired'
-  //         );
-  //       })
-  //       .catch((error) => {
-  //         console.error('Logout navigation error:', error);
-  //       });
-  //   }, this.SESSION_TIMEOUT);
-  // }
+  private setupAutoLogout(): void {
+    // Use localStorage timeout instead of localStorage
+    setTimeout(() => {
+      localStorage.removeItem('token');
+      this.router
+        .navigateByUrl('/login')
+        .then(() => {
+          this.toastr.info(
+            'Session expired. Please log in again.',
+            'Session Expired'
+          );
+        })
+        .catch((error) => {
+          console.error('Logout navigation error:', error);
+        });
+    }, this.SESSION_TIMEOUT);
+  }
 
   private startCountdown() {
     this.countdown = 5 * 60;

@@ -4756,7 +4756,7 @@ body {
 .sub-table tbody td:not(.td-center .chip) {
   color: #475569;
 }
-.row-even {
+/* .row-even {
   background-color: #f8f9fa;
 }
 .table-row-alt:nth-child(even) {
@@ -4764,20 +4764,26 @@ body {
 }
 .row-odd {
   background-color: #ffffff;
-}
-tbody tr:nth-child(even) {
+} */
+/* tbody tr:nth-child(even) {
   background-color: #f8f9fa !important;
+} */
+/* .bg-alt {
+  background-color: #f8f9fa !important; 
 }
-
 tbody tr:nth-child(odd) {
   background-color: transparent !important;
-}
-.sub-table-row-alt:nth-child(even) {
+} */
+/* .sub-table-row-alt:nth-child(even) {
     background: #f9fafb;
 }
-/* Sub-table alternate row coloring */
 .sub-table tbody tr.bg-alt {
-  background-color: #f5f5f5; /* light gray */
+  background-color: #f5f5f5;
+} */
+ 
+ .sub-table tbody tr:nth-child(even) td {
+  background-color: #f0f8ff !important;
+  padding: 10px !important;
 }
 .chip-inactive {
   @apply text-gray-500; /* or any color for inactive */
@@ -4959,11 +4965,15 @@ tbody tr:nth-child(odd) {
   font-weight: 600;
   border-bottom: 2px solid #000; /* thicker line under group */
 }
+.dropdown-item {
+  cursor: pointer;
+}
 
 /* Sub-header row */
 .table-thead tr:nth-child(2) th {
-  background-color: #f0f8ff; /* lighter blue */
+  /* background-color: #f0f8ff; lighter blue */
   font-weight: 500;
+  background-color: white !important;
 }
 
 /* Alternate row colors for readability */

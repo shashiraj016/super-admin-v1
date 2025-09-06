@@ -32,7 +32,7 @@
 
 
         </div> -->
-        <div class="div relative">
+        <!-- <div class="div relative">
           <h5>Password</h5>
           <input [(ngModel)]="loginObj.password" [type]="showPassword ? 'text' : 'password'" name="password" required
             autocomplete="off" autocorrect="off" spellcheck="false"
@@ -41,6 +41,27 @@
           <i [class]="'icon11 absolute right-8 top-1/2 transform -translate-y-1/2 cursor-pointer ' + (showPassword ? 'fas fa-eye-slash eye' : 'fas fa-eye eye')"
             (click)="togglePassword('password')"></i>
         </div>
+      </div> -->
+      <div class="div relative">
+  <h5>Password</h5>
+  <input 
+    [(ngModel)]="loginObj.password"
+    [attr.type]="showPassword ? 'text' : 'password'" 
+    name="password"
+    required
+    autocomplete="new-password"
+    autocorrect="off"
+    spellcheck="false"
+    class="inputt focus:outline-none focus:border-none border-transparent focus:ring-0 py-2 px-4 text-gray-800"
+    #inputElement
+  />
+
+  <i 
+    [class]="'icon11 absolute right-8 top-1/2 transform -translate-y-1/2 cursor-pointer ' + 
+      (showPassword ? 'fas fa-eye-slash eye' : 'fas fa-eye eye')"
+    (click)="togglePassword('password')">
+  </i>
+</div>
       </div>
       <a href="javascript:void(0)" class="forgot-password" (click)="showVerifyEmail()">Forgot Password?</a>
       <input type="submit" class="btn" value="Login" (click)="onLogin()" />
