@@ -136,11 +136,33 @@ export class Login1Component {
   }
 
   // Password visibility toggles
+  // togglePassword(field: 'password' | 'confirmPassword') {
+  //   if (field === 'password') {
+  //     this.showPassword = !this.showPassword;
+  //   } else {
+  //     this.showConfirmPassword = !this.showConfirmPassword;
+  //   }
+  // }
   togglePassword(field: 'password' | 'confirmPassword') {
     if (field === 'password') {
       this.showPassword = !this.showPassword;
+
+      // iOS Safari fix: clone input to force redraw
+      const input = document.getElementById(
+        'passwordInput'
+      ) as HTMLInputElement;
+      if (input && /iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        const parent = input.parentElement;
+        if (parent) {
+          const newInput = input.cloneNode(true) as HTMLInputElement;
+          newInput.type = this.showPassword ? 'text' : 'password';
+          newInput.value = input.value; // keep the typed password
+          parent.replaceChild(newInput, input);
+        }
+      }
     } else {
       this.showConfirmPassword = !this.showConfirmPassword;
+      // same logic for confirmPassword input if you have one
     }
   }
 

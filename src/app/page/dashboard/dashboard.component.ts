@@ -156,8 +156,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   mtdOrders = signal<number>(0);
   qtdOrders = signal<number>(0);
   ytdOrders = signal<number>(0);
-  table1Length = 5;
-  table2Length = 5;
+  table1Length = 10;
+  table2Length = 10;
   isLoading = false;
   overallData: any = {}; // 👈 holds overall API response metrics
 
@@ -2123,6 +2123,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           } else if (this.selectedDealers?.length > 1) {
             chartTitle = `Calls Analysis - ${this.selectedDealers.length} Selected Dealers`;
           }
+          // Generate a unique color for each dealer in the series
 
           this.chartOptions = {
             series: series,
@@ -2131,6 +2132,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
               height: 350,
               offsetX: 0,
               offsetY: 0,
+
               toolbar: {
                 show: true,
                 tools: {
@@ -2148,17 +2150,36 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             stroke: { curve: 'smooth', width: 3 },
             title: { text: chartTitle, align: 'left' },
             xaxis: { categories: categories, labels: { rotate: -45 } },
+            // legend: {
+            //   show: true,
+            //   position: 'bottom',
+            //   horizontalAlign: 'center',
+            //   showForSingleSeries: false,
+            //   markers: {
+            //     width: 12,
+            //     height: 12,
+            //   },
+            // },
             legend: {
-              show: true,
+              show: series.length > 0, // Only show if there's data
               position: 'bottom',
               horizontalAlign: 'center',
-              showForSingleSeries: false,
+              showForSingleSeries: true,
               markers: {
                 width: 12,
                 height: 12,
               },
             },
-            // colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26A69A', '#D4526E'],
+            colors: [
+              '#008FFB',
+              '#00E396',
+              '#FEB019',
+              '#FF4560',
+              '#775DD0',
+              '#546E7A',
+              '#26A69A',
+              '#D4526E',
+            ],
             responsive: [
               {
                 breakpoint: 768,
@@ -3567,23 +3588,23 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const list =
       this.selectedDealers.length > 0 ? this.selectedDealers : this.dealers;
     if (this.table1Length < list.length) {
-      this.table1Length += 5;
+      this.table1Length += 10;
     }
   }
 
   showLessTable1() {
-    this.table1Length = 5;
+    this.table1Length = 10;
   }
 
   showMoreTable2() {
     const list = this.dealers; // yaha selectedDealers ka concept nahi hai, sirf dealers hai
     if (this.table2Length < list.length) {
-      this.table2Length += 5;
+      this.table2Length += 10;
     }
   }
 
   showLessTable2() {
-    this.table2Length = 5;
+    this.table2Length = 10;
   }
 
   dealerEngagementView(viewType: 'table' | 'chart' | 'enquiry' | 'cold') {
@@ -4176,7 +4197,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       'Incoming',
       'Connected',
       'Declined',
-      'Duration',
     ];
 
     const rows = this.dealers.map((dealer) => [
@@ -4187,9 +4207,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       dealer.callLogs?.connected || 0,
       dealer.callLogs?.declined || 0,
       // dealer.callLogs?.durationSec || '00:00:00',
-      dealer.callLogs?.durationSec
-        ? this.formatDuration(dealer.callLogs.durationSec) // ✅ use formatted value
-        : '00:00:00',
+      // dealer.callLogs?.durationSec
+      //   ? this.formatDuration(dealer.callLogs.durationSec) // ✅ use formatted value
+      //   : '00:00:00',
     ]);
 
     const csvContent = [

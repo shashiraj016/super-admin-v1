@@ -24,6 +24,7 @@ import { AuthGuard } from './component/guard/auth.guard';
 import { RoleComponent } from './page/role/role.component';
 import { DatatableComponent } from './page/datatable/datatable.component';
 import { TeamComponent } from './page/team/team/team.component';
+import { SummaryComponent } from './page/summary/summary.component';
 
 // export const routes: Routes = [
 //   { path: '', component: Login1Component, pathMatch: 'full' },
@@ -131,6 +132,12 @@ export const routes: Routes = [
         path: 'dashboard',
         component: DashboardComponent,
         data: { title: 'Dashboard' },
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'summary',
+        component: SummaryComponent,
+        data: { title: 'Summary' },
         canActivate: [AuthGuard],
       },
       {

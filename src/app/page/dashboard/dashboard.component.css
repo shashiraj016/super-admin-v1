@@ -2065,6 +2065,7 @@ div[style*="overflow-y: auto"]::-webkit-scrollbar-button {
   cursor: pointer;
   transition: all 0.3s ease;
   outline: none;
+
   margin: 0; /* ❗ Ensure no margin ruins layout */
 }
 
@@ -4122,7 +4123,7 @@ body {
   padding: 6px 10px;
   font-size: 14px;
   border-radius: 6px;
-  margin-left:8px;
+  margin-left: 8px;
   border: 1px solid #ccc;
   background: #f9f9f9;
   cursor: pointer;
@@ -4344,7 +4345,6 @@ body {
   display: flex;
   flex-direction: column;
 }
-
 
 .form-label {
   display: block;
@@ -4668,7 +4668,6 @@ body {
   border-radius: 999px; /* add this if you want */
 }
 
-
 /* Icons - You'll need to implement these based on your icon library */
 .icon-refresh::before {
   content: "↻";
@@ -4780,8 +4779,8 @@ tbody tr:nth-child(odd) {
 .sub-table tbody tr.bg-alt {
   background-color: #f5f5f5;
 } */
- 
- .sub-table tbody tr:nth-child(even) td {
+
+.sub-table tbody tr:nth-child(even) td {
   background-color: #f0f8ff !important;
   padding: 10px !important;
 }
@@ -4824,7 +4823,7 @@ tbody tr:nth-child(odd) {
   }
   .time-dropdown {
     width: 100% !important;
-    margin-top:8px;
+    margin-top: 8px;
   }
   .dropdown-menu {
     z-index: 99999 !important;
@@ -4849,35 +4848,34 @@ tbody tr:nth-child(odd) {
   }
   .time-dropdown {
     min-width: 0px !important;
-    margin-left:0px !important;
+    margin-left: 0px !important;
   }
-   .table-actions {
+  .table-actions {
     display: flex;
     flex-direction: column; /* stack top-down */
     align-items: flex-end; /* optional, left-align items */
     gap: 6px; /* spacing between buttons */
   }
-  .btn-small{
+  .btn-small {
     align-items: flex-end;
-    margin-top:6px;
+    margin-top: 6px;
   }
   /* .btn{
     margin-left:160px !important;
     } */
-     #clearbtn{
-      margin-left:160px !important;
-     }
+  #clearbtn {
+    margin-left: 160px !important;
+  }
 
-     #exportsummary{
-      align-items: flex-end !important;
-      margin-top:-40% !important;
-     }
-
+  #exportsummary {
+    align-items: flex-end !important;
+    margin-top: -40% !important;
+  }
 }
 
 /* Make table headers sticky */
 .table-thead th {
-  /* position: sticky; */
+  position: sticky;
   top: 0; /* stick to top */
   background: #fff; /* match header background */
   z-index: 5; /* stay above rows */
@@ -4958,7 +4956,18 @@ tbody tr:nth-child(odd) {
   background: #f9f9f9;
   z-index: 2;
 }
+.sub-table-container {
+  max-height: 900px; /* or whatever fits your UI */
+  overflow-y: auto;
+  overflow-x: auto; /* optional, in case of many columns */
+}
 
+.sub-table th {
+  position: sticky;
+  top: 0;
+  background: white; /* so header doesn't look transparent */
+  z-index: 2; /* keep it above body rows */
+}
 /* Group headers styling */
 .table-thead th.th-center {
   background-color: #e6f2ff; /* light blue for groups */
@@ -5067,7 +5076,7 @@ tbody tr:nth-child(odd) {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255,255,255,0.7);
+  background: rgba(255, 255, 255, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5077,16 +5086,19 @@ tbody tr:nth-child(odd) {
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #E8E8E8;   /* background circle */
-  border-top: 4px solid #555;  /* spinning part */
+  border: 4px solid #e8e8e8; /* background circle */
+  border-top: 4px solid #555; /* spinning part */
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
-
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 input:focus {
   outline: none !important;

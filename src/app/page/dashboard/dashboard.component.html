@@ -48,7 +48,7 @@
               Clear
             </button>
           </div>
-         
+
           <ng-container *ngIf="filteredDealers.length > 0; else noDealers">
             <!-- <div *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
               (click)="toggleDealerSelection(dealer); $event.stopPropagation()">
@@ -60,10 +60,10 @@
             </div> -->
             <div *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
               (click)="$event.stopPropagation()">
-            
+
               <input type="checkbox" class="me-2" [checked]="isDealerSelected(dealer)" style="border:1px solid black"
                 (change)="toggleDealerSelection(dealer); $event.stopPropagation()" />
-            
+
               <span (click)="toggleDealerSelection(dealer); $event.stopPropagation()">
                 {{ dealer.dealerName }}
               </span>
@@ -147,132 +147,6 @@
         <div class="table-container">
           <div class="table-scroll">
             <table class="data-table">
-              <!-- <thead class="table-thead">
-                <tr>
-                  <th class="sticky-col-header th-left">Dealer</th>
-                  <th class="th-right " style="cursor: pointer;" (click)="sortData('totalUsers')">
-                    Total Users
-                    <span *ngIf="sortColumn === 'totalUsers' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('activeUsers')">
-                    Active Users
-                    <span *ngIf="sortColumn === 'activeUsers' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-
-
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('saLeads')">
-                    SA Leads
-                    <span *ngIf="sortColumn === 'saLeads' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-
-
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('cxpLeads')">
-                    Sync with CXP
-                    <span *ngIf="sortColumn === 'cxpLeads' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-
-
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('icsLeads')">
-                    Sync with ICS
-                    <span *ngIf="sortColumn === 'icsLeads' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('manuallyEnteredLeads')">
-                    Manually Entered with CXP
-                    <span *ngIf="sortColumn === 'manuallyEnteredLeads' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-
-
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('saFollowUps')">
-                    SA Followups
-                    <span *ngIf="sortColumn === 'saFollowUps' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('cxpFollowUps')">
-                    Sync with CXP
-                    <span *ngIf="sortColumn === 'cxpFollowUps' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('completedFollowUps')">
-                    Completed Followups
-                    <span *ngIf="sortColumn === 'completedFollowUps' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-
-
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('openFollowUps')">
-                    Upcoming followups
-                    <span *ngIf="sortColumn === 'openFollowUps' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('closedFollowUps')">
-                    Overdue followups
-                    <span *ngIf="sortColumn === 'closedFollowUps' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-
-                 
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('saTestDrives')">
-                    SA Test Drives
-                    <span *ngIf="sortColumn === 'saTestDrives' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('cxpTestDrives')">
-                    sync to CXP
-                    <span *ngIf="sortColumn === 'cxpTestDrives' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('completedTestDrives')">
-                    Completed test drives
-                    <span *ngIf="sortColumn === 'completedTestDrives' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('upcomingTestDrives')">
-                    Upcoming
-                    <span *ngIf="sortColumn === 'upcomingTestDrives' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('closedTestDrives')">
-                    Overdue
-                    <span *ngIf="sortColumn === 'closedTestDrives' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-                  <th class="th-right" style="cursor: pointer;" (click)="sortData('opportunitiesConverted')">
-                    Opportunities Converted
-                    <span *ngIf="sortColumn === 'opportunitiesConverted' && sortDirection !== 'default'">
-                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                    </span>
-                  </th>
-
-                </tr>
-              </thead> -->
               <thead class="table-thead">
                 <tr>
                   <th rowspan="2" class="sticky-col-header th-left">Dealer</th>
@@ -374,7 +248,8 @@
               <tbody>
                 <ng-container
                   *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : dealers) | slice:0:table1Length; let i = index">
-                  <tr *ngIf="dealer" class="table-row" >
+                  <!-- <ng-container *ngFor="let dealer of selectedDealers | slice:0:table1Length; let i = index"> -->
+                  <tr *ngIf="dealer" class="table-row">
                     <td class="sticky-col-header  td-left">
                       <!-- <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
                         <span class="arrow">{{ expandedRow === 'engagement-' + i ? 'v' : '>' }}</span>
@@ -474,8 +349,8 @@
                               <!-- <tr *ngFor="let user of getSortedUsers(dealer.dealerId)"> -->
                               <!-- <tr *ngFor="let user of getSortedUsers(dealer.dealerId); let i = index"
                                 [ngClass]="{'bg-alt': i % 2 === 1}" class="table-row-alt"> -->
-                                <tr *ngFor="let user of getSortedUsers(dealer.dealerId); let i = index"
-                                  [ngClass]="{ 'row-alt': i % 2 === 0, 'row-normal': i % 2 !== 0 }">
+                              <tr *ngFor="let user of getSortedUsers(dealer.dealerId); let i = index"
+                                [ngClass]="{ 'row-alt': i % 2 === 0, 'row-normal': i % 2 !== 0 }">
                                 <td style="text-align:left">
                                   {{ user.user }} <span *ngIf="user.user_role">({{ user.user_role }})</span>
                                 </td>
@@ -530,11 +405,12 @@
           <!-- Show Less button -->
           <button type="button" style="margin: 0.5rem; float: right;" class="btn btn-secondary"
             (click)="showLessTable1()"
-            *ngIf="table1Length > 5 && (selectedDealers.length > 0 ? selectedDealers.length : dealers.length) > 5">
+            *ngIf="table1Length > 10 && (selectedDealers.length > 0 ? selectedDealers.length : dealers.length) > 10">
             Show Less
           </button>
         </div>
       </div>
+
       <!-- Table 2 -->
       <div class="table-section">
         <div class="table-header">
@@ -573,13 +449,12 @@
                   <th class="th-right">Incoming</th>
                   <th class="th-right">Connected</th>
                   <th class="th-right">Declined</th>
-                  <th class="th-right th-rounded-right">Duration</th>
                 </tr>
               </thead>
               <tbody>
                 <!-- <ng-container *ngFor="let dealer of dealers | slice:0:table2Length; let i = index"> -->
-<ng-container
-  *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : dealers) | slice:0:table2Length; let i = index">
+                <ng-container
+                  *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : dealers) | slice:0:table2Length; let i = index">
 
                   <!-- Main dealer row -->
                   <tr>
@@ -658,8 +533,8 @@
                     </td>
 
                     <!-- <td>{{ dealer.callLogs?.durationSec || '00:00:00' }}</td> -->
-                    <td>{{ dealer.callLogs?.durationSec ? formatDuration(dealer.callLogs.durationSec) : '00:00:00' }}
-                    </td>
+                    <!-- <td>{{ dealer.callLogs?.durationSec ? formatDuration(dealer.callLogs.durationSec) : '00:00:00' }}
+                    </td> -->
 
                   </tr>
                   <!-- Sub-row: user call logs -->
@@ -680,7 +555,7 @@
                           </thead>
                           <tbody>
                             <!-- <tr *ngFor="let userCall of userCallLogs[dealer.dealerId]"> -->
-                              <tr *ngFor="let userCall of userCallLogs[dealer.dealerId]">
+                            <tr *ngFor="let userCall of userCallLogs[dealer.dealerId]">
 
                               <td style="text-align:left">{{ userCall.name }}</td>
                               <td>{{ userCall.calls.total }}</td>
@@ -712,7 +587,7 @@
               Show More
             </button>
             <button type="button" class="btn btn-secondary" (click)="showLessTable2()"
-              *ngIf="table2Length > 5 && dealers.length > 5">
+              *ngIf="table2Length > 10 && dealers.length > 10">
               Show Less
             </button>
           </div>
