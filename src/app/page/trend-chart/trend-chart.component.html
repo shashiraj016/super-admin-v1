@@ -1,0 +1,109 @@
+<section class="bg-white rounded-2xl shadow-sm border border-slate-200" style="margin-top: 39px;">
+    <div
+        class="p-4 sm:p-6 border-b border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4 delar_usage">
+        <div>
+            <h2 class="text-lg font-semibold">Dealer Usage — Last 30 Days</h2>
+            <p class="text-slate-500 text-sm">Daily usage by metric </p>
+        </div>
+
+        <div class="flex flex-col md:flex-row md:items-center gap-3 Granularity_section">
+            <div class="flex flex-wrap items-center gap-2 wrapper-content">
+                <div class="dropdown flt1" [class.show]="dropdownOpen" style="margin-right: 5px;">
+                    <button class="time-dropdown dropdown-toggle" type="button" (click)="toggleDropdown()">
+                        {{ selectedDealers.length > 0 ? 'Dealers Selected (' + selectedDealers.length + ')' : 'Select
+                        Dealers' }}
+                    </button>
+                    <div class="dropdown-menu show" *ngIf="dropdownOpen">
+                        <div class="px-2 py-1">
+                            <input type="text" class="form-control" placeholder="Search dealers..."
+                                [(ngModel)]="dealerSearch" (input)="filterDealers()"
+                                (click)="$event.stopPropagation()" />
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center px-2 py-1 border-bottom">
+                            <label class="mb-0 d-flex align-items-center" (click)="$event.stopPropagation()">
+                                <input type="checkbox" class="me-2" [checked]="areAllSelected()"
+                                    (change)="toggleSelectAll($event); $event.stopPropagation()" />
+                                Select All
+                            </label>
+                            <button type="button" class="btn btn-link btn-sm text-danger p-0 ms-auto" id="clearbtn"
+                                style="margin-left:120px;" (click)="clearSelection(); $event.stopPropagation()">
+                                Clear
+                            </button>
+                        </div>
+                        <ng-container *ngIf="filteredDealers.length > 0; else noDealers">
+                            <div *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
+                                (click)="$event.stopPropagation()">
+                                <input type="checkbox" class="me-2" [checked]="isDealerSelected(dealer)"
+                                    style="border:1px solid black"
+                                    (change)="toggleDealerSelection(dealer); $event.stopPropagation()" />
+                                <span (click)="toggleDealerSelection(dealer); $event.stopPropagation()">
+                                    {{ dealer.dealer_name }}
+                                </span>
+                            </div>
+                        </ng-container>
+                        <ng-template #noDealers>
+                            <div class="dropdown-item text-muted text-center">
+                                No dealers found
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+
+
+                <!-- Metric selector -->
+                <!-- Date Filter -->
+                <label for="usageGran" class="text-sm text-slate-600">Granularity</label>
+                <select id="usageGran" [(ngModel)]="selectedDateFilter" (change)="fetchTrendChartWithFilters()"
+                    class="rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                    <option value="LAST_30_DAYS" selected>Last 30 Days</option>
+                    <option value="LAST_4_WEEKS">Last 4 Weeks</option>
+                    <option value="LAST_6_MONTHS">Last 6 Months</option>
+                </select>
+
+                <!-- Metric -->
+                <label for="usageMetric" class="text-sm text-slate-600">Metric</label>
+                <select id="usageMetric" [(ngModel)]="selectedMetric" (change)="fetchTrendChartWithFilters()"
+                    class="rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                    <option value="last_login">Last login</option>
+                    <option value="leads">Leads</option>
+                    <option value="follow_up">Follow-ups</option>
+                    <option value="unique_testdrive">Unique Test Drives</option>
+                    <option value="calls" selected>Total Calls</option>
+                </select>
+
+            </div>
+
+            <!-- <button
+                class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold buttons">
+                <i data-lucide="download-cloud" class="w-4 h-4"></i> Load Usage
+            </button> -->
+
+            <div class="flex items-center gap-2 ">
+                <button (click)="switchChartType()"
+                    class="switchChart px-3 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm font-medium">
+                    Switch Chart ({{ chartOptions.chart?.type }})
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="px-4 sm:px-6 pb-6">
+        <!-- <div id="usageLocalLoader" class="hidden flex items-center gap-2 text-sm text-slate-600 mb-3">
+            <div class="h-5 w-5 rounded-full border-2 border-slate-300 border-t-brand-600 animate-spin"></div>
+        </div> -->
+
+        <!-- <div id="usageHint" class="text-sm text-slate-500 mb-3">
+            Click <span class="font-semibold text-slate-700">Load Usage</span> to fetch 30 days of usage per dealer.
+        </div> -->
+
+
+
+        <div class="relative">
+            <apx-chart [series]="chartOptions.series!" [chart]="chartOptions.chart!" [xaxis]="chartOptions.xaxis!"
+                [dataLabels]="chartOptions.dataLabels!" [grid]="chartOptions.grid!" [stroke]="chartOptions.stroke!"
+                [title]="chartOptions.title!" [markers]="chartOptions.markers!" [legend]="chartOptions.legend!"
+                [tooltip]="chartOptions.tooltip!">
+            </apx-chart>
+        </div>
+    </div>
+</section>

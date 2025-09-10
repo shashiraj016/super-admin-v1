@@ -25,6 +25,7 @@ import { RoleComponent } from './page/role/role.component';
 import { DatatableComponent } from './page/datatable/datatable.component';
 import { TeamComponent } from './page/team/team/team.component';
 import { SummaryComponent } from './page/summary/summary.component';
+import { TrendChartComponent } from './page/trend-chart/trend-chart.component';
 
 // export const routes: Routes = [
 //   { path: '', component: Login1Component, pathMatch: 'full' },
@@ -134,12 +135,7 @@ export const routes: Routes = [
         data: { title: 'Dashboard' },
         canActivate: [AuthGuard],
       },
-      {
-        path: 'summary',
-        component: SummaryComponent,
-        data: { title: 'Summary' },
-        canActivate: [AuthGuard],
-      },
+
       {
         path: 'dealer',
         component: DealerComponent,
@@ -234,6 +230,24 @@ export const routes: Routes = [
         component: SingleDealerComponent,
         resolve: { dealerData: DealerResolver },
         data: { title: 'Single dealer Data' },
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'summary',
+        component: SummaryComponent,
+        data: { title: 'Summary' },
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'summary',
+        component: SummaryComponent,
+        data: { title: 'Summary' },
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'trend-chart',
+        component: TrendChartComponent,
+        data: { title: 'Trend-chart' },
         canActivate: [AuthGuard],
       },
     ],

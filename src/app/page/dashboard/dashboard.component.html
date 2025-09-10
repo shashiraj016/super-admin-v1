@@ -58,8 +58,10 @@
 
               {{ dealer.dealerName }}
             </div> -->
-            <div *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
-              (click)="$event.stopPropagation()">
+            <!-- <div *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
+              (click)="$event.stopPropagation()"> -->
+            <div *ngFor="let dealer of filteredDealers; trackBy: trackByDealerId" class="dropdown-item">
+
 
               <input type="checkbox" class="me-2" [checked]="isDealerSelected(dealer)" style="border:1px solid black"
                 (change)="toggleDealerSelection(dealer); $event.stopPropagation()" />
@@ -126,6 +128,56 @@
         </div>
 
       </section>
+      <!-- Side by Side Charts -->
+      <!-- <div class="charts-container">
+        <div class="chart-card">
+          <div class="chart-title">Enquiries</div>
+          <div class="chart-content">
+            <div class="chart-row">
+              <div class="chart-label">Total</div>
+              <div class="chart-bar-container">
+                <div class="chart-bar" style="width: 60%;">
+                  <div class="chart-target" style="left: 100%;" data-value="30"></div>
+                </div>
+              </div>
+              <div class="chart-value">18</div>
+            </div>
+            <div class="chart-row">
+              <div class="chart-label">Connected</div>
+              <div class="chart-bar-container">
+                <div class="chart-bar" style="width: 80%;">
+                  <div class="chart-target" style="left: 100%;" data-value="15"></div>
+                </div>
+              </div>
+              <div class="chart-value">12</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-title">Cold Calls</div>
+          <div class="chart-content">
+            <div class="chart-row">
+              <div class="chart-label">Total</div>
+              <div class="chart-bar-container">
+                <div class="chart-bar" style="width: 100%;">
+                  <div class="chart-target" style="left: 67%;" data-value="30"></div>
+                </div>
+              </div>
+              <div class="chart-value">45</div>
+            </div>
+            <div class="chart-row">
+              <div class="chart-label">Connected</div>
+              <div class="chart-bar-container">
+                <div class="chart-bar" style="width: 93%;">
+                  <div class="chart-target" style="left: 54%;" data-value="15"></div>
+                </div>
+              </div>
+              <div class="chart-value">28</div>
+            </div>
+          </div>
+        </div>
+      </div> -->
 
       <div class="table-section">
         <div class="table-header">
@@ -157,16 +209,26 @@
                 </tr>
                 <tr>
                   <!-- Users -->
-                  <th class="th-right" style="cursor:pointer;" (click)="sortData('totalUsers')">Total
+                  <!-- <th class="th-right" style="cursor:pointer;" (click)="sortData('totalUsers')">Total
                     <span *ngIf="sortColumn==='totalUsers' && sortDirection!=='default'">{{
                       sortDirection==='asc'?'▲':'▼' }}</span>
+                  </th> -->
+                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('totalUsers')">
+                    Total
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='totalUsers' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='totalUsers' && sortDirection==='desc'">▼</span>
+                    </span>
                   </th>
-                  <th class="th-right group-divider" style="cursor:pointer;" (click)="sortData('activeUsers')">Active
+
+                  <!-- <th class="th-right group-divider" style="cursor:pointer;" (click)="sortData('activeUsers')">
+                    Registered Users
                     <span *ngIf="sortColumn==='activeUsers' && sortDirection!=='default'">{{
                       sortDirection==='asc'?'▲':'▼' }}</span>
                   </th>
 
-                  <!-- Leads -->
                   <th class="th-right" style="cursor:pointer;" (click)="sortData('saLeads')">SA
                     <span *ngIf="sortColumn==='saLeads' && sortDirection!=='default'">{{ sortDirection==='asc'?'▲':'▼'
                       }}</span>
@@ -186,7 +248,6 @@
                       }}</span>
                   </th>
 
-                  <!-- Followups -->
                   <th class="th-right" style="cursor:pointer;" (click)="sortData('saFollowUps')">SA
                     <span *ngIf="sortColumn==='saFollowUps' && sortDirection!=='default'">{{
                       sortDirection==='asc'?'▲':'▼' }}</span>
@@ -211,7 +272,6 @@
                       }}</span>
                   </th>
 
-                  <!-- Test Drives -->
                   <th class="th-right" style="cursor:pointer;" (click)="sortData('saTestDrives')">SA
                     <span *ngIf="sortColumn==='saTestDrives' && sortDirection!=='default'">{{
                       sortDirection==='asc'?'▲':'▼' }}</span>
@@ -241,7 +301,173 @@
                     <span *ngIf="sortColumn==='opportunitiesConverted' && sortDirection!=='default'">{{
                       sortDirection==='asc'?'▲':'▼'
                       }}</span>
+                  </th> -->
+                  <th class="th-right group-divider sortable-header" style="cursor:pointer;"
+                    (click)="sortData('activeUsers')">
+                    Registered Users
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='activeUsers' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='activeUsers' && sortDirection==='desc'">▼</span>
+                    </span>
                   </th>
+
+                  <!-- Leads -->
+                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('saLeads')">
+                    SA
+                    <span class="sort-arrows">
+                      <span class="arrow-up" [class.active]="sortColumn==='saLeads' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='saLeads' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
+                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('cxpLeads')">
+                    Sync with CXP
+                    <span class="sort-arrows">
+                      <span class="arrow-up" [class.active]="sortColumn==='cxpLeads' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='cxpLeads' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
+                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('icsLeads')">
+                    Sync with ICS
+                    <span class="sort-arrows">
+                      <span class="arrow-up" [class.active]="sortColumn==='icsLeads' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='icsLeads' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
+                  <th class="th-right group-divider sortable-header" style="cursor:pointer;"
+                    (click)="sortData('manuallyEnteredLeads')">
+                    Manually Entered with CXP
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='manuallyEnteredLeads' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='manuallyEnteredLeads' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
+                  <!-- Followups -->
+                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('saFollowUps')">
+                    SA
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='saFollowUps' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='saFollowUps' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
+                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('cxpFollowUps')">
+                    Sync with CXP
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='cxpFollowUps' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='cxpFollowUps' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
+                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('completedFollowUps')">
+                    Completed
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='completedFollowUps' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='completedFollowUps' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
+                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('openFollowUps')">
+                    Upcoming
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='openFollowUps' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='openFollowUps' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
+                  <th class="th-right group-divider sortable-header" style="cursor:pointer;"
+                    (click)="sortData('closedFollowUps')">
+                    Overdue
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='closedFollowUps' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='closedFollowUps' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
+                  <!-- Test Drives -->
+                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('saTestDrives')">
+                    SA
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='saTestDrives' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='saTestDrives' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
+                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('cxpTestDrives')">
+                    Sync with CXP
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='cxpTestDrives' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='cxpTestDrives' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
+                  <th class="th-right sortable-header" style="cursor:pointer;"
+                    (click)="sortData('completedTestDrives')">
+                    Completed
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='completedTestDrives' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='completedTestDrives' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
+                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('upcomingTestDrives')">
+                    Upcoming
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='upcomingTestDrives' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='upcomingTestDrives' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
+                  <th class="th-right group-divider sortable-header" style="cursor:pointer;"
+                    (click)="sortData('closedTestDrives')">
+                    Overdue
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='closedTestDrives' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='closedTestDrives' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
+                  <th class="th-right sortable-header" style="cursor:pointer;"
+                    (click)="sortData('opportunitiesConverted')">
+                    Opportunities Converted
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='opportunitiesConverted' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='opportunitiesConverted' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
                 </tr>
               </thead>
 
@@ -349,7 +575,10 @@
                               <!-- <tr *ngFor="let user of getSortedUsers(dealer.dealerId)"> -->
                               <!-- <tr *ngFor="let user of getSortedUsers(dealer.dealerId); let i = index"
                                 [ngClass]="{'bg-alt': i % 2 === 1}" class="table-row-alt"> -->
-                              <tr *ngFor="let user of getSortedUsers(dealer.dealerId); let i = index"
+                              <!-- <tr *ngFor="let user of getSortedUsers(dealer.dealerId); let i = index"
+                                [ngClass]="{ 'row-alt': i % 2 === 0, 'row-normal': i % 2 !== 0 }"> -->
+                              <tr
+                                *ngFor="let user of getSortedUsers(dealer.dealerId); let i = index; trackBy: trackByUserId"
                                 [ngClass]="{ 'row-alt': i % 2 === 0, 'row-normal': i % 2 !== 0 }">
                                 <td style="text-align:left">
                                   {{ user.user }} <span *ngIf="user.user_role">({{ user.user_role }})</span>
@@ -453,8 +682,10 @@
               </thead>
               <tbody>
                 <!-- <ng-container *ngFor="let dealer of dealers | slice:0:table2Length; let i = index"> -->
+                <!-- <ng-container
+                  *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : dealers) | slice:0:table2Length; let i = index"> -->
                 <ng-container
-                  *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : dealers) | slice:0:table2Length; let i = index">
+                  *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : originalDealers) | slice:0:table2Length; let i = index">
 
                   <!-- Main dealer row -->
                   <tr>
@@ -472,17 +703,15 @@
                         </span>
                       </button>
                     </td>
-                    <td>
+                    <!-- <td>
                       <i class="fa fa-phone" style="margin-right: 4px; color: black;"></i>
                       {{ dealer.callLogs?.totalCalls || 0 }}
+                    </td> -->
+                    <td [ngClass]="dealer.callLogs?.totalCalls < 60 ? 'highlight-red' : 'normal'">
+                      <i class="fa fa-phone" style="margin-right: 4px;"></i>
+                      {{ dealer.callLogs?.totalCalls || 0 }}
                     </td>
-                    <!-- <td>{{ dealer.callLogs?.outgoing || 0 }}</td>
-                    <td>{{ dealer.callLogs?.incoming || 0 }}</td>
-                    <td>{{ dealer.callLogs?.connected || 0 }}</td>
-                    <td>{{ dealer.callLogs?.declined || 0 }}</td> -->
-                    <!-- Outgoing Call -->
-                    <!-- Outgoing Call -->
-                    <!-- Outgoing Call -->
+
                     <td>
                       <span style="color: green; margin-right: 4px; font-size: 18px;">&#8593;</span> <!-- ↑ -->
                       <span style="color: green;">{{ dealer.callLogs?.outgoing || 0 }}</span>
@@ -495,7 +724,7 @@
                     </td>
                     <!-- Connected Call -->
                     <!-- Connected Call -->
-                    <td>
+                    <!-- <td>
                       <span style="
                       display: inline-flex;
                       justify-content: center;
@@ -508,9 +737,28 @@
                       font-size: 10px;
                       margin-right: 4px;
                     ">
-                        &#10003; <!-- check mark -->
+                        &#10003; 
                       </span>
                       <span style="color: #007bff;">{{ dealer.callLogs?.connected || 0 }}</span>
+                    </td> -->
+                    <td>
+                      <span [ngStyle]="{
+                          'display': 'inline-flex',
+                          'justify-content': 'center',
+                          'align-items': 'center',
+                          'width': '16px',
+                          'height': '16px',
+                          'border-radius': '50%',
+                          'background-color': dealer.callLogs?.connected < 30 ? 'red' : '#007bff',
+                          'color': 'white',
+                          'font-size': '10px',
+                          'margin-right': '4px'
+                        }">
+                        &#10003;
+                      </span>
+                      <span [ngStyle]="{ 'color': dealer.callLogs?.connected < 30 ? 'red' : '#007bff' }">
+                        {{ dealer.callLogs?.connected || 0 }}
+                      </span>
                     </td>
 
                     <!-- Declined Call -->
@@ -538,43 +786,49 @@
 
                   </tr>
                   <!-- Sub-row: user call logs -->
-                  <tr *ngIf="expandedRow === 'engagement-' + i">
-                    <td colspan="7">
-                      <div class="sub-table-container">
-                        <table class="sub-table calls-sub-table">
-                          <thead class="sub-table-thead">
-                            <tr>
-                              <th style="text-align:left;width:15%">User</th>
-                              <th>Total</th>
-                              <th>Outgoing</th>
-                              <th>Incoming</th>
-                              <th>Connected</th>
-                              <th>Declined</th>
-                              <th>Duration</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <!-- <tr *ngFor="let userCall of userCallLogs[dealer.dealerId]"> -->
-                            <tr *ngFor="let userCall of userCallLogs[dealer.dealerId]">
-
-                              <td style="text-align:left">{{ userCall.name }}</td>
-                              <td>{{ userCall.calls.total }}</td>
-                              <td>{{ userCall.calls.outgoing }}</td>
-                              <td>{{ userCall.calls.incoming }}</td>
-                              <td>{{ userCall.calls.connected }}</td>
-                              <td>{{ userCall.calls.declined }}</td>
-                              <td>{{ userCall.calls.duration }}</td>
-                            </tr>
-                            <tr *ngIf="!userCallLogs[dealer.dealerId] || userCallLogs[dealer.dealerId]?.length === 0">
-                              <td colspan="7" style="text-align: center; font-style: italic;">
-                                No call logs found
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
+                  <!-- Sub-row: User call logs -->
+                  <tr *ngIf="expandedRow === 'engagement-' + i" class="sub-row">
+                    <td colspan="6" class="sub-row-content" style="padding: 0;">
+                      <div class="sub-row-inner" style="padding-left: 0;">
+                        <div class="sub-row-title"
+                          style="text-align: left !important; font-weight: 600; padding: 4px 8px;">
+                          User-wise Call Logs — {{ dealer.dealerName }}
+                        </div>
+                        <div class="sub-table-container">
+                          <table class="sub-table">
+                            <thead>
+                              <tr>
+                                <th style="text-align: left !important;">User</th>
+                                <th>Total</th>
+                                <th>Outgoing</th>
+                                <th>Incoming</th>
+                                <th>Connected</th>
+                                <th>Declined</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let user of userCallLogs[dealer.dealerId]; let j = index"
+                                [ngClass]="{ 'row-alt': j % 2 === 0, 'row-normal': j % 2 !== 0 }">
+                                <td style="text-align: left !important;width:90px !important">{{ user.name }}</td>
+                                <td [ngStyle]="{ color: user.calls.total < 60 ? 'red' : 'black' }">{{ user.calls.total
+                                  }}</td>
+                                <td>{{ user.calls.outgoing }}</td>
+                                <td>{{ user.calls.incoming }}</td>
+                                <td [ngStyle]="{ color: user.calls.connected < 30 ? 'red' : '#007bff' }">{{
+                                  user.calls.connected }}</td>
+                                <td style="color:red;">{{ user.calls.declined }}</td>
+                              </tr>
+                              <tr *ngIf="!userCallLogs[dealer.dealerId] || userCallLogs[dealer.dealerId]?.length === 0">
+                                <td colspan="6" class="td-center">No Users Found</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     </td>
                   </tr>
+
+
                 </ng-container>
               </tbody>
             </table>

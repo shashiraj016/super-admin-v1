@@ -48,6 +48,7 @@ import {
   ApexTitleSubtitle,
   ChartComponent,
 } from 'ng-apexcharts';
+import { ToastrService } from 'ngx-toastr';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -135,6 +136,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   mtdTestDrives = signal<number>(0);
   qtdTestDrives = signal<number>(0);
   hoveredSM: string | null = null;
+  callLogDealers: Dealer[] = []; // for call logs, fixed order
+
   loading = false; // Declare this in your component
   selectedDealer: any = null;
   ps1Data: any[] = [];
@@ -321,7 +324,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private sharedService: SharedService,
     private ngZone: NgZone,
     private cd: ChangeDetectorRef,
-    private eRef: ElementRef
+    private eRef: ElementRef,
+    private toastr: ToastrService
   ) {}
   data: any; // To hold your data
   apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
@@ -430,12 +434,42 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     return backgrounds[index % backgrounds.length];
   }
+  // getSortedUsers(dealerId: string) {
+  //   const users = this.dealerUsers[dealerId] ?? [];
+  //   return [...users].sort((a, b) => {
+  //     if (a.active && !b.active) return -1;
+  //     if (!a.active && b.active) return 1;
+
+  //     return a.user.toLowerCase().localeCompare(b.user.toLowerCase());
+  //   });
+  // }
   getSortedUsers(dealerId: string) {
     const users = this.dealerUsers[dealerId] ?? [];
+
     return [...users].sort((a, b) => {
+      // Calculate total leads for each user
+      const totalLeadsA =
+        (a.leads?.sa ?? 0) +
+        (a.leads?.cxp ?? 0) +
+        (a.leads?.ics ?? 0) +
+        (a.leads?.manuallyEntered ?? 0);
+
+      const totalLeadsB =
+        (b.leads?.sa ?? 0) +
+        (b.leads?.cxp ?? 0) +
+        (b.leads?.ics ?? 0) +
+        (b.leads?.manuallyEntered ?? 0);
+
+      // 🔹 Sort by total leads descending
+      if (totalLeadsB !== totalLeadsA) {
+        return totalLeadsB - totalLeadsA;
+      }
+
+      // 🔹 Then by active status (active first)
       if (a.active && !b.active) return -1;
       if (!a.active && b.active) return 1;
 
+      // 🔹 Then by name alphabetically
       return a.user.toLowerCase().localeCompare(b.user.toLowerCase());
     });
   }
@@ -1879,6 +1913,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     },
   //   });
   // }
+  // 202-10-09
   fetchSuperAdminDashboard(type: string): void {
     this.isLoading = true;
 
@@ -1964,6 +1999,60 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           // Force complete replacement of arrays
           this.dealers = [...newDealerData];
           this.filteredDealers = [...newDealerData];
+
+          // Keep a fresh copy for sort reset
+          this.originalDealers = [...newDealerData];
+
+          this.dealers.sort((a: any, b: any) => {
+            const leadsA =
+              (a.saLeads || 0) +
+              (a.cxpLeads || 0) +
+              (a.icsLeads || 0) +
+              (a.manuallyEnteredLeads || 0);
+
+            const leadsB =
+              (b.saLeads || 0) +
+              (b.cxpLeads || 0) +
+              (b.icsLeads || 0) +
+              (b.manuallyEnteredLeads || 0);
+
+            return leadsB - leadsA; // Descending order
+          });
+          // 🔹 Sort users inside each dealer by leads
+          this.dealerUsers = {};
+          this.dealers.forEach((dealer) => {
+            const users = dealer.users ?? [];
+            this.dealerUsers[dealer.dealerId] = [...users].sort((a, b) => {
+              const leadsA =
+                (a.leads?.sa || 0) +
+                (a.leads?.cxp || 0) +
+                (a.leads?.ics || 0) +
+                (a.leads?.manuallyEntered || 0);
+
+              const leadsB =
+                (b.leads?.sa || 0) +
+                (b.leads?.cxp || 0) +
+                (b.leads?.ics || 0) +
+                (b.leads?.manuallyEntered || 0);
+
+              return leadsB - leadsA;
+            });
+          });
+
+          // Update filteredDealers after sorting
+          this.filteredDealers = [...this.dealers];
+          if (this.selectedDealers?.length > 0) {
+            this.selectedDealers = this.selectedDealers.map(
+              (selectedDealer) => {
+                const freshDealer = this.dealers.find(
+                  (d) => d.dealerId === selectedDealer.dealerId
+                );
+                return freshDealer || selectedDealer; // Use fresh data if found, otherwise keep old
+              }
+            );
+            console.log('🔄 Selected dealers synced with fresh data');
+          }
+
           if (this.selectedDealers?.length > 0) {
             this.selectedDealers = this.selectedDealers.map(
               (selectedDealer) => {
@@ -2124,9 +2213,26 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             chartTitle = `Calls Analysis - ${this.selectedDealers.length} Selected Dealers`;
           }
           // Generate a unique color for each dealer in the series
+          const palette = [
+            '#008FFB',
+            '#00E396',
+            '#FEB019',
+            '#FF4560',
+            '#775DD0',
+            '#546E7A',
+            '#26A69A',
+            '#D4526E',
+          ];
+
+          const seriesWithColors = series.map((s, i) => ({
+            ...s,
+            color: palette[i % palette.length],
+          }));
 
           this.chartOptions = {
-            series: series,
+            // series: series,
+            series: seriesWithColors, // <-- use the colored series here
+
             chart: {
               type: 'line',
               height: 350,
@@ -2147,7 +2253,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
               },
             },
             dataLabels: { enabled: false },
-            stroke: { curve: 'smooth', width: 3 },
+            stroke: { curve: 'smooth', width: 2 },
             title: { text: chartTitle, align: 'left' },
             xaxis: { categories: categories, labels: { rotate: -45 } },
             // legend: {
@@ -2170,16 +2276,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
                 height: 12,
               },
             },
-            colors: [
-              '#008FFB',
-              '#00E396',
-              '#FEB019',
-              '#FF4560',
-              '#775DD0',
-              '#546E7A',
-              '#26A69A',
-              '#D4526E',
-            ],
+            // colors: [
+            //   '#008FFB',
+            //   '#00E396',
+            //   '#FEB019',
+            //   '#FF4560',
+            //   '#775DD0',
+            //   '#546E7A',
+            //   '#26A69A',
+            //   '#D4526E',
+            // ],
             responsive: [
               {
                 breakpoint: 768,
@@ -2295,40 +2401,28 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   //   this.selectedFilter = 'CUSTOM';
 
-  //   // Assign local variables to avoid stale ngModel values
   //   const start = this.customStartDate;
   //   const end = this.customEndDate;
 
-  //   // Call API
+  //   // ✅ Show loader
+  //   this.isLoading = true;
+
+  //   // Call API for custom date
   //   this.fetchDealersWithCustomDate(start, end);
 
-  //   // Optional: add a CSS class for applied effect
+  //   // Optional: add CSS class for applied effect
   //   const inputs = document.querySelector('.custom-inputs');
   //   if (inputs) {
   //     inputs.classList.add('applied');
   //   }
   // }
-
-  // resetCustomDate() {
-  //   // Clear custom dates
-  //   this.customStartDate = '';
-  //   this.customEndDate = '';
-
-  //   // Reset dropdown to default filter (e.g., Today)
-  //   this.selectedFilter = 'DAY';
-
-  //   // Fetch default data
-  //   this.onFilterChange(this.selectedFilter);
-
-  //   // Remove applied visual effect
-  //   const inputs = document.querySelector('.custom-inputs');
-  //   if (inputs) {
-  //     inputs.classList.remove('applied');
-  //   }
-  // }
   applyCustomDate() {
     if (!this.customStartDate || !this.customEndDate) {
-      alert('Please select both start and end dates');
+      this.toastr.warning('Please select both start and end dates', 'Warning', {
+        timeOut: 3000, // Auto close after 3s
+        progressBar: true,
+        positionClass: 'toast-top-right', // top-right, bottom-right, bottom-left, top-left
+      });
       return;
     }
 
@@ -2349,7 +2443,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       inputs.classList.add('applied');
     }
   }
-
   resetCustomDate() {
     this.customStartDate = '';
     this.customEndDate = '';
@@ -3755,7 +3848,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     }
     return 0;
   }
-
+  trackByDealerId(index: number, dealer: any) {
+    return dealer.dealer_id;
+  }
   getChangePercentage(): number {
     return this.data?.leads?.change || 0; // Default to 0 if not available
   }
@@ -3767,30 +3862,98 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     return this.dashboardData?.leads?.change || 0;
   }
 
+  // sortData(column: string) {
+  //   if (this.sortColumn !== column) {
+  //     // first click → descending
+  //     this.sortColumn = column;
+  //     this.sortDirection = 'desc';
+  //   } else if (this.sortDirection === 'desc') {
+  //     // second click → ascending
+  //     this.sortDirection = 'asc';
+  //   } else if (this.sortDirection === 'asc') {
+  //     // third click → back to default
+  //     this.sortDirection = 'default';
+  //   }
+
+  //   if (this.sortDirection === 'default') {
+  //     // reset to API order with deep copy to prevent affecting other tables
+  //     this.dealers = this.originalDealers.map((dealer) => ({
+  //       ...dealer,
+  //       callLogs: { ...dealer.callLogs },
+  //       users: dealer.users ? [...dealer.users] : [],
+  //     }));
+  //     this.sortColumn = null; // hide arrow
+  //   } else {
+  //     // sort descending or ascending with deep copy
+  //     this.dealers = this.dealers
+  //       .map((dealer) => ({
+  //         ...dealer,
+  //         callLogs: { ...dealer.callLogs },
+  //         users: dealer.users ? [...dealer.users] : [],
+  //       }))
+  //       .sort((a, b) => {
+  //         const valA = a[column] ?? 0;
+  //         const valB = b[column] ?? 0;
+  //         return this.sortDirection === 'asc' ? valA - valB : valB - valA;
+  //       });
+  //   }
+  // }
   sortData(column: string) {
+    const arrayToSort =
+      this.selectedDealers.length > 0 ? this.selectedDealers : this.dealers;
+
+    // Toggle sorting
     if (this.sortColumn !== column) {
-      // first click → descending
       this.sortColumn = column;
       this.sortDirection = 'desc';
     } else if (this.sortDirection === 'desc') {
-      // second click → ascending
       this.sortDirection = 'asc';
     } else if (this.sortDirection === 'asc') {
-      // third click → back to default
       this.sortDirection = 'default';
     }
 
     if (this.sortDirection === 'default') {
-      // reset to original order
-      this.dealers = [...this.originalDealers];
-      this.sortColumn = null; // hide arrow
+      // Reset to original order
+      if (this.selectedDealers.length > 0) {
+        // Keep only selected dealers but reset order
+        this.selectedDealers = this.originalDealers
+          .filter((d) =>
+            this.selectedDealers.some((s) => s.dealerId === d.dealerId)
+          )
+          .map((d) => ({
+            ...d,
+            callLogs: { ...d.callLogs },
+            users: d.users ? [...d.users] : [],
+          }));
+      } else {
+        // Reset all dealers
+        this.dealers = this.originalDealers.map((d) => ({
+          ...d,
+          callLogs: { ...d.callLogs },
+          users: d.users ? [...d.users] : [],
+        }));
+      }
+      this.sortColumn = null; // hide arrows
     } else {
-      // sort descending or ascending
-      this.dealers.sort((a, b) => {
-        const valA = a[column] ?? 0;
-        const valB = b[column] ?? 0;
-        return this.sortDirection === 'asc' ? valA - valB : valB - valA;
-      });
+      // Sort ascending/descending
+      const sortedArray = arrayToSort
+        .map((d) => ({
+          ...d,
+          callLogs: { ...d.callLogs },
+          users: d.users ? [...d.users] : [],
+        }))
+        .sort((a, b) => {
+          const valA = a[column] ?? 0;
+          const valB = b[column] ?? 0;
+          return this.sortDirection === 'asc' ? valA - valB : valB - valA;
+        });
+
+      // Assign back to correct array
+      if (this.selectedDealers.length > 0) {
+        this.selectedDealers = sortedArray;
+      } else {
+        this.dealers = sortedArray;
+      }
     }
   }
 
@@ -4183,6 +4346,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     URL.revokeObjectURL(url);
   //   });
   // }
+  trackByUserId(index: number, user: any) {
+    return user.user_id ?? user.user; // Use unique ID if available, fallback to username
+  }
   exportDealerCalllogstocxp() {
     if (!this.dealers || this.dealers.length === 0) {
       console.warn('No dealers to export');

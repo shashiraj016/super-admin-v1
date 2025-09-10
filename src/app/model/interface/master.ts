@@ -147,7 +147,7 @@ export interface SingleLeadResponse {
   };
 }
 
-// NEW CODE ANAND 
+// NEW CODE ANAND
 // export interface CallLogs {
 //   outgoing: number;
 //   incoming: number;
@@ -251,12 +251,125 @@ export interface Dealer {
   cxpFollowUps: number;
   totalTestDrives: number;
   uniqueTestDrives: number;
-  completedTestDrives:number;
+  completedTestDrives: number;
   closedTestDrives: number;
   cxpTestDrives: number;
   callLogs: CallLogs;
 
   users?: User[]; // optional, only if API returns it
+}
+// export interface Model {
+//   model: string;
+//   model_name: string;
+//   selected: boolean;
+// }
+
+// export interface DealerDropdown {
+//   dealer_id: string;
+//   dealer_name: string;
+//   efforts?: Record<string, Kpi>; // optional individual dealer efforts
+//   productivity?: Record<string, ProductivityKpi>;
+//   otherKpis: Record<string, OtherKpi>; // ✅ fix type
+
+//   aggregatedMetrics?: AggregatedMetrics; // <-- add this
+//   users: PSUser[];
+// }
+
+// export interface AggregatedMetrics {
+//   efforts: Record<string, Kpi>;
+//   productivity: Record<string, ProductivityKpi>; // ✅ fix
+//   otherKpis: Record<string, OtherKpi>; // ✅ fix
+
+//   Efforts?: number;
+//   Productivity?: number;
+//   'Other KPIs'?: number;
+// }
+
+// // export interface PSUser {
+// //   user_id: string;
+// //   name: string;
+// //   dealer_id: string;
+// // }
+// export interface PSUser {
+//   user_id: string;
+//   name: string;
+//   dealer_id: string;
+//   selected: boolean;
+//   efforts: Record<string, Kpi>;
+//   productivity?: Record<string, Kpi>; // optional if not present
+//   otherKpis?: Record<string, Kpi>; // optional if not present
+// }
+// export interface Kpi {
+//   name: string;
+//   value: number;
+//   target: number;
+//   progress: number;
+//   achieved: boolean;
+//   growth: number;
+// }
+
+// export interface ProductivityKpi {
+//   name: string; // e.g. "New Orders"
+//   value: number; // current value
+//   target: number; // target value
+//   progress: number; // percentage progress
+//   achieved: boolean; // whether target is achieved
+//   growth: number; // growth % or indicator
+// }
+// export interface OtherKpi {
+//   name: string; // e.g. "TD/Car Day", "KMs/TDs"
+//   value: number; // current value
+//   target: number; // target value
+//   progress: number; // percentage progress
+//   achieved: boolean; // whether target is achieved
+//   growth: number; // growth % or indicator (positive or negative)
+// }
+export interface Model {
+  model: string;
+  model_name: string;
+  selected: boolean;
+}
+
+export interface DealerDropdown {
+  dealer_id: string;
+  dealer_name: string;
+  efforts?: Record<string, Kpi>;
+  productivity?: Record<string, ProductivityKpi>;
+  otherKpis?: Record<string, OtherKpi>;
+  aggregatedMetrics?: AggregatedMetrics;
+  users: PSUser[];
+}
+
+export interface AggregatedMetrics {
+  efforts: Record<string, Kpi>;
+  productivity: Record<string, ProductivityKpi>;
+  otherKpis: Record<string, OtherKpi>;
+  categoryPercentages: {
+    Efforts: number;
+    Productivity: number;
+    'Other KPIs': number;
+  };
+}
+
+export interface Kpi {
+  name: string;
+  value: number;
+  target: number;
+  achieved: number; // API sends number
+  growth: number;
+}
+
+// ✅ Add these right after Kpi
+export type ProductivityKpi = Kpi;
+export type OtherKpi = Kpi;
+export interface PSUser {
+  user_id: string;
+  name: string;
+  dealer_id: string;
+  selected: boolean;
+  efforts: Record<string, Kpi>;
+  productivity?: Record<string, ProductivityKpi>;
+  otherKpis?: Record<string, OtherKpi>;
 }
 
 // export interface SingleUserResponse {

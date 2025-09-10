@@ -245,6 +245,7 @@ main,
 nav,
 section {
   display: block;
+  white-space:nowrap;
 }
 
 body {
@@ -60819,7 +60820,11 @@ button:focus {
   border-color: #f3f3f3;
   position: relative;
   background: transparent;
-  padding: 1.5rem 1.875rem 1.25rem;
+  /* padding: 1.5rem 1.875rem 1.25rem; */
+    padding-top: 1.5rem; /* only top padding */
+    padding-left:19px;
+    padding-right:9px;
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -62155,6 +62160,14 @@ code {
   border-radius: 10px;
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   background-color: #7e7e7e;
+}
+.growth-box.positive-box {
+  background-color: #28a745 !important;
+}
+
+/* ✅ Light red for negative */
+.growth-box.negative-box {
+  background-color: #dc3545 !important;
 }
 
 .multi-steps>li.is-active:before,
@@ -73495,4 +73508,38 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
     margin-left: 0;
     margin-right: 7rem;
   }
+}
+
+
+
+/* Positive → blue gradient */
+.bar-positive {
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+}
+
+/* Negative → red gradient */
+.bar-negative {
+  background: linear-gradient(90deg, var(--danger), #fda4af);
+}
+:root {
+  --brand: #2563eb; /* blue primary */
+  --brand-2: #60a5fa; /* blue secondary */
+  --danger: #ef4444; /* red */
+}
+
+:root {
+  --chip: #f1f5ff;
+}
+
+.chip {
+  background: var(--chip);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #333;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid #ccc;
 }
