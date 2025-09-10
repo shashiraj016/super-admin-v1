@@ -390,21 +390,54 @@ export class TrendChartComponent {
     };
   }
 
-  transformDataForChart(data: any[]) {
-    // Build master list of dates (unique + sorted)
-    const allDates = Array.from(new Set(data.map((item) => item.date))).sort();
+  // transformDataForChart(data: any[]) {
+  //   // Build master list of dates (unique + sorted)
+  //   const allDates = Array.from(new Set(data.map((item) => item.date))).sort();
 
-    // Group by dealer
-    const dealerGroups = this.groupDataByDealer(data);
+  //   // Group by dealer
+  //   const dealerGroups = this.groupDataByDealer(data);
+
+  //   const series = Object.keys(dealerGroups).map((dealerName) => {
+  //     const dealerData = dealerGroups[dealerName];
+  //     const dealerMap = new Map(
+  //       dealerData.map((d: any) => [d.date, Number(d.count) || 0])
+  //     );
+
+  //     // Align counts with master date list
+  //     const alignedData = allDates.map((date) => dealerMap.get(date) || 0);
+
+  //     return {
+  //       name: dealerName,
+  //       data: alignedData,
+  //     };
+  //   });
+
+  //   const categories = allDates.map((date) => this.formatDate(date));
+  //   return { series, categories };
+  // }
+  transformDataForChart(data: any[]) {
+    if (!data || data.length === 0) return { series: [], categories: [] };
+
+    // Use label instead of date
+    const allLabels = Array.from(
+      new Set(data.map((item) => item.label))
+    ).sort();
+
+    // Group data by dealer
+    const dealerGroups: { [key: string]: any[] } = {};
+    data.forEach((item) => {
+      const key = item.dealer_name; // series grouped by dealer
+      if (!dealerGroups[key]) dealerGroups[key] = [];
+      dealerGroups[key].push(item);
+    });
 
     const series = Object.keys(dealerGroups).map((dealerName) => {
       const dealerData = dealerGroups[dealerName];
       const dealerMap = new Map(
-        dealerData.map((d: any) => [d.date, Number(d.count) || 0])
+        dealerData.map((d: any) => [d.label, Number(d.count) || 0])
       );
 
-      // Align counts with master date list
-      const alignedData = allDates.map((date) => dealerMap.get(date) || 0);
+      const alignedData = allLabels.map((label) => dealerMap.get(label) || 0);
 
       return {
         name: dealerName,
@@ -412,7 +445,8 @@ export class TrendChartComponent {
       };
     });
 
-    const categories = allDates.map((date) => this.formatDate(date));
+    const categories = allLabels; // x-axis labels
+
     return { series, categories };
   }
 
