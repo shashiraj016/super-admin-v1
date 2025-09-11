@@ -228,9 +228,9 @@
                                     style="border:1px solid #ccc; background: #f1f5ff; margin-left:auto; display: flex; align-items: center; gap: 4px;">
                                     <span class="dot"></span>
                                     <span class="count"
-                                        [ngStyle]="{ 'color': getKpiColor(categoryPercentages.Efforts || 0) }"
+                                        [ngStyle]="{ 'color': getKpiColor(categoryPercentages.Productivity || 0) }"
                                         style="font-weight: bold;">
-                                        {{ categoryPercentages.Efforts || 0 }}%
+                                        {{ categoryPercentages.Productivity || 0 }}%
                                     </span>
                                     overall
 
@@ -358,12 +358,11 @@
                                     style="border:1px solid #ccc; background: #f1f5ff; margin-left:auto; display: flex; align-items: center; gap: 4px;">
                                     <span class="dot"></span>
                                     <span class="count"
-                                        [ngStyle]="{ 'color': getKpiColor(categoryPercentages.Efforts || 0) }"
+                                        [ngStyle]="{ 'color': getKpiColor(categoryPercentages['Other KPIs'] || 0) }"
                                         style="font-weight: bold;">
-                                        {{ categoryPercentages.Efforts || 0 }}%
+                                        {{ categoryPercentages['Other KPIs'] || 0 }}%
                                     </span>
                                     target
-
                                 </span>
                             </div>
 

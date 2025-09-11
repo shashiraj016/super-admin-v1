@@ -775,11 +775,19 @@ export class SummaryComponent implements OnInit {
       this.dropdownPSOpen = false;
     }
   }
+  // getProgressColor(value: number): string {
+  //   if (value <= 50) return 'red';
+  //   if (value <= 80) return 'amber'; // amber
+  //   return 'green';
+  // }
   getProgressColor(value: number): string {
-    if (value <= 50) return 'red';
-    if (value <= 80) return 'amber'; // amber
-    return 'green';
+    if (value <= 50) return '#fecaca'; // light red (like bg-red-200)
+    if (value <= 80) return '#fde68a'; // light amber (like bg-amber-200)
+    return '#bbf7d0'; // light green (like bg-green-200)
   }
+  // For values 0 → 50%, it returns #fecaca
+  // For values 51 → 80%, it returns #fde68a
+  // For values 81% and above, it returns #bbf7d0
 
   getKpiColor(value: number): string {
     if (value <= 50) return 'red';

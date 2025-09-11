@@ -328,7 +328,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private toastr: ToastrService
   ) {}
   data: any; // To hold your data
-  apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
+  apiUrl: string =
+    'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
   ngOnInit() {
     const savedData = localStorage.getItem('kpiData');
     if (savedData) {
@@ -3598,7 +3599,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.loadingPS = true; // start loading
 
     const type = this.selectedFilter;
-    const baseUrl = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
+    const baseUrl =
+      'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
     const dealerId = this.selectedDealerId;
     const smId = this.selectedSM.sm_id;
     const url = `${baseUrl}?type=${type}&dealer_id=${dealerId}&sm_id=${smId}`;
@@ -3822,7 +3824,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   fetchData(): void {
     this.http
-      .get<any>('https://uat.smartassistapp.in/api/superAdmin/dashbaordNew')
+      .get<any>(
+        'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew'
+      )
       .subscribe(
         (response) => {
           console.log('API Response:', response); // Log the response to check its structure

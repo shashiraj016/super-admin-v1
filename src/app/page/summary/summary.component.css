@@ -925,19 +925,20 @@ body {
 }
 
 /* Positive → blue gradient */
-.bar-positive {
-  background: linear-gradient(90deg, var(--brand), var(--brand-2));
-  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.2) 0 10px, #000 40px);
+/* Positive → green gradient */
+.positive-box {
+  /* background: linear-gradient(90deg, var(--brand), var(--brand-2)); */
+  /* mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.2) 0 10px, #000 40px); */
 }
 
 /* Negative → red gradient */
-.bar-negative {
+.negative-box {
   background: linear-gradient(90deg, var(--danger), #fda4af);
-  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.2) 0 10px, #000 40px);
+  /* mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.2) 0 10px, #000 40px); */
 }
 :root {
-  --brand: #2563eb; /* blue primary */
-  --brand-2: #60a5fa; /* blue secondary */
+  --brand: #10b981; /* green primary */
+  --brand-2: #059669; /* green secondary */
   --danger: #ef4444; /* red */
 }
 
