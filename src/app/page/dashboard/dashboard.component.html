@@ -678,6 +678,7 @@
                   <th class="th-right">Incoming</th>
                   <th class="th-right">Connected</th>
                   <th class="th-right">Declined</th>
+                  <th class="th-right">Duration</th>
                 </tr>
               </thead>
               <tbody>
@@ -781,8 +782,8 @@
                     </td>
 
                     <!-- <td>{{ dealer.callLogs?.durationSec || '00:00:00' }}</td> -->
-                    <!-- <td>{{ dealer.callLogs?.durationSec ? formatDuration(dealer.callLogs.durationSec) : '00:00:00' }}
-                    </td> -->
+                    <td>{{ dealer.callLogs?.durationSec ? formatDuration(dealer.callLogs.durationSec) : '00:00:00' }}
+                    </td>
 
                   </tr>
                   <!-- Sub-row: user call logs -->

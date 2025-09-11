@@ -435,3 +435,36 @@ input[type="password"] {
 input[type="password"] {
   -webkit-text-security: disc; /* forces dots on iOS */
 }
+
+.input-div {
+  position: relative;
+  margin-top: 20px;
+}
+
+.input-div input {
+  width: 100%;
+  padding: 10px 5px;
+  font-size: 16px;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  background: transparent;
+}
+
+.input-div label.floating-label {
+  position: absolute;
+  left: 5px;
+  top: 10px;
+  font-family: "poppins", sans-serif;
+  /* color: #555; */
+  font-size: 1.2rem;
+  pointer-events: none;
+  transition: 0.3s ease all;
+}
+
+.input-div input:focus ~ label.floating-label,
+.input-div input:not(:placeholder-shown) ~ label.floating-label {
+  top: -15px;
+  font-size: 1.2rem;
+  font-family: "poppins", sans-serif;
+  /* color: #555; */
+}

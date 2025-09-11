@@ -328,8 +328,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private toastr: ToastrService
   ) {}
   data: any; // To hold your data
-  apiUrl: string =
-    'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew';
+  apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
   ngOnInit() {
     const savedData = localStorage.getItem('kpiData');
     if (savedData) {
@@ -810,7 +809,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -841,7 +840,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (!token) return;
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -914,7 +913,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // loadKpiData(type: string = 'DAY') {
   //   this.http
   //     .get<any>(
-  //       `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`
+  //       `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`
   //     )
   //     .subscribe({
   //       next: (res) => {
@@ -938,7 +937,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http
       .get<any>(
-        `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`,
+        `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`,
         { headers }
       )
       .subscribe({
@@ -1133,7 +1132,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // THIS CODE IS WIHTOUT SELECT DEALERS FUCNTIONALITY
   // fetchSuperAdminDashboard(type: string = 'This month'): void {
   //   this.isLoading = true;
-  //   const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
+  //   const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
   //   const token = localStorage.getItem('token');
 
   //   if (!token) {
@@ -1460,15 +1459,15 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   this.isLoading = true;
 
   //   // 👉 If dealers are selected, add them to API
-  //   let url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
+  //   let url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
 
   //   if (this.selectedDealers?.length === 1) {
   //     // single dealer selection
-  //     url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
+  //     url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
   //   } else if (this.selectedDealers?.length > 1) {
   //     // multi dealer (comma-separated) → only if backend supports
   //     const dealerIds = this.selectedDealers.map((d) => d.dealerId).join(',');
-  //     url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
+  //     url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
   //   }
 
   //   const token = localStorage.getItem('token');
@@ -1593,12 +1592,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   // ✅ URL setup
   //   let url = '';
   //   if (!this.selectedDealers?.length) {
-  //     url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
+  //     url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
   //   } else if (this.selectedDealers.length === 1) {
-  //     url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
+  //     url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
   //   } else {
   //     const dealerIds = this.selectedDealers.map((d) => d.dealerId).join(',');
-  //     url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
+  //     url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
   //   }
 
   //   const token = localStorage.getItem('token');
@@ -1719,12 +1718,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   // ✅ URL setup
   //   let url = '';
   //   if (!this.selectedDealers?.length) {
-  //     url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
+  //     url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
   //   } else if (this.selectedDealers.length === 1) {
-  //     url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
+  //     url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
   //   } else {
   //     const dealerIds = this.selectedDealers.map((d) => d.dealerId).join(',');
-  //     url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
+  //     url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
   //   }
 
   //   console.log('🌐 API URL:', url);
@@ -1937,22 +1936,22 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     if (!this.selectedDealers?.length) {
       if (isCustomMode) {
-        url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
+        url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
       } else {
-        url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
+        url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
       }
     } else if (this.selectedDealers.length === 1) {
       if (isCustomMode) {
-        url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
+        url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
       } else {
-        url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
+        url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
       }
     } else {
       const dealerIds = this.selectedDealers.map((d) => d.dealerId).join(',');
       if (isCustomMode) {
-        url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
+        url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
       } else {
-        url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
+        url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
       }
     }
 
@@ -2370,7 +2369,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
 
     this.http.get<any>(url, { headers }).subscribe(
       (res) => {
@@ -3485,7 +3484,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   if (!this.dealerSMS[dealerId]) {
   //     this.loadingSM = true; // Set loading state to true
 
-  //     const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${this.selectedFilter}&dealer_id=${dealerId}`;
+  //     const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${this.selectedFilter}&dealer_id=${dealerId}`;
   //     const token = localStorage.getItem('token');
 
   //     const headers = new HttpHeaders({
@@ -3518,7 +3517,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.customEndDate
     ) {
       // For custom date mode, build URL with start_date and end_date parameters
-      const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
+      const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
 
       this.http
         .get(url, { headers: { Authorization: `Bearer ${token}` } })
@@ -3527,7 +3526,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         });
     } else {
       // Fallback: legacy API with type
-      const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
+      const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
       this.http
         .get(url, { headers: { Authorization: `Bearer ${token}` } })
         .subscribe((res) => {
@@ -3599,8 +3598,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.loadingPS = true; // start loading
 
     const type = this.selectedFilter;
-    const baseUrl =
-      'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew';
+    const baseUrl = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
     const dealerId = this.selectedDealerId;
     const smId = this.selectedSM.sm_id;
     const url = `${baseUrl}?type=${type}&dealer_id=${dealerId}&sm_id=${smId}`;
@@ -3720,7 +3718,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -3824,9 +3822,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   fetchData(): void {
     this.http
-      .get<any>(
-        'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew'
-      )
+      .get<any>('https://uat.smartassistapp.in/api/superAdmin/dashbaordNew')
       .subscribe(
         (response) => {
           console.log('API Response:', response); // Log the response to check its structure
@@ -3963,7 +3959,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   fetchDashboardDataForTopCards(filter: string) {
     const token = localStorage.getItem('token') || '';
-    let url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM`;
+    let url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM`;
 
     if (filter === 'CUSTOM' && this.customStartDate && this.customEndDate) {
       url += `?startDate=${this.customStartDate}&endDate=${this.customEndDate}`;
@@ -4367,6 +4363,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       'Incoming',
       'Connected',
       'Declined',
+      'Duration',
     ];
 
     const rows = this.dealers.map((dealer) => [
@@ -4377,9 +4374,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       dealer.callLogs?.connected || 0,
       dealer.callLogs?.declined || 0,
       // dealer.callLogs?.durationSec || '00:00:00',
-      // dealer.callLogs?.durationSec
-      //   ? this.formatDuration(dealer.callLogs.durationSec) // ✅ use formatted value
-      //   : '00:00:00',
+      dealer.callLogs?.durationSec
+        ? this.formatDuration(dealer.callLogs.durationSec) // ✅ use formatted value
+        : '00:00:00',
     ]);
 
     const csvContent = [

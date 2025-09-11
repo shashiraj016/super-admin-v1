@@ -61,6 +61,9 @@ export class OverviewComponent implements OnInit {
   selectedDealer: string = 'all'; // default value
   selectedPS: string = 'all'; // default value
   models: any[] = [];
+  isUserDropdownOpen = false;
+  mobileMenuOpen = false;
+
   selectedFilter: string = 'DAY';
   newInquiryKpi: Kpi | null = null; // <-- declare it here
   aggregatedMetrics: any = null;
@@ -69,10 +72,16 @@ export class OverviewComponent implements OnInit {
   activePS: any = {};
   otherKpis: any = {};
   overallEfforts = 0;
+  showLogoutConfirm = false;
+
   overallProductivity = 0;
   selectedModel: string = 'all';
+  showUserDropdown = false;
+
   dealers: DealerDropdown[] = [];
   users: PSUser[] = []; // ✅ use PSUser[]
+  menuOpen = false;
+
   constructor(
     private sidebarService: SidebarService,
     private router: Router,
@@ -310,5 +319,33 @@ export class OverviewComponent implements OnInit {
         },
         error: (err) => console.error('Error loading dashboard', err),
       });
+  }
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
+  }
+
+  toggleUserDropdown(event: Event) {
+    event.stopPropagation();
+    console.log('Dropdown toggled');
+    this.showUserDropdown = !this.showUserDropdown;
+  }
+
+  confirmLogout(event: Event) {
+    event.stopPropagation();
+    console.log('Logout clicked'); // should appear first
+    const confirmed = window.confirm('Are you sure you want to logout?');
+    if (confirmed) {
+      console.log('Logging out...');
+      this.logout();
+    }
+  }
+
+  logout() {
+    // Optional: Show confirm before logging out
+    // if (!window.confirm('Are you sure you want to logout?')) return;
+
+    localStorage.removeItem('token'); // remove auth token
+    console.log('Logged out');
+    this.router.navigate(['/login']); // redirect to login page
   }
 }

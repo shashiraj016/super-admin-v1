@@ -357,6 +357,9 @@ export interface Kpi {
   target: number;
   achieved: number; // API sends number
   growth: number;
+  showDetails?: boolean;
+  showValue?: boolean;
+  showTarget?: boolean;
 }
 
 // ✅ Add these right after Kpi

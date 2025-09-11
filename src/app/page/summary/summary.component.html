@@ -23,10 +23,10 @@
                             <!-- 🔹 Filter Dropdown -->
                             <div class="select">
                                 <!-- Icon -->
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <!-- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                                </svg>
+                                </svg> -->
 
                                 <!-- Filter Dropdown -->
                                 <select [(ngModel)]="selectedFilter" (change)="onFilterChange(selectedFilter)">
@@ -48,12 +48,11 @@
 
 
 
-                            <div class="select-dropdown" #dropdown (click)="toggleDropdown()"
+                            <!-- <div class="select-dropdown" #dropdown (click)="toggleDropdown()"
                                 [class.open]="dropdownOpen">
                                 <div class="dropdown-label">
                                     {{ selectedDealers.length ? selectedDealers.length + ' selected' : 'Select Dealers'
                                     }}
-                                    <!-- <span class="arrow">&#9662;</span> -->
                                 </div>
 
                                 <div class="dropdown-menu">
@@ -65,14 +64,55 @@
                                         <label [for]="dealer.dealer_id">{{ dealer.dealer_name }}</label>
                                     </div>
                                 </div>
+                            </div> -->
+                            <div class="select-dropdown" #dropdown (click)="toggleDropdown()"
+                                [class.open]="dropdownOpen">
+                                <div class="dropdown-label">
+                                    {{
+                                    selectedDealers.length === allDealers.length
+                                    ? 'All Dealers Selected'
+                                    : (selectedDealers.length ? selectedDealers.length + ' selected' : 'Select Dealers')
+                                    }}
+                                </div>
+
+                                <div class="dropdown-menu">
+                                    <!-- 🔹 Select All / Clear -->
+                                    <div class="actions-row">
+                                        <button type="button"
+                                            (click)="selectAllDealers($event); $event.stopPropagation()">Select
+                                            All</button>
+                                        <button type="button"
+                                            (click)="clearDealers($event); $event.stopPropagation()">Clear</button>
+                                    </div>
+
+                                    <!-- 🔹 Search Box -->
+                                    <div class="search-row" (click)="$event.stopPropagation()">
+                                        <input type="text" placeholder="Search Dealers" [(ngModel)]="dealerSearch" />
+                                    </div>
+
+                                    <!-- 🔹 Dealer List or No Dealers Found -->
+                                    <ng-container *ngIf="filteredDealers().length > 0; else noDealers">
+                                        <div *ngFor="let dealer of filteredDealers()" class="checkbox-item"
+                                            (click)="$event.stopPropagation()">
+                                            <input type="checkbox" [id]="dealer.dealer_id"
+                                                [checked]="selectedDealers.includes(dealer.dealer_id)"
+                                                (change)="onDealerChange(dealer.dealer_id, $event)" />
+                                            <label [for]="dealer.dealer_id">{{ dealer.dealer_name }}</label>
+                                        </div>
+                                    </ng-container>
+
+                                    <ng-template #noDealers>
+                                        <div class="no-dealers">
+                                            No Dealers Found
+                                        </div>
+                                    </ng-template>
+                                </div>
                             </div>
 
-
-                            <div class="select-dropdown" #psDropdown (click)="togglePSDropdown()"
+                            <!-- <div class="select-dropdown" #psDropdown (click)="togglePSDropdown()"
                                 [class.open]="dropdownPSOpen">
                                 <div class="dropdown-label">
                                     {{ selectedPSs.length ? selectedPSs.length + ' selected' : 'Select PS' }}
-                                    <!-- <span class="arrow">&#9662;</span> -->
                                 </div>
 
                                 <div class="dropdown-menu" (click)="$event.stopPropagation()">
@@ -83,36 +123,105 @@
                                         <label [for]="ps.user_id">{{ ps.name }}</label>
                                     </div>
                                 </div>
+                            </div> -->
+                            <div class="select-dropdown" #psDropdown (click)="togglePSDropdown()"
+                                [class.open]="dropdownPSOpen">
+                                <div class="dropdown-label">
+                                    {{
+                                    selectedPSs.length === users.length
+                                    ? 'All PS Selected'
+                                    : (selectedPSs.length ? selectedPSs.length + ' selected' : 'Select PS')
+                                    }}
+                                </div>
+
+                                <div class="dropdown-menu" (click)="$event.stopPropagation()">
+                                    <!-- 🔹 Select All / Clear -->
+                                    <div class="actions-row">
+                                        <button type="button"
+                                            (click)="toggleSelectAllPS($event); $event.stopPropagation()">Select
+                                            All</button>
+                                        <button type="button"
+                                            (click)="clearAllPS($event); $event.stopPropagation()">Clear</button>
+                                    </div>
+
+                                    <!-- 🔹 Search Box -->
+                                    <div class="search-row" (click)="$event.stopPropagation()">
+                                        <input type="text" placeholder="Search PS" [(ngModel)]="psSearch" />
+                                    </div>
+
+                                    <!-- 🔹 PS List or No PS Found -->
+                                    <ng-container *ngIf="filteredPSs().length > 0; else noPS">
+                                        <div *ngFor="let ps of filteredPSs()" class="checkbox-item"
+                                            (click)="$event.stopPropagation()">
+                                            <input type="checkbox" [id]="ps.user_id"
+                                                [checked]="selectedPSs.includes(ps.user_id)"
+                                                (change)="onPSChange(ps.user_id, $event)" />
+                                            <label [for]="ps.user_id">{{ ps.name }}</label>
+                                        </div>
+                                    </ng-container>
+
+                                    <ng-template #noPS>
+                                        <div class="no-dealers">
+                                            No PS Found
+                                        </div>
+                                    </ng-template>
+                                </div>
                             </div>
 
 
-                            <div class="select-dropdown" #modelDropdown (click)="toggleModelDropdown()"
+
+                            <!-- <div class="select-dropdown" #modelDropdown (click)="toggleModelDropdown()"
                                 [class.open]="modelDropdownOpen">
                                 <div class="dropdown-label">
                                     {{ selectedModels.length ? selectedModels.length + ' selected' : 'Select Models' }}
                                 </div>
 
                                 <div class="dropdown-menu" (click)="$event.stopPropagation()">
-                                    <!-- All Models Option -->
-                                    <!-- <div class="checkbox-item">
-                                        <input type="checkbox" id="allModels"
-                                            [checked]="selectedModels.length === models.length"
-                                            (change)="toggleAllModels($event)" />
-                                        <label for="allModels">All Models</label>
-                                    </div> -->
-
-                                    <!-- Individual Models -->
-                                    <!-- <div *ngFor="let model of models" class="checkbox-item">
-
-                                        <input type="checkbox" [id]="model.model" [checked]="model.selected"
-                                            (change)="onModelChange(model.model)" />
-                                        <label [for]="model.model">{{ model.model_name }}</label>
-                                    </div> -->
+                                    
                                     <div *ngFor="let model of models; let i = index" class="checkbox-item">
                                         <input type="checkbox" [id]="'model-' + i" [checked]="model.selected"
                                             (change)="onModelChange(model.model)" />
                                         <label [for]="'model-' + i">{{ model.model_name }}</label>
                                     </div>
+                                </div>
+                            </div> -->
+                            <div class="select-dropdown" #modelDropdown (click)="toggleModelDropdown()"
+                                [class.open]="modelDropdownOpen">
+
+                                <div class="dropdown-label">
+                                    {{ selectedModels.length === models.length
+                                    ? 'All Models Selected'
+                                    : (selectedModels.length ? selectedModels.length + ' selected' : 'Select Model') }}
+                                </div>
+
+                                <div class="dropdown-menu" (click)="$event.stopPropagation()">
+                                    <!-- 🔹 Select All / Clear -->
+                                    <div class="actions-row">
+                                        <button type="button"
+                                            (click)="selectAllModels($event); $event.stopPropagation()">Select
+                                            All</button>
+                                        <button type="button"
+                                            (click)="clearModels($event); $event.stopPropagation()">Clear</button>
+                                    </div>
+
+                                    <!-- 🔹 Search Box -->
+                                    <div class="search-row" (click)="$event.stopPropagation()">
+                                        <input type="text" placeholder="Search Models" [(ngModel)]="modelSearch" />
+                                    </div>
+
+                                    <!-- 🔹 Model List or No Models Found -->
+                                    <ng-container *ngIf="filteredModels().length > 0; else noModels">
+                                        <div *ngFor="let model of filteredModels(); let i = index" class="checkbox-item"
+                                            (click)="$event.stopPropagation()">
+                                            <input type="checkbox" [id]="'model-' + i" [checked]="model.selected"
+                                                (change)="onModelChange(model.model)" />
+                                            <label [for]="'model-' + i">{{ model.model_name }}</label>
+                                        </div>
+                                    </ng-container>
+
+                                    <ng-template #noModels>
+                                        <div class="no-dealers">No Models Found</div>
+                                    </ng-template>
                                 </div>
                             </div>
 
@@ -161,7 +270,7 @@
                                         <div class="kpi-row">
                                             <span class="kpi-label">{{ kpi.name }}</span>
                                             <div class="kpi-values">
-                                                <span class="kpi-actual">{{ kpi.value }} | {{ kpi.target }}%</span>
+                                                <span class="kpi-actual">{{ kpi.value }} | {{ kpi.achieved }}%</span>
                                                 <svg class="trend-icon"
                                                     [ngClass]="kpi.growth >= 0 ? 'trend-up' : 'trend-down'"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -172,22 +281,30 @@
                                             </div>
                                         </div>
 
+
                                         <!-- <div class="progress">
-                                            <div class="bar" [style.width.%]="kpi.progress"
-                                                [ngClass]="kpi.growth >= 0 ? 'bar-positive' : 'bar-negative'"></div>
-                                        </div> -->
-                                        <div class="progress">
                                             <div class="bar" [style.width.%]="kpi.achieved"
                                                 [ngStyle]="{'background-color': getProgressColor(kpi.achieved)}">
+                                            </div>
+                                        </div> -->
+                                        <div class="chart-container">
+                                            <div class="progress-wrapper">
+                                                <div class="progress"
+                                                    [title]="'Value: ' + kpi.value + ', Target: ' + kpi.target">
+                                                    <div class="bar"
+                                                        [style.width.%]="getProgressWidth(kpi.value, kpi.target)"
+                                                        [ngStyle]="{ 'background-color': getProgressColor(kpi.value, kpi.target) }">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Target marker positioned correctly -->
+                                                <div class="target-marker-global" *ngIf="kpi.target !== 0"
+                                                    [style.left.%]="getTargetPosition(kpi.value, kpi.target)">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- <div class="growth-box" [class.positive-box]="kpi.growth >= 0"
-                                        [class.negative-box]="kpi.growth < 0">
-                                        <div class="growth-title">GROWTH</div>
-                                        <div class="growth-value">{{ kpi.growth >= 0 ? '+' : ''}}{{ kpi.growth }}%</div>
-                                    </div> -->
                                     <div class="growth-box" [class.positive-box]="kpi.growth > 0"
                                         [class.negative-box]="kpi.growth < 0">
                                         <div class="growth-title">GROWTH</div>
@@ -198,32 +315,20 @@
                                 </div>
                             </div>
 
-                            <!-- Total bar removed -->
                         </div>
 
 
 
-                        <!-- Productivity Card -->
-                        <!-- Productivity Card -->
+
                         <div class="kpi-card">
                             <div class="card-header" style="display: flex; align-items: center; gap: 8px;">
-                                <!-- Card title with count next to it -->
                                 <h3 style="margin: 0; display: flex; align-items: center; gap: 6px;margin-left:-10px">
                                     Productivity
-                                    <!-- <span class="count"
-                                        [ngStyle]="{ 'color': getKpiColor(categoryPercentages.Productivity || 0) }"
-                                        style="font-weight: bold;">
-                                        {{ categoryPercentages.Productivity || 0 }}%
-                                    </span> -->
+
                                 </h3>
 
 
-                                <!-- Chip aligned to the right -->
-                                <!-- <span class="chip"
-                                    style="margin-left:auto; border:1px solid #ccc; background: #f1f5ff; display: flex; align-items: center; gap: 4px;">
-                                    <span class="dot"></span>
-                                    overall
-                                </span> -->
+
                                 <span class="chip" id="chipdiv"
                                     style="border:1px solid #ccc; background: #f1f5ff; margin-left:auto; display: flex; align-items: center; gap: 4px;">
                                     <span class="dot"></span>
@@ -243,7 +348,7 @@
                                         <div class="kpi-row">
                                             <span class="kpi-label">{{ kpi.name }}</span>
                                             <div class="kpi-values">
-                                                <span class="kpi-actual">{{ kpi.value }} | {{ kpi.target }}%</span>
+                                                <span class="kpi-actual">{{ kpi.value }} | {{ kpi.achieved }}%</span>
                                                 <svg class="trend-icon"
                                                     [ngClass]="kpi.growth >= 0 ? 'trend-up' : 'trend-down'"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -254,22 +359,29 @@
                                             </div>
                                         </div>
 
+
                                         <!-- <div class="progress">
-                                            <div class="bar" [style.width.%]="kpi.progress"></div>
-                                        </div> -->
-                                        <div class="progress">
                                             <div class="bar" [style.width.%]="kpi.achieved"
                                                 [ngStyle]="{'background-color': getProgressColor(kpi.achieved)}">
                                             </div>
+                                        </div> -->
+                                        <div class="chart-container">
+                                            <div class="progress-wrapper">
+                                                <div class="progress"
+                                                    [title]="'Value: ' + kpi.value + ', Target: ' + kpi.target">
+                                                    <div class="bar"
+                                                        [style.width.%]="getProgressWidth(kpi.value, kpi.target)"
+                                                        [ngStyle]="{ 'background-color': getProgressColor(kpi.value, kpi.target) }">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Target marker positioned correctly -->
+                                                <div class="target-marker-global" *ngIf="kpi.target !== 0"
+                                                    [style.left.%]="getTargetPosition(kpi.value, kpi.target)">
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-
-                                    <!-- <div class="growth-box">
-                                        <div class="growth-title">GROWTH</div>
-                                        <div class="growth-value" [ngClass]="kpi.growth >= 0 ? 'positive' : 'negative'">
-                                            {{ kpi.growth >= 0 ? '+' : ''}}{{ kpi.growth }}%
-                                        </div>
-                                    </div> -->
                                     <div class="growth-box" [class.positive-box]="kpi.growth > 0"
                                         [class.negative-box]="kpi.growth < 0">
                                         <div class="growth-title">GROWTH</div>
@@ -280,8 +392,7 @@
                                 </div>
                             </div>
 
-                            <!-- Remove total bar at the bottom -->
-                            <!-- <div class="total-bar">Total: 90</div> -->
+
                         </div>
 
 
@@ -290,7 +401,7 @@
                         <div class="kpi-card">
                             <div class="card-header">
                                 <h3>Active PS</h3>
-                                <span class="chip"><span class="dot"></span> Live</span>
+                                <!-- <span class="chip"><span class="dot"></span> Live</span> -->
                             </div>
 
                             <div class="kpi-items">
@@ -299,7 +410,8 @@
                                         <div class="kpi-row">
                                             <span class="kpi-label">{{ kpi.name }}</span>
                                             <div class="kpi-values">
-                                                <span class="kpi-actual">{{ kpi.value }} | {{ kpi.target }}%</span>
+                                                <span class="kpi-actual">{{ kpi.value }} | {{ kpi.achieved
+                                                    }}%</span>
                                                 <svg class="trend-icon"
                                                     [ngClass]="kpi.growth >= 0 ? 'trend-up' : 'trend-down'"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -310,12 +422,26 @@
                                             </div>
                                         </div>
 
+
                                         <!-- <div class="progress">
-                                            <div class="bar" [style.width.%]="kpi.progress"></div>
-                                        </div> -->
-                                        <div class="progress">
                                             <div class="bar" [style.width.%]="kpi.achieved"
                                                 [ngStyle]="{'background-color': getProgressColor(kpi.achieved)}">
+                                            </div>
+                                        </div> -->
+                                        <div class="chart-container">
+                                            <div class="progress-wrapper">
+                                                <div class="progress"
+                                                    [title]="'Value: ' + kpi.value + ', Target: ' + kpi.target">
+                                                    <div class="bar"
+                                                        [style.width.%]="getProgressWidth(kpi.value, kpi.target)"
+                                                        [ngStyle]="{ 'background-color': getProgressColor(kpi.value, kpi.target) }">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Target marker positioned correctly -->
+                                                <div class="target-marker-global" *ngIf="kpi.target !== 0"
+                                                    [style.left.%]="getTargetPosition(kpi.value, kpi.target)">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -386,9 +512,25 @@
                                         <!-- <div class="progress">
                                             <div class="bar" [style.width.%]="kpi.progress"></div>
                                         </div> -->
-                                        <div class="progress">
+                                        <!-- <div class="progress">
                                             <div class="bar" [style.width.%]="kpi.achieved"
                                                 [ngStyle]="{'background-color': getProgressColor(kpi.achieved)}">
+                                            </div>
+                                        </div> -->
+                                        <div class="chart-container">
+                                            <div class="progress-wrapper">
+                                                <div class="progress"
+                                                    [title]="'Value: ' + kpi.value + ', Target: ' + kpi.target">
+                                                    <div class="bar"
+                                                        [style.width.%]="getProgressWidth(kpi.value, kpi.target)"
+                                                        [ngStyle]="{ 'background-color': getProgressColor(kpi.value, kpi.target) }">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Target marker positioned correctly -->
+                                                <div class="target-marker-global" *ngIf="kpi.target !== 0"
+                                                    [style.left.%]="getTargetPosition(kpi.value, kpi.target)">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

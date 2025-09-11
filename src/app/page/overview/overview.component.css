@@ -1737,3 +1737,119 @@ body {
     white-space: break-spaces !important;
   }
 }
+/* User Dropdown Styles - Add this to your CSS */
+
+.user-dropdown-container {
+  position: relative;
+  margin-left: auto; /* Push to right */
+}
+
+.user-icon-btn {
+  width: 40px;
+  height: 40px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.user-icon-btn:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.user-icon {
+  width: 20px;
+  height: 20px;
+  color: #6b7280;
+}
+
+.logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+  transition: background-color 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: #f3f4f6;
+}
+.user-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 999; /* make sure it's on top */
+}
+/* Full-screen semi-transparent overlay */
+.logout-confirm-overlay {
+  position: fixed; /* fixed to the viewport */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* semi-transparent background */
+  display: flex;
+  justify-content: center; /* center horizontally */
+  align-items: center; /* center vertically */
+  z-index: 999;
+}
+
+/* Centered card */
+.logout-confirm-card {
+  background: white;
+  border: 1px solid #ccc;
+  padding: 20px 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  min-width: 250px;
+}
+
+/* Buttons container */
+.logout-confirm-card .buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+/* Yes button */
+.confirm-btn {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 7px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* No button */
+.cancel-btn {
+  background-color: #ccc;
+  color: black;
+  border: none;
+  padding: 7px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Hover effects */
+.confirm-btn:hover {
+  background-color: #c9302c;
+}
+
+.cancel-btn:hover {
+  background-color: #b3b3b3;
+}
