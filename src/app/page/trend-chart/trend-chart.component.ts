@@ -88,26 +88,21 @@ export class TrendChartComponent {
       hover: { sizeOffset: 6 },
     },
     xaxis: {
-      type: 'category',
-      categories: [], // Filled from API
+      type: 'category', // ✅ Important: stops auto-date parsing
+      categories: [], // Fill in the order you want: ["Wk of 18 Aug", "Wk of 25 Aug", "Wk of 01 Sep"]
       labels: {
         rotate: -45,
         hideOverlappingLabels: true,
         showDuplicates: false,
-        formatter: (val: string) => {
-          // Expect API dates like "2025-09-01"
-          const date = new Date(val);
-          return date.toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'short',
-          });
-        },
+        formatter: (val: string) => val, // keep as-is
         style: {
           fontSize: '10px',
         },
       },
-      tickAmount: 10,
+      tickPlacement: 'on', // ✅ makes sure it respects your order
+      sorted: false, // ✅ prevents Apex from re-sorting
     },
+
     tooltip: {
       x: {
         formatter: (val: string | number) => {
@@ -390,38 +385,11 @@ export class TrendChartComponent {
     };
   }
 
-  // transformDataForChart(data: any[]) {
-  //   // Build master list of dates (unique + sorted)
-  //   const allDates = Array.from(new Set(data.map((item) => item.date))).sort();
-
-  //   // Group by dealer
-  //   const dealerGroups = this.groupDataByDealer(data);
-
-  //   const series = Object.keys(dealerGroups).map((dealerName) => {
-  //     const dealerData = dealerGroups[dealerName];
-  //     const dealerMap = new Map(
-  //       dealerData.map((d: any) => [d.date, Number(d.count) || 0])
-  //     );
-
-  //     // Align counts with master date list
-  //     const alignedData = allDates.map((date) => dealerMap.get(date) || 0);
-
-  //     return {
-  //       name: dealerName,
-  //       data: alignedData,
-  //     };
-  //   });
-
-  //   const categories = allDates.map((date) => this.formatDate(date));
-  //   return { series, categories };
-  // }
   transformDataForChart(data: any[]) {
     if (!data || data.length === 0) return { series: [], categories: [] };
 
-    // Use label instead of date
-    const allLabels = Array.from(
-      new Set(data.map((item) => item.label))
-    ).sort();
+    // Preserve order as given from API (no sort)
+    const allLabels = Array.from(new Set(data.map((item) => item.label)));
 
     // Group data by dealer
     const dealerGroups: { [key: string]: any[] } = {};
@@ -445,7 +413,7 @@ export class TrendChartComponent {
       };
     });
 
-    const categories = allLabels; // x-axis labels
+    const categories = allLabels; // x-axis labels in API order
 
     return { series, categories };
   }
