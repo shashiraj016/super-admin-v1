@@ -1996,6 +1996,15 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
           // Force complete replacement of arrays
           this.dealers = [...newDealerData];
+          // Sort dealers by saLeads descending
+          this.dealers.sort((a: any, b: any) => {
+            const saA = a.saLeads ?? 0;
+            const saB = b.saLeads ?? 0;
+            return saB - saA; // highest first
+          });
+
+          // Update filteredDealers too
+          this.filteredDealers = [...this.dealers];
           this.filteredDealers = [...newDealerData];
 
           // Keep a fresh copy for sort reset

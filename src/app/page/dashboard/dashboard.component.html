@@ -727,21 +727,21 @@
                       {{ dealer.callLogs?.totalCalls || 0 }}
                     </td> -->
                     <td [ngClass]="dealer.callLogs?.totalCalls < 60 ? 'highlight-red' : 'normal'">
-                      <div style="display: flex; align-items: center;">
+                      <div style="display: flex; align-items: center; justify-content: center !important;">
                         <i class="fa fa-phone" style="margin-right: 8px;"></i>
                         <span>{{ dealer.callLogs?.totalCalls || 0 }}</span>
                       </div>
                     </td>
 
                     <td>
-                      <div style="display: flex; align-items: center;">
+                      <div style="display: flex; align-items: center; justify-content: center !important;">
                         <span style="color: green; font-size: 18px; margin-right: 8px;">&#8593;</span> <!-- ↑ -->
                         <span style="color: green;">{{ dealer.callLogs?.outgoing || 0 }}</span>
                       </div>
                     </td>
 
                     <td>
-                      <div style="display: flex; align-items: center;">
+                      <div style="display: flex; align-items: center;  justify-content: center !important;">
                         <span style="color: green; font-size: 18px; margin-right: 8px;">&#8595;</span> <!-- ↓ -->
                         <span style="color: green;">{{ dealer.callLogs?.incoming || 0 }}</span>
                       </div>
@@ -749,7 +749,7 @@
 
                     <!-- Connected Call -->
                     <td>
-                      <div style="display: flex; align-items: center;">
+                      <div style="display: flex; align-items: center; justify-content: center !important;">
                         <span [ngStyle]="{
                         display: 'inline-flex',
                         justifyContent: 'center',
@@ -772,7 +772,7 @@
 
                     <!-- Declined Call -->
                     <td>
-                      <div style="display: flex; align-items: center;">
+                      <div style="display: flex; align-items: center; justify-content: center !important;">
                         <span style="
                       display: inline-flex;
                       justify-content: center;
