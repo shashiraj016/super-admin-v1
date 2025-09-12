@@ -87,37 +87,35 @@ export class TrendChartComponent {
       size: 0,
       hover: { sizeOffset: 6 },
     },
-    xaxis: {
-      type: 'category', // ✅ Important: stops auto-date parsing
-      categories: [], // Fill in the order you want: ["Wk of 18 Aug", "Wk of 25 Aug", "Wk of 01 Sep"]
-      labels: {
-        rotate: -45,
-        hideOverlappingLabels: true,
-        showDuplicates: false,
-        formatter: (val: string) => val, // keep as-is
-        style: {
-          fontSize: '10px',
-        },
-      },
-      tickPlacement: 'on', // ✅ makes sure it respects your order
-      sorted: false, // ✅ prevents Apex from re-sorting
+   // Replace your current xaxis configuration with this:
+xaxis: {
+  type: 'category',
+  categories: [], // Will be populated with your date labels
+  labels: {
+    rotate: -45,
+    hideOverlappingLabels: true,
+    showDuplicates: false,
+    style: {
+      fontSize: '10px',
     },
+    // Remove any formatter that might be converting to numbers
+  },
+  tickPlacement: 'on',
+  sorted: false,
+},
 
-    tooltip: {
-      x: {
-        formatter: (val: string | number) => {
-          const date = new Date(val);
-          return date.toLocaleDateString('en-GB', {
-            weekday: 'short',
-            day: '2-digit',
-            month: 'short',
-          });
-        },
-      },
-      y: {
-        formatter: (val: number) => val.toString(),
-      },
+   // Replace your current tooltip configuration with this:
+tooltip: {
+  x: {
+    formatter: (val: any) => {
+      // Return the label as-is, don't try to parse as date
+      return val.toString();
     },
+  },
+  y: {
+    formatter: (val: number) => val.toString(),
+  },
+},
     grid: {
       show: true, // make sure grid is enabled
       borderColor: '#e0e0e0', // lighter gray lines
@@ -147,7 +145,7 @@ export class TrendChartComponent {
   BASE_URL = 'https://uat.smartassistapp.in';
   TREND_CHART_URL = '/api/superAdmin/trend-chart';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
     this.fetchTrendChart();
@@ -283,6 +281,8 @@ export class TrendChartComponent {
           if (res.activeDealers) {
             this.dealers = res.activeDealers;
             this.filteredDealers = [...this.dealers];
+
+            this.selectedDealers = this.dealers.map(d => d.dealer_id);
           }
 
           // Update chart with initial data (empty since no dealers selected)
@@ -327,96 +327,171 @@ export class TrendChartComponent {
       });
   }
 
-  updateChart(data: any[]) {
-    if (!data || data.length === 0) {
-      this.chartOptions = {
-        ...this.chartOptions,
-        series: [],
-        xaxis: {
-          ...this.chartOptions.xaxis,
-          categories: [],
-        },
-      };
-      return;
-    }
-
-    const transformedData = this.transformDataForChart(data);
-
+updateChart(data: any[]) {
+  if (!data || data.length === 0) {
     this.chartOptions = {
       ...this.chartOptions,
-      series: transformedData.series,
+      series: [],
       xaxis: {
         ...this.chartOptions.xaxis,
-        categories: transformedData.categories,
-      },
-      colors: [
-        '#2a8eff',
-        '#0f5fb8',
-        '#1676e6',
-        '#86c1ff',
-        '#57a8ff',
-        '#059669',
-        '#0ea5e9',
-        '#9333ea',
-        '#d97706',
-        '#e11d48',
-        '#0d4c90',
-        '#0c3f76',
-        '#64748b',
-        '#475569',
-        '#14b8a6',
-      ],
-      chart: {
-        ...this.chartOptions.chart,
-        type: this.chartOptions.chart?.type || 'line', // ✅ keep type required
-        toolbar: {
-          ...this.chartOptions.chart?.toolbar,
-          tools: {
-            ...this.chartOptions.chart?.toolbar?.tools,
-          },
-          export: {
-            // ✅ put export here, not directly under chart
-            csv: { filename: this.getExportFileName() },
-            svg: { filename: this.getExportFileName() },
-            png: { filename: this.getExportFileName() },
-          },
-        },
+        categories: [],
       },
     };
+    return;
   }
 
-  transformDataForChart(data: any[]) {
-    if (!data || data.length === 0) return { series: [], categories: [] };
+  const transformedData = this.transformDataForChart(data);
 
-    // Preserve order as given from API (no sort)
-    const allLabels = Array.from(new Set(data.map((item) => item.label)));
+  console.log('Categories being set:', transformedData.categories);
+  console.log('First few categories:', transformedData.categories.slice(0, 5));
 
-    // Group data by dealer
-    const dealerGroups: { [key: string]: any[] } = {};
-    data.forEach((item) => {
-      const key = item.dealer_name; // series grouped by dealer
-      if (!dealerGroups[key]) dealerGroups[key] = [];
-      dealerGroups[key].push(item);
-    });
+  // Completely rebuild chartOptions instead of merging
+  this.chartOptions = {
+    series: transformedData.series,
+    chart: {
+      height: 350,
+      type: this.chartOptions.chart?.type || 'line',
+      zoom: { enabled: false },
+      toolbar: { show: true },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    stroke: {
+      width: 2,
+      curve: 'smooth',
+    },
+    legend: {
+      position: 'top',
+      horizontalAlign: 'left',
+      fontSize: '12px',
+      itemMargin: {
+        horizontal: 10,
+        vertical: 4,
+      },
+    },
+    markers: {
+      size: 0,
+      hover: { sizeOffset: 6 },
+    },
+    xaxis: {
+      type: 'category',
+      categories: transformedData.categories,
+      labels: {
+        rotate: -45,
+        hideOverlappingLabels: true,
+        showDuplicates: false,
+        style: {
+          fontSize: '10px',
+        },
+      },
+      tickPlacement: 'on',
+      sorted: false,
+    },
+    tooltip: {
+      x: {
+        
+      },
+      y: {
+        formatter: (val: number) => val.toString(),
+      },
+    },
+    grid: {
+      show: true,
+      borderColor: '#e0e0e0',
+      strokeDashArray: 3,
+      position: 'back',
+      xaxis: {
+        lines: {
+          show: true,
+        },
+      },
+      yaxis: {
+        lines: {
+          show: true,
+        },
+      },
+    },
+    colors: [
+      '#2a8eff', '#0f5fb8', '#1676e6', '#86c1ff', '#57a8ff',
+      '#059669', '#0ea5e9', '#9333ea', '#d97706', '#e11d48',
+      '#0d4c90', '#0c3f76', '#64748b', '#475569', '#14b8a6',
+    ],
+  };
+}
 
-    const series = Object.keys(dealerGroups).map((dealerName) => {
-      const dealerData = dealerGroups[dealerName];
-      const dealerMap = new Map(
-        dealerData.map((d: any) => [d.label, Number(d.count) || 0])
-      );
-
-      const alignedData = allLabels.map((label) => dealerMap.get(label) || 0);
-
-      return {
-        name: dealerName,
-        data: alignedData,
+transformDataForChart(data: any[]) {
+  if (!data || data.length === 0) return { series: [], categories: [] };
+  
+  // Get unique labels first
+  const uniqueLabels = Array.from(new Set(data.map((item) => item.label)));
+  console.log('Original unique labels:', uniqueLabels);
+  
+  // Get unique labels and sort them chronologically
+  const allLabels = uniqueLabels
+    .sort((a, b) => {
+      // Parse dates in "DD MMM" format for proper sorting
+      const parseDate = (dateStr: string) => {
+        try {
+          const [day, month] = dateStr.trim().split(' ');
+          const monthMap: { [key: string]: number } = {
+            'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+            'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+          };
+          
+          const dayNum = parseInt(day, 10);
+          const monthNum = monthMap[month];
+          
+          // Validate parsed values
+          if (isNaN(dayNum) || monthNum === undefined || dayNum < 1 || dayNum > 31) {
+            console.warn(`Invalid date format: ${dateStr}`);
+            return new Date(0); // fallback to epoch
+          }
+          
+          // Use 2024 as the year since your data seems to be from August-September
+          const year = 2024;
+          return new Date(year, monthNum, dayNum);
+        } catch (error) {
+          console.warn(`Error parsing date: ${dateStr}`, error);
+          return new Date(0); // fallback to epoch
+        }
       };
+      
+      const dateA = parseDate(a);
+      const dateB = parseDate(b);
+      return dateA.getTime() - dateB.getTime();
     });
 
-    const categories = allLabels; // x-axis labels in API order
+  console.log('Sorted labels (categories):', allLabels);
+  console.log('First 5 sorted labels:', allLabels.slice(0, 5));
 
-    return { series, categories };
-  }
+  // Group data by dealer
+  const dealerGroups: { [key: string]: any[] } = {};
+  data.forEach((item) => {
+    const key = item.dealer_name;
+    if (!dealerGroups[key]) dealerGroups[key] = [];
+    dealerGroups[key].push(item);
+  });
+
+  console.log('Dealer groups:', Object.keys(dealerGroups));
+
+  const series = Object.keys(dealerGroups).map((dealerName) => {
+    const dealerData = dealerGroups[dealerName];
+    const dealerMap = new Map(
+      dealerData.map((d: any) => [d.label, Number(d.count) || 0])
+    );
+    const alignedData = allLabels.map((label) => dealerMap.get(label) || 0);
+    return {
+      name: dealerName,
+      data: alignedData,
+    };
+  });
+
+  console.log('Final series data:', series);
+  console.log('Final categories being returned:', allLabels);
+
+  return { series, categories: allLabels };
+}
 
   groupDataByDealer(data: any[]) {
     return data.reduce((groups: any, item: any) => {

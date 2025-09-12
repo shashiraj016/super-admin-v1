@@ -9,7 +9,7 @@
         <div class="flex flex-col md:flex-row md:items-center gap-3 Granularity_section">
             <div class="flex flex-wrap items-center gap-2 wrapper-content">
                 <div class="dropdown flt1" [class.show]="dropdownOpen" style="margin-right: 5px;">
-                    <button class="time-dropdown dropdown-toggle" type="button" (click)="toggleDropdown()">
+                    <button class="no-border time-dropdown dropdown-toggle" type="button" (click)="toggleDropdown()">
                         {{ selectedDealers.length > 0 ? 'Dealers Selected (' + selectedDealers.length + ')' : 'Select
                         Dealers' }}
                     </button>
@@ -19,14 +19,15 @@
                                 [(ngModel)]="dealerSearch" (input)="filterDealers()"
                                 (click)="$event.stopPropagation()" />
                         </div>
-                        <div class="d-flex justify-content-between align-items-center px-2 py-1 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center px-2 py-1 border-bottom"
+                            style="display: flex;">
                             <label class="mb-0 d-flex align-items-center" (click)="$event.stopPropagation()">
                                 <input type="checkbox" class="me-2" [checked]="areAllSelected()"
                                     (change)="toggleSelectAll($event); $event.stopPropagation()" />
                                 Select All
                             </label>
                             <button type="button" class="btn btn-link btn-sm text-danger p-0 ms-auto" id="clearbtn"
-                                style="margin-left:120px;" (click)="clearSelection(); $event.stopPropagation()">
+                                (click)="clearSelection(); $event.stopPropagation()">
                                 Clear
                             </button>
                         </div>
@@ -54,7 +55,7 @@
                 <!-- Date Filter -->
                 <label for="usageGran" class="text-sm text-slate-600">Granularity</label>
                 <select id="usageGran" [(ngModel)]="selectedDateFilter" (change)="fetchTrendChartWithFilters()"
-                    class="rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                    class=" no-border rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                     <option value="LAST_30_DAYS" selected>Last 30 Days</option>
                     <option value="LAST_4_WEEKS">Last 4 Weeks</option>
                     <option value="LAST_6_MONTHS">Last 6 Months</option>
@@ -63,13 +64,20 @@
                 <!-- Metric -->
                 <label for="usageMetric" class="text-sm text-slate-600">Metric</label>
                 <select id="usageMetric" [(ngModel)]="selectedMetric" (change)="fetchTrendChartWithFilters()"
-                    class="rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                    class=" no-border rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                     <option value="last_login">Last login</option>
                     <option value="leads">Leads</option>
                     <option value="follow_up">Follow-ups</option>
                     <option value="unique_testdrive">Unique Test Drives</option>
                     <option value="calls" selected>Total Calls</option>
                 </select>
+
+                <div class="flex items-center gap-2 ">
+                    <button (click)="switchChartType()"
+                        class=" no-border switchChart px-3 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm font-medium">
+                        Switch Chart ({{ chartOptions.chart?.type }})
+                    </button>
+                </div>
 
             </div>
 
@@ -78,12 +86,7 @@
                 <i data-lucide="download-cloud" class="w-4 h-4"></i> Load Usage
             </button> -->
 
-            <div class="flex items-center gap-2 ">
-                <button (click)="switchChartType()"
-                    class="switchChart px-3 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm font-medium">
-                    Switch Chart ({{ chartOptions.chart?.type }})
-                </button>
-            </div>
+
         </div>
     </div>
 

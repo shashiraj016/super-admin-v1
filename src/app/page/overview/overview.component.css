@@ -36,7 +36,7 @@
 
 @media screen and (width: 1366px) {
   .content-body {
-    margin-left: 4rem;
+    /* margin-left: 4rem; */
   }
 }
 
@@ -883,7 +883,7 @@ body {
 
 @media screen and (width: 1366px) {
   .content-body {
-    margin-left: 4rem;
+    /* margin-left: 4rem; */
   }
 }
 
