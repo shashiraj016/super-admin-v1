@@ -39,7 +39,7 @@
                                     <option value="LAST_MONTH">Last Month</option>
                                     <option value="QTD">This Quarter</option>
                                     <option value="LAST_QUARTER">Last Quarter</option>
-                                    <option value="SIX_MONTH">Last 6 Months</option>
+                                    <!-- <option value="SIX_MONTH">Last 6 Months</option> -->
                                     <!-- <option value="YTD">This Year</option>
                                     <option value="LIFETIME">Lifetime</option>
                                     <option value="CUSTOM">Custom</option> -->
@@ -109,21 +109,7 @@
                                 </div>
                             </div>
 
-                            <!-- <div class="select-dropdown" #psDropdown (click)="togglePSDropdown()"
-                                [class.open]="dropdownPSOpen">
-                                <div class="dropdown-label">
-                                    {{ selectedPSs.length ? selectedPSs.length + ' selected' : 'Select PS' }}
-                                </div>
 
-                                <div class="dropdown-menu" (click)="$event.stopPropagation()">
-                                    <div *ngFor="let ps of users" class="checkbox-item">
-                                        <input type="checkbox" [id]="ps.user_id"
-                                            [checked]="selectedPSs.includes(ps.user_id)"
-                                            (change)="onPSChange(ps.user_id, $event)" />
-                                        <label [for]="ps.user_id">{{ ps.name }}</label>
-                                    </div>
-                                </div>
-                            </div> -->
                             <div class="select-dropdown" #psDropdown (click)="togglePSDropdown()"
                                 [class.open]="dropdownPSOpen">
                                 <div class="dropdown-label">
@@ -271,13 +257,17 @@
                                             <span class="kpi-label">{{ kpi.name }}</span>
                                             <div class="kpi-values">
                                                 <span class="kpi-actual">{{ kpi.value }} | {{ kpi.achieved }}%</span>
-                                                <svg class="trend-icon"
+                                                <!-- <svg class="trend-icon"
                                                     [ngClass]="kpi.growth >= 0 ? 'trend-up' : 'trend-down'"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="2"
                                                         [attr.d]="kpi.growth >= 0 ? 'M5 12l5-5 9 9' : 'M19 12l-5 5-9-9'" />
-                                                </svg>
+                                                </svg> -->
+                                                <div class="trend-icon"
+                                                    [ngClass]="kpi.growth >= 0 ? 'arrow-up' : 'arrow-down'"></div>
+
+
                                             </div>
                                         </div>
 
@@ -349,13 +339,16 @@
                                             <span class="kpi-label">{{ kpi.name }}</span>
                                             <div class="kpi-values">
                                                 <span class="kpi-actual">{{ kpi.value }} | {{ kpi.achieved }}%</span>
-                                                <svg class="trend-icon"
+                                                <!-- <svg class="trend-icon"
                                                     [ngClass]="kpi.growth >= 0 ? 'trend-up' : 'trend-down'"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="2"
                                                         [attr.d]="kpi.growth >= 0 ? 'M5 12l5-5 9 9' : 'M19 12l-5 5-9-9'" />
-                                                </svg>
+                                                </svg> -->
+                                                <div class="trend-icon"
+                                                    [ngClass]="kpi.growth >= 0 ? 'arrow-up' : 'arrow-down'"></div>
+
                                             </div>
                                         </div>
 
@@ -412,13 +405,16 @@
                                             <div class="kpi-values">
                                                 <span class="kpi-actual">{{ kpi.value }} | {{ kpi.achieved
                                                     }}%</span>
-                                                <svg class="trend-icon"
+                                                <!-- <svg class="trend-icon"
                                                     [ngClass]="kpi.growth >= 0 ? 'trend-up' : 'trend-down'"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="2"
                                                         [attr.d]="kpi.growth >= 0 ? 'M5 12l5-5 9 9' : 'M19 12l-5 5-9-9'" />
-                                                </svg>
+                                                </svg> -->
+                                                <div class="trend-icon"
+                                                    [ngClass]="kpi.growth >= 0 ? 'arrow-up' : 'arrow-down'"></div>
+
                                             </div>
                                         </div>
 
@@ -499,13 +495,16 @@
                                             <span class="kpi-label">{{ kpi.name }}</span>
                                             <div class="kpi-values">
                                                 <span class="kpi-actual">{{ kpi.value }} | {{ kpi.target }}%</span>
-                                                <svg class="trend-icon"
+                                                <!-- <svg class="trend-icon"
                                                     [ngClass]="kpi.growth >= 0 ? 'trend-up' : 'trend-down'"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="2"
                                                         [attr.d]="kpi.growth >= 0 ? 'M5 12l5-5 9 9' : 'M19 12l-5 5-9-9'" />
-                                                </svg>
+                                                </svg> -->
+                                                <div class="trend-icon"
+                                                    [ngClass]="kpi.growth >= 0 ? 'arrow-up' : 'arrow-down'"></div>
+
                                             </div>
                                         </div>
 

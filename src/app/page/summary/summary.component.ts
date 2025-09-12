@@ -45,6 +45,7 @@ export class SummaryComponent implements OnInit {
   dropdownOpen = false;
   modelDropdownOpen = false;
   selectedModels: string[] = [];
+  isFirstLoadPS = true;
 
   selectedDealer: string = 'all'; // default value
   selectedPS: string = 'all'; // default value

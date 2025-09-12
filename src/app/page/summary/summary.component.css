@@ -881,13 +881,14 @@ body {
 }
 
 .dropdown-label {
-  padding: 10px;
+  padding: 12px;
   /* border: 1px solid #ccc; */
   border: 1px solid #e2e8f0;
   border-radius: 22px;
   background: #fff;
   color: var(--text);
   display: flex;
+  font-size: 14px;
   justify-content: space-between;
   align-items: center;
 }
@@ -1098,4 +1099,38 @@ body {
   font-size: 13px;
   color: #999;
   text-align: center;
+}
+
+.growth-box {
+  display: flex;
+  flex-direction: column; /* stack title and value */
+  align-items: center; /* center horizontally */
+  justify-content: center; /* center vertically */
+  text-align: center;
+  height: 100%; /* make sure it fills its container */
+}
+.growth-title {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.growth-value {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/*  */
+.arrow-up {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 10px solid green;
+}
+.arrow-down {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 10px solid red;
 }

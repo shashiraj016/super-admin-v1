@@ -460,6 +460,10 @@ input[type="password"] {
   pointer-events: none;
   transition: 0.3s ease all;
 }
+.forms-control,
+.inputt {
+  padding-top: 1.5rem; /* Enough space for floating label */
+}
 
 .input-div input:focus ~ label.floating-label,
 .input-div input:not(:placeholder-shown) ~ label.floating-label {

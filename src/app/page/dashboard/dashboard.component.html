@@ -302,9 +302,18 @@
                       sortDirection==='asc'?'▲':'▼'
                       }}</span>
                   </th> -->
+                  <th class="th-right  sortable-header" style="cursor:pointer;" (click)="sortData('registerUsers')">
+                    Registered
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='registerUsers' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='registerUsers' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
                   <th class="th-right group-divider sortable-header" style="cursor:pointer;"
                     (click)="sortData('activeUsers')">
-                    Registered Users
+                    Active
                     <span class="sort-arrows">
                       <span class="arrow-up"
                         [class.active]="sortColumn==='activeUsers' && sortDirection==='asc'">▲</span>
@@ -492,7 +501,8 @@
 
                     </td>
                     <td class="td-right">{{ dealer.totalUsers ?? 0 }}</td>
-                    <td class="td-right">{{ dealer.activeUsers ?? 0 }}</td>
+                    <td class="td-right">{{ dealer.registerUsers ?? 0 }}</td>
+                    <td class="td-right">{{dealer.activeUsers ?? 0}}</td>
 
                     <td class="td-right" style="color:#222fb9">{{ dealer.saLeads ?? 0 }}</td>
                     <td class="td-right" [ngStyle]="{'color': dealer.saLeads === dealer.cxpLeads ? 'green' : 'red'}">
@@ -546,7 +556,10 @@
                             <thead class="sub-table-thead" style="border-radius:20px !important">
                               <tr style="border-radius:20px !important">
                                 <th style="text-align:left">User</th>
-                                <th>Active</th>
+                                <th>Status</th>
+
+                                <th>Registered Users</th>
+                                <th>Last login</th>
 
                                 <th>SA Leads</th>
                                 <th>Sync with CXP</th>
@@ -587,6 +600,11 @@
                                   <span class="chip" [ngClass]="user.active ? 'chip-success' : 'chip-inactive'">
                                     {{ user.active ? 'Active' : 'Inactive' }}
                                   </span>
+                                </td>
+                                <td class="td-rigth">{{user.registerUser ?? 0}}</td>
+                                <td class="td-rigth">{{user. last_login ?? 0}}
+
+
                                 </td>
                                 <td class="td-right">{{ user.leads?.sa ?? 0 }}</td>
                                 <td class="td-right">{{ user.leads?.cxp ?? 0 }}</td>
@@ -709,62 +727,53 @@
                       {{ dealer.callLogs?.totalCalls || 0 }}
                     </td> -->
                     <td [ngClass]="dealer.callLogs?.totalCalls < 60 ? 'highlight-red' : 'normal'">
-                      <i class="fa fa-phone" style="margin-right: 4px;"></i>
-                      {{ dealer.callLogs?.totalCalls || 0 }}
+                      <div style="display: flex; align-items: center;">
+                        <i class="fa fa-phone" style="margin-right: 8px;"></i>
+                        <span>{{ dealer.callLogs?.totalCalls || 0 }}</span>
+                      </div>
                     </td>
 
                     <td>
-                      <span style="color: green; margin-right: 4px; font-size: 18px;">&#8593;</span> <!-- ↑ -->
-                      <span style="color: green;">{{ dealer.callLogs?.outgoing || 0 }}</span>
+                      <div style="display: flex; align-items: center;">
+                        <span style="color: green; font-size: 18px; margin-right: 8px;">&#8593;</span> <!-- ↑ -->
+                        <span style="color: green;">{{ dealer.callLogs?.outgoing || 0 }}</span>
+                      </div>
                     </td>
 
-                    <!-- Incoming Call -->
                     <td>
-                      <span style="color: green; margin-right: 4px; font-size: 18px;">&#8595;</span> <!-- ↓ -->
-                      <span style="color: green;">{{ dealer.callLogs?.incoming || 0 }}</span>
+                      <div style="display: flex; align-items: center;">
+                        <span style="color: green; font-size: 18px; margin-right: 8px;">&#8595;</span> <!-- ↓ -->
+                        <span style="color: green;">{{ dealer.callLogs?.incoming || 0 }}</span>
+                      </div>
                     </td>
+
                     <!-- Connected Call -->
-                    <!-- Connected Call -->
-                    <!-- <td>
-                      <span style="
-                      display: inline-flex;
-                      justify-content: center;
-                      align-items: center;
-                      width: 16px;
-                      height: 16px;
-                      border-radius: 50%;
-                      background-color: #007bff; /* blue */
-                      color: white;
-                      font-size: 10px;
-                      margin-right: 4px;
-                    ">
-                        &#10003; 
-                      </span>
-                      <span style="color: #007bff;">{{ dealer.callLogs?.connected || 0 }}</span>
-                    </td> -->
                     <td>
-                      <span [ngStyle]="{
-                          'display': 'inline-flex',
-                          'justify-content': 'center',
-                          'align-items': 'center',
-                          'width': '16px',
-                          'height': '16px',
-                          'border-radius': '50%',
-                          'background-color': dealer.callLogs?.connected < 30 ? 'red' : '#007bff',
-                          'color': 'white',
-                          'font-size': '10px',
-                          'margin-right': '4px'
-                        }">
-                        &#10003;
-                      </span>
-                      <span [ngStyle]="{ 'color': dealer.callLogs?.connected < 30 ? 'red' : '#007bff' }">
-                        {{ dealer.callLogs?.connected || 0 }}
-                      </span>
+                      <div style="display: flex; align-items: center;">
+                        <span [ngStyle]="{
+                        display: 'inline-flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        width: '16px',
+                        height: '16px',
+                        borderRadius: '50%',
+                        backgroundColor: dealer.callLogs?.connected < 30 ? 'red' : '#007bff',
+                        color: 'white',
+                        fontSize: '10px',
+                        marginRight: '8px'
+                      }">
+                          &#10003;
+                        </span>
+                        <span [ngStyle]="{ color: dealer.callLogs?.connected < 30 ? 'red' : '#007bff' }">
+                          {{ dealer.callLogs?.connected || 0 }}
+                        </span>
+                      </div>
                     </td>
 
                     <!-- Declined Call -->
                     <td>
-                      <span style="
+                      <div style="display: flex; align-items: center;">
+                        <span style="
                       display: inline-flex;
                       justify-content: center;
                       align-items: center;
@@ -774,17 +783,18 @@
                       background-color: red;
                       color: white;
                       font-size: 10px;
-                      margin-right: 4px;
+                      margin-right: 8px;
                     ">
-                        &times; <!-- cross mark -->
-                      </span>
-                      <span style="color: red;">{{ dealer.callLogs?.declined || 0 }}</span>
+                          &times; <!-- cross mark -->
+                        </span>
+                        <span style="color: red;">{{ dealer.callLogs?.declined || 0 }}</span>
+                      </div>
                     </td>
 
-                    <!-- <td>{{ dealer.callLogs?.durationSec || '00:00:00' }}</td> -->
-                    <td>{{ dealer.callLogs?.durationSec ? formatDuration(dealer.callLogs.durationSec) : '00:00:00' }}
+                    <!-- Duration -->
+                    <td>
+                      {{ dealer.callLogs?.durationSec ? formatDuration(dealer.callLogs.durationSec) : '00:00:00' }}
                     </td>
-
                   </tr>
                   <!-- Sub-row: user call logs -->
                   <!-- Sub-row: User call logs -->
@@ -808,7 +818,9 @@
                               </tr>
                             </thead>
                             <tbody>
-                              <tr *ngFor="let user of userCallLogs[dealer.dealerId]; let j = index"
+                              <!-- <tr *ngFor="let user of userCallLogs[dealer.dealerId]; let j = index"
+                                [ngClass]="{ 'row-alt': j % 2 === 0, 'row-normal': j % 2 !== 0 }"> -->
+                              <tr *ngFor="let user of getSortedCallLogs(dealer.dealerId); let j = index"
                                 [ngClass]="{ 'row-alt': j % 2 === 0, 'row-normal': j % 2 !== 0 }">
                                 <td style="text-align: left !important;width:90px !important">{{ user.name }}</td>
                                 <td [ngStyle]="{ color: user.calls.total < 60 ? 'red' : 'black' }">{{ user.calls.total
