@@ -58,6 +58,8 @@ export class SummaryComponent implements OnInit {
 
   @ViewChild('psDropdown') psDropdown!: ElementRef; // PS dropdown
   aggregatedMetrics: any;
+  psSearch: string = '';
+
   efforts: Kpi[] = [];
   productivity: ProductivityKpi[] = []; // ✅ Added this property
   otherKpis: OtherKpi[] = []; // ✅ corrected casing
@@ -66,6 +68,9 @@ export class SummaryComponent implements OnInit {
   dropdownPSOpen: boolean = false;
   selectedModel: string = 'all';
   dealers: DealerDropdown[] = [];
+  dealerSearch: string = '';
+  modelSearch: string = '';
+
   users: PSUser[] = []; // ✅ use PSUser[]
   categoryPercentages: {
     Efforts: number;
@@ -130,6 +135,24 @@ export class SummaryComponent implements OnInit {
   toggleSidebar() {
     this.sidebarService.toggleSidebar();
   }
+  // selectAllDealers(event: Event) {
+  //   event.stopPropagation(); // prevent dropdown toggle
+  //   this.selectedDealers = this.allDealers.map((d) => d.dealer_id);
+  // }
+  selectAllDealers(event: Event) {
+    event.stopPropagation();
+
+    // Select all dealer IDs
+    this.selectedDealers = this.allDealers.map((d) => d.dealer_id);
+
+    // Call API with all dealer IDs (array)
+    this.loadDealers('DAY', this.selectedDealers);
+  }
+
+  clearDealers(event: Event) {
+    event.stopPropagation(); // prevent dropdown toggle
+    this.selectedDealers = [];
+  }
 
   selectTab(tab: string) {
     this.selectedTab = tab;
@@ -146,16 +169,34 @@ export class SummaryComponent implements OnInit {
   navigateToSingleDealer(dealerId: string) {
     this.router.navigate(['/Admin/singleDealer', dealerId]);
   }
+  // resetFilters(): void {
+  //   this.selectedFilter = 'DAY'; // Reset filter to default DAY
+  //   this.selectedDealers = []; // Unselect all dealers
+  //   this.selectedPSs = []; // Unselect all PS
+  //   this.selectedModels = []; // Unselect all models
+
+  //   // Load dealers with default filter and all dealers
+
+  //   this.loadDealers(this.selectedFilter, this.selectedDealer);
+  // }
   resetFilters(): void {
     this.selectedFilter = 'DAY'; // Reset filter to default DAY
-    this.selectedDealers = []; // Unselect all dealers
-    this.selectedPSs = []; // Unselect all PS
-    this.selectedModels = []; // Unselect all models
 
-    // Load dealers with default filter and all dealers
+    // Select all dealers, PSs, and models
+    this.selectedDealers = this.allDealers.map((d) => d.dealer_id);
+    this.selectedPSs = this.users.map((u) => u.user_id);
+    this.selectedModels = this.models.map((m) => m.model); // or the correct unique key
 
-    this.loadDealers(this.selectedFilter, this.selectedDealer);
+    // Reload dealers if needed
+    this.loadDealers(this.selectedFilter, this.selectedDealers);
   }
+  filteredModels() {
+    if (!this.modelSearch) return this.models;
+    return this.models.filter((model) =>
+      model.model_name.toLowerCase().includes(this.modelSearch.toLowerCase())
+    );
+  }
+
   getKpis(dealer: any): Kpi[] {
     if (!dealer.aggregatedMetrics) return [];
 
@@ -222,11 +263,8 @@ export class SummaryComponent implements OnInit {
     }
 
     const dealerParam =
-      this.selectedDealers.length > 0 ? this.selectedDealers.join(',') : 'all';
-
-    const psParam =
-      this.selectedPSs.length > 0 ? this.selectedPSs.join(',') : 'all';
-
+      this.selectedDealers.length > 0 ? [...this.selectedDealers] : 'all';
+    const psParam = this.selectedPSs.length > 0 ? [...this.selectedPSs] : 'all';
     const modelParam =
       this.selectedModel && this.selectedModel !== 'all'
         ? this.selectedModel
@@ -234,7 +272,12 @@ export class SummaryComponent implements OnInit {
 
     this.loadDealers(this.selectedFilter, dealerParam, psParam, modelParam);
   }
-
+  filteredPSs() {
+    if (!this.psSearch) return this.users;
+    return this.users.filter((ps) =>
+      ps.name.toLowerCase().includes(this.psSearch.toLowerCase())
+    );
+  }
   // loadDealers(
   //   type: string = 'DAY',
   //   dealer_ids: string | string[] = 'all', // accept array or string
@@ -602,12 +645,35 @@ export class SummaryComponent implements OnInit {
           if (!this.allDealers || this.allDealers.length === 0) {
             this.allDealers = res.dealers || [];
           }
+          // ✅ Select all dealers by default if none already selected
+          // if (!this.selectedDealers || this.selectedDealers.length === 0) {
+          //   this.selectedDealers = this.allDealers.map(
+          //     (d: any) => d.dealer_id || d.dealerId
+          //   );
+          // }
+          // Only select all dealers by default if first load, not after manual selection
+          // Only select all dealers by default on first load
+          const isFirstLoad =
+            !this.selectedDealers || this.selectedDealers.length === 0;
+          if (dealer_ids === 'all' && isFirstLoad && !this.dealers.length) {
+            this.selectedDealers = this.allDealers.map(
+              (d: any) => d.dealer_id || d.dealerId
+            );
+          } else if (Array.isArray(dealer_ids) && dealer_ids.length > 0) {
+            this.selectedDealers = dealer_ids;
+          }
 
           const apiModels = res.models || [];
           this.models = apiModels.map((m: Model) => ({
             ...m,
             selected: this.selectedModels.includes(m.model),
           }));
+
+          // ✅ Select all models by default if none already selected
+          if (!this.selectedModels || this.selectedModels.length === 0) {
+            this.selectedModels = apiModels.map((m: any) => m.model);
+            this.models.forEach((m) => (m.selected = true));
+          }
 
           const selectedDealerIds = Array.isArray(dealer_ids)
             ? dealer_ids
@@ -632,7 +698,10 @@ export class SummaryComponent implements OnInit {
             dealer_ids === 'all'
               ? this.allDealers.flatMap((d: any) => d.users || [])
               : filteredDealers.flatMap((d: any) => d.users || []);
-
+          // ✅ Select all PS by default if none already selected
+          if (!this.selectedPSs || this.selectedPSs.length === 0) {
+            this.selectedPSs = this.users.map((u: any) => u.user_id);
+          }
           // Determine which aggregated metrics to use
           let aggMetrics: any = null;
 
@@ -719,6 +788,72 @@ export class SummaryComponent implements OnInit {
   //     this.selectedModel || ''
   //   );
   // }
+  // ✅ Select all models
+  selectAllModels(event: Event) {
+    event.stopPropagation();
+    this.selectedModels = this.models.map((m) => m.model);
+    this.models.forEach((m) => (m.selected = true));
+  }
+
+  // ✅ Clear all models
+  clearModels(event: Event) {
+    event.stopPropagation();
+    this.selectedModels = [];
+    this.models.forEach((m) => (m.selected = false));
+  }
+  toggleSelectAllPS(event: any) {
+    if (event.target.checked) {
+      this.selectedPSs = this.users.map((u) => u.user_id); // select all
+    } else {
+      this.selectedPSs = []; // deselect all
+    }
+  }
+
+  getProgressWidth(value: number, target: number): number {
+    if (target <= 0) return 0;
+
+    // Calculate the maximum scale (either value or target, whichever is higher)
+    // This ensures both the progress bar and target marker fit properly
+    const maxScale = Math.max(value, target);
+
+    // Return progress width as percentage of the max scale
+    return (value / maxScale) * 100;
+  }
+
+  getTargetPosition(value: number, target: number): number {
+    if (target <= 0) return 0;
+
+    // Use the same max scale as progress width for consistent positioning
+    const maxScale = Math.max(value, target);
+
+    // Return target position as percentage of the max scale
+    return (target / maxScale) * 100;
+  }
+
+  getProgressColor(value: number, target: number): string {
+    if (value >= target) {
+      return '#28a745'; // Green when target is met/exceeded
+    } else if (value >= target * 0.8) {
+      return '#fd7e14'; // Orange when close to target (80%+)
+    } else {
+      return '#dc3545'; // Red when far from target
+    }
+  }
+
+  clearAllPS(event: Event) {
+    event.stopPropagation(); // ✅ prevents dropdown toggle
+    this.selectedPSs = [];
+  }
+  toggleKpiDetails(kpi: any) {
+    kpi.showDetails = !kpi.showDetails;
+  }
+  filteredDealers() {
+    if (!this.dealerSearch) return this.allDealers;
+    return this.allDealers.filter((dealer) =>
+      dealer.dealer_name.toLowerCase().includes(this.dealerSearch.toLowerCase())
+    );
+  }
+
   onPSChange(user_id: string, event: any) {
     if (event.target.checked) {
       if (!this.selectedPSs.includes(user_id)) {
@@ -780,11 +915,11 @@ export class SummaryComponent implements OnInit {
   //   if (value <= 80) return 'amber'; // amber
   //   return 'green';
   // }
-  getProgressColor(value: number): string {
-    if (value <= 50) return '#fecaca'; // light red (like bg-red-200)
-    if (value <= 80) return '#fde68a'; // light amber (like bg-amber-200)
-    return '#bbf7d0'; // light green (like bg-green-200)
-  }
+  // getProgressColor(value: number): string {
+  //   if (value <= 50) return '#fecaca'; // light red (like bg-red-200)
+  //   if (value <= 80) return '#fde68a'; // light amber (like bg-amber-200)
+  //   return '#bbf7d0'; // light green (like bg-green-200)
+  // }
   // For values 0 → 50%, it returns #fecaca
   // For values 51 → 80%, it returns #fde68a
   // For values 81% and above, it returns #bbf7d0
