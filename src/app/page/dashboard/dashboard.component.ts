@@ -1501,6 +1501,26 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     return agg;
   }
+  // Map & normalize user call logs for each dealer
+  private buildUserCallLogs(): void {
+    this.dealers.forEach((dealer) => {
+      const users = dealer.users ?? [];
+
+      // Normalize calls object for each user
+      this.userCallLogs[dealer.dealerId] = users.map((u: any) => ({
+        userId: u.user_id,
+        name: u.user,
+        calls: {
+          total: u.calls?.totalCalls ?? 0, // map API → template format
+          outgoing: u.calls?.outgoing ?? 0,
+          incoming: u.calls?.incoming ?? 0,
+          connected: u.calls?.connected ?? 0,
+          declined: u.calls?.declined ?? 0,
+          durationSec: u.calls?.durationSec ?? 0,
+        },
+      }));
+    });
+  }
 
   fetchDealers(filter: 'MTD' | 'QTD' | 'YTD') {
     const token = localStorage.getItem('token');

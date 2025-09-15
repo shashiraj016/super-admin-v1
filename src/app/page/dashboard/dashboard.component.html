@@ -448,7 +448,8 @@
                     </span>
                   </th>
 
-                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('upcomingTestDrives')">
+                  <th class="th-right sortable-header" style="cursor:pointer;"
+                    (click)="sortDataDealer('upcomingTestDrives')">
                     Upcoming
                     <span class="sort-arrows">
                       <span class="arrow-up"
@@ -459,7 +460,7 @@
                   </th>
 
                   <th class="th-right group-divider sortable-header" style="cursor:pointer;"
-                    (click)="sortData('closedTestDrives')">
+                    (click)="sortDataDealer('closedTestDrives')">
                     Overdue
                     <span class="sort-arrows">
                       <span class="arrow-up"
@@ -470,7 +471,7 @@
                   </th>
 
                   <th class="th-right sortable-header" style="cursor:pointer;"
-                    (click)="sortData('opportunitiesConverted')">
+                    (click)="sortDataDealer('opportunitiesConverted')">
                     Opportunities Converted
                     <span class="sort-arrows">
                       <span class="arrow-up"
@@ -931,9 +932,10 @@
                                 <td [ngStyle]="{ color: user.calls.connected < 30 ? 'red' : '#007bff' }">{{
                                   user.calls.connected }}</td>
                                 <td style="color:red;">{{ user.calls.declined }}</td>
+                                <!-- <pre>{{ user| json }}</pre> -->
 
-                                <td style="color:red">
-                                  {{ user.calls.durationSec}}
+                                <td style="color:black;">
+                                  {{ user.calls.duration}}
                                 </td>
                               </tr>
                               <tr *ngIf="!userCallLogs[dealer.dealerId] || userCallLogs[dealer.dealerId]?.length === 0">

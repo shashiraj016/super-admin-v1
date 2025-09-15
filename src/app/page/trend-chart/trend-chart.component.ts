@@ -33,6 +33,8 @@ export type ChartOptions = {
   title: ApexTitleSubtitle;
   markers: ApexMarkers;
   legend: ApexLegend;
+  responsive?: ApexResponsive[];
+
   tooltip: ApexTooltip;
   colors?: string[];
 };
@@ -349,6 +351,88 @@ export class TrendChartComponent {
     );
 
     // Completely rebuild chartOptions instead of merging
+    // this.chartOptions = {
+    //   series: transformedData.series,
+    //   chart: {
+    //     height: 350,
+    //     type: this.chartOptions.chart?.type || 'line',
+    //     zoom: { enabled: false },
+    //     toolbar: { show: true },
+    //   },
+    //   dataLabels: {
+    //     enabled: false,
+    //   },
+    //   stroke: {
+    //     width: 2,
+    //     curve: 'smooth',
+    //   },
+    //   legend: {
+    //     position: 'top',
+    //     horizontalAlign: 'left',
+    //     fontSize: '12px',
+    //     itemMargin: {
+    //       horizontal: 10,
+    //       vertical: 4,
+    //     },
+    //   },
+    //   markers: {
+    //     size: 0,
+    //     hover: { sizeOffset: 6 },
+    //   },
+    //   xaxis: {
+    //     type: 'category',
+    //     categories: transformedData.categories,
+    //     labels: {
+    //       rotate: -45,
+    //       hideOverlappingLabels: true,
+    //       showDuplicates: false,
+    //       style: {
+    //         fontSize: '10px',
+    //       },
+    //     },
+    //     tickPlacement: 'on',
+    //     sorted: false,
+    //   },
+    //   tooltip: {
+    //     x: {},
+    //     y: {
+    //       formatter: (val: number) => val.toString(),
+    //     },
+    //   },
+    //   grid: {
+    //     show: true,
+    //     borderColor: '#e0e0e0',
+    //     strokeDashArray: 3,
+    //     position: 'back',
+    //     xaxis: {
+    //       lines: {
+    //         show: true,
+    //       },
+    //     },
+    //     yaxis: {
+    //       lines: {
+    //         show: true,
+    //       },
+    //     },
+    //   },
+    //   colors: [
+    //     '#2a8eff',
+    //     '#0f5fb8',
+    //     '#1676e6',
+    //     '#86c1ff',
+    //     '#57a8ff',
+    //     '#059669',
+    //     '#0ea5e9',
+    //     '#9333ea',
+    //     '#d97706',
+    //     '#e11d48',
+    //     '#0d4c90',
+    //     '#0c3f76',
+    //     '#64748b',
+    //     '#475569',
+    //     '#14b8a6',
+    //   ],
+    // };
     this.chartOptions = {
       series: transformedData.series,
       chart: {
@@ -357,25 +441,14 @@ export class TrendChartComponent {
         zoom: { enabled: false },
         toolbar: { show: true },
       },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        width: 2,
-        curve: 'smooth',
-      },
+      dataLabels: { enabled: false },
+      stroke: { width: 2, curve: 'smooth' },
+      markers: { size: 0, hover: { sizeOffset: 6 } },
       legend: {
         position: 'top',
         horizontalAlign: 'left',
         fontSize: '12px',
-        itemMargin: {
-          horizontal: 10,
-          vertical: 4,
-        },
-      },
-      markers: {
-        size: 0,
-        hover: { sizeOffset: 6 },
+        itemMargin: { horizontal: 10, vertical: 4 },
       },
       xaxis: {
         type: 'category',
@@ -384,35 +457,15 @@ export class TrendChartComponent {
           rotate: -45,
           hideOverlappingLabels: true,
           showDuplicates: false,
-          style: {
-            fontSize: '10px',
-          },
+          style: { fontSize: '10px' }, // default for desktop
         },
         tickPlacement: 'on',
-        sorted: false,
       },
       tooltip: {
         x: {},
-        y: {
-          formatter: (val: number) => val.toString(),
-        },
+        y: { formatter: (val: number) => val.toString() },
       },
-      grid: {
-        show: true,
-        borderColor: '#e0e0e0',
-        strokeDashArray: 3,
-        position: 'back',
-        xaxis: {
-          lines: {
-            show: true,
-          },
-        },
-        yaxis: {
-          lines: {
-            show: true,
-          },
-        },
-      },
+      grid: { show: true, borderColor: '#e0e0e0', strokeDashArray: 3 },
       colors: [
         '#2a8eff',
         '#0f5fb8',
@@ -429,6 +482,20 @@ export class TrendChartComponent {
         '#64748b',
         '#475569',
         '#14b8a6',
+      ],
+      responsive: [
+        {
+          breakpoint: 768, // mobile / tablet
+          options: {
+            xaxis: {
+              labels: {
+                style: { fontSize: '2px' }, // smaller font on mobile
+                rotate: -60,
+              },
+            },
+            chart: { height: 300 }, // optional: smaller chart height
+          },
+        },
       ],
     };
   }

@@ -268,7 +268,7 @@ export class Login1Component {
         next: () => {
           this.toastr.success('OTP sent to your email', 'Success');
           this.showVerifyOtp();
-          this.startCountdown();
+          // this.startCountdown();
         },
         error: (error) => {
           console.error('Login error:', error);
@@ -318,39 +318,6 @@ export class Login1Component {
     // Update the input value to show only numbers
     input.value = numericValue;
   }
-
-  //   onSetNewPassword() {
-  //     if (!this.validateNewPassword()) return;
-
-  //     const resetPasswordData = {
-  //       email: this.loginObj.email,
-  //       newPassword: this.loginObj.newPwd,
-  //       confirmPwd: this.loginObj.confirmPassword
-  //     };
-
-  //     this.http.put<any>(`${this.API_BASE_URL}login/s-admin/forgot-pwd/new-pwd`, resetPasswordData)
-  //       .subscribe({
-  //         next: (response) => {
-  //           this.toastr.success('Password reset successfully', 'Success');
-  //           this.backToLogin();
-  //         },
-  //         error: (error) => {
-  //           console.error('Password reset error:', error);
-  //           if (error.status === 400) {
-  //             this.toastr.error('Invalid request. Please check your inputs.', 'Error');
-  //           } else if (error.status === 404) {
-  //             this.toastr.error('User not found', 'Error');
-  //           } else {
-  //             const errorMessage = error.error?.message || 'Failed to reset password';
-  //             this.toastr.error(errorMessage, 'Error');
-  //           }
-  //         },
-  //         complete: () => {
-  //           this.loginObj.newPwd = '';
-  //           this.loginObj.confirmPassword = '';
-  //         }
-  //       });
-  // }
 
   onSetNewPassword() {
     if (!this.validateNewPassword()) return;
@@ -446,12 +413,13 @@ export class Login1Component {
       });
 
     console.log('Setting up auto logout...');
-    this.setupAutoLogout();
+    // this.setupAutoLogout();
   }
 
   // private setupAutoLogout(): void {
+  //   // Use localStorage timeout instead of localStorage
   //   setTimeout(() => {
-  //     localStorage.removeItem('adminToken');
+  //     localStorage.removeItem('token');
   //     this.router
   //       .navigateByUrl('/login')
   //       .then(() => {
@@ -466,36 +434,18 @@ export class Login1Component {
   //   }, this.SESSION_TIMEOUT);
   // }
 
-  private setupAutoLogout(): void {
-    // Use localStorage timeout instead of localStorage
-    setTimeout(() => {
-      localStorage.removeItem('token');
-      this.router
-        .navigateByUrl('/login')
-        .then(() => {
-          this.toastr.info(
-            'Session expired. Please log in again.',
-            'Session Expired'
-          );
-        })
-        .catch((error) => {
-          console.error('Logout navigation error:', error);
-        });
-    }, this.SESSION_TIMEOUT);
-  }
-
-  private startCountdown() {
-    this.countdown = 5 * 60;
-    if (this.countdownInterval) {
-      clearInterval(this.countdownInterval);
-    }
-    this.countdownInterval = setInterval(() => {
-      this.countdown--;
-      if (this.countdown === 0) {
-        clearInterval(this.countdownInterval);
-      }
-    }, 1000);
-  }
+  // private startCountdown() {
+  //   this.countdown = 5 * 60;
+  //   if (this.countdownInterval) {
+  //     clearInterval(this.countdownInterval);
+  //   }
+  //   this.countdownInterval = setInterval(() => {
+  //     this.countdown--;
+  //     if (this.countdown === 0) {
+  //       clearInterval(this.countdownInterval);
+  //     }
+  //   }, 1000);
+  // }
 
   // Utility methods for input styling
   addClass(event: FocusEvent): void {
