@@ -1,4 +1,4 @@
-<section class="bg-white rounded-2xl shadow-sm border border-slate-200" style="margin-top: 39px;">
+<section class="bg-white rounded-2xl shadow-sm border border-slate-200" style="margin-top: 39px;margin-bottom:15px;">
     <div
         class="p-4 sm:p-6 border-b border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4 delar_usage">
         <div>
@@ -53,7 +53,7 @@
 
                 <!-- Metric selector -->
                 <!-- Date Filter -->
-                <label for="usageGran" class="text-sm text-slate-600">Granularity</label>
+                <label for="usageGran" class="text-sm text-slate-600">DateFilter</label>
                 <select id="usageGran" [(ngModel)]="selectedDateFilter" (change)="fetchTrendChartWithFilters()"
                     class=" no-border rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                     <option value="LAST_30_DAYS" selected>Last 30 Days</option>
@@ -90,7 +90,7 @@
         </div>
     </div>
 
-    <div class="px-4 sm:px-6 pb-6">
+    <div>
         <!-- <div id="usageLocalLoader" class="hidden flex items-center gap-2 text-sm text-slate-600 mb-3">
             <div class="h-5 w-5 rounded-full border-2 border-slate-300 border-t-brand-600 animate-spin"></div>
         </div> -->

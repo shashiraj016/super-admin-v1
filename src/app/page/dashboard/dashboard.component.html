@@ -22,13 +22,16 @@
         <option value="CUSTOM">Custom</option>
       </select>
       <div *ngIf="selectedFilter === 'CUSTOM'" class="custom-inputs flt1">
-        <input type="date" [(ngModel)]="customStartDate" placeholder="Start Date" class="custom-date" />
-        <input type="date" [(ngModel)]="customEndDate" placeholder="End Date" class="custom-date" />
+        <input type="date" [(ngModel)]="customStartDate" placeholder="Start Date" class="custom-date"
+          (change)="validateCustomDates()" />
+        <input type="date" [(ngModel)]="customEndDate" placeholder="End Date" class="custom-date"
+          (change)="validateCustomDates()" />
         <button (click)="applyCustomDate()" class="apply-btn flt2">Apply</button>
         <button (click)="resetCustomDate()" class="reset-btn flt2">Reset</button>
       </div>
       <div class="dropdown flt1" [class.show]="dropdownOpen" style="margin-right: 5px;">
-        <button class="time-dropdown dropdown-toggle" type="button" (click)="toggleDropdown()">
+        <button class="time-dropdown dropdown-toggle" type="button" (click)="toggleDropdown()"
+          [disabled]="selectedFilter === 'CUSTOM' && invalidDateRange">
           {{ selectedDealers.length > 0 ? 'Dealers Selected (' + selectedDealers.length + ')' : 'Select Dealers' }}
         </button>
         <div class="dropdown-menu show" *ngIf="dropdownOpen">
@@ -897,7 +900,7 @@
                   <!-- Sub-row: User call logs -->
                   <tr *ngIf="expandedRow === 'engagement-' + i" class="sub-row">
                     <td colspan="10" class="sub-row-content" style="padding: 0;">
-                      <div class="sub-row-inner" style="padding-left: 0;">
+                      <div class="sub-row-inner" style="padding-left: 13px !important;">
                         <div class="sub-row-title"
                           style="text-align: left !important; font-weight: 600; padding: 4px 8px;">
                           User-wise Call Logs — {{ dealer.dealerName }}
@@ -912,6 +915,7 @@
                                 <th>Incoming</th>
                                 <th>Connected</th>
                                 <th>Declined</th>
+                                <th>Duration</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -922,14 +926,18 @@
                                 <td style="text-align: left !important;width:90px !important">{{ user.name }}</td>
                                 <td [ngStyle]="{ color: user.calls.total < 60 ? 'red' : 'black' }">{{ user.calls.total
                                   }}</td>
-                                <td>{{ user.calls.outgoing }}</td>
-                                <td>{{ user.calls.incoming }}</td>
+                                <td style="color:green">{{ user.calls.outgoing }}</td>
+                                <td style="color:green"> {{ user.calls.incoming }}</td>
                                 <td [ngStyle]="{ color: user.calls.connected < 30 ? 'red' : '#007bff' }">{{
                                   user.calls.connected }}</td>
                                 <td style="color:red;">{{ user.calls.declined }}</td>
+
+                                <td style="color:red">
+                                  {{ user.calls.durationSec}}
+                                </td>
                               </tr>
                               <tr *ngIf="!userCallLogs[dealer.dealerId] || userCallLogs[dealer.dealerId]?.length === 0">
-                                <td colspan="6" class="td-center">No Users Found</td>
+                                <td colspan="7" class="td-center">No Users Found</td>
                               </tr>
                             </tbody>
                           </table>

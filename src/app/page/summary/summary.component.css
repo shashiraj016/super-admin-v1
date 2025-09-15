@@ -913,8 +913,8 @@ body {
 
 .checkbox-item {
   padding: 6px 8px;
-  display: flex;
-  align-items: center;
+  /* display: flex;
+  align-items: center; */
   gap: 6px;
 }
 
@@ -1051,8 +1051,8 @@ body {
 }
 
 .checkbox-item {
-  display: flex;
-  align-items: center;
+  /* display: flex;
+  align-items: center; */
   padding: 6px 10px;
 }
 

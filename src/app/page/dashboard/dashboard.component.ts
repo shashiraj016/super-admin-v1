@@ -140,6 +140,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   hoveredSM: string | null = null;
   callLogDealers: Dealer[] = []; // for call logs, fixed order
   isInitialLoad = true;
+  invalidDateRange: boolean = false;
 
   loading = false; // Declare this in your component
   selectedDealer: any = null;
@@ -1253,25 +1254,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           //       Number(a.callLogs.totalCalls ?? 0)
           //   );
 
-          //   // ✅ Sort users inside selected dealers too
-          //   this.selectedDealers.forEach((dealer) => {
-          //     const users = dealer.users ?? [];
-          //     this.userCallLogs[dealer.dealerId] = [...users]
-          //       .map((u) => ({
-          //         userId: u.user_id,
-          //         name: u.user,
-          //         calls: {
-          //           total: Number(u.calls?.totalCalls ?? 0),
-          //           outgoing: Number(u.calls?.outgoing ?? 0),
-          //           incoming: Number(u.calls?.incoming ?? 0),
-          //           connected: Number(u.calls?.connected ?? 0),
-          //           declined: Number(u.calls?.declined ?? 0),
-          //           durationSec: Number(u.calls?.durationSec ?? 0),
-          //         },
-          //       }))
-          //       .sort((a, b) => b.calls.total - a.calls.total);
-          //   });
-          // }
           // --- Select all dealers on first load, otherwise preserve selection ---
           if (this.isInitialLoad) {
             if (this.dealers.length > 0) {
@@ -1601,11 +1583,31 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.fetchSuperAdminDashboard('CUSTOM'); // Call API with proper dates
   }
+  // resetCustomDate() {
+  //   this.customStartDate = '';
+  //   this.customEndDate = '';
+
+  //   this.selectedFilter = 'DAY';
+
+  //   // ✅ Show loader
+  //   this.isLoading = true;
+
+  //   // Fetch default data
+  //   this.onFilterChange(this.selectedFilter);
+
+  //   // Remove applied visual effect
+  //   const inputs = document.querySelector('.custom-inputs');
+  //   if (inputs) {
+  //     inputs.classList.remove('applied');
+  //   }
+  // }
   resetCustomDate() {
     this.customStartDate = '';
     this.customEndDate = '';
 
     this.selectedFilter = 'DAY';
+
+    this.invalidDateRange = false; // ✅ reset validation
 
     // ✅ Show loader
     this.isLoading = true;
@@ -1619,7 +1621,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       inputs.classList.remove('applied');
     }
   }
+  validateCustomDates() {
+    if (this.customStartDate && this.customEndDate) {
+      const start = new Date(this.customStartDate);
+      const end = new Date(this.customEndDate);
 
+      this.invalidDateRange = start > end; // disable if invalid
+    } else {
+      this.invalidDateRange = false; // reset when dates are empty
+    }
+  }
   formatDuration(sec: number): string {
     const h = Math.floor(sec / 3600)
       .toString()
@@ -3230,6 +3241,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // }
   clearSelection(): void {
     this.selectedDealers = [];
+    this.cdr.detectChanges(); // forces Angular to refresh view immediately
   }
 
   // trackByDealerId(index: number, dealer: any): string {
@@ -3238,7 +3250,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   // Clear all selected dealers
   // clearSelection(): void {
-  //   this.selectedDealers = [];
+  //   this.selectedDealers = [];a
   // }
   selectDealer(dealer: any) {
     this.selectedDealer = dealer;
@@ -3502,8 +3514,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   });
   // }
   exportToCSV() {
-    const dealersToExport =
-      this.selectedDealers.length > 0 ? this.selectedDealers : this.dealers;
+    // Get the same list as the table is showing
+    const dealersToExport = this.getSortedDealersForSummary();
 
     if (!dealersToExport || dealersToExport.length === 0) {
       console.warn('No dealers to export');
@@ -3571,8 +3583,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
+
   trackByUserId(index: number, user: any) {
-    return user.user_id ?? user.user; // Use unique ID if available, fallback to username
+    return user.user_id; // Use unique ID if available, fallback to username
   }
   // exportDealerCalllogstocxp() {
   //   if (!this.dealers || this.dealers.length === 0) {
