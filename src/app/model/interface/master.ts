@@ -258,6 +258,18 @@ export interface Dealer {
 
   users?: User[]; // optional, only if API returns it
 }
+export interface DealerUser {
+  user_id: number;
+  user: string;
+  calls?: {
+    totalCalls?: number;
+    outgoing?: number;
+    incoming?: number;
+    connected?: number;
+    declined?: number;
+    durationSec?: number;
+  };
+}
 // export interface Model {
 //   model: string;
 //   model_name: string;

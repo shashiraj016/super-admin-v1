@@ -482,7 +482,9 @@
 
               <tbody>
                 <ng-container
-                  *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : dealers) | slice:0:table1Length; let i = index">
+                  *ngFor="let dealer of getSortedDealersForSummary() | slice:0:table1Length; let i = index trackBy: trackByDealerId">
+                  <!-- <ng-container
+                  *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : dealers) | slice:0:table1Length; let i = index"> -->
                   <!-- <ng-container *ngFor="let dealer of selectedDealers | slice:0:table1Length; let i = index"> -->
                   <tr *ngIf="dealer" class="table-row">
                     <td class="sticky-col-header  td-left">
@@ -602,10 +604,10 @@
                                   </span>
                                 </td>
                                 <td class="td-rigth">{{user.registerUser ?? 0}}</td>
-                                <td class="td-rigth">{{user. last_login ?? 0}}
+                                <td class="td-rigth">{{ user.last_login | date:'dd-MM-yyyy HH:mm' }}</td>
 
 
-                                </td>
+
                                 <td class="td-right">{{ user.leads?.sa ?? 0 }}</td>
                                 <td class="td-right">{{ user.leads?.cxp ?? 0 }}</td>
                                 <td class="td-right">{{ user.leads?.ics ?? 0 }}</td>
@@ -704,8 +706,7 @@
                 <!-- <ng-container
                   *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : dealers) | slice:0:table2Length; let i = index"> -->
                 <ng-container
-                  *ngFor="let dealer of (selectedDealers.length > 0 ? selectedDealers : originalDealers) | slice:0:table2Length; let i = index">
-
+                  *ngFor="let dealer of getSortedDealersForCallLogs() | slice:0:table2Length; let i = index">
                   <!-- Main dealer row -->
                   <tr>
                     <td class="sticky-col td-font-medium">
@@ -726,10 +727,13 @@
                       <i class="fa fa-phone" style="margin-right: 4px; color: black;"></i>
                       {{ dealer.callLogs?.totalCalls || 0 }}
                     </td> -->
-                    <td [ngClass]="dealer.callLogs?.totalCalls < 60 ? 'highlight-red' : 'normal'">
-                      <div style="display: flex; align-items: center; justify-content: center !important;">
-                        <i class="fa fa-phone" style="margin-right: 8px;"></i>
-                        <span>{{ dealer.callLogs?.totalCalls || 0 }}</span>
+                    <td [ngClass]="dealer.callLogs?.totalCalls < 60 ? 'highlight-red' : 'normal'"
+                      style="text-align: center; width: 100px;">
+                      <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i class="fa fa-phone"></i>
+                        <span style="min-width: 40px; text-align: left;">
+                          {{ dealer.callLogs?.totalCalls || 0 }}
+                        </span>
                       </div>
                     </td>
 
@@ -818,10 +822,10 @@
                               </tr>
                             </thead>
                             <tbody>
-                              <!-- <tr *ngFor="let user of userCallLogs[dealer.dealerId]; let j = index"
-                                [ngClass]="{ 'row-alt': j % 2 === 0, 'row-normal': j % 2 !== 0 }"> -->
-                              <tr *ngFor="let user of getSortedCallLogs(dealer.dealerId); let j = index"
-                                [ngClass]="{ 'row-alt': j % 2 === 0, 'row-normal': j % 2 !== 0 }">
+
+
+                              <tr
+                                *ngFor="let user of getSortedCallLogs(dealer.dealerId); let i = index; trackBy: trackByUserId">
                                 <td style="text-align: left !important;width:90px !important">{{ user.name }}</td>
                                 <td [ngStyle]="{ color: user.calls.total < 60 ? 'red' : 'black' }">{{ user.calls.total
                                   }}</td>

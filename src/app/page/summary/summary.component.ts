@@ -211,10 +211,31 @@ export class SummaryComponent implements OnInit {
 
     return allKpis;
   }
+  // onFilterChange(filter: string) {
+  //   this.selectedFilter = filter;
+  //   console.log('Filter changed:', filter);
+  //   this.loadDealers(this.selectedFilter, this.selectedDealer);
+  // }
   onFilterChange(filter: string) {
     this.selectedFilter = filter;
     console.log('Filter changed:', filter);
-    this.loadDealers(this.selectedFilter, this.selectedDealer);
+
+    const dealerParam =
+      this.selectedDealers && this.selectedDealers.length > 0
+        ? this.selectedDealers
+        : 'all';
+
+    const psParam =
+      this.selectedPSs && this.selectedPSs.length > 0
+        ? this.selectedPSs
+        : 'all';
+
+    const modelParam =
+      this.selectedModel && this.selectedModel !== 'all'
+        ? this.selectedModel
+        : '';
+
+    this.loadDealers(this.selectedFilter, dealerParam, psParam, modelParam);
   }
 
   toggleDropdown() {

@@ -113,6 +113,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   sortColumn: string | null = null; // track which column is sorted
   // sortDirection: 'asc' | 'desc' = 'asc'; // track sort direction
   sortDirection: 'asc' | 'desc' | 'default' = 'default';
+  skipDefaultSelection = false;
 
   currentPageMap: { [dealerId: string]: number } = {}; // track current page per dealer
   showAllSMs: { [dealerId: string]: boolean } = {};
@@ -444,7 +445,18 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   });
   // }
   getSortedUsers(dealerId: string) {
+    console.log('🔥 getSortedUsers called for dealer', dealerId);
+
     const users = this.dealerUsers[dealerId] ?? [];
+    console.log(
+      '📊 Sorting dealer summary users:',
+      dealerId,
+      users.map((u) => ({
+        user: u.user,
+        saLeads: u.leads?.sa,
+        totalCalls: u.calls?.total,
+      }))
+    );
 
     return [...users].sort((a, b) => {
       const saA = a.leads?.sa ?? 0;
@@ -465,13 +477,43 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   getSortedCallLogs(dealerId: string) {
+    console.log('🔥 getSortedCallLogs called for dealer', dealerId);
+
     const users = this.userCallLogs[dealerId] ?? [];
+    console.log(
+      '📞 Sorting call log users:',
+      dealerId,
+      users.map((u) => ({
+        user: u.name,
+        totalCalls: u.calls?.total,
+        saLeads: u.leads?.sa,
+      }))
+    );
     return [...users].sort((a, b) => {
       const totalA = a.calls?.total ?? 0;
       const totalB = b.calls?.total ?? 0;
       return totalB - totalA; // descending by total calls
     });
   }
+  getSortedDealersForCallLogs() {
+    const list =
+      this.selectedDealers.length > 0 ? this.selectedDealers : this.dealers;
+    return [...list].sort((a, b) => {
+      const totalA = a.callLogs?.totalCalls ?? 0;
+      const totalB = b.callLogs?.totalCalls ?? 0;
+      return totalB - totalA; // sort descending by total calls
+    });
+  }
+  getSortedDealersForSummary() {
+    const list =
+      this.selectedDealers.length > 0 ? this.selectedDealers : this.dealers;
+    return [...list].sort((a, b) => {
+      const saA = a.saLeads ?? 0; // ← just the number
+      const saB = b.saLeads ?? 0;
+      return saB - saA; // descending order
+    });
+  }
+
   // fetchKpiData() {
   //   const token = localStorage.getItem('token') || '';
   //   this.dashboardService.getKpiData(token).subscribe((res: any) => {
@@ -660,143 +702,32 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     // loader will be stopped inside fetchSuperAdminDashboard() after response
   }
 
-  // onFilterChange(
-  //   filter:
-  //     | 'DAY'
-  //     | 'YESTERDAY'
-  //     | 'WEEK'
-  //     | 'LAST_WEEK'
-  //     | 'MTD'
-  //     | 'LAST_MONTH'
-  //     | 'QTD'
-  //     | 'LAST_QUARTER'
-  //     | 'SIX_MONTH'
-  //     | 'YTD'
-  //     | 'LIFETIME'
-  //     | 'CUSTOM'
-  // ): void {
-  //   this.selectedFilter = filter;
+  // onFilterChange(filter: FilterType): void {
   //   const apiFilter = this.mapFilterToApi(filter);
-
   //   if (apiFilter === 'CUSTOM') return;
 
-  //   // Clear previous expanded rows and user data
+  //   // Reset
   //   this.expandedRow = null;
   //   this.dealerUsers = {};
   //   this.userCallLogs = {};
   //   this.dealerCallLogs = {};
 
-  //   this.isLoading = true;
-
-  //   if (this.selectedDealerId) {
-  //     const dealerId = this.selectedDealerId;
-  //     const activeSMId = this.activeSM;
-
-  //     this.dashboardService.getNoSMUsers(dealerId).subscribe({
-  //       next: (res: any) => {
-  //         const selectedDealer = res.data.dealerData.find(
-  //           (d: any) => d.dealerId === dealerId
-  //         );
-
-  //         this.dealerUsers[dealerId] = selectedDealer?.users || [];
-  //         this.displayedDealerUsers =
-  //           this.dealerUsers[dealerId]?.slice(0, 10) || [];
-
-  //         const smList = this.dealerSMS[dealerId] || [];
-  //         this.activeSM = smList.some((s) => s.sm_id === activeSMId)
-  //           ? activeSMId
-  //           : null;
-  //       },
-  //       error: (err: any) => {
-  //         console.error('Error fetching dealer users:', err);
-  //         this.dealerUsers[dealerId] = [];
-  //         this.displayedDealerUsers = [];
-  //       },
-  //     });
-  //   } else {
-  //     this.fetchDashboardDataForTopCards(apiFilter);
-  //     this.fetchSuperAdminDashboard(apiFilter);
-  //   }
-  // }
-  // onFilterChange(
-  //   filter:
-  //     | 'DAY'
-  //     | 'YESTERDAY'
-  //     | 'WEEK'
-  //     | 'LAST_WEEK'
-  //     | 'MTD'
-  //     | 'LAST_MONTH'
-  //     | 'QTD'
-  //     | 'LAST_QUARTER'
-  //     | 'SIX_MONTH'
-  //     | 'YTD'
-  //     | 'LIFETIME'
-  //     | 'CUSTOM'
-  // ): void {
-  //   console.log('🔄 Filter changed to:', filter);
-  //   console.log('🔍 Selected dealer ID:', this.selectedDealerId);
-
-  //   this.selectedFilter = filter;
-  //   const apiFilter = this.mapFilterToApi(filter);
-
-  //   if (apiFilter === 'CUSTOM') return;
-
-  //   // Clear previous expanded rows and user data
-  //   this.expandedRow = null;
-  //   this.dealerUsers = {};
-  //   this.userCallLogs = {};
-  //   this.dealerCallLogs = {};
-
-  //   this.isLoading = true;
-
-  //   // ✅ ALWAYS call dashboard methods regardless of dealer selection
-  //   console.log('📊 Fetching dashboard data with filter:', apiFilter);
-  //   //this.fetchDashboardDataForTopCards(apiFilter);
+  //   // ✅ Single API call handles both dealer + filter
   //   this.fetchSuperAdminDashboard(apiFilter);
-
-  //   // ✅ Additionally, if single dealer mode, also fetch user data
-  //   if (this.selectedDealerId) {
-  //     console.log('👤 Single dealer mode - also fetching user data');
-
-  //     const dealerId = this.selectedDealerId;
-  //     const activeSMId = this.activeSM;
-
-  //     this.dashboardService.getNoSMUsers(dealerId).subscribe({
-  //       next: (res: any) => {
-  //         const selectedDealer = res.data.dealerData.find(
-  //           (d: any) => d.dealerId === dealerId
-  //         );
-
-  //         this.dealerUsers[dealerId] = selectedDealer?.users || [];
-  //         this.displayedDealerUsers =
-  //           this.dealerUsers[dealerId]?.slice(0, 10) || [];
-
-  //         const smList = this.dealerSMS[dealerId] || [];
-  //         this.activeSM = smList.some((s) => s.sm_id === activeSMId)
-  //           ? activeSMId
-  //           : null;
-  //       },
-  //       error: (err: any) => {
-  //         console.error('Error fetching dealer users:', err);
-  //         this.dealerUsers[dealerId] = [];
-  //         this.displayedDealerUsers = [];
-  //       },
-  //     });
-  //   }
   // }
   onFilterChange(filter: FilterType): void {
     const apiFilter = this.mapFilterToApi(filter);
-    if (apiFilter === 'CUSTOM') return;
 
-    // Reset
+    // Reset tables and states
     this.expandedRow = null;
     this.dealerUsers = {};
     this.userCallLogs = {};
     this.dealerCallLogs = {};
 
-    // ✅ Single API call handles both dealer + filter
+    // ✅ Always fetch, including CUSTOM (URL logic is already inside fetchSuperAdminDashboard)
     this.fetchSuperAdminDashboard(apiFilter);
   }
+
   fetchDealerSMs(
     dealerId: string,
     type: 'MTD' | 'QTD' | 'YTD',
@@ -1127,795 +1058,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const target = event.target as HTMLInputElement;
     this.searchDealer(target.value);
   }
-  // THIS CODE IS WIHTOUT SELECT DEALERS FUCNTIONALITY
-  // fetchSuperAdminDashboard(type: string = 'This month'): void {
-  //   this.isLoading = true;
-  //   const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
-  //   const token = localStorage.getItem('token');
 
-  //   if (!token) {
-  //     console.error('No token found in localStorage!');
-  //     this.isLoading = false;
-
-  //     return;
-  //   }
-
-  //   const headers = new HttpHeaders({
-  //     Authorization: `Bearer ${token}`,
-  //   });
-
-  //   this.http.get<any>(url, { headers }).subscribe({
-  //     next: (res) => {
-  //       this.isLoading = false;
-  //       if (res?.status === 200 && res.data) {
-  //         // ✅ KPI top card data
-  //         this.kpiData = {
-  //           dealers: res.data.dealers ?? 0,
-  //           activeNetwork: res.data.activeNetwork ?? 0,
-  //           users: res.data.users ?? 0,
-  //           activeUsers: res.data.activeUsers ?? 0,
-  //           leads: res.data.leads ?? 0,
-  //           calls: res.data.calls ?? 0,
-  //           totalFollowUps: res.data.totalFollowUps ?? 0,
-  //           uniqueTestDrives: res.data.uniqueTestDrives ?? 0,
-  //           completedTestDrives: res.data.completedTestDrives ?? 0,
-  //         };
-
-  //         this.dealers = res.data.dealerData ?? [];
-
-  //         // 👉 Sorting dealers by total leads (desc)
-  //         this.dealers.sort((a: any, b: any) => {
-  //           const leadsA =
-  //             (a.saLeads || 0) +
-  //             (a.cxpLeads || 0) +
-  //             (a.icsLeads || 0) +
-  //             (a.manuallyEnteredLeads || 0);
-
-  //           const leadsB =
-  //             (b.saLeads || 0) +
-  //             (b.cxpLeads || 0) +
-  //             (b.icsLeads || 0) +
-  //             (b.manuallyEnteredLeads || 0);
-
-  //           return leadsB - leadsA;
-  //         });
-
-  //         this.filteredDealers = [...this.dealers];
-  //         this.originalDealers = [...this.dealers];
-
-  //         console.log('Dealers loaded:', this.dealers.length, this.dealers);
-
-  //         // 👉 Metrics labels (X-axis)
-  //         const categories = [
-  //           'Total Calls',
-  //           'Outgoing Calls',
-  //           'Incoming Calls',
-  //           'Declined Calls',
-  //           'Connected Calls',
-  //           // 'Duration (sec)',
-  //         ];
-
-  //         // 👉 Dealer-wise series
-  //         const series = this.dealers.map((d: any) => {
-  //           return {
-  //             name: d.dealerName,
-  //             data: [
-  //               d.callLogs.totalCalls ?? 0,
-  //               d.callLogs.outgoing ?? 0,
-  //               d.callLogs.incoming ?? 0,
-  //               d.callLogs.declined ?? 0,
-  //               d.callLogs.connected ?? 0,
-  //               // d.callLogs.durationSec ?? 0, // keeping raw seconds for line chart
-  //             ],
-  //           };
-  //         });
-
-  //         // 👉 Chart options
-  //         this.chartOptions = {
-  //           series: series,
-  //           chart: {
-  //             type: 'line',
-  //             height: 350,
-  //             offsetX: 0,
-  //             offsetY: 0,
-  //             toolbar: {
-  //               show: true,
-  //               tools: {
-  //                 download: true,
-  //                 selection: false,
-  //                 zoom: false,
-  //                 zoomin: true,
-  //                 zoomout: true,
-  //                 pan: false,
-  //                 reset: false,
-  //               },
-  //             },
-  //           },
-  //           dataLabels: {
-  //             enabled: false,
-  //           },
-  //           stroke: {
-  //             curve: 'smooth',
-  //             width: 3,
-  //           },
-  //           title: {
-  //             text: 'Dealer-wise Calls Analysis',
-  //             align: 'left',
-  //           },
-  //           xaxis: {
-  //             categories: categories,
-  //             labels: { rotate: -45 },
-  //           },
-  //           responsive: [
-  //             {
-  //               breakpoint: 768,
-  //               options: {
-  //                 title: {
-  //                   align: 'left',
-  //                 },
-  //               },
-  //             },
-  //           ],
-  //         };
-  //       } else {
-  //         console.error('Unexpected response:', res);
-  //         this.dealers = [];
-  //         this.filteredDealers = [];
-  //       }
-  //     },
-  //     error: (err) => {
-  //       this.isLoading = false;
-  //       console.error('Super Admin Dashboard API failed:', err);
-  //       this.dealers = [];
-  //       this.filteredDealers = [];
-  //     },
-  //   });
-
-  //   // this.http.get<any>(url, { headers }).subscribe({
-  //   //   next: (res) => {
-  //   //     this.isLoading = false;
-  //   //     if (res?.status === 200 && res.data) {
-  //   //       // ✅ KPI top card data
-  //   //       this.kpiData = {
-  //   //         dealers: res.data.dealers ?? 0,
-  //   //         activeNetwork: res.data.activeNetwork ?? 0,
-  //   //         users: res.data.users ?? 0,
-  //   //         activeUsers: res.data.activeUsers ?? 0,
-  //   //         leads: res.data.leads ?? 0,
-  //   //         calls: res.data.calls ?? 0,
-  //   //         totalFollowUps: res.data.totalFollowUps ?? 0,
-  //   //         uniqueTestDrives: res.data.uniqueTestDrives ?? 0,
-  //   //         completedTestDrives: res.data.completedTestDrives ?? 0,
-  //   //       };
-
-  //   //       this.dealers = res.data.dealerData ?? [];
-  //   //       console.log(
-  //   //         'Before sorting:',
-  //   //         this.dealers.map((d) => ({
-  //   //           name: d.dealerName,
-  //   //           sa: d.saLeads,
-  //   //           cxp: d.cxpLeads,
-  //   //           ics: d.icsLeads,
-  //   //           manual: d.manuallyEnteredLeads,
-  //   //         }))
-  //   //       );
-  //   //       // THIS IS CODE OF DEALERS WITH HIG LEADS WILL COME BY DEAFULT IN UI (DISCUSS WITH MUSTAFA AND)
-  //   //       this.dealers.sort((a: any, b: any) => {
-  //   //         const leadsA =
-  //   //           (a.saLeads || 0) +
-  //   //           (a.cxpLeads || 0) +
-  //   //           (a.icsLeads || 0) +
-  //   //           (a.manuallyEnteredLeads || 0);
-
-  //   //         const leadsB =
-  //   //           (b.saLeads || 0) +
-  //   //           (b.cxpLeads || 0) +
-  //   //           (b.icsLeads || 0) +
-  //   //           (b.manuallyEnteredLeads || 0);
-
-  //   //         return leadsB - leadsA;
-  //   //       });
-
-  //   //       this.filteredDealers = [...this.dealers];
-  //   //       this.originalDealers = [...this.dealers];
-
-  //   //       this.filteredDealers = [...this.dealers];
-
-  //   //       console.log(
-  //   //         'Dealers loadeddddddddddddddddd:',
-  //   //         this.dealers.length,
-  //   //         this.dealers
-  //   //       );
-
-  //   //       const categories = this.dealers.map((d: any) => d.dealerName);
-
-  //   //       // Series Data
-  //   //       const connected = this.dealers.map((d: any) => d.callLogs.connected);
-  //   //       const declined = this.dealers.map((d: any) => d.callLogs.declined);
-  //   //       const durationSec = this.dealers.map((d: any) => {
-  //   //         const val = d.callLogs.durationSec;
-  //   //         const hrs = Math.floor(val / 3600);
-  //   //         const mins = Math.floor((val % 3600) / 60);
-  //   //         const secs = val % 60;
-  //   //         return `${hrs.toString().padStart(2, '0')}:${mins
-  //   //           .toString()
-  //   //           .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  //   //       });
-  //   //       console.log(durationSec, 'nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn');
-  //   //       const incoming = this.dealers.map((d: any) => d.callLogs.incoming);
-  //   //       const outgoing = this.dealers.map((d: any) => d.callLogs.outgoing);
-  //   //       const totalCalls = this.dealers.map(
-  //   //         (d: any) => d.callLogs.totalCalls
-  //   //       );
-
-  //   //       // Keep only this categories declaration with multi-line logic
-
-  //   //       this.chartOptions = {
-  //   //         series: [
-  //   //           {
-  //   //             name: 'Total Calls',
-  //   //             data: totalCalls,
-  //   //           },
-  //   //           {
-  //   //             name: 'Outgoing Calls',
-  //   //             data: outgoing,
-  //   //           },
-  //   //           {
-  //   //             name: 'Incoming Calls',
-  //   //             data: incoming,
-  //   //           },
-  //   //           {
-  //   //             name: 'Duration Hours',
-  //   //             data: durationSec,
-  //   //           },
-  //   //           {
-  //   //             name: 'Declined Calls',
-  //   //             data: declined,
-  //   //           },
-  //   //           {
-  //   //             name: 'Connected Calls',
-  //   //             data: connected,
-  //   //           },
-  //   //         ],
-  //   //         // chart: {
-  //   //         //   type: 'line',
-  //   //         //   height: 350,
-  //   //         //   toolbar: { show: true },
-  //   //         // },
-  //   //         chart: {
-  //   //           type: 'line',
-  //   //           height: 350,
-  //   //           offsetX: 0, // move chart closer to left
-  //   //           offsetY: 0, // move chart closer to top
-  //   //           toolbar: {
-  //   //             show: true,
-  //   //             tools: {
-  //   //               download: true, // ✅ allow download/export
-  //   //               selection: false, // ❌ remove selection zoom
-  //   //               zoom: false, // ❌ remove zoom
-  //   //               zoomin: true, // ❌ remove zoom-in
-  //   //               zoomout: true, // ❌ remove zoom-out
-  //   //               pan: false, // ❌ remove panning
-  //   //               reset: false, // ❌ remove reset zoom
-  //   //             },
-  //   //           },
-  //   //         },
-  //   //         dataLabels: {
-  //   //           enabled: false,
-  //   //         },
-  //   //         stroke: {
-  //   //           curve: 'smooth',
-  //   //           width: 3,
-  //   //         },
-  //   //         title: {
-  //   //           text: 'Dealer-wise Calls Analysis',
-  //   //           align: 'left',
-  //   //         },
-  //   //         xaxis: {
-  //   //           categories: categories,
-  //   //           labels: { rotate: -45 },
-  //   //         },
-  //   //         // xaxis: {
-  //   //         //   categories: categories,
-  //   //         //   labels: {
-  //   //         //     rotate: 20,
-  //   //         //     hideOverlappingLabels: false,
-  //   //         //     trim: true,
-  //   //         //     maxHeight: 120,
-  //   //         //     style: {
-  //   //         //       fontSize: '11px',
-  //   //         //     }
-  //   //         //   }
-  //   //         // },
-  //   //         responsive: [
-  //   //           {
-  //   //             breakpoint: 768, // 👈 mobile devices
-  //   //             options: {
-  //   //               title: {
-  //   //                 align: 'left', // 👈 mobile pe left ho jayega
-  //   //               },
-  //   //             },
-  //   //           },
-  //   //         ],
-  //   //       };
-  //   //     } else {
-  //   //       console.error('Unexpected response:', res);
-  //   //       this.dealers = [];
-  //   //       this.filteredDealers = [];
-  //   //     }
-  //   //   },
-  //   //   error: (err) => {
-  //   //     this.isLoading = false;
-  //   //     console.error('Super Admin Dashboard API failed:', err);
-  //   //     this.dealers = [];
-  //   //     this.filteredDealers = [];
-  //   //   },
-  //   // });
-  // }
-  // THIS CODE IS WIHTOUT CLEAR FUCNTIONAILTY
-  // fetchSuperAdminDashboard(type: string = 'This month'): void {
-  //   this.isLoading = true;
-
-  //   // 👉 If dealers are selected, add them to API
-  //   let url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
-
-  //   if (this.selectedDealers?.length === 1) {
-  //     // single dealer selection
-  //     url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
-  //   } else if (this.selectedDealers?.length > 1) {
-  //     // multi dealer (comma-separated) → only if backend supports
-  //     const dealerIds = this.selectedDealers.map((d) => d.dealerId).join(',');
-  //     url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
-  //   }
-
-  //   const token = localStorage.getItem('token');
-  //   if (!token) {
-  //     console.error('No token found in localStorage!');
-  //     this.isLoading = false;
-  //     return;
-  //   }
-
-  //   const headers = new HttpHeaders({
-  //     Authorization: `Bearer ${token}`,
-  //   });
-
-  //   this.http.get<any>(url, { headers }).subscribe({
-  //     next: (res) => {
-  //       this.isLoading = false;
-  //       if (res?.status === 200 && res.data) {
-  //         // ✅ Your existing KPI & chart logic
-  //         this.kpiData = {
-  //           dealers: res.data.dealers ?? 0,
-  //           activeNetwork: res.data.activeNetwork ?? 0,
-  //           users: res.data.users ?? 0,
-  //           activeUsers: res.data.activeUsers ?? 0,
-  //           leads: res.data.leads ?? 0,
-  //           calls: res.data.calls ?? 0,
-  //           totalFollowUps: res.data.totalFollowUps ?? 0,
-  //           uniqueTestDrives: res.data.uniqueTestDrives ?? 0,
-  //           completedTestDrives: res.data.completedTestDrives ?? 0,
-  //         };
-
-  //         this.dealers = res.data.dealerData ?? [];
-
-  //         this.dealers.sort((a: any, b: any) => {
-  //           const leadsA =
-  //             (a.saLeads || 0) +
-  //             (a.cxpLeads || 0) +
-  //             (a.icsLeads || 0) +
-  //             (a.manuallyEnteredLeads || 0);
-
-  //           const leadsB =
-  //             (b.saLeads || 0) +
-  //             (b.cxpLeads || 0) +
-  //             (b.icsLeads || 0) +
-  //             (b.manuallyEnteredLeads || 0);
-
-  //           return leadsB - leadsA;
-  //         });
-
-  //         this.filteredDealers = [...this.dealers];
-  //         this.originalDealers = [...this.dealers];
-  //         console.log('Dealers loaded:', this.dealers.length, this.dealers);
-
-  //         const categories = [
-  //           'Total Calls',
-  //           'Outgoing Calls',
-  //           'Incoming Calls',
-  //           'Declined Calls',
-  //           'Connected Calls',
-  //         ];
-
-  //         const series = this.dealers.map((d: any) => {
-  //           return {
-  //             name: d.dealerName,
-  //             data: [
-  //               d.callLogs.totalCalls ?? 0,
-  //               d.callLogs.outgoing ?? 0,
-  //               d.callLogs.incoming ?? 0,
-  //               d.callLogs.declined ?? 0,
-  //               d.callLogs.connected ?? 0,
-  //             ],
-  //           };
-  //         });
-
-  //         this.chartOptions = {
-  //           series: series,
-  //           chart: {
-  //             type: 'line',
-  //             height: 350,
-  //             offsetX: 0,
-  //             offsetY: 0,
-  //             toolbar: {
-  //               show: true,
-  //               tools: {
-  //                 download: true,
-  //                 selection: false,
-  //                 zoom: false,
-  //                 zoomin: true,
-  //                 zoomout: true,
-  //                 pan: false,
-  //                 reset: false,
-  //               },
-  //             },
-  //           },
-  //           dataLabels: { enabled: false },
-  //           stroke: { curve: 'smooth', width: 3 },
-  //           title: { text: 'Dealer-wise Calls Analysis', align: 'left' },
-  //           xaxis: { categories: categories, labels: { rotate: -45 } },
-  //           responsive: [
-  //             {
-  //               breakpoint: 768,
-  //               options: { title: { align: 'left' } },
-  //             },
-  //           ],
-  //         };
-  //       } else {
-  //         console.error('Unexpected response:', res);
-  //         this.dealers = [];
-  //         this.filteredDealers = [];
-  //       }
-  //     },
-  //     error: (err) => {
-  //       this.isLoading = false;
-  //       console.error('Super Admin Dashboard API failed:', err);
-  //       this.dealers = [];
-  //       this.filteredDealers = [];
-  //     },
-  //   });
-  // }
-  // fetchSuperAdminDashboard(type: string): void {
-  //   this.isLoading = true;
-
-  //   // ✅ URL setup
-  //   let url = '';
-  //   if (!this.selectedDealers?.length) {
-  //     url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
-  //   } else if (this.selectedDealers.length === 1) {
-  //     url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
-  //   } else {
-  //     const dealerIds = this.selectedDealers.map((d) => d.dealerId).join(',');
-  //     url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
-  //   }
-
-  //   const token = localStorage.getItem('token');
-  //   if (!token) {
-  //     console.error('No token found in localStorage!');
-  //     this.isLoading = false;
-  //     return;
-  //   }
-
-  //   const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-
-  //   this.http.get<any>(url, { headers }).subscribe({
-  //     next: (res) => {
-  //       this.isLoading = false;
-
-  //       if (res?.status === 200 && res.data) {
-  //         const globalDealers = res.data.dealers ?? 0;
-  //         const globalActiveNetwork = res.data.activeNetwork ?? 0;
-
-  //         // ✅ Default KPI
-  //         let updatedKpi = {
-  //           dealers: globalDealers,
-  //           activeNetwork: globalActiveNetwork,
-  //           users: res.data.users ?? 0,
-  //           activeUsers: res.data.activeUsers ?? 0,
-  //           leads: res.data.leads ?? 0,
-  //           calls: res.data.calls ?? 0,
-  //           totalFollowUps: res.data.totalFollowUps ?? 0,
-  //           uniqueTestDrives: res.data.uniqueTestDrives ?? 0,
-  //           completedTestDrives: res.data.completedTestDrives ?? 0,
-  //         };
-
-  //         // ✅ Single dealer override
-  //         if (
-  //           this.selectedDealers?.length === 1 &&
-  //           res.data.dealerData?.length
-  //         ) {
-  //           const dealer = res.data.dealerData.find(
-  //             (d: any) => d.dealerId === this.selectedDealers[0].dealerId
-  //           );
-  //           if (dealer) {
-  //             updatedKpi = {
-  //               dealers: globalDealers,
-  //               activeNetwork: globalActiveNetwork,
-  //               users: dealer.totalUsers ?? 0,
-  //               activeUsers: dealer.activeUsers ?? 0,
-  //               leads: dealer.saLeads ?? 0,
-  //               calls: dealer.callLogs?.totalCalls ?? 0,
-  //               totalFollowUps: dealer.saFollowUps ?? 0,
-  //               uniqueTestDrives: dealer.uniqueTestDrives ?? 0,
-  //               completedTestDrives: dealer.completedTestDrives ?? 0,
-  //             };
-  //           }
-  //         }
-
-  //         // ✅ Multi-dealer sum
-  //         if (this.selectedDealers?.length > 1 && res.data.dealerData?.length) {
-  //           let sum = {
-  //             users: 0,
-  //             activeUsers: 0,
-  //             leads: 0,
-  //             calls: 0,
-  //             totalFollowUps: 0,
-  //             uniqueTestDrives: 0,
-  //             completedTestDrives: 0,
-  //           };
-  //           this.selectedDealers.forEach((sel) => {
-  //             const dealer = res.data.dealerData.find(
-  //               (d: Dealer) => d.dealerId === sel.dealerId
-  //             );
-  //             if (dealer) {
-  //               sum.users += dealer.totalUsers ?? 0;
-  //               sum.activeUsers += dealer.activeUsers ?? 0;
-  //               sum.leads += dealer.saLeads ?? 0; // agar API me 'saLeads' hai, nahi toh 'totalLeads' use karo
-  //               sum.calls += dealer.callLogs?.totalCalls ?? 0;
-  //               sum.totalFollowUps += dealer.totalFollowUps ?? 0; // ya 'saFollowUps' agar API me available
-  //               sum.uniqueTestDrives += dealer.uniqueTestDrives ?? 0;
-  //               sum.completedTestDrives += dealer.completedTestDrives ?? 0;
-  //             }
-  //           });
-
-  //           updatedKpi = { ...updatedKpi, ...sum };
-  //         }
-
-  //         // ✅ Assign new object to force UI update
-  //         this.kpiData = { ...updatedKpi };
-  //         this.dealers = [...(res.data.dealerData ?? [])];
-  //         this.filteredDealers = [...this.dealers];
-
-  //         // ✅ Force change detection
-  //         this.cdr.detectChanges();
-  //       } else {
-  //         this.dealers = [];
-  //         this.filteredDealers = [];
-  //         console.error('Unexpected response:', res);
-  //       }
-  //     },
-  //     error: (err) => {
-  //       this.isLoading = false;
-  //       this.dealers = [];
-  //       this.filteredDealers = [];
-  //       console.error('API failed:', err);
-  //     },
-  //   });
-  // }
-  // THIS IS PROEP CODE
-  // fetchSuperAdminDashboard(type: string): void {
-  //   this.isLoading = true;
-
-  //   // 🔥 DEBUG: Add console logs
-  //   console.log('🚀 fetchSuperAdminDashboard called with:', type);
-  //   console.log(
-  //     '📍 Selected dealers:',
-  //     this.selectedDealers?.length,
-  //     this.selectedDealers
-  //   );
-
-  //   // ✅ URL setup
-  //   let url = '';
-  //   if (!this.selectedDealers?.length) {
-  //     url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
-  //   } else if (this.selectedDealers.length === 1) {
-  //     url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
-  //   } else {
-  //     const dealerIds = this.selectedDealers.map((d) => d.dealerId).join(',');
-  //     url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
-  //   }
-
-  //   console.log('🌐 API URL:', url);
-
-  //   const token = localStorage.getItem('token');
-  //   if (!token) {
-  //     console.error('No token found in localStorage!');
-  //     this.isLoading = false;
-  //     return;
-  //   }
-
-  //   const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-
-  //   this.http.get<any>(url, { headers }).subscribe({
-  //     next: (res) => {
-  //       this.isLoading = false;
-
-  //       // 🔥 DEBUG: Log the full API response
-  //       console.log('📦 Full API Response:', res);
-  //       console.log('📊 DealerData length:', res?.data?.dealerData?.length);
-
-  //       if (res?.status === 200 && res.data) {
-  //         const globalDealers = res.data.dealers ?? 0;
-  //         const globalActiveNetwork = res.data.activeNetwork ?? 0;
-
-  //         // ✅ Default KPI - Always start with global values
-  //         let updatedKpi = {
-  //           dealers: globalDealers,
-  //           activeNetwork: globalActiveNetwork,
-  //           users: res.data.users ?? 0,
-  //           activeUsers: res.data.activeUsers ?? 0,
-  //           leads: res.data.leads ?? 0,
-  //           calls: res.data.calls ?? 0,
-  //           totalFollowUps: res.data.totalFollowUps ?? 0,
-  //           uniqueTestDrives: res.data.uniqueTestDrives ?? 0,
-  //           completedTestDrives: res.data.completedTestDrives ?? 0,
-  //         };
-
-  //         // 🔥 CRITICAL FIX: Always clear and update dealers array first
-  //         const newDealerData = res.data.dealerData ?? [];
-  //         console.log('🏪 Previous dealers count:', this.dealers?.length || 0);
-  //         console.log('🏪 New dealers count:', newDealerData.length);
-
-  //         // Force complete replacement of arrays
-  //         this.dealers = [...newDealerData];
-  //         this.filteredDealers = [...newDealerData];
-  //         if (this.selectedDealers?.length > 0) {
-  //           this.selectedDealers = this.selectedDealers.map(
-  //             (selectedDealer) => {
-  //               const freshDealer = this.dealers.find(
-  //                 (d) => d.dealerId === selectedDealer.dealerId
-  //               );
-  //               return freshDealer || selectedDealer; // Use fresh data if found, otherwise keep old
-  //             }
-  //           );
-  //           console.log('🔄 Selected dealers synced with fresh data');
-  //         }
-
-  //         console.log('🏪 Updated dealers count:', this.dealers.length);
-
-  //         // ✅ Single dealer override
-  //         if (this.selectedDealers?.length === 1) {
-  //           console.log('🎯 Processing single dealer logic');
-  //           // Find dealer from the fresh API response
-  //           const dealer = this.dealers.find(
-  //             (d: any) => d.dealerId === this.selectedDealers[0].dealerId
-  //           );
-
-  //           console.log(
-  //             '🎯 Found selected dealer:',
-  //             dealer ? 'YES' : 'NO',
-  //             dealer?.dealerId
-  //           );
-
-  //           if (dealer) {
-  //             updatedKpi = {
-  //               dealers: globalDealers,
-  //               activeNetwork: globalActiveNetwork,
-  //               users: dealer.totalUsers ?? 0,
-  //               activeUsers: dealer.activeUsers ?? 0,
-  //               leads: dealer.saLeads ?? dealer.totalLeads ?? 0,
-  //               calls: dealer.callLogs?.totalCalls ?? 0,
-  //               totalFollowUps:
-  //                 dealer.saFollowUps ?? dealer.totalFollowUps ?? 0,
-  //               uniqueTestDrives: dealer.uniqueTestDrives ?? 0,
-  //               completedTestDrives: dealer.completedTestDrives ?? 0,
-  //             };
-  //             console.log('🎯 Single dealer KPI updated:', updatedKpi);
-  //           } else {
-  //             console.warn(
-  //               `❌ Selected dealer ${this.selectedDealers[0].dealerId} not found in API response`
-  //             );
-  //             console.log(
-  //               'Available dealer IDs:',
-  //               this.dealers.map((d) => d.dealerId)
-  //             );
-  //           }
-  //         }
-
-  //         // ✅ Multi-dealer sum
-  //         else if (this.selectedDealers?.length > 1) {
-  //           console.log('🎯 Processing multi-dealer logic');
-  //           let sum = {
-  //             users: 0,
-  //             activeUsers: 0,
-  //             leads: 0,
-  //             calls: 0,
-  //             totalFollowUps: 0,
-  //             uniqueTestDrives: 0,
-  //             completedTestDrives: 0,
-  //           };
-
-  //           this.selectedDealers.forEach((sel) => {
-  //             const dealer = this.dealers.find(
-  //               (d: any) => d.dealerId === sel.dealerId
-  //             );
-  //             if (dealer) {
-  //               sum.users += dealer.totalUsers ?? 0;
-  //               sum.activeUsers += dealer.activeUsers ?? 0;
-  //               sum.leads += dealer.saLeads ?? dealer.totalLeads ?? 0;
-  //               sum.calls += dealer.callLogs?.totalCalls ?? 0;
-  //               sum.totalFollowUps +=
-  //                 dealer.saFollowUps ?? dealer.totalFollowUps ?? 0;
-  //               sum.uniqueTestDrives += dealer.uniqueTestDrives ?? 0;
-  //               sum.completedTestDrives += dealer.completedTestDrives ?? 0;
-  //             }
-  //           });
-
-  //           updatedKpi = {
-  //             dealers: globalDealers,
-  //             activeNetwork: globalActiveNetwork,
-  //             ...sum,
-  //           };
-  //           console.log('🎯 Multi-dealer KPI updated:', updatedKpi);
-  //         } else {
-  //           console.log('🎯 No dealers selected - using global KPI');
-  //         }
-
-  //         // ✅ Assign new object to force UI update
-  //         this.kpiData = { ...updatedKpi };
-
-  //         console.log('📈 Final KPI Data:', this.kpiData);
-  //         console.log('🏪 Final dealers array length:', this.dealers.length);
-  //         console.log(
-  //           '🏪 Final filteredDealers array length:',
-  //           this.filteredDealers.length
-  //         );
-
-  //         // 🔥 FORCE UI UPDATE
-  //         this.cdr.detectChanges();
-
-  //         console.log('✅ Change detection triggered');
-  //       } else {
-  //         console.warn('⚠️ Unexpected response structure:', res);
-  //         this.dealers = [];
-  //         this.filteredDealers = [];
-  //         this.kpiData = {
-  //           dealers: 0,
-  //           activeNetwork: 0,
-  //           users: 0,
-  //           activeUsers: 0,
-  //           leads: 0,
-  //           calls: 0,
-  //           totalFollowUps: 0,
-  //           uniqueTestDrives: 0,
-  //           completedTestDrives: 0,
-  //         };
-  //         this.cdr.detectChanges();
-  //       }
-  //     },
-  //     error: (err) => {
-  //       this.isLoading = false;
-  //       console.error('❌ API failed:', err);
-  //       this.dealers = [];
-  //       this.filteredDealers = [];
-  //       this.kpiData = {
-  //         dealers: 0,
-  //         activeNetwork: 0,
-  //         users: 0,
-  //         activeUsers: 0,
-  //         leads: 0,
-  //         calls: 0,
-  //         totalFollowUps: 0,
-  //         uniqueTestDrives: 0,
-  //         completedTestDrives: 0,
-  //       };
-  //     },
-  //   });
-  // }
   // 202-10-09
   fetchSuperAdminDashboard(type: string): void {
     this.isLoading = true;
 
-    // 🔥 DEBUG: Add console logs
     console.log('🚀 fetchSuperAdminDashboard called with:', type);
     console.log(
       '📍 Selected dealers:',
@@ -1923,34 +1070,25 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.selectedDealers
     );
 
-    // ✅ URL setup with custom date support
     let url = '';
-
-    // Check if we're in custom mode and have custom dates
     const isCustomMode =
       this.selectedFilter === 'CUSTOM' &&
       this.customStartDate &&
       this.customEndDate;
 
     if (!this.selectedDealers?.length) {
-      if (isCustomMode) {
-        url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
-      } else {
-        url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
-      }
+      url = isCustomMode
+        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
     } else if (this.selectedDealers.length === 1) {
-      if (isCustomMode) {
-        url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
-      } else {
-        url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
-      }
+      url = isCustomMode
+        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
     } else {
       const dealerIds = this.selectedDealers.map((d) => d.dealerId).join(',');
-      if (isCustomMode) {
-        url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
-      } else {
-        url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
-      }
+      url = isCustomMode
+        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
     }
 
     console.log('🌐 API URL:', url);
@@ -1967,16 +1105,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
         this.isLoading = false;
-
-        // 🔥 DEBUG: Log the full API response
         console.log('📦 Full API Response:', res);
-        console.log('📊 DealerData length:', res?.data?.dealerData?.length);
 
         if (res?.status === 200 && res.data) {
           const globalDealers = res.data.dealers ?? 0;
           const globalActiveNetwork = res.data.activeNetwork ?? 0;
 
-          // ✅ Default KPI - Always start with global values
           let updatedKpi = {
             dealers: globalDealers,
             activeNetwork: globalActiveNetwork,
@@ -1989,50 +1123,86 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             completedTestDrives: res.data.completedTestDrives ?? 0,
           };
 
-          // 🔥 CRITICAL FIX: Always clear and update dealers array first
           const newDealerData = res.data.dealerData ?? [];
           console.log('🏪 Previous dealers count:', this.dealers?.length || 0);
           console.log('🏪 New dealers count:', newDealerData.length);
 
-          // Force complete replacement of arrays
+          // Replace dealers
           this.dealers = [...newDealerData];
-          // Sort dealers by saLeads descending
-          this.dealers.sort((a: any, b: any) => {
-            const saA = a.saLeads ?? 0;
-            const saB = b.saLeads ?? 0;
-            return saB - saA; // highest first
+
+          if (
+            (!this.selectedDealers || this.selectedDealers.length === 0) &&
+            !this.skipDefaultSelection
+          ) {
+            this.selectedDealers = [...this.dealers];
+          }
+          this.skipDefaultSelection = false;
+
+          // --- Ensure totalCalls exists ---
+          this.dealers.forEach((d) => {
+            if (!d.callLogs)
+              d.callLogs = {
+                totalCalls: 0,
+                outgoing: 0,
+                incoming: 0,
+                connected: 0,
+                declined: 0,
+                durationSec: 0,
+              };
+            else if (!d.callLogs.totalCalls) d.callLogs.totalCalls = 0;
           });
 
-          // Update filteredDealers too
+          // --- Sort dealers for summary table (saLeads → totalCalls) ---
+          this.dealers.sort(
+            (a, b) => Number(b.saLeads ?? 0) - Number(a.saLeads ?? 0)
+          );
+
+          this.originalDealers = [...this.dealers];
           this.filteredDealers = [...this.dealers];
-          this.filteredDealers = [...newDealerData];
 
-          // Keep a fresh copy for sort reset
-          this.originalDealers = [...newDealerData];
-
-          // --- 🆕 Sort dealers by total calls (highest first) ---
-          this.dealers.sort((a: any, b: any) => {
-            const callsA = a.callLogs?.totalCalls || 0;
-            const callsB = b.callLogs?.totalCalls || 0;
-            return callsB - callsA; // Highest totalCalls first
-          });
-
-          // --- Also sort originalDealers by total calls ---
-          this.originalDealers = [...this.dealers]; // Use sorted dealers
-
-          // 🔹 Sort users inside each dealer by total calls (FIXED)
+          // --- Sort users inside each dealer (totalCalls) ---
           this.dealers.forEach((dealer) => {
             const users = dealer.users ?? [];
+            this.userCallLogs[dealer.dealerId] = [...users]
+              .sort(
+                (a, b) =>
+                  Number(b.calls?.totalCalls ?? 0) -
+                  Number(a.calls?.totalCalls ?? 0)
+              )
+              .map((u) => ({
+                userId: u.user_id,
+                name: u.user,
+                calls: {
+                  total: Number(u.calls?.totalCalls ?? 0),
+                  outgoing: Number(u.calls?.outgoing ?? 0),
+                  incoming: Number(u.calls?.incoming ?? 0),
+                  connected: Number(u.calls?.connected ?? 0),
+                  declined: Number(u.calls?.declined ?? 0),
+                  durationSec: Number(u.calls?.durationSec ?? 0),
+                },
+              }));
+          });
 
-            if (users.length > 0) {
-              const sortedUsersByCall = [...users].sort((a, b) => {
-                const callsA = Number(a.calls?.totalCalls ?? 0);
-                const callsB = Number(b.calls?.totalCalls ?? 0);
-                return callsB - callsA; // Highest totalCalls first
-              });
+          // --- Sync & Sort selectedDealers for Call Logs table ---
+          if (this.selectedDealers?.length > 0) {
+            this.selectedDealers = this.selectedDealers
+              .map(
+                (sel) => this.dealers.find((d) => d.dealerId === sel.dealerId)!
+              )
+              .filter(Boolean);
 
-              this.userCallLogs[dealer.dealerId] = sortedUsersByCall.map(
-                (u) => ({
+            // ✅ Sort selected dealers ONLY by totalCalls (Call Logs table requirement)
+            this.selectedDealers.sort(
+              (a, b) =>
+                Number(b.callLogs.totalCalls ?? 0) -
+                Number(a.callLogs.totalCalls ?? 0)
+            );
+
+            // ✅ Sort users inside selected dealers too
+            this.selectedDealers.forEach((dealer) => {
+              const users = dealer.users ?? [];
+              this.userCallLogs[dealer.dealerId] = [...users]
+                .map((u) => ({
                   userId: u.user_id,
                   name: u.user,
                   calls: {
@@ -2043,51 +1213,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
                     declined: Number(u.calls?.declined ?? 0),
                     durationSec: Number(u.calls?.durationSec ?? 0),
                   },
-                })
-              );
-            } else {
-              this.userCallLogs[dealer.dealerId] = [];
-            }
-
-            console.log(
-              `Dealer ${dealer.dealerName} users sorted:`,
-              this.userCallLogs[dealer.dealerId]
-            );
-          });
-
-          // Update filteredDealers after sorting
-          this.filteredDealers = [...this.dealers];
-
-          // ✅ Ensure selectedDealers always matches the sorted dealers
-          if (this.selectedDealers?.length > 0) {
-            this.selectedDealers = this.selectedDealers
-              .map(
-                (sel) => this.dealers.find((d) => d.dealerId === sel.dealerId)!
-              )
-              .filter(Boolean);
-
-            console.log(
-              '🔄 SelectedDealers re-synced & sorted:',
-              this.selectedDealers
-            );
+                }))
+                .sort((a, b) => b.calls.total - a.calls.total);
+            });
           }
 
-          console.log('🏪 Updated dealers count:', this.dealers.length);
-          console.log('📞 UserCallLogs keys:', Object.keys(this.userCallLogs));
-
-          // ✅ Single dealer override
+          // --- KPI calculation (same as your original) ---
           if (this.selectedDealers?.length === 1) {
-            console.log('🎯 Processing single dealer logic');
             const dealer = this.dealers.find(
-              (d: any) => d.dealerId === this.selectedDealers[0].dealerId
+              (d) => d.dealerId === this.selectedDealers[0].dealerId
             );
-
-            console.log(
-              '🎯 Found selected dealer:',
-              dealer ? 'YES' : 'NO',
-              dealer?.dealerId
-            );
-
             if (dealer) {
               updatedKpi = {
                 dealers: globalDealers,
@@ -2101,71 +1236,47 @@ export class DashboardComponent implements AfterViewInit, OnInit {
                 uniqueTestDrives: dealer.uniqueTestDrives ?? 0,
                 completedTestDrives: dealer.completedTestDrives ?? 0,
               };
-              console.log('🎯 Single dealer KPI updated:', updatedKpi);
-            } else {
-              console.warn(
-                `❌ Selected dealer ${this.selectedDealers[0].dealerId} not found in API response`
-              );
-              console.log(
-                'Available dealer IDs:',
-                this.dealers.map((d) => d.dealerId)
-              );
             }
-          }
-
-          // ✅ Multi-dealer sum
-          else if (this.selectedDealers?.length > 1) {
-            console.log('🎯 Processing multi-dealer logic');
-            let sum = {
-              users: 0,
-              activeUsers: 0,
-              leads: 0,
-              calls: 0,
-              totalFollowUps: 0,
-              uniqueTestDrives: 0,
-              completedTestDrives: 0,
-            };
-
-            this.selectedDealers.forEach((sel) => {
-              const dealer = this.dealers.find(
-                (d: any) => d.dealerId === sel.dealerId
-              );
-              if (dealer) {
-                sum.users += dealer.totalUsers ?? 0;
-                sum.activeUsers += dealer.activeUsers ?? 0;
-                sum.leads += dealer.saLeads ?? dealer.totalLeads ?? 0;
-                sum.calls += dealer.callLogs?.totalCalls ?? 0;
-                sum.totalFollowUps +=
-                  dealer.saFollowUps ?? dealer.totalFollowUps ?? 0;
-                sum.uniqueTestDrives += dealer.uniqueTestDrives ?? 0;
-                sum.completedTestDrives += dealer.completedTestDrives ?? 0;
+          } else if (this.selectedDealers?.length > 1) {
+            const sum = this.selectedDealers.reduce(
+              (acc, sel) => {
+                const dealer = this.dealers.find(
+                  (d) => d.dealerId === sel.dealerId
+                );
+                if (dealer) {
+                  acc.users += dealer.totalUsers ?? 0;
+                  acc.activeUsers += dealer.activeUsers ?? 0;
+                  acc.leads += dealer.saLeads ?? dealer.totalLeads ?? 0;
+                  acc.calls += dealer.callLogs?.totalCalls ?? 0;
+                  acc.totalFollowUps +=
+                    dealer.saFollowUps ?? dealer.totalFollowUps ?? 0;
+                  acc.uniqueTestDrives += dealer.uniqueTestDrives ?? 0;
+                  acc.completedTestDrives += dealer.completedTestDrives ?? 0;
+                }
+                return acc;
+              },
+              {
+                users: 0,
+                activeUsers: 0,
+                leads: 0,
+                calls: 0,
+                totalFollowUps: 0,
+                uniqueTestDrives: 0,
+                completedTestDrives: 0,
               }
-            });
+            );
 
             updatedKpi = {
               dealers: globalDealers,
               activeNetwork: globalActiveNetwork,
               ...sum,
             };
-            console.log('🎯 Multi-dealer KPI updated:', updatedKpi);
-          } else {
-            console.log('🎯 No dealers selected - using global KPI');
           }
 
-          // ✅ Assign new object to force UI update
           this.kpiData = { ...updatedKpi };
-
-          console.log('📈 Final KPI Data:', this.kpiData);
-          console.log('🏪 Final dealers array length:', this.dealers.length);
-          console.log(
-            '🏪 Final filteredDealers array length:',
-            this.filteredDealers.length
-          );
-
-          // 🔥 FORCE UI UPDATE
           this.cdr.detectChanges();
 
-          // ✅ Generate Chart Data for Dealer-wise Calls Analysis
+          // --- Chart logic unchanged ---
           const categories = [
             'Total Calls',
             'Outgoing Calls',
@@ -2173,52 +1284,23 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             'Declined Calls',
             'Connected Calls',
           ];
-
-          // 🎯 Filter dealers based on selection
-          let dealersToShow = [];
-
-          if (this.selectedDealers?.length > 0) {
-            // Show only selected dealers
-            dealersToShow = this.dealers.filter((dealer: any) =>
-              this.selectedDealers.some(
-                (selected: any) => selected.dealerId === dealer.dealerId
+          const dealersToShow = this.selectedDealers?.length
+            ? this.dealers.filter((d) =>
+                this.selectedDealers.some((sel) => sel.dealerId === d.dealerId)
               )
-            );
-            console.log(
-              '📊 Chart showing selected dealers:',
-              dealersToShow.map((d) => d.dealerName)
-            );
-          } else {
-            // Show all dealers when none are selected
-            dealersToShow = this.dealers;
-            console.log('📊 Chart showing all dealers:', dealersToShow.length);
-          }
+            : this.dealers;
 
-          const series = dealersToShow.map((d: any) => {
-            const callLogs = d.callLogs || {};
-            return {
-              name: d.dealerName || 'Unknown Dealer',
-              data: [
-                callLogs.totalCalls ?? 0,
-                callLogs.outgoing ?? 0,
-                callLogs.incoming ?? 0,
-                callLogs.declined ?? 0,
-                callLogs.connected ?? 0,
-              ],
-            };
-          });
+          const series = dealersToShow.map((d) => ({
+            name: d.dealerName || 'Unknown Dealer',
+            data: [
+              d.callLogs?.totalCalls ?? 0,
+              d.callLogs?.outgoing ?? 0,
+              d.callLogs?.incoming ?? 0,
+              d.callLogs?.declined ?? 0,
+              d.callLogs?.connected ?? 0,
+            ],
+          }));
 
-          // 🎯 Update chart title based on selection
-          let chartTitle = 'Dealer-wise Calls Analysis';
-          if (this.selectedDealers?.length === 1) {
-            chartTitle = `Calls Analysis - ${
-              this.selectedDealers[0].dealerName || 'Selected Dealer'
-            }`;
-          } else if (this.selectedDealers?.length > 1) {
-            chartTitle = `Calls Analysis - ${this.selectedDealers.length} Selected Dealers`;
-          }
-
-          // Generate a unique color for each dealer in the series
           const palette = [
             '#008FFB',
             '#00E396',
@@ -2229,7 +1311,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             '#26A69A',
             '#D4526E',
           ];
-
           const seriesWithColors = series.map((s, i) => ({
             ...s,
             color: palette[i % palette.length],
@@ -2257,29 +1338,20 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             },
             dataLabels: { enabled: false },
             stroke: { curve: 'smooth', width: 2 },
-            title: { text: chartTitle, align: 'left' },
-            xaxis: { categories: categories, labels: { rotate: -45 } },
+            title: { text: 'Dealer-wise Calls Analysis', align: 'left' },
+            xaxis: { categories, labels: { rotate: -45 } },
             legend: {
               show: series.length > 0,
               position: 'bottom',
               horizontalAlign: 'center',
               showForSingleSeries: true,
-              markers: {
-                width: 12,
-                height: 12,
-              },
+              markers: { width: 12, height: 12 },
             },
             responsive: [
-              {
-                breakpoint: 768,
-                options: { title: { align: 'left' } },
-              },
+              { breakpoint: 768, options: { title: { align: 'left' } } },
             ],
           } as any;
-
-          console.log('✅ Change detection triggered');
         } else {
-          console.warn('⚠️ Unexpected response structure:', res);
           this.dealers = [];
           this.filteredDealers = [];
           this.userCallLogs = {};
@@ -2317,11 +1389,22 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       },
     });
   }
+
+  // clearSelection(): void {
+  //   this.selectedDealers = [];
+  //   this.dealerSearch = '';
+
+  //   // ✅ This was correct - no mapping needed since mapFilterToApi just returns same value
+  //   this.fetchSuperAdminDashboard(this.selectedFilter);
+  // }
   clearSelection(): void {
     this.selectedDealers = [];
     this.dealerSearch = '';
 
-    // ✅ This was correct - no mapping needed since mapFilterToApi just returns same value
+    // Prevent auto-select all when clearing
+    this.skipDefaultSelection = true;
+
+    // Re-fetch dashboard with no dealers selected
     this.fetchSuperAdminDashboard(this.selectedFilter);
   }
   private aggregateDealerData(selected: any[]): any {
@@ -2411,6 +1494,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       return;
     }
 
+    // ✅ Validate date order
+    if (new Date(this.customEndDate) < new Date(this.customStartDate)) {
+      this.toastr.error('End date cannot be earlier than start date', 'Error', {
+        timeOut: 3000,
+        progressBar: true,
+        positionClass: 'toast-top-right',
+      });
+      return;
+    }
+
     this.selectedFilter = 'CUSTOM';
 
     const start = this.customStartDate;
@@ -2428,6 +1521,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       inputs.classList.add('applied');
     }
   }
+
   resetCustomDate() {
     this.customStartDate = '';
     this.customEndDate = '';
@@ -3995,8 +3089,25 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   // Toggle select all dealers
+  // toggleSelectAll(event: Event): void {
+  //   const checked = (event.target as HTMLInputElement).checked;
+  //   if (checked) {
+  //     this.filteredDealers.forEach((d) => {
+  //       if (!this.isDealerSelected(d)) {
+  //         this.toggleDealerSelection(d);
+  //       }
+  //     });
+  //   } else {
+  //     this.filteredDealers.forEach((d) => {
+  //       if (this.isDealerSelected(d)) {
+  //         this.toggleDealerSelection(d);
+  //       }
+  //     });
+  //   }
+  // }
   toggleSelectAll(event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
+
     if (checked) {
       this.filteredDealers.forEach((d) => {
         if (!this.isDealerSelected(d)) {
@@ -4010,6 +3121,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         }
       });
     }
+
+    // User manually toggled, prevent auto-select next fetch
+    this.skipDefaultSelection = true;
   }
 
   // Clear all selected dealers
@@ -4161,6 +3275,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const headers = [
       'Dealer',
       'Total Users',
+      'registerUsers',
       'Active Users',
       'Leads SA',
       'Leads Sync with CXP',
@@ -4183,6 +3298,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const rows = this.dealers.map((dealer) => [
       `"${dealer.dealerName}"`, // Dealer name in quotes to handle commas
       dealer.totalUsers || 0,
+      dealer.registerUsers || 0,
       dealer.activeUsers || 0,
       dealer.saLeads || 0,
       dealer.cxpLeads || 0,
