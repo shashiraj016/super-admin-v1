@@ -92,13 +92,17 @@
 
                                     <!-- 🔹 Dealer List or No Dealers Found -->
                                     <ng-container *ngIf="filteredDealers().length > 0; else noDealers">
-                                        <div *ngFor="let dealer of filteredDealers()" class="checkbox-item"
-                                            (click)="$event.stopPropagation()">
-                                            <input type="checkbox" [id]="dealer.dealer_id"
-                                                [checked]="selectedDealers.includes(dealer.dealer_id)"
-                                                (change)="onDealerChange(dealer.dealer_id, $event)" />
-                                            <label [for]="dealer.dealer_id">{{ dealer.dealer_name }}</label>
-                                        </div>
+                                        <ng-container *ngFor="let dealer of filteredDealers()">
+                                            <div class="checkbox-item"
+                                                *ngIf="dealer.dealer_name && dealer.dealer_name.trim() !== ''"
+                                                (click)="$event.stopPropagation()">
+
+                                                <input type="checkbox" [id]="dealer.dealer_id"
+                                                    [checked]="selectedDealers.includes(dealer.dealer_id)"
+                                                    (change)="onDealerChange(dealer.dealer_id, $event)" />
+                                                <label [for]="dealer.dealer_id">{{ dealer.dealer_name }}</label>
+                                            </div>
+                                        </ng-container>
                                     </ng-container>
 
                                     <ng-template #noDealers>
@@ -136,14 +140,18 @@
                                     </div>
 
                                     <!-- 🔹 PS List or No PS Found -->
+                                    <!-- 🔹 PS List or No PS Found -->
                                     <ng-container *ngIf="filteredPSs().length > 0; else noPS">
-                                        <div *ngFor="let ps of filteredPSs()" class="checkbox-item"
-                                            (click)="$event.stopPropagation()">
-                                            <input type="checkbox" [id]="ps.user_id"
-                                                [checked]="selectedPSs.includes(ps.user_id)"
-                                                (change)="onPSChange(ps.user_id, $event)" />
-                                            <label [for]="ps.user_id">{{ ps.name }}</label>
-                                        </div>
+                                        <ng-container *ngFor="let ps of filteredPSs()">
+                                            <div class="checkbox-item" *ngIf="ps.name && ps.name.trim() !== ''"
+                                                (click)="$event.stopPropagation()">
+
+                                                <input type="checkbox" [id]="ps.user_id"
+                                                    [checked]="selectedPSs.includes(ps.user_id)"
+                                                    (change)="onPSChange(ps.user_id, $event)" />
+                                                <label [for]="ps.user_id">{{ ps.name }}</label>
+                                            </div>
+                                        </ng-container>
                                     </ng-container>
 
                                     <ng-template #noPS>
@@ -196,15 +204,25 @@
                                     </div>
 
                                     <!-- 🔹 Model List or No Models Found -->
-                                    <ng-container *ngIf="filteredModels().length > 0; else noModels">
+                                    <!-- <ng-container *ngIf="filteredModels().length > 0; else noModels">
                                         <div *ngFor="let model of filteredModels(); let i = index" class="checkbox-item"
                                             (click)="$event.stopPropagation()">
                                             <input type="checkbox" [id]="'model-' + i" [checked]="model.selected"
                                                 (change)="onModelChange(model.model)" />
                                             <label [for]="'model-' + i">{{ model.model_name }}</label>
                                         </div>
-                                    </ng-container>
+                                    </ng-container> -->
+                                    <ng-container *ngIf="filteredModels().length > 0; else noModels">
+                                        <ng-container *ngFor="let model of filteredModels(); let i = index">
+                                            <div class="checkbox-item" (click)="$event.stopPropagation()"
+                                                *ngIf="model.model_name && model.model_name.trim() !== ''">
 
+                                                <input type="checkbox" [id]="'model-' + i" [checked]="model.selected"
+                                                    (change)="onModelChange(model.model)" />
+                                                <label [for]="'model-' + i">{{ model.model_name }}</label>
+                                            </div>
+                                        </ng-container>
+                                    </ng-container>
                                     <ng-template #noModels>
                                         <div class="no-dealers">No Models Found</div>
                                     </ng-template>
@@ -280,7 +298,7 @@
                                         <div class="chart-container">
                                             <div class="progress-wrapper">
                                                 <div class="progress"
-                                                    [title]="'Value: ' + kpi.value + ', Target: ' + kpi.target">
+                                                    [title]="'Actual: ' + kpi.value + ', Target: ' + kpi.target">
                                                     <div class="bar"
                                                         [style.width.%]="getProgressWidth(kpi.value, kpi.target)"
                                                         [ngStyle]="{ 'background-color': getProgressColor(kpi.value, kpi.target) }">

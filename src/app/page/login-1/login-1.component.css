@@ -352,16 +352,6 @@ a:hover {
     margin-left: 0 !important;
   }
 }
-/* Hide the browser native password toggle icon */
-input[type="password"]::-ms-reveal,
-input[type="password"]::-ms-clear {
-  display: none;
-}
-
-input[type="password"]::-webkit-password-toggle-button,
-input[type="password"]::-webkit-textfield-decoration-container {
-  display: none !important;
-}
 
 /* For Chrome (WebKit-based) */
 input[type="password"]::-webkit-inner-spin-button,
@@ -432,9 +422,6 @@ input[type="password"] {
 .btn:hover {
   background-position: right;
 }
-input[type="password"] {
-  -webkit-text-security: disc; /* forces dots on iOS */
-}
 
 .input-div {
   position: relative;
@@ -471,4 +458,11 @@ input[type="password"] {
   font-size: 1.2rem;
   font-family: "poppins", sans-serif;
   /* color: #555; */
+}
+
+/*  */
+/* Force password masking on iOS */
+input[type="password"] {
+  -webkit-text-security: disc !important;
+  /* font-family: system-ui, sans-serif !important; */
 }
