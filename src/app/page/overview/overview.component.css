@@ -910,6 +910,20 @@ body {
   }
 }
 
+.media {
+  padding: 0.75rem; /* default */
+}
+
+@media (max-width: 768px) { /* adjust breakpoint as needed */
+  .media {
+    padding: 0; 
+  }
+
+  .text1{
+    font-size: 11px;
+  }
+}
+
 /* .sidebar-collapsed .content-body {
   margin-left: 80px;
 } */
