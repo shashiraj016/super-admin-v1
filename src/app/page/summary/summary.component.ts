@@ -60,6 +60,7 @@ export class SummaryComponent implements OnInit {
   @ViewChild('psDropdown') psDropdown!: ElementRef; // PS dropdown
   aggregatedMetrics: any;
   psSearch: string = '';
+  manualPSSelection = false;
 
   efforts: Kpi[] = [];
   productivity: ProductivityKpi[] = []; // ✅ Added this property
@@ -292,14 +293,30 @@ export class SummaryComponent implements OnInit {
   // }
   onDealerChange(dealer_id: string, event: any) {
     if (event.target.checked) {
+      // Add dealer
       this.selectedDealers.push(dealer_id);
     } else {
+      // Remove dealer
       this.selectedDealers = this.selectedDealers.filter(
         (id) => id !== dealer_id
       );
     }
 
-    // Call API first
+    // If no dealers are selected, clear PS
+    if (this.selectedDealers.length === 0) {
+      this.selectedPSs = [];
+    } else {
+      // Keep only PS that belong to currently selected dealers
+      const remainingPS = this.users
+        .filter((ps) => this.selectedDealers.includes(ps.dealer_id))
+        .map((ps) => ps.user_id);
+
+      this.selectedPSs = this.selectedPSs.filter((psId) =>
+        remainingPS.includes(psId)
+      );
+    }
+
+    // Call API
     const dealerParam =
       this.selectedDealers.length > 0 ? [...this.selectedDealers] : 'all';
     const psParam = this.selectedPSs.length > 0 ? [...this.selectedPSs] : 'all';
@@ -309,10 +326,6 @@ export class SummaryComponent implements OnInit {
         : '';
 
     this.loadDealers(this.selectedFilter, dealerParam, psParam, modelParam);
-
-    // 🔹 Update selectedPSs based on currently filtered PSs
-    // const currentPS = this.filteredPSs().map((ps) => ps.user_id);
-    // this.selectedPSs = Array.from(new Set([...this.selectedPSs, ...currentPS]));
   }
 
   // filteredPSs() {
@@ -321,6 +334,20 @@ export class SummaryComponent implements OnInit {
   //     ps.name.toLowerCase().includes(this.psSearch.toLowerCase())
   //   );
   // }
+  get psDropdownLabel(): string {
+    const visiblePS = this.filteredPSs(); // PS currently visible
+
+    if (!visiblePS.length) return 'Select PS';
+
+    const selectedVisiblePS = visiblePS.filter((ps) =>
+      this.selectedPSs.includes(ps.user_id)
+    ).length;
+
+    if (selectedVisiblePS === 0) return 'Select PS'; // none selected
+    if (selectedVisiblePS === visiblePS.length) return 'All PS Selected'; // all selected
+    return `${selectedVisiblePS} selected`; // some selected
+  }
+
   filteredPSs() {
     let psList = this.users;
 
@@ -764,10 +791,28 @@ export class SummaryComponent implements OnInit {
             dealer_ids === 'all'
               ? this.allDealers.flatMap((d: any) => d.users || [])
               : filteredDealers.flatMap((d: any) => d.users || []);
+
           // ✅ Select all PS by default if none already selected
-          if (!this.selectedPSs || this.selectedPSs.length === 0) {
+          // if (!this.selectedPSs || this.selectedPSs.length === 0) {
+          //   this.selectedPSs = this.users.map((u: any) => u.user_id);
+          // }
+          // After setting this.users
+          if (!this.manualPSSelection) {
+            // First load or dealer selection without manual PS interaction → select all PS of currently visible dealers
             this.selectedPSs = this.users.map((u: any) => u.user_id);
+          } else {
+            // Keep only PS that belong to currently selected dealers
+            this.selectedPSs = this.selectedPSs.filter((psId) =>
+              this.users.some((u) => u.user_id === psId)
+            );
           }
+          // After setting selectedDealers
+          // if (
+          //   (!this.selectedPSs || this.selectedPSs.length === 0) &&
+          //   this.selectedDealers.length === this.allDealers.length
+          // ) {
+          //   this.selectedPSs = this.users.map((u: any) => u.user_id); // select all PS
+          // }
           // Determine which aggregated metrics to use
           let aggMetrics: any = null;
 
@@ -868,10 +913,26 @@ export class SummaryComponent implements OnInit {
     this.models.forEach((m) => (m.selected = false));
   }
   toggleSelectAllPS(event: any) {
-    if (event.target.checked) {
-      this.selectedPSs = this.users.map((u) => u.user_id); // select all
+    event.stopPropagation(); // optional, prevents dropdown from closing
+
+    // Select all PS that are currently visible (filtered by dealer/search)
+    const visiblePS = this.filteredPSs().map((ps) => ps.user_id);
+
+    // Check if all are already selected
+    const allSelected = visiblePS.every((psId) =>
+      this.selectedPSs.includes(psId)
+    );
+
+    if (allSelected) {
+      // Deselect all
+      this.selectedPSs = this.selectedPSs.filter(
+        (psId) => !visiblePS.includes(psId)
+      );
     } else {
-      this.selectedPSs = []; // deselect all
+      // Select all
+      this.selectedPSs = Array.from(
+        new Set([...this.selectedPSs, ...visiblePS])
+      );
     }
   }
 
@@ -906,8 +967,13 @@ export class SummaryComponent implements OnInit {
     }
   }
 
+  // clearAllPS(event: Event) {
+  //   event.stopPropagation();
+  //   this.selectedPSs = [];
+  // }
   clearAllPS(event: Event) {
-    event.stopPropagation(); // ✅ prevents dropdown toggle
+    event.stopPropagation();
+    this.manualPSSelection = true;
     this.selectedPSs = [];
   }
   toggleKpiDetails(kpi: any) {
@@ -920,28 +986,48 @@ export class SummaryComponent implements OnInit {
     );
   }
 
+  // onPSChange(user_id: string, event: any) {
+  //   if (event.target.checked) {
+  //     if (!this.selectedPSs.includes(user_id)) {
+  //       this.selectedPSs.push(user_id);
+  //     }
+  //   } else {
+  //     this.selectedPSs = this.selectedPSs.filter((id) => id !== user_id);
+  //   }
+
+  //   // mirror exactly onDealerChange logic
+  //   const dealerParam =
+  //     this.selectedDealers.length > 0 ? this.selectedDealers.join(',') : 'all';
+
+  //   const psParam =
+  //     this.selectedPSs.length > 0 ? this.selectedPSs.join(',') : 'all';
+
+  //   const modelParam =
+  //     this.selectedModel && this.selectedModel !== 'all'
+  //       ? this.selectedModel
+  //       : '';
+
+  //   // call API
+  //   this.loadDealers(this.selectedFilter, dealerParam, psParam, modelParam);
+  // }
   onPSChange(user_id: string, event: any) {
+    this.manualPSSelection = true;
+
     if (event.target.checked) {
-      if (!this.selectedPSs.includes(user_id)) {
-        this.selectedPSs.push(user_id);
-      }
+      if (!this.selectedPSs.includes(user_id)) this.selectedPSs.push(user_id);
     } else {
       this.selectedPSs = this.selectedPSs.filter((id) => id !== user_id);
     }
 
-    // mirror exactly onDealerChange logic
     const dealerParam =
       this.selectedDealers.length > 0 ? this.selectedDealers.join(',') : 'all';
-
     const psParam =
       this.selectedPSs.length > 0 ? this.selectedPSs.join(',') : 'all';
-
     const modelParam =
       this.selectedModel && this.selectedModel !== 'all'
         ? this.selectedModel
         : '';
 
-    // call API
     this.loadDealers(this.selectedFilter, dealerParam, psParam, modelParam);
   }
 
@@ -1028,6 +1114,7 @@ export class SummaryComponent implements OnInit {
   //     selectedModel
   //   );
   // }
+
   // When an individual model checkbox is toggled
   onModelChange(modelName: string) {
     const index = this.selectedModels.indexOf(modelName);

@@ -1055,9 +1055,25 @@ body {
   align-items: center; */
   padding: 6px 10px;
 }
+.select-dropdown.disabled {
+  pointer-events: none;
+} /* Only target inner search input and checkboxes when dropdown is disabled */
+.select-dropdown input[disabled] {
+  background-color: #f5f5f5 !important; /* light grey */
+  color: #888 !important;
+  cursor: not-allowed;
+}
 
-.checkbox-item input {
-  margin-right: 8px;
+/* Optional: dim the label of disabled checkboxes */
+.select-dropdown input[type="checkbox"][disabled] + label {
+  color: #888;
+  cursor: not-allowed;
+}
+
+/* Optional: make checkboxes unclickable visually */
+.select-dropdown input[type="checkbox"][disabled] {
+  pointer-events: none;
+  cursor: not-allowed;
 }
 
 /*  */
