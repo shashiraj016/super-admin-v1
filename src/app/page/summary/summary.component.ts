@@ -1225,6 +1225,7 @@ export class SummaryComponent implements OnInit {
   //   this.loadDealers('DAY', 'all', null, modelParam);
   // }
   callAPI() {
+    console.log("")
     const modelParam = this.selectedModels.length
       ? this.selectedModels.join(',')
       : 'all';
