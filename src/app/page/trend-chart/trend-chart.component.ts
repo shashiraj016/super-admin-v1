@@ -329,6 +329,168 @@ export class TrendChartComponent {
       });
   }
 
+  // updateChart(data: any[]) {
+  //   if (!data || data.length === 0) {
+  //     this.chartOptions = {
+  //       ...this.chartOptions,
+  //       series: [],
+  //       xaxis: {
+  //         ...this.chartOptions.xaxis,
+  //         categories: [],
+  //       },
+  //     };
+  //     return;
+  //   }
+
+  //   const transformedData = this.transformDataForChart(data);
+
+  //   console.log('Categories being set:', transformedData.categories);
+  //   console.log(
+  //     'First few categories:',
+  //     transformedData.categories.slice(0, 5)
+  //   );
+
+  //   // Completely rebuild chartOptions instead of merging
+  //   // this.chartOptions = {
+  //   //   series: transformedData.series,
+  //   //   chart: {
+  //   //     height: 350,
+  //   //     type: this.chartOptions.chart?.type || 'line',
+  //   //     zoom: { enabled: false },
+  //   //     toolbar: { show: true },
+  //   //   },
+  //   //   dataLabels: {
+  //   //     enabled: false,
+  //   //   },
+  //   //   stroke: {
+  //   //     width: 2,
+  //   //     curve: 'smooth',
+  //   //   },
+  //   //   legend: {
+  //   //     position: 'top',
+  //   //     horizontalAlign: 'left',
+  //   //     fontSize: '12px',
+  //   //     itemMargin: {
+  //   //       horizontal: 10,
+  //   //       vertical: 4,
+  //   //     },
+  //   //   },
+  //   //   markers: {
+  //   //     size: 0,
+  //   //     hover: { sizeOffset: 6 },
+  //   //   },
+  //   //   xaxis: {
+  //   //     type: 'category',
+  //   //     categories: transformedData.categories,
+  //   //     labels: {
+  //   //       rotate: -45,
+  //   //       hideOverlappingLabels: true,
+  //   //       showDuplicates: false,
+  //   //       style: {
+  //   //         fontSize: '10px',
+  //   //       },
+  //   //     },
+  //   //     tickPlacement: 'on',
+  //   //     sorted: false,
+  //   //   },
+  //   //   tooltip: {
+  //   //     x: {},
+  //   //     y: {
+  //   //       formatter: (val: number) => val.toString(),
+  //   //     },
+  //   //   },
+  //   //   grid: {
+  //   //     show: true,
+  //   //     borderColor: '#e0e0e0',
+  //   //     strokeDashArray: 3,
+  //   //     position: 'back',
+  //   //     xaxis: {
+  //   //       lines: {
+  //   //         show: true,
+  //   //       },
+  //   //     },
+  //   //     yaxis: {
+  //   //       lines: {
+  //   //         show: true,
+  //   //       },
+  //   //     },
+  //   //   },
+  //   //   colors: [
+  //   //     '#2a8eff',
+  //   //     '#0f5fb8',
+  //   //     '#1676e6',
+  //   //     '#86c1ff',
+  //   //     '#57a8ff',
+  //   //     '#059669',
+  //   //     '#0ea5e9',
+  //   //     '#9333ea',
+  //   //     '#d97706',
+  //   //     '#e11d48',
+  //   //     '#0d4c90',
+  //   //     '#0c3f76',
+  //   //     '#64748b',
+  //   //     '#475569',
+  //   //     '#14b8a6',
+  //   //   ],
+  //   // };
+  //   const palette = [
+  //     '#008FFB',
+  //     '#00E396',
+  //     '#FEB019',
+  //     '#FF4560',
+  //     '#775DD0',
+  //     '#546E7A',
+  //     '#26A69A',
+  //     '#D4526E',
+  //   ];
+
+  //   // Assign colors dynamically per series
+  //   const seriesWithColors = transformedData.series.map((s, i) => ({
+  //     ...s,
+  //     color: palette[i % palette.length], // avoid duplicates by modulo
+  //   }));
+
+  //   this.chartOptions = {
+  //     series: seriesWithColors, // <-- use colored series
+  //     chart: {
+  //       height: 350,
+  //       type: this.chartOptions.chart?.type || 'line',
+  //       zoom: { enabled: false },
+  //       toolbar: { show: true },
+  //     },
+  //     dataLabels: { enabled: false },
+  //     stroke: { width: 2, curve: 'smooth' },
+  //     markers: { size: 0, hover: { sizeOffset: 6 } },
+  //     legend: {
+  //       position: 'top',
+  //       horizontalAlign: 'left',
+  //       fontSize: '12px',
+  //       itemMargin: { horizontal: 10, vertical: 4 },
+  //     },
+  //     xaxis: {
+  //       type: 'category',
+  //       categories: transformedData.categories,
+  //       labels: {
+  //         rotate: -45,
+  //         hideOverlappingLabels: true,
+  //         showDuplicates: false,
+  //         style: { fontSize: '10px' },
+  //       },
+  //       tickPlacement: 'on',
+  //     },
+  //     tooltip: { x: {}, y: { formatter: (val: number) => val.toString() } },
+  //     grid: { show: true, borderColor: '#e0e0e0', strokeDashArray: 3 },
+  //     responsive: [
+  //       {
+  //         breakpoint: 768,
+  //         options: {
+  //           xaxis: { labels: { style: { fontSize: '8px' }, rotate: -60 } },
+  //           chart: { height: 300 },
+  //         },
+  //       },
+  //     ],
+  //   };
+  // }
   updateChart(data: any[]) {
     if (!data || data.length === 0) {
       this.chartOptions = {
@@ -433,8 +595,26 @@ export class TrendChartComponent {
     //     '#14b8a6',
     //   ],
     // };
+    const palette = [
+      '#008FFB',
+      '#00E396',
+      '#FEB019',
+      '#FF4560',
+      '#775DD0',
+      '#546E7A',
+      '#26A69A',
+      '#D4526E',
+    ];
+
+    // Assign colors dynamically per series
+    const seriesWithColors = transformedData.series.map((s, i) => ({
+      ...s,
+      color: palette[i % palette.length], // avoid duplicates by modulo
+    }));
     this.chartOptions = {
-      series: transformedData.series,
+      // series: transformedData.series,
+      series: seriesWithColors, // <-- use colored series
+
       chart: {
         height: 350,
         type: this.chartOptions.chart?.type || 'line',
@@ -449,18 +629,31 @@ export class TrendChartComponent {
         horizontalAlign: 'left',
         fontSize: '12px',
         itemMargin: { horizontal: 10, vertical: 4 },
+        tooltipHoverFormatter: function (val: string, opts: any): string {
+          const pointIndex = opts.dataPointIndex;
+          if (pointIndex !== undefined && pointIndex >= 0) {
+            return `${val} - <strong>${
+              opts.w.globals.series[opts.seriesIndex][pointIndex]
+            }</strong>`;
+          }
+          return val; // fallback: just show legend name
+        },
       },
       xaxis: {
         type: 'category',
         categories: transformedData.categories,
+        tickPlacement: 'on',
+        tickAmount: 8,
         labels: {
           rotate: -45,
           hideOverlappingLabels: true,
           showDuplicates: false,
-          style: { fontSize: '10px' }, // default for desktop
+          style: {
+            fontSize: '10px',
+          },
         },
-        tickPlacement: 'on',
       },
+
       tooltip: {
         x: {},
         y: { formatter: (val: number) => val.toString() },
@@ -485,21 +678,33 @@ export class TrendChartComponent {
       ],
       responsive: [
         {
-          breakpoint: 768, // mobile / tablet
+          breakpoint: 1024,
           options: {
             xaxis: {
+              tickAmount: 8, // 7 labels for ~30 days
               labels: {
-                style: { fontSize: '2px' }, // smaller font on mobile
+                style: { fontSize: '8px' },
+                rotate: -45,
+              },
+            },
+          },
+        },
+        {
+          breakpoint: 768,
+          options: {
+            xaxis: {
+              tickAmount: 8, // 4 labels only on mobile
+              labels: {
+                style: { fontSize: '7px' },
                 rotate: -60,
               },
             },
-            chart: { height: 300 }, // optional: smaller chart height
+            chart: { height: 260 },
           },
         },
       ],
     };
   }
-
   transformDataForChart(data: any[]) {
     if (!data || data.length === 0) return { series: [], categories: [] };
 

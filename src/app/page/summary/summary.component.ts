@@ -294,11 +294,33 @@ export class SummaryComponent implements OnInit {
 
     this.loadDealers(this.selectedFilter, dealerParam, psParam, modelParam);
   }
+  // filteredPSs() {
+  //   if (!this.psSearch) return this.users;
+  //   return this.users.filter((ps) =>
+  //     ps.name.toLowerCase().includes(this.psSearch.toLowerCase())
+  //   );
+  // }
   filteredPSs() {
-    if (!this.psSearch) return this.users;
-    return this.users.filter((ps) =>
-      ps.name.toLowerCase().includes(this.psSearch.toLowerCase())
-    );
+    let psList = this.users;
+
+    // Filter by selected dealers if not all selected
+    if (
+      this.selectedDealers.length > 0 &&
+      this.selectedDealers.length !== this.allDealers.length
+    ) {
+      psList = psList.filter((ps) =>
+        this.selectedDealers.includes(ps.dealer_id)
+      );
+    }
+
+    // Apply search filter
+    if (this.psSearch) {
+      psList = psList.filter((ps) =>
+        ps.name.toLowerCase().includes(this.psSearch.toLowerCase())
+      );
+    }
+
+    return psList;
   }
   // loadDealers(
   //   type: string = 'DAY',
