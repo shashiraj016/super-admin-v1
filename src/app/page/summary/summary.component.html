@@ -116,18 +116,19 @@
 
                             <div class="select-dropdown" #psDropdown (click)="togglePSDropdown()"
                                 [class.open]="dropdownPSOpen">
-                                <div class="dropdown-label">
-                                    <!-- {{
+                                <!-- <div class="dropdown-label">
+                                    {{
                                     selectedPSs.length === users.length
                                     ? 'All PS Selected'
                                     : (selectedPSs.length ? selectedPSs.length + ' selected' : 'Select PS')
-                                    }} -->
+                                    }}
+                                </div> -->
+                                <div class="dropdown-label">
                                     {{
                                     selectedPSs.length === filteredPSs().length
                                     ? 'All PS Selected'
                                     : (selectedPSs.length ? selectedPSs.length + ' selected' : 'Select PS')
                                     }}
-
                                 </div>
 
                                 <div class="dropdown-menu" (click)="$event.stopPropagation()">

@@ -150,9 +150,24 @@ export class SummaryComponent implements OnInit {
     this.loadDealers('DAY', this.selectedDealers);
   }
 
+  // clearDealers(event: Event) {
+  //   event.stopPropagation(); // prevent dropdown toggle
+  //   this.selectedDealers = [];
+  // }
   clearDealers(event: Event) {
-    event.stopPropagation(); // prevent dropdown toggle
+    event.stopPropagation();
     this.selectedDealers = [];
+    this.dealerSearch = '';
+
+    // 🔹 Clear PS
+    this.selectedPSs = [];
+
+    // 🔹 Clear Models
+    this.selectedModels = [];
+    this.modelSearch = '';
+
+    // 🔹 Also reset checkbox state
+    this.models.forEach((m) => (m.selected = false));
   }
 
   selectTab(tab: string) {
@@ -284,6 +299,7 @@ export class SummaryComponent implements OnInit {
       );
     }
 
+    // Call API first
     const dealerParam =
       this.selectedDealers.length > 0 ? [...this.selectedDealers] : 'all';
     const psParam = this.selectedPSs.length > 0 ? [...this.selectedPSs] : 'all';
@@ -293,7 +309,12 @@ export class SummaryComponent implements OnInit {
         : '';
 
     this.loadDealers(this.selectedFilter, dealerParam, psParam, modelParam);
+
+    // 🔹 Update selectedPSs based on currently filtered PSs
+    // const currentPS = this.filteredPSs().map((ps) => ps.user_id);
+    // this.selectedPSs = Array.from(new Set([...this.selectedPSs, ...currentPS]));
   }
+
   // filteredPSs() {
   //   if (!this.psSearch) return this.users;
   //   return this.users.filter((ps) =>
@@ -303,7 +324,7 @@ export class SummaryComponent implements OnInit {
   filteredPSs() {
     let psList = this.users;
 
-    // Filter by selected dealers if not all selected
+    // Filter by selected dealers
     if (
       this.selectedDealers.length > 0 &&
       this.selectedDealers.length !== this.allDealers.length
@@ -322,6 +343,7 @@ export class SummaryComponent implements OnInit {
 
     return psList;
   }
+
   // loadDealers(
   //   type: string = 'DAY',
   //   dealer_ids: string | string[] = 'all', // accept array or string
@@ -329,7 +351,7 @@ export class SummaryComponent implements OnInit {
   //   model: string = ''
   // ) {
   //   const apiUrl =
-  //     'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
+  //     'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
   //   const token = localStorage.getItem('token');
 
   //   let query = '';
@@ -420,7 +442,7 @@ export class SummaryComponent implements OnInit {
   //   model: string = '' // car model
   // ) {
   //   const apiUrl =
-  //     'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
+  //     'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
   //   const token = localStorage.getItem('token');
 
   //   let query = '';
@@ -643,7 +665,7 @@ export class SummaryComponent implements OnInit {
     model: string = ''
   ) {
     const apiUrl =
-      'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
+      'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
     const token = localStorage.getItem('token');
 
     let query = '';
