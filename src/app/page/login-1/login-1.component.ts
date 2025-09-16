@@ -302,7 +302,7 @@ export class Login1Component {
         error: (error) => {
           console.error('OTP verification error:', error);
           const errorMessage = error.error.error;
-          this.toastr.error(errorMessage, 'Error');
+          this.toastr.error('Entered OTP is invalid');
         },
       });
   }

@@ -686,9 +686,11 @@
                 <i class="fas fa-chart-line" style="margin-right: 8px;"></i> Line Chart
               </button>
             </div>
-            <button class="btn btn-small btn-secondary" (click)="exportDealerCalllogstocxp()">
+            <button class="btn btn-small btn-secondary" [hidden]="dealerSummaryCallsViewType === 'chart'"
+              (click)="exportDealerCalllogstocxp()">
               <i class="icon-download"></i> Export CSV
             </button>
+
 
           </div>
         </div>

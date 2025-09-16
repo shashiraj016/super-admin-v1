@@ -14,6 +14,12 @@
   }
 }
 
+@media (max-width: 768px) { /* adjust breakpoint as needed */
+ .select-dropdown .dropdown-menu{
+  width: 100% !important;
+ }
+}
+
 #main-wrapper.sidebar-collapsed .deznav {
   width: 80px;
 }
