@@ -508,30 +508,42 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       return totalB - totalA; // sort descending by total calls
     });
   }
+
   // getSortedDealersForSummary() {
   //   const list =
   //     this.selectedDealers.length > 0 ? this.selectedDealers : this.dealers;
+
+  //   if (!this.sortColumn || this.sortDirection === 'default') {
+  //     return list; // no sorting applied
+  //   }
+
+  //   const column = this.sortColumn;
+
   //   return [...list].sort((a, b) => {
-  //     const saA = a.saLeads ?? 0; // ← just the number
-  //     const saB = b.saLeads ?? 0;
-  //     return saB - saA; // descending order
+  //     const valA = (a as any)[column] ?? 0;
+  //     const valB = (b as any)[column] ?? 0;
+  //     return this.sortDirection === 'asc' ? valA - valB : valB - valA;
   //   });
   // }
   getSortedDealersForSummary() {
     const list =
       this.selectedDealers.length > 0 ? this.selectedDealers : this.dealers;
 
+    // If no sort column or default direction, return list
     if (!this.sortColumn || this.sortDirection === 'default') {
-      return list; // no sorting applied
+      return list;
     }
 
-    const column = this.sortColumn;
+    const column = this.sortColumn; // TypeScript now knows this is string
 
-    return [...list].sort((a, b) => {
-      const valA = (a as any)[column] ?? 0;
-      const valB = (b as any)[column] ?? 0;
+    // In-place sort
+    list.sort((a: any, b: any) => {
+      const valA = a[column] ?? 0;
+      const valB = b[column] ?? 0;
       return this.sortDirection === 'asc' ? valA - valB : valB - valA;
     });
+
+    return list;
   }
   // fetchKpiData() {
   //   const token = localStorage.getItem('token') || '';
@@ -1927,16 +1939,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     });
   // }
   // NOW COMMENTED
-  toggleRow(event: Event, dealer: any, rowId: string): void {
+  toggleRow(event: Event, dealer: any): void {
     const id = dealer.dealerId;
     if (!id) return;
 
-    if (this.expandedRow === rowId) {
-      this.expandedRow = null;
-      return;
-    }
-
-    this.expandedRow = rowId;
+    // ✅ Toggle row expansion
+    this.expandedRow = this.expandedRow === id ? null : id;
 
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -1948,7 +1956,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.customStartDate &&
       this.customEndDate
     ) {
-      // ✅ Use start_date + end_date API
       request$ = this.dashboardService.getDealersByCustomDate(
         this.customStartDate,
         this.customEndDate,
@@ -1956,7 +1963,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         id
       );
     } else {
-      // ✅ Default to type API
       request$ = this.dashboardService.getDealerUsers(
         id,
         this.selectedFilter,
@@ -2017,6 +2023,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
                 },
           })) || [];
 
+        // Optional: sort users
         this.userCallLogs[id].sort((a, b) =>
           (a?.name ?? '')
             .toString()
@@ -2037,6 +2044,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       },
     });
   }
+
   // toggleRow(event: Event, dealer: any, rowId: string): void {
   //   const id = dealer.dealerId;
   //   if (!id) return;
@@ -3112,9 +3120,23 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     }
   //   }
   // }
+  // sortData(column: string) {
+  //   if (this.sortColumn === column) {
+  //     // toggle asc → desc → default
+  //     this.sortDirection =
+  //       this.sortDirection === 'asc'
+  //         ? 'desc'
+  //         : this.sortDirection === 'desc'
+  //         ? 'default'
+  //         : 'asc';
+  //   } else {
+  //     this.sortColumn = column;
+  //     this.sortDirection = 'asc'; // start with ascending when switching columns
+  //   }
+  // }
   sortData(column: string) {
+    // Toggle sort direction
     if (this.sortColumn === column) {
-      // toggle asc → desc → default
       this.sortDirection =
         this.sortDirection === 'asc'
           ? 'desc'
@@ -3123,9 +3145,23 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           : 'asc';
     } else {
       this.sortColumn = column;
-      this.sortDirection = 'asc'; // start with ascending when switching columns
+      this.sortDirection = 'asc';
     }
+
+    // No sorting if reset
+    if (this.sortDirection === 'default') return;
+
+    // Only sort selectedDealers (displayed rows)
+    if (!this.selectedDealers?.length) return;
+
+    // In-place sort to preserve references
+    this.selectedDealers.sort((a: any, b: any) => {
+      const valA = a[column] ?? 0;
+      const valB = b[column] ?? 0;
+      return this.sortDirection === 'asc' ? valA - valB : valB - valA;
+    });
   }
+
   fetchDashboardDataForTopCards(filter: string) {
     const token = localStorage.getItem('token') || '';
     let url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM`;

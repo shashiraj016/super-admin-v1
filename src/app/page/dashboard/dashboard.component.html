@@ -495,7 +495,7 @@
                         <span class="arrow">{{ expandedRow === 'engagement-' + i ? 'v' : '>' }}</span>
                         {{ dealer.dealerName }}
                       </button> -->
-                      <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
+                      <button class="expand-btn" (click)="toggleRow($event, dealer)">
                         <i class="fa"
                           [ngClass]="expandedRow === 'engagement-' + i ? 'fa-chevron-down' : 'fa-chevron-right'"
                           style="font-size: 10px; margin-right: 5px; color: rgb(15 95 184 / var(--tw-text-opacity, 1));"></i>
@@ -549,7 +549,9 @@
                   </tr>
 
                   <!-- Sub Row -->
-                  <tr *ngIf="expandedRow === 'engagement-' + i" class="sub-row">
+                  <!-- <tr *ngIf="expandedRow === 'engagement-' + i" class="sub-row"> -->
+                  <tr *ngIf="expandedRow === dealer.dealerId" class="sub-row">
+
                     <td colspan="20" class="sub-row-content">
                       <div class="sub-row-inner">
                         <div class="sub-row-title" style="text-align: left;">
@@ -720,7 +722,7 @@
                         <span class="arrow">{{ expandedRow === 'engagement-' + i ? 'v' : '>' }}</span>
                         {{ dealer.dealerName }}
                       </button> -->
-                      <button class="expand-btn" (click)="toggleRow($event, dealer, 'engagement-' + i)">
+                      <button class="expand-btn" (click)="toggleRow($event, dealer)">
                         <i class="fa"
                           [ngClass]="expandedRow === 'engagement-' + i ? 'fa-chevron-down' : 'fa-chevron-right'"
                           style="font-size: 10px; margin-right: 5px; color: rgb(15 95 184 / var(--tw-text-opacity, 1));"></i>
