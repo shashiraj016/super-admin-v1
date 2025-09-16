@@ -1028,6 +1028,24 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
+
+
+.custom-tooltip {
+  position: absolute; /* not fixed anymore */
+  background: #333;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  z-index: 9999;
+}
+
+
+
+
+
 /* 🔹 Row for Select All / Clear */
 .select-dropdown .actions-row {
   display: flex;
