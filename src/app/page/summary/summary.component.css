@@ -14,10 +14,11 @@
   }
 }
 
-@media (max-width: 768px) { /* adjust breakpoint as needed */
- .select-dropdown .dropdown-menu{
-  width: 100% !important;
- }
+@media (max-width: 768px) {
+  /* adjust breakpoint as needed */
+  .select-dropdown .dropdown-menu {
+    width: 100% !important;
+  }
 }
 
 #main-wrapper.sidebar-collapsed .deznav {
@@ -1067,7 +1068,7 @@ body {
 .select-dropdown input[disabled] {
   background-color: #f5f5f5 !important; /* light grey */
   color: #888 !important;
-  cursor: not-allowed;
+  cursor: not-allowed !important;
 }
 
 /* Optional: dim the label of disabled checkboxes */
@@ -1155,4 +1156,37 @@ body {
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
   border-top: 10px solid red;
+}
+/* REFRESH BTN */
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.refresh-btn {
+  padding: 6px 8px !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  background: #f5f5f5 !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  display: inline-block !important; /* Ensure it's displayed */
+}
+
+.refresh-btn i {
+  pointer-events: none; /* avoid accidental icon clicks */
+}
+/*  BUGS*/
+.custom-tooltip {
+  position: absolute; /* not fixed anymore */
+  background: #333;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  z-index: 9999;
 }

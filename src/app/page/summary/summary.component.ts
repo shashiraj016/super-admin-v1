@@ -46,6 +46,7 @@ export class SummaryComponent implements OnInit {
   modelDropdownOpen = false;
   selectedModels: string[] = [];
   isFirstLoadPS = true;
+  isLoading = false;
 
   selectedDealer: string = 'all'; // default value
   selectedPS: string = 'all'; // default value
@@ -227,11 +228,7 @@ export class SummaryComponent implements OnInit {
 
     return allKpis;
   }
-  // onFilterChange(filter: string) {
-  //   this.selectedFilter = filter;
-  //   console.log('Filter changed:', filter);
-  //   this.loadDealers(this.selectedFilter, this.selectedDealer);
-  // }
+
   onFilterChange(filter: string) {
     this.selectedFilter = filter;
     console.log('Filter changed:', filter);
@@ -378,7 +375,7 @@ export class SummaryComponent implements OnInit {
   //   model: string = ''
   // ) {
   //   const apiUrl =
-  //     'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
+  //     'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
   //   const token = localStorage.getItem('token');
 
   //   let query = '';
@@ -469,7 +466,7 @@ export class SummaryComponent implements OnInit {
   //   model: string = '' // car model
   // ) {
   //   const apiUrl =
-  //     'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
+  //     'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
   //   const token = localStorage.getItem('token');
 
   //   let query = '';
@@ -685,6 +682,59 @@ export class SummaryComponent implements OnInit {
   //       },
   //     });
   // }
+  getStaticMsg(name: string): string {
+    console.log('Checking static msg forrrrrrrrrrrrrrrrrrr:', name);
+    switch (name) {
+      case 'New Enquiry':
+        return ' (2 per day per ps)';
+      case 'Outgoing Calls':
+        return ' (60 per day per ps)';
+      case 'Unq. Call Connected':
+        return ' (30 per day per ps)';
+      case 'Avg Duration/call':
+        return ' (2m per call)';
+      case 'Avg Connected Calls/PS':
+        return ' (30 per day per ps)';
+      case 'UTD':
+        return ' (30 per month per ps)';
+      default:
+        return '';
+    }
+  }
+
+  getProductivityMsg(name: string): string {
+    switch (name) {
+      case 'New Orders':
+        return ' (3 per month per ps)';
+      case 'Net Orders':
+        return ' (2.5 per month per ps)';
+      case 'Retails':
+        return ' (3 per month per ps)';
+      default:
+        return '';
+    }
+  }
+  getActivePsMsg(name: string): string {
+    switch (name) {
+      case 'TD/Car/Day':
+        return ' (2 per day per retailer)';
+      case 'KMs/TDs':
+        return ' (5 per day per retailer)';
+      default:
+        return '';
+    }
+  }
+  refreshData(): void {
+    this.isLoading = true; // show loader immediately
+    console.log('Refreshing data...');
+    console.log('loadDealers called');
+
+    // If loadDealers() is synchronous
+    setTimeout(() => {
+      this.loadDealers(); // call your existing function
+      this.isLoading = false; // hide loader after data is "loaded"
+    }, 100); // small delay ensures loader is visible
+  }
   loadDealers(
     type: string = 'DAY',
     dealer_ids: string | string[] = 'all',
@@ -692,7 +742,7 @@ export class SummaryComponent implements OnInit {
     model: string = ''
   ) {
     const apiUrl =
-      'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
+      'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
     const token = localStorage.getItem('token');
 
     let query = '';
@@ -1030,7 +1080,10 @@ export class SummaryComponent implements OnInit {
 
     this.loadDealers(this.selectedFilter, dealerParam, psParam, modelParam);
   }
-
+  toggleModelSelection(model: any) {
+    model.selected = !model.selected;
+    this.onModelChange(model.model);
+  }
   @HostListener('document:click', ['$event'])
   clickOutside(event: Event) {
     const target = event.target as HTMLElement;

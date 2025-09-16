@@ -914,12 +914,13 @@ body {
   padding: 0.75rem; /* default */
 }
 
-@media (max-width: 768px) { /* adjust breakpoint as needed */
+@media (max-width: 768px) {
+  /* adjust breakpoint as needed */
   .media {
-    padding: 0; 
+    padding: 0;
   }
 
-  .text1{
+  .text1 {
     font-size: 11px;
   }
 }
@@ -1866,4 +1867,25 @@ body {
 
 .cancel-btn:hover {
   background-color: #b3b3b3;
+}
+/* logout */
+@media (max-width: 640px) {
+  .tab-btn {
+    font-size: 12px !important;
+    padding: 8px 12px !important;
+  }
+
+  .nav-button-sa nav {
+    min-width: 100%;
+  }
+}
+
+/* Hide scrollbar for webkit browsers */
+.overflow-x-auto::-webkit-scrollbar {
+  display: none;
+}
+
+.overflow-x-auto {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

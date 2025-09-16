@@ -21,7 +21,7 @@
             </div>
           </div> -->
 
-          <div class="flex items-center justify-between gap-4 mb-2 media" style="background-color: white;">
+          <!-- <div class="flex items-center justify-between gap-4 mb-2 media" style="background-color: white;">
             <div class="nav-button-sa">
               <div>
                 <nav class="inline-flex bg-gray-100 p-1 rounded-full">
@@ -42,7 +42,44 @@
 
               </div>
             </div>
+          </div> -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2 media w-full"
+            style="background-color: white;">
+            <!-- Navigation Section -->
+            <div class="nav-button-sa">
+              <div>
+                <nav class="inline-flex bg-gray-100 p-1 rounded-full overflow-x-auto">
+                  <a routerLink="/Admin/dashboard" routerLinkActive="active-tab"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="tab-btn whitespace-nowrap flex-shrink-0 text-sm px-4">
+                    Dashboard
+                  </a>
+
+                  <a routerLink="/Admin/summary" routerLinkActive="active-tab"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="tab-btn whitespace-nowrap flex-shrink-0 text-sm px-4">
+                    Summary
+                  </a>
+
+                  <a routerLink="/Admin/trend-chart" routerLinkActive="active-tab"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="tab-btn whitespace-nowrap flex-shrink-0 text-sm px-4">
+                    Trend chart
+                  </a>
+                </nav>
+              </div>
+            </div>
+
+            <!-- User Icon - Positioned at far right -->
+            <div class="user-icon flex-shrink-0 ml-auto">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="#6B7280" stroke-width="2" />
+                <circle cx="12" cy="8" r="3" stroke="#6B7280" stroke-width="2" />
+                <path d="M6 20c0-4 2.5-6 6-6s6 2 6 6" stroke="#6B7280" stroke-width="2" />
+              </svg>
+            </div>
           </div>
+
 
           <!-- Dynamic Header Based on Selected Tab -->
           <div [ngSwitch]="selectedTab">
