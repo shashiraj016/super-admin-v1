@@ -471,10 +471,10 @@ input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear,
 input[type="password"]::-webkit-credentials-auto-fill-button,
 input[type="password"]::-webkit-password-toggle-button {
-  display: none !important;
+  /* display: none !important; */
 }
 
 /* Extra for Webkit browsers (Chrome, Safari, Edge) */
 input[type="password"]::-webkit-textfield-decoration-container {
-  display: none !important;
+  /* display: none !important; */
 }

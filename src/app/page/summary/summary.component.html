@@ -287,7 +287,9 @@
                                         <div class="chart-container">
                                             <div class="progress-wrapper">
                                                 <div class="progress"
-                                                    [title]="('Actual: ' + kpi.value + ', Target: ' + kpi.target + getStaticMsg(kpi.name))">
+                                                    [attr.title]="'Actual: ' + kpi.value + ', Target: ' + kpi.target + getStaticMsg(kpi.name)"
+                                                    (click)="showTooltip($event, kpi)">
+
                                                     <div class="bar"
                                                         [style.width.%]="getProgressWidth(kpi.value, kpi.target)"
                                                         [ngStyle]="{ 'background-color': getProgressColor(kpi.value, kpi.target) }">
@@ -557,7 +559,10 @@
                         </div>
 
 
-
+                        <div *ngIf="tooltipText" class="custom-tooltip" [style.top.px]="tooltipY"
+                            [style.left.px]="tooltipX">
+                            {{ tooltipText }}
+                        </div>
 
 
                     </section>

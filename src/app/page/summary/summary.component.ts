@@ -76,6 +76,9 @@ export class SummaryComponent implements OnInit {
   dealers: DealerDropdown[] = [];
   dealerSearch: string = '';
   modelSearch: string = '';
+  tooltipX = 0;
+  tooltipY = 0;
+  tooltipText: string | null = null;
 
   users: PSUser[] = []; // ✅ use PSUser[]
   categoryPercentages: {
@@ -1355,5 +1358,20 @@ export class SummaryComponent implements OnInit {
   }
   togglePSDropdown() {
     this.dropdownPSOpen = !this.dropdownPSOpen;
+  }
+
+  showTooltip(event: MouseEvent, kpi: any) {
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+      const target = event.currentTarget as HTMLElement;
+      const rect = target.getBoundingClientRect();
+
+      this.tooltipText = `Actual: ${kpi.value}, Target: ${kpi.target}`;
+
+      // Use actual tap X inside the bar + scroll offset
+      this.tooltipX = window.scrollX + event.clientX;
+      this.tooltipY = window.scrollY + rect.bottom + 10; // just below the bar
+
+      setTimeout(() => (this.tooltipText = null), 2000);
+    }
   }
 }
