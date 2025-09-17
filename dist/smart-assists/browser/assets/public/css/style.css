@@ -268,7 +268,11 @@ hr {
   height: 0;
   overflow: visible;
 }
-
+.select-dropdown .dropdown-menu .search-row input[disabled] {
+  background-color: #f5f5f5 !important; /* light gray inside */
+  color: #888 !important;
+  cursor: not-allowed !important;
+}
 h1,
 h2,
 h3,

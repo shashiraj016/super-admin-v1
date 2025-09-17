@@ -1052,6 +1052,25 @@ body {
   border-radius: 4px;
   transition: background 0.2s;
 }
+/* For the whole disabled dropdown */
+.select-dropdown.disabled {
+  /* background-color: #f3f4f6;  light gray */
+  color: #9ca3af; /* muted text */
+  cursor: not-allowed;
+  /* pointer-events: none; prevents opening */
+  opacity: 0.7; /* slightly faded */
+}
+
+/* Optional: style inner labels when disabled */
+.select-dropdown.disabled .dropdown-label {
+  color: #9ca3af;
+}
+
+/* If you want checkbox items to look disabled */
+.select-dropdown.disabled .checkbox-item label {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
 
 .select-dropdown .actions-row button:hover {
   background: #f0f0f0;
@@ -1061,26 +1080,6 @@ body {
   /* display: flex;
   align-items: center; */
   padding: 6px 10px;
-}
-.select-dropdown.disabled {
-  pointer-events: none;
-} /* Only target inner search input and checkboxes when dropdown is disabled */
-.select-dropdown input[disabled] {
-  background-color: #f5f5f5 !important; /* light grey */
-  color: #888 !important;
-  cursor: not-allowed !important;
-}
-
-/* Optional: dim the label of disabled checkboxes */
-.select-dropdown input[type="checkbox"][disabled] + label {
-  color: #888;
-  cursor: not-allowed;
-}
-
-/* Optional: make checkboxes unclickable visually */
-.select-dropdown input[type="checkbox"][disabled] {
-  pointer-events: none;
-  cursor: not-allowed;
 }
 
 /*  */
@@ -1165,7 +1164,7 @@ body {
 }
 
 .refresh-btn {
-  padding: 6px 8px !important;
+  /* padding: 6px 8px !important; */
   font-size: 14px !important;
   line-height: 1 !important;
   background: #f5f5f5 !important;

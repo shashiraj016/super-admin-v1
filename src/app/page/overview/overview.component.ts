@@ -36,7 +36,13 @@
 // }
 
 // overview.component.ts
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { SharedModule } from '../../shared/shared.module';
 import { DashboardComponent } from '../dashboard/dashboard.component';
@@ -63,6 +69,7 @@ export class OverviewComponent implements OnInit {
   models: any[] = [];
   isUserDropdownOpen = false;
   mobileMenuOpen = false;
+  userDropdownOpen = false;
 
   selectedFilter: string = 'DAY';
   newInquiryKpi: Kpi | null = null; // <-- declare it here
@@ -77,6 +84,9 @@ export class OverviewComponent implements OnInit {
   overallProductivity = 0;
   selectedModel: string = 'all';
   showUserDropdown = false;
+  showLogoutModal: boolean = false;
+  @ViewChild('userDropdownWrapper', { static: false })
+  userDropdownWrapper!: ElementRef;
 
   dealers: DealerDropdown[] = [];
   users: PSUser[] = []; // ✅ use PSUser[]
@@ -85,7 +95,8 @@ export class OverviewComponent implements OnInit {
   constructor(
     private sidebarService: SidebarService,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private eRef: ElementRef
   ) {}
 
   ngOnInit(): void {
@@ -143,8 +154,31 @@ export class OverviewComponent implements OnInit {
   isActive(route: string): boolean {
     return this.router.url.includes(`/Admin/${route}`);
   }
+  toggleUserDropdown(): void {
+    this.userDropdownOpen = !this.userDropdownOpen;
+  }
   navigateTo(route: string) {
     this.router.navigate(['/Admin', route]);
+  }
+  confirmLogout() {
+    this.showLogoutModal = false;
+
+    // Clear token/session
+    localStorage.removeItem('token');
+
+    // Redirect to login
+    this.router.navigate(['/login']);
+  }
+  // 👇 Detect clicks outside component
+  @HostListener('document:click', ['$event'])
+  clickOutside(event: Event) {
+    if (
+      this.userDropdownOpen &&
+      this.userDropdownWrapper &&
+      !this.userDropdownWrapper.nativeElement.contains(event.target)
+    ) {
+      this.userDropdownOpen = false;
+    }
   }
 
   // Navigate to single dealer (if needed)
@@ -211,7 +245,7 @@ export class OverviewComponent implements OnInit {
   // 🔹 Load dealers and extract New Inquiry KPI
   loadDealers(type: string = 'DAY') {
     const apiUrl =
-      'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
+      'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
     const token = localStorage.getItem('token');
 
     this.http
@@ -279,7 +313,7 @@ export class OverviewComponent implements OnInit {
   }
   loadDashboard(type: string) {
     const apiUrl =
-      'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
+      'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
     const token = localStorage.getItem('token');
 
     this.http
@@ -324,28 +358,23 @@ export class OverviewComponent implements OnInit {
     this.menuOpen = !this.menuOpen;
   }
 
-  toggleUserDropdown(event: Event) {
-    event.stopPropagation();
-    console.log('Dropdown toggled');
-    this.showUserDropdown = !this.showUserDropdown;
-  }
+  // toggleUserDropdown(event: Event) {
+  //   event.stopPropagation();
+  //   console.log('Dropdown toggled');
+  //   this.showUserDropdown = !this.showUserDropdown;
+  // }
 
-  confirmLogout(event: Event) {
-    event.stopPropagation();
-    console.log('Logout clicked'); // should appear first
-    const confirmed = window.confirm('Are you sure you want to logout?');
-    if (confirmed) {
-      console.log('Logging out...');
-      this.logout();
-    }
-  }
+  // confirmLogout(event: Event) {
+  //   event.stopPropagation();
+  //   console.log('Logout clicked'); // should appear first
+  //   const confirmed = window.confirm('Are you sure you want to logout?');
+  //   if (confirmed) {
+  //     console.log('Logging out...');
+  //     this.logout();
+  //   }
+  // }
 
   logout() {
-    // Optional: Show confirm before logging out
-    // if (!window.confirm('Are you sure you want to logout?')) return;
-
-    localStorage.removeItem('token'); // remove auth token
-    console.log('Logged out');
-    this.router.navigate(['/login']); // redirect to login page
+    this.showLogoutModal = true; // only show modal
   }
 }

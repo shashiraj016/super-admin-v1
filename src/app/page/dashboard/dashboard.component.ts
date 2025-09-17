@@ -113,6 +113,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   sortColumn: string | null = 'saLeads';
   sortDirection: 'asc' | 'desc' | 'default' = 'desc';
   skipDefaultSelection = false;
+  loadingUsers: { [dealerId: string]: boolean } = {};
 
   currentPageMap: { [dealerId: string]: number } = {}; // track current page per dealer
   showAllSMs: { [dealerId: string]: boolean } = {};
@@ -171,19 +172,21 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // dealerSummaryCallsViewType: 'table' | 'chart' = 'table';
   dealerSummaryCallsViewType: 'table' | 'chart' | 'enquiry' | 'cold' = 'table';
 
-  selectedFilter:
-    | 'DAY'
-    | 'YESTERDAY'
-    | 'WEEK'
-    | 'LAST_WEEK'
-    | 'MTD'
-    | 'LAST_MONTH'
-    | 'QTD'
-    | 'LAST_QUARTER'
-    | 'SIX_MONTH'
-    | 'YTD'
-    | 'CUSTOM'
-    | 'LIFETIME' = 'DAY';
+  // selectedFilter:
+  //   | 'DAY'
+  //   | 'YESTERDAY'
+  //   | 'WEEK'
+  //   | 'LAST_WEEK'
+  //   | 'MTD'
+  //   | 'LAST_MONTH'
+  //   | 'QTD'
+  //   | 'LAST_QUARTER'
+  //   | 'SIX_MONTH'
+  //   | 'YTD'
+  //   | 'CUSTOM'
+  //   | 'LIFETIME' = 'DAY';
+  selectedFilter!: FilterType;
+
   dealerColors: string[] = [
     '#e6f2ff', // light blue
     '#f9f2ec', // light peach
@@ -333,42 +336,64 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   ) {}
   data: any; // To hold your data
   apiUrl: string =
-    'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew';
-  ngOnInit() {
+    'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
+  // ngOnInit() {
+  //   const savedData = localStorage.getItem('kpiData');
+  //   if (savedData) {
+  //     // Always parse full object
+  //     this.kpiData = { ...JSON.parse(savedData) };
+  //   }
+  //   this.loadKpiData('DAY'); // fetch fresh data
+
+  //   // this.loadKpiData('DAY');
+
+  //   this.selectedTime = 'MTD'; // or 'ALL'
+  //   this.onTimeChange(this.selectedTime); // <-- this ensures API call on load
+  //   // this.dashboardService.getKpiData('MTD').subscribe({
+  //   //   next: (res: any) => {
+  //   //     if (res.status === 200) {
+  //   //       this.kpiData = res.data; // <--- assign the nested 'data' object
+  //   //     }
+  //   //   },
+  //   //   error: (err) => {
+  //   //     console.error(err);
+  //   //   },
+  //   // });
+
+  //   // this.fetchKpiData();
+  //   this.currentDisplayCount = this.itemsPerPage;
+  //   this.selectedFilter = 'DAY';
+  //   this.fetchSuperAdminDashboard(this.selectedFilter); // or 'QTD', 'MTD' based on dropdown
+  //   this.onDropdownChange(); // Auto-trigger on page load with default values
+  //   this.context.onSideBarClick$.next({
+  //     role: 'dashboard',
+  //     pageTitle: 'Dashboard',
+  //   });
+  //   this.selectedFilter = 'DAY';
+  // }
+  ngOnInit(): void {
+    // 1️⃣ Read persisted filter from localStorage
+    const savedFilter = localStorage.getItem('selectedFilter') as FilterType;
+    this.selectedFilter = savedFilter ?? 'DAY';
+
+    // 2️⃣ Fetch data based on selected filter
+    if (this.selectedFilter !== 'CUSTOM') {
+      const apiFilter = this.mapFilterToApi(this.selectedFilter);
+      this.fetchSuperAdminDashboard(apiFilter);
+    }
+
+    // Other initializations
     const savedData = localStorage.getItem('kpiData');
     if (savedData) {
-      // Always parse full object
       this.kpiData = { ...JSON.parse(savedData) };
     }
-    this.loadKpiData('DAY'); // fetch fresh data
-
-    // this.loadKpiData('DAY');
-
-    this.selectedTime = 'MTD'; // or 'ALL'
-    this.onTimeChange(this.selectedTime); // <-- this ensures API call on load
-    // this.dashboardService.getKpiData('MTD').subscribe({
-    //   next: (res: any) => {
-    //     if (res.status === 200) {
-    //       this.kpiData = res.data; // <--- assign the nested 'data' object
-    //     }
-    //   },
-    //   error: (err) => {
-    //     console.error(err);
-    //   },
-    // });
-
-    // this.fetchKpiData();
     this.currentDisplayCount = this.itemsPerPage;
-    this.selectedFilter = 'DAY';
-    this.fetchSuperAdminDashboard(this.selectedFilter); // or 'QTD', 'MTD' based on dropdown
-    this.onDropdownChange(); // Auto-trigger on page load with default values
+
     this.context.onSideBarClick$.next({
       role: 'dashboard',
       pageTitle: 'Dashboard',
     });
-    this.selectedFilter = 'DAY';
   }
-
   initializeDisplay() {
     this.currentDisplayCount = this.itemsPerPage;
   }
@@ -758,6 +783,24 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   // ✅ Always fetch, including CUSTOM (URL logic is already inside fetchSuperAdminDashboard)
   //   this.fetchSuperAdminDashboard(apiFilter);
   // }
+  // onFilterChange(filter: FilterType): void {
+  //   // Reset tables and states
+  //   this.expandedRow = null;
+  //   this.dealerUsers = {};
+  //   this.userCallLogs = {};
+  //   this.dealerCallLogs = {};
+
+  //   if (filter === 'CUSTOM') {
+  //     // Only show date inputs, do NOT call API yet
+  //     this.selectedFilter = 'CUSTOM';
+  //     return;
+  //   }
+
+  //   // For normal filters, call API immediately
+  //   this.selectedFilter = filter;
+  //   const apiFilter = this.mapFilterToApi(filter);
+  //   this.fetchSuperAdminDashboard(apiFilter);
+  // }
   onFilterChange(filter: FilterType): void {
     // Reset tables and states
     this.expandedRow = null;
@@ -765,17 +808,21 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.userCallLogs = {};
     this.dealerCallLogs = {};
 
+    this.selectedFilter = filter;
+
+    // Persist selection
+    localStorage.setItem('selectedFilter', filter);
+
     if (filter === 'CUSTOM') {
       // Only show date inputs, do NOT call API yet
-      this.selectedFilter = 'CUSTOM';
       return;
     }
 
     // For normal filters, call API immediately
-    this.selectedFilter = filter;
     const apiFilter = this.mapFilterToApi(filter);
     this.fetchSuperAdminDashboard(apiFilter);
   }
+
   fetchDealerSMs(
     dealerId: string,
     type: 'MTD' | 'QTD' | 'YTD',
@@ -786,7 +833,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -817,7 +864,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (!token) return;
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -890,7 +937,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   // loadKpiData(type: string = 'DAY') {
   //   this.http
   //     .get<any>(
-  //       `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`
+  //       `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`
   //     )
   //     .subscribe({
   //       next: (res) => {
@@ -914,7 +961,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http
       .get<any>(
-        `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`,
+        `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`,
         { headers }
       )
       .subscribe({
@@ -1128,17 +1175,17 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     if (!this.selectedDealers?.length) {
       url = isCustomMode
-        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
+        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
     } else if (this.selectedDealers.length === 1) {
       url = isCustomMode
-        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
+        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
     } else {
       const dealerIds = this.selectedDealers.map((d) => d.dealerId).join(',');
       url = isCustomMode
-        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
+        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
     }
 
     console.log('🌐 API URL:', url);
@@ -1538,7 +1585,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
 
     this.http.get<any>(url, { headers }).subscribe(
       (res) => {
@@ -1943,14 +1990,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const id = dealer.dealerId;
     if (!id) return;
 
-    // ✅ Toggle row expansion
+    // Toggle row expansion
     this.expandedRow = this.expandedRow === id ? null : id;
 
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    let request$;
+    // ✅ Set loading to true
+    this.loadingUsers[id] = true;
 
+    let request$;
     if (
       this.selectedFilter === 'CUSTOM' &&
       this.customStartDate &&
@@ -1972,6 +2021,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     request$.subscribe({
       next: (res: any) => {
+        this.loadingUsers[id] = false; // done loading
+
         const dealerData = Array.isArray(res?.data?.dealerData)
           ? res.data.dealerData.find((d: any) => d.dealerId === id)
           : res?.data?.dealerData;
@@ -1984,59 +2035,33 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         }
 
         this.dealerUsers[id] = dealerData.users || [];
-
-        this.dealerCallLogs[id] = dealerData.callLogs
-          ? {
-              total: dealerData.callLogs.totalCalls,
-              outgoing: dealerData.callLogs.outgoing,
-              incoming: dealerData.callLogs.incoming,
-              connected: dealerData.callLogs.connected,
-              declined: dealerData.callLogs.declined,
-              duration: this.formatDuration(
-                dealerData.callLogs.durationSec || 0
-              ),
-            }
-          : null;
+        this.dealerCallLogs[id] = dealerData.callLogs ?? null;
 
         this.userCallLogs[id] =
-          dealerData.users?.map((user: any) => ({
-            userId: user.user_id,
-            name: user.user,
-            role: user.user_role,
-            active: user.active,
-            calls: user.calls
-              ? {
-                  total: user.calls.totalCalls,
-                  outgoing: user.calls.outgoing,
-                  incoming: user.calls.incoming,
-                  connected: user.calls.connected,
-                  declined: user.calls.declined,
-                  duration: this.formatDuration(user.calls.durationSec),
-                }
-              : {
-                  total: 0,
-                  outgoing: 0,
-                  incoming: 0,
-                  connected: 0,
-                  declined: 0,
-                  duration: '0s',
-                },
-          })) || [];
+          dealerData.users?.map((user: any) => {
+            const durationSec = Number(user.calls?.durationSec ?? 0); // valid here
 
-        // Optional: sort users
-        this.userCallLogs[id].sort((a, b) =>
-          (a?.name ?? '')
-            .toString()
-            .trim()
-            .localeCompare((b?.name ?? '').toString().trim(), undefined, {
-              sensitivity: 'base',
-            })
-        );
+            return {
+              userId: user.user_id,
+              name: user.user,
+              role: user.user_role,
+              active: user.active,
+              calls: {
+                total: Number(user.calls?.totalCalls ?? 0),
+                outgoing: Number(user.calls?.outgoing ?? 0),
+                incoming: Number(user.calls?.incoming ?? 0),
+                connected: Number(user.calls?.connected ?? 0),
+                declined: Number(user.calls?.declined ?? 0),
+                duration: this.formatDuration(durationSec), // formatted
+                durationSec, // keep raw for calculations
+              },
+            };
+          }) || [];
 
         this.cd.detectChanges();
-        console.log('Mapped + Sorted User Call Logs:', this.userCallLogs[id]);
       },
       error: (err) => {
+        this.loadingUsers[id] = false;
         console.error(err);
         this.dealerUsers[id] = [];
         this.dealerCallLogs[id] = null;
@@ -2681,7 +2706,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   if (!this.dealerSMS[dealerId]) {
   //     this.loadingSM = true; // Set loading state to true
 
-  //     const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${this.selectedFilter}&dealer_id=${dealerId}`;
+  //     const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${this.selectedFilter}&dealer_id=${dealerId}`;
   //     const token = localStorage.getItem('token');
 
   //     const headers = new HttpHeaders({
@@ -2714,7 +2739,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.customEndDate
     ) {
       // For custom date mode, build URL with start_date and end_date parameters
-      const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
+      const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
 
       this.http
         .get(url, { headers: { Authorization: `Bearer ${token}` } })
@@ -2723,7 +2748,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         });
     } else {
       // Fallback: legacy API with type
-      const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
+      const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
       this.http
         .get(url, { headers: { Authorization: `Bearer ${token}` } })
         .subscribe((res) => {
@@ -2796,7 +2821,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const type = this.selectedFilter;
     const baseUrl =
-      'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew';
+      'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
     const dealerId = this.selectedDealerId;
     const smId = this.selectedSM.sm_id;
     const url = `${baseUrl}?type=${type}&dealer_id=${dealerId}&sm_id=${smId}`;
@@ -2916,7 +2941,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -3021,7 +3046,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   fetchData(): void {
     this.http
       .get<any>(
-        'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew'
+        'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew'
       )
       .subscribe(
         (response) => {
@@ -3164,7 +3189,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   fetchDashboardDataForTopCards(filter: string) {
     const token = localStorage.getItem('token') || '';
-    let url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM`;
+    let url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM`;
 
     if (filter === 'CUSTOM' && this.customStartDate && this.customEndDate) {
       url += `?startDate=${this.customStartDate}&endDate=${this.customEndDate}`;

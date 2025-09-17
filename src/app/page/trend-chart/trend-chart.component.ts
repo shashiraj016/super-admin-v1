@@ -144,7 +144,7 @@ export class TrendChartComponent {
     },
   };
 
-  BASE_URL = 'https://api.prod.smartassistapp.in';
+  BASE_URL = 'https://uat.smartassistapp.in';
   TREND_CHART_URL = '/api/superAdmin/dashboard/trend-chart';
 
   constructor(private http: HttpClient) {}

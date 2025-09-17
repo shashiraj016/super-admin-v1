@@ -51,7 +51,10 @@ export class SummaryComponent implements OnInit {
   selectedDealer: string = 'all'; // default value
   selectedPS: string = 'all'; // default value
   models: any[] = [];
-  selectedFilter: string = 'DAY';
+  // selectedFilter: string = 'DAY';
+  // selectedFilter!: string; // remove the = 'DAY'
+  selectedSummaryFilter!: string; // independent variable
+
   // efforts: EffortKPI[] = [];
   selectedDealers: string[] = [];
   allDealers: any[] = []; // full list for dropdown
@@ -88,6 +91,25 @@ export class SummaryComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.selectedSummaryFilter =
+      localStorage.getItem('selectedSummaryFilter') || 'DAY';
+
+    // Load dealers initially with this filter
+    const dealerParam = this.selectedDealers?.length
+      ? this.selectedDealers
+      : 'all';
+    const psParam = this.selectedPSs?.length ? this.selectedPSs : 'all';
+    const modelParam =
+      this.selectedModel && this.selectedModel !== 'all'
+        ? this.selectedModel
+        : '';
+
+    this.loadDealers(
+      this.selectedSummaryFilter,
+      dealerParam,
+      psParam,
+      modelParam
+    );
     // Initialize efforts as empty
     this.efforts = [];
 
@@ -198,7 +220,7 @@ export class SummaryComponent implements OnInit {
   //   this.loadDealers(this.selectedFilter, this.selectedDealer);
   // }
   resetFilters(): void {
-    this.selectedFilter = 'DAY'; // Reset filter to default DAY
+    this.selectedSummaryFilter = 'DAY'; // Reset filter to default DAY
 
     // Select all dealers, PSs, and models
     this.selectedDealers = this.allDealers.map((d) => d.dealer_id);
@@ -206,7 +228,7 @@ export class SummaryComponent implements OnInit {
     this.selectedModels = this.models.map((m) => m.model); // or the correct unique key
 
     // Reload dealers if needed
-    this.loadDealers(this.selectedFilter, this.selectedDealers);
+    this.loadDealers(this.selectedSummaryFilter, this.selectedDealers);
   }
   filteredModels() {
     if (!this.modelSearch) return this.models;
@@ -229,28 +251,49 @@ export class SummaryComponent implements OnInit {
     return allKpis;
   }
 
+  // onFilterChange(filter: string) {
+  //   this.selectedFilter = filter;
+  //   console.log('Filter changed:', filter);
+
+  //   const dealerParam =
+  //     this.selectedDealers && this.selectedDealers.length > 0
+  //       ? this.selectedDealers
+  //       : 'all';
+
+  //   const psParam =
+  //     this.selectedPSs && this.selectedPSs.length > 0
+  //       ? this.selectedPSs
+  //       : 'all';
+
+  //   const modelParam =
+  //     this.selectedModel && this.selectedModel !== 'all'
+  //       ? this.selectedModel
+  //       : '';
+
+  //   this.loadDealers(this.selectedFilter, dealerParam, psParam, modelParam);
+  // }
   onFilterChange(filter: string) {
-    this.selectedFilter = filter;
-    console.log('Filter changed:', filter);
+    this.selectedSummaryFilter = filter;
 
-    const dealerParam =
-      this.selectedDealers && this.selectedDealers.length > 0
-        ? this.selectedDealers
-        : 'all';
+    // Save selected filter to localStorage
+    localStorage.setItem('selectedSummaryFilter', filter);
 
-    const psParam =
-      this.selectedPSs && this.selectedPSs.length > 0
-        ? this.selectedPSs
-        : 'all';
-
+    const dealerParam = this.selectedDealers?.length
+      ? this.selectedDealers
+      : 'all';
+    const psParam = this.selectedPSs?.length ? this.selectedPSs : 'all';
     const modelParam =
       this.selectedModel && this.selectedModel !== 'all'
         ? this.selectedModel
         : '';
 
-    this.loadDealers(this.selectedFilter, dealerParam, psParam, modelParam);
+    this.loadDealers(
+      this.selectedSummaryFilter,
+      dealerParam,
+      psParam,
+      modelParam
+    );
   }
-
   toggleDropdown() {
     this.dropdownOpen = !this.dropdownOpen;
   }
@@ -270,7 +313,7 @@ export class SummaryComponent implements OnInit {
     const dealerIds = this.selectedDealers.length
       ? this.selectedDealers.join(',')
       : 'all';
-    this.loadDealers(this.selectedFilter, dealerIds);
+    this.loadDealers(this.selectedSummaryFilter, dealerIds);
   }
 
   // onDealerChange(dealer_id: string, event: any) {
@@ -322,7 +365,12 @@ export class SummaryComponent implements OnInit {
         ? this.selectedModel
         : '';
 
-    this.loadDealers(this.selectedFilter, dealerParam, psParam, modelParam);
+    this.loadDealers(
+      this.selectedSummaryFilter,
+      dealerParam,
+      psParam,
+      modelParam
+    );
   }
 
   // filteredPSs() {
@@ -375,7 +423,7 @@ export class SummaryComponent implements OnInit {
   //   model: string = ''
   // ) {
   //   const apiUrl =
-  //     'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
+  //     'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
   //   const token = localStorage.getItem('token');
 
   //   let query = '';
@@ -466,7 +514,7 @@ export class SummaryComponent implements OnInit {
   //   model: string = '' // car model
   // ) {
   //   const apiUrl =
-  //     'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
+  //     'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
   //   const token = localStorage.getItem('token');
 
   //   let query = '';
@@ -724,25 +772,47 @@ export class SummaryComponent implements OnInit {
         return '';
     }
   }
-  refreshData(): void {
-    this.isLoading = true; // show loader immediately
-    console.log('Refreshing data...');
-    console.log('loadDealers called');
+  // refreshData(): void {
+  //   this.isLoading = true; // show loader immediately
+  //   console.log('Refreshing data...');
+  //   console.log('loadDealers called');
 
-    // If loadDealers() is synchronous
-    setTimeout(() => {
-      this.loadDealers(); // call your existing function
-      this.isLoading = false; // hide loader after data is "loaded"
-    }, 100); // small delay ensures loader is visible
+  //   // If loadDealers() is synchronous
+  //   setTimeout(() => {
+  //     this.loadDealers(); // call your existing function
+  //     this.isLoading = false; // hide loader after data is "loaded"
+  //   }, 100); // small delay ensures loader is visible
+  // }
+  refreshData(): void {
+    this.isLoading = true;
+
+    const filter =
+      this.selectedSummaryFilter ||
+      localStorage.getItem('selectedFilter') ||
+      'DAY';
+    const dealerParam = this.selectedDealers?.length
+      ? this.selectedDealers
+      : 'all';
+    const psParam = this.selectedPSs?.length ? this.selectedPSs : 'all';
+    const modelParam =
+      this.selectedModel && this.selectedModel !== 'all'
+        ? this.selectedModel
+        : '';
+
+    this.loadDealers(filter, dealerParam, psParam, modelParam, () => {
+      this.isLoading = false;
+    });
   }
+
   loadDealers(
     type: string = 'DAY',
     dealer_ids: string | string[] = 'all',
     user_id: string | string[] | null = null,
-    model: string = ''
+    model: string = '',
+    callback?: () => void // <-- add this
   ) {
     const apiUrl =
-      'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
+      'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
     const token = localStorage.getItem('token');
 
     let query = '';
@@ -913,9 +983,12 @@ export class SummaryComponent implements OnInit {
               'Other KPIs': 0,
             };
           }
+          if (callback) callback(); // stop loader
         },
         error: (err) => {
           console.error('Error fetching data', err);
+          if (callback) callback(); // stop loader even on error
+
           this.efforts = [];
           this.productivity = [];
           this.activePSKpis = [];
@@ -1078,7 +1151,12 @@ export class SummaryComponent implements OnInit {
         ? this.selectedModel
         : '';
 
-    this.loadDealers(this.selectedFilter, dealerParam, psParam, modelParam);
+    this.loadDealers(
+      this.selectedSummaryFilter,
+      dealerParam,
+      psParam,
+      modelParam
+    );
   }
   toggleModelSelection(model: any) {
     model.selected = !model.selected;
@@ -1229,7 +1307,12 @@ export class SummaryComponent implements OnInit {
     const psParam =
       this.selectedPSs.length > 0 ? this.selectedPSs.join(',') : 'all';
 
-    this.loadDealers(this.selectedFilter, dealerParam, psParam, modelParam);
+    this.loadDealers(
+      this.selectedSummaryFilter,
+      dealerParam,
+      psParam,
+      modelParam
+    );
   }
   onCheckboxChange(event: any) {
     const dealerId = event.target.value;
@@ -1244,7 +1327,7 @@ export class SummaryComponent implements OnInit {
       this.selectedDealers.length === 0
         ? 'all'
         : this.selectedDealers.join(',');
-    this.loadDealers(this.selectedFilter, dealerParam);
+    this.loadDealers(this.selectedSummaryFilter, dealerParam);
   }
   getDealerName(id: string): string {
     const dealer = this.allDealers.find((d) => d.dealer_id === id);
@@ -1259,7 +1342,7 @@ export class SummaryComponent implements OnInit {
       // Remove if already selected
       this.selectedDealers = this.selectedDealers.filter((d) => d !== dealerId);
     } else {
-      // Add if not selected
+      // Add if not selectedgit
       this.selectedDealers.push(dealerId);
     }
 
@@ -1268,7 +1351,7 @@ export class SummaryComponent implements OnInit {
       this.selectedDealers.length === 0
         ? 'all'
         : this.selectedDealers.join(',');
-    this.loadDealers(this.selectedFilter, dealerParam);
+    this.loadDealers(this.selectedSummaryFilter, dealerParam);
   }
   togglePSDropdown() {
     this.dropdownPSOpen = !this.dropdownPSOpen;

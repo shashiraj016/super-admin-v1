@@ -355,7 +355,7 @@
 
                   <th class="th-right group-divider sortable-header" style="cursor:pointer;"
                     (click)="sortData('manuallyEnteredLeads')">
-                    Manually Entered with CXP
+                    Manually Entered from CXP
                     <span class="sort-arrows">
                       <span class="arrow-up"
                         [class.active]="sortColumn==='manuallyEnteredLeads' && sortDirection==='asc'">▲</span>
@@ -484,6 +484,7 @@
               </thead>
 
               <tbody>
+
                 <ng-container
                   *ngFor="let dealer of getSortedDealersForSummary() | slice:0:table1Length; let i = index trackBy: trackByDealerId">
                   <!-- <ng-container
@@ -496,9 +497,13 @@
                         {{ dealer.dealerName }}
                       </button> -->
                       <button class="expand-btn" (click)="toggleRow($event, dealer)">
-                        <i class="fa"
+                        <!-- <i class="fa"
                           [ngClass]="expandedRow === 'engagement-' + i ? 'fa-chevron-down' : 'fa-chevron-right'"
-                          style="font-size: 10px; margin-right: 5px; color: rgb(15 95 184 / var(--tw-text-opacity, 1));"></i>
+                          style="font-size: 10px; margin-right: 5px; color: rgb(15 95 184 / var(--tw-text-opacity, 1));"></i> -->
+                        <i class="fa"
+                          [ngClass]="expandedRow === dealer.dealerId ? 'fa-chevron-down' : 'fa-chevron-right'"
+                          style="font-size: 10px; margin-right: 5px; color: rgb(15 95 184 / var(--tw-text-opacity, 1));">
+                        </i>
                         <span style="color: rgb(15 95 184 / var(--tw-text-opacity, 1));">
                           {{ dealer.dealerName }}
                         </span>
@@ -550,6 +555,7 @@
 
                   <!-- Sub Row -->
                   <!-- <tr *ngIf="expandedRow === 'engagement-' + i" class="sub-row"> -->
+
                   <tr *ngIf="expandedRow === dealer.dealerId" class="sub-row">
 
                     <td colspan="20" class="sub-row-content">
@@ -572,7 +578,7 @@
                                 <th>SA Leads</th>
                                 <th>Sync with CXP</th>
                                 <th>Sync with ICS</th>
-                                <th>Manually Entered with CXP</th>
+                                <th>Manually Entered from CXP</th>
 
                                 <th>SA Follow-ups</th>
                                 <th>Sync with CXP</th>
@@ -593,11 +599,14 @@
                               </tr>
                             </thead>
                             <tbody>
-                              <!-- <tr *ngFor="let user of getSortedUsers(dealer.dealerId)"> -->
-                              <!-- <tr *ngFor="let user of getSortedUsers(dealer.dealerId); let i = index"
-                                [ngClass]="{'bg-alt': i % 2 === 1}" class="table-row-alt"> -->
-                              <!-- <tr *ngFor="let user of getSortedUsers(dealer.dealerId); let i = index"
-                                [ngClass]="{ 'row-alt': i % 2 === 0, 'row-normal': i % 2 !== 0 }"> -->
+
+                              <tr *ngIf="loadingUsers[dealer.dealerId]">
+                                <td colspan="14" class="td-center">Loading...</td>
+                              </tr>
+
+                              <tr *ngIf="!loadingUsers[dealer.dealerId] && dealerUsers[dealer.dealerId]?.length === 0">
+                                <td colspan="20" class="td-center">No Users Found</td>
+                              </tr>
                               <tr
                                 *ngFor="let user of getSortedUsers(dealer.dealerId); let i = index; trackBy: trackByUserId"
                                 [ngClass]="{ 'row-alt': i % 2 === 0, 'row-normal': i % 2 !== 0 }">
@@ -641,9 +650,8 @@
                                 <td class="td-right">{{ user.opportunitiesConverted ?? 0 }}</td>
 
                               </tr>
-                              <tr *ngIf="!dealerUsers[dealer.dealerId] || dealerUsers[dealer.dealerId]?.length === 0">
-                                <td colspan="14" class="td-center">No Users Found</td>
-                              </tr>
+
+
                             </tbody>
                           </table>
                         </div>
@@ -726,7 +734,7 @@
                       </button> -->
                       <button class="expand-btn" (click)="toggleRow($event, dealer)">
                         <i class="fa"
-                          [ngClass]="expandedRow === 'engagement-' + i ? 'fa-chevron-down' : 'fa-chevron-right'"
+                          [ngClass]="expandedRow === dealer.dealerId ? 'fa-chevron-down' : 'fa-chevron-right'"
                           style="font-size: 10px; margin-right: 5px; color: rgb(15 95 184 / var(--tw-text-opacity, 1));"></i>
                         <span style="color: rgb(15 95 184 / var(--tw-text-opacity, 1));">
                           {{ dealer.dealerName }}
@@ -902,7 +910,16 @@
 
                   <!-- Sub-row: user call logs -->
                   <!-- Sub-row: User call logs -->
-                  <tr *ngIf="expandedRow === 'engagement-' + i" class="sub-row">
+                  <!-- <tr *ngIf="expandedRow === 'engagement-' + i" class="sub-row"> -->
+                  <tr *ngIf="loadingUsers[dealer.dealerId]">
+                    <td colspan="14" class="td-center">Loading...</td>
+                  </tr>
+
+                  <tr *ngIf="!loadingUsers[dealer.dealerId] && dealerUsers[dealer.dealerId]?.length === 0">
+                    <td colspan="20" class="td-center">No Users Found</td>
+                  </tr>
+                  <tr *ngIf="expandedRow === dealer.dealerId" class="sub-row">
+
                     <td colspan="10" class="sub-row-content" style="padding: 0;">
                       <div class="sub-row-inner" style="padding-left: 13px !important;">
                         <div class="sub-row-title"
