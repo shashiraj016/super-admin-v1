@@ -1920,7 +1920,7 @@ div[style*="overflow-y: auto"]::-webkit-scrollbar-button {
 
 .header2 {
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   align-items: center;
   background: white;
   padding: 1rem;
@@ -2317,7 +2317,7 @@ td {
 
 .dropdown-menu {
   position: absolute;
-  width: 100%;
+  width: 110%;
   top: 100%;
   left: 4px;
   right: 0;
@@ -4119,7 +4119,7 @@ body {
 }
 
 .time-dropdown {
-  min-width: 250px; /* wider dropdown */
+  min-width: 200px; /* wider dropdown */
   padding: 6px 10px;
   font-size: 14px;
   border-radius: 6px;
@@ -4829,6 +4829,9 @@ tbody tr:nth-child(odd) {
     z-index: 99999 !important;
     width: 100% !important;
   }
+  #tabs {
+    display: contents !important;
+  }
   .custom-inputs {
     display: ruby !important;
     width: 100% !important;
@@ -4868,7 +4871,7 @@ tbody tr:nth-child(odd) {
   }
 
   #exportsummary {
-    align-items: flex-end !important;
+    align-items: center !important;
     margin-top: -40% !important;
   }
   .kpi-label {
@@ -4895,7 +4898,7 @@ tbody tr:nth-child(odd) {
 /* First header row */
 .table-thead tr:first-child th {
   position: sticky;
-  top: 0;
+  top: 18px;
   background: white;
   z-index: 30; /* lower than dealer column */
 }

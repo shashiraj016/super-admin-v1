@@ -369,8 +369,11 @@
                                         </div> -->
                                         <div class="chart-container">
                                             <div class="progress-wrapper">
+                                                <!-- <div class="progress"
+                                                    [title]="('Actual: ' + kpi.value + ', Target: ' + kpi.target + getProductivityMsg(kpi.name))"> -->
                                                 <div class="progress"
-                                                    [title]="('Actual: ' + kpi.value + ', Target: ' + kpi.target + getProductivityMsg(kpi.name))">
+                                                    [attr.title]="'Actual: ' + kpi.value + ', Target: ' + kpi.target + getProductivityMsg(kpi.name)"
+                                                    (click)="showTooltip($event, kpi)">
                                                     <div class="bar"
                                                         [style.width.%]="getProgressWidth(kpi.value, kpi.target)"
                                                         [ngStyle]="{ 'background-color': getProgressColor(kpi.value, kpi.target) }">
@@ -435,8 +438,11 @@
                                         </div> -->
                                         <div class="chart-container">
                                             <div class="progress-wrapper">
+                                                <!-- <div class="progress"
+                                                    [title]="('Actual: ' + kpi.value + ', Target: ' + kpi.target + getProductivityMsg(kpi.name))"> -->
                                                 <div class="progress"
-                                                    [title]="('Actual: ' + kpi.value + ', Target: ' + kpi.target + getProductivityMsg(kpi.name))">
+                                                    [attr.title]="'Actual: ' + kpi.value + ', Target: ' + kpi.target"
+                                                    (click)="showTooltip($event, kpi)">
                                                     <div class="bar"
                                                         [style.width.%]="getProgressWidth(kpi.value, kpi.target)"
                                                         [ngStyle]="{ 'background-color': getProgressColor(kpi.value, kpi.target) }">
@@ -527,8 +533,11 @@
                                         </div> -->
                                         <div class="chart-container">
                                             <div class="progress-wrapper">
+                                                <!-- <div class="progress"
+                                                    [title]="('Actual: ' + kpi.value + ', Target: ' + kpi.target + getActivePsMsg(kpi.name))"> -->
                                                 <div class="progress"
-                                                    [title]="('Actual: ' + kpi.value + ', Target: ' + kpi.target + getActivePsMsg(kpi.name))">
+                                                    [attr.title]="'Actual: ' + kpi.value + ', Target: ' + kpi.target + getActivePsMsg(kpi.name)"
+                                                    (click)="showTooltip($event, kpi)">
                                                     <div class="bar"
                                                         [style.width.%]="getProgressWidth(kpi.value, kpi.target)"
                                                         [ngStyle]="{ 'background-color': getProgressColor(kpi.value, kpi.target) }">

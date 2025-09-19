@@ -1360,16 +1360,45 @@ export class SummaryComponent implements OnInit {
     this.dropdownPSOpen = !this.dropdownPSOpen;
   }
 
+  // showTooltip(event: MouseEvent, kpi: any) {
+  //   if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+  //     const target = event.currentTarget as HTMLElement;
+  //     const rect = target.getBoundingClientRect();
+
+  //     this.tooltipText = `Actual: ${kpi.value}, Target: ${kpi.target}`;
+
+  //     // Use actual tap X inside the bar + scroll offset
+  //     this.tooltipX = window.scrollX + event.clientX;
+  //     this.tooltipY = window.scrollY + rect.bottom + 10; // just below the bar
+
+  //     setTimeout(() => (this.tooltipText = null), 2000);
+  //   }
+  // }
+  private resolveExtraMsg(kpi: any): string {
+    let msg = this.getStaticMsg(kpi.name);
+    if (msg) return msg;
+
+    msg = this.getProductivityMsg(kpi.name);
+    if (msg) return msg;
+
+    msg = this.getActivePsMsg(kpi.name);
+    if (msg) return msg;
+
+    return '';
+  }
+
   showTooltip(event: MouseEvent, kpi: any) {
     if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
       const target = event.currentTarget as HTMLElement;
       const rect = target.getBoundingClientRect();
 
-      this.tooltipText = `Actual: ${kpi.value}, Target: ${kpi.target}`;
+      const extraMsg = this.resolveExtraMsg(kpi);
 
-      // Use actual tap X inside the bar + scroll offset
+      this.tooltipText = `Actual: ${kpi.value}, Target: ${kpi.target}${extraMsg}`;
+
+      // Position tooltip just below the bar
       this.tooltipX = window.scrollX + event.clientX;
-      this.tooltipY = window.scrollY + rect.bottom + 10; // just below the bar
+      this.tooltipY = window.scrollY + rect.bottom + 10;
 
       setTimeout(() => (this.tooltipText = null), 2000);
     }
