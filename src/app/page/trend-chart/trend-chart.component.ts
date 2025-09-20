@@ -5,7 +5,7 @@ import {
   HttpHeaders,
   HttpParams,
 } from '@angular/common/http';
-import { Component, HostListener } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   ApexAxisChartSeries,
@@ -34,7 +34,6 @@ export type ChartOptions = {
   markers: ApexMarkers;
   legend: ApexLegend;
   responsive?: ApexResponsive[];
-
   tooltip: ApexTooltip;
   colors?: string[];
 };
@@ -144,10 +143,29 @@ export class TrendChartComponent {
     },
   };
 
-  BASE_URL = 'https://api.prod.smartassistapp.in';
+
+  BASE_URL = 'https://uat.smartassistapp.in';
   TREND_CHART_URL = '/api/superAdmin/dashboard/trend-chart';
 
-  constructor(private http: HttpClient) {}
+
+  // Day-level charts
+  dayLeadChart: Partial<ChartOptions> = {};
+  dayEventChart: Partial<ChartOptions> = {};
+  dayTaskChart: Partial<ChartOptions> = {};
+  dayCallsChart: Partial<ChartOptions> = {};
+  dayLastLoginChart: Partial<ChartOptions> = {};
+
+  // Hour-level charts
+  hourLeadChart: Partial<ChartOptions> = {};
+  hourEventChart: Partial<ChartOptions> = {};
+  hourTaskChart: Partial<ChartOptions> = {};
+  hourCallsChart: Partial<ChartOptions> = {};
+  hourLastLoginChart: Partial<ChartOptions> = {};
+
+
+  dealerCharts: any[] = []; // array of dealer-wise charts
+
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
     this.fetchTrendChart();
@@ -158,16 +176,20 @@ export class TrendChartComponent {
   filteredDealers: any[] = [];
   dropdownOpen = false;
   dealerSearch = '';
-  selectedDateFilter: string = 'LAST_30_DAYS';
+  selectedDateFilter: string = 'DAY';
   selectedMetric: string = 'calls';
   chartTypes: ChartType[] = ['line', 'area', 'bar'];
   currentChartTypeIndex = 0; // keep track of current
+  charts: any = {};
+  userTouchedDealers = false; // New property in your component
+  topLeads: number = 0;
+  topTasks: number = 0;
+  topTDs: number = 0;
+  topCall: number = 0;
+  DistinctUsers: number = 0
 
-  loadDealers() {
-    // Your method to load dealers
-    // this.dealers = your dealer data
-    this.filteredDealers = [...this.dealers];
-  }
+
+
 
   switchChartType() {
     this.currentChartTypeIndex =
@@ -212,6 +234,8 @@ export class TrendChartComponent {
   }
 
   toggleDealerSelection(dealer: any) {
+    this.userTouchedDealers = true; // user actually changed individual dealer
+
     const dealerId = dealer.dealer_id;
     const index = this.selectedDealers.indexOf(dealerId);
 
@@ -221,7 +245,6 @@ export class TrendChartComponent {
       this.selectedDealers.push(dealerId);
     }
 
-    // Fetch updated chart data
     this.fetchTrendChartWithFilters();
   }
 
@@ -236,18 +259,12 @@ export class TrendChartComponent {
     const isChecked = event.target.checked;
 
     if (isChecked) {
-      this.filteredDealers.forEach((dealer) => {
-        if (!this.selectedDealers.includes(dealer.dealer_id)) {
-          this.selectedDealers.push(dealer.dealer_id);
-        }
-      });
+      // Select all in UI but do NOT set userTouchedDealers → keep dealer_ids empty
+      this.selectedDealers = this.filteredDealers.map(d => d.dealer_id);
     } else {
-      this.filteredDealers.forEach((dealer) => {
-        const index = this.selectedDealers.indexOf(dealer.dealer_id);
-        if (index > -1) {
-          this.selectedDealers.splice(index, 1);
-        }
-      });
+      // Unselect all → user has touched
+      this.userTouchedDealers = true;
+      this.selectedDealers = [];
     }
 
     this.fetchTrendChartWithFilters();
@@ -255,40 +272,63 @@ export class TrendChartComponent {
 
   clearSelection() {
     this.selectedDealers = [];
+    this.userTouchedDealers = false; // reset flag
     this.fetchTrendChartWithFilters();
   }
 
   fetchTrendChart() {
     const token = localStorage.getItem('token');
+    console.log('Token:', localStorage.getItem('token'));
+
     if (!token) {
       console.error('❌ No token found in localStorage');
       return;
     }
 
     const headers = new HttpHeaders({
-      authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token}`
     });
 
+    // 🟢 If "all" selected → expand to all known dealer_ids
+    let dealerIds = '';
+    if (this.selectedDealers.includes('all')) {
+      if (this.dealers && this.dealers.length > 0) {
+        dealerIds = this.dealers.map((d) => d.dealer_id).join(',');
+      }
+    } else if (this.selectedDealers.length > 0) {
+      dealerIds = this.selectedDealers.join(',');
+    }
+
     const params = new HttpParams()
-      .set('metric', 'calls')
-      .set('dateFilter', 'LAST_30_DAYS');
+      .set('dealer_ids', dealerIds)
+      .set('type', 'DAY')
+      .set('timezone', Intl.DateTimeFormat().resolvedOptions().timeZone);
 
     this.http
       .get<any>(`${this.BASE_URL}${this.TREND_CHART_URL}`, { headers, params })
       .subscribe({
         next: (res) => {
-          console.log('✅ Initial API Response:', res);
+          console.log('✅ API Response:', res.topCards);
 
-          // Populate dealer dropdown
+          // store dealer list on first load
           if (res.activeDealers) {
             this.dealers = res.activeDealers;
             this.filteredDealers = [...this.dealers];
-
-            this.selectedDealers = this.dealers.map((d) => d.dealer_id);
+            // if nothing selected yet, default to all dealers
+            if (!this.selectedDealers.length || this.selectedDealers.includes('all')) {
+              this.selectedDealers = this.dealers.map((d) => d.dealer_id);
+            }
           }
 
-          // Update chart with initial data (empty since no dealers selected)
-          this.updateChart(res.data || []);
+          if (res.topCards) {
+            this.topLeads = res.topCards.leads || 0;
+            this.topTasks = res.topCards.followups || 0;
+            this.topTDs = res.topCards.testDrives || 0;
+            this.topCall = res.topCards.calls || 0;
+            this.DistinctUsers = res.topCards.distinctUsers || 0;
+          }
+
+          this.updateAllChartsFromApi(res);
         },
         error: (err) => {
           console.error('❌ API Error:', err);
@@ -296,501 +336,217 @@ export class TrendChartComponent {
       });
   }
 
+  updateAllChartsFromApi(res: any) {
+    if (!res) return;
+
+    // ---- Normalize input data ----
+    const normalizeData = (input: any, key: string) => {
+      if (!input) return [];
+
+      // Case 1: flat object of arrays (All dealers case)
+      if (typeof input === 'object' && !Array.isArray(input) && Array.isArray(input[key])) {
+        return (input[key] || []).map((d: any) => ({
+          ...d,
+          dealer_name: 'All Dealers',
+        }));
+      }
+
+      // Case 2: dealer-keyed object
+      if (typeof input === 'object' && !Array.isArray(input)) {
+        return Object.entries(input).flatMap(([dealer, obj]: [string, any]) => {
+          const arr = obj?.[key] || [];
+          return arr.map((d: any) => ({
+            ...d,
+            dealer_name: dealer,
+          }));
+        });
+      }
+
+      // Case 3: plain array
+      if (Array.isArray(input)) {
+        return input.map((d: any) => ({
+          ...d,
+          dealer_name: 'All Dealers',
+        }));
+      }
+
+      return [];
+    };
+
+    // ---- Transform data into chart series & categories ----
+    const transform = (data: any[], isHourChart = false) => {
+      if (!data || data.length === 0) return { series: [], categories: [] };
+
+      const xKey = isHourChart ? 'hour' : 'label';
+
+      // Unique categories
+      const uniqueCategories = Array.from(new Set(data.map((item) => item[xKey])));
+
+      // Sort categories
+      const sortedCategories = uniqueCategories.sort((a, b) => {
+        if (isHourChart) {
+          const [ah, am] = a.split(':').map(Number);
+          const [bh, bm] = b.split(':').map(Number);
+          return ah * 60 + am - (bh * 60 + bm);
+        } else {
+          const parseDate = (dateStr: string) => {
+            const parts = dateStr.split(',').map((s) => s.trim());
+            const [, dayMonth] = parts.length > 1 ? parts : ['', parts[0]];
+            const [day, month] = dayMonth.split(' ');
+            const monthMap: { [key: string]: number } = {
+              Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+              Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11,
+            };
+            return new Date(2024, monthMap[month] || 0, parseInt(day, 10));
+          };
+          return parseDate(a as string).getTime() - parseDate(b as string).getTime();
+        }
+      });
+
+      // Group by dealer
+      const dealerGroups: { [key: string]: any[] } = {};
+      data.forEach((item) => {
+        const dealer = item.dealer_name || 'All Dealers';
+        if (!dealerGroups[dealer]) dealerGroups[dealer] = [];
+        dealerGroups[dealer].push(item);
+      });
+
+      // Build series
+      const series = Object.keys(dealerGroups).map((dealer) => {
+        const map = new Map(dealerGroups[dealer].map((d: any) => [d[xKey], Number(d.count) || 0]));
+        return {
+          name: dealer,
+          data: sortedCategories.map((cat) => map.get(cat) || 0),
+        };
+      });
+
+      // Format categories for x-axis
+      const categories = isHourChart
+        ? sortedCategories.map((h) => {
+          const [hh, mm] = h.split(':').map(Number);
+          return `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
+        })
+        : sortedCategories;
+
+      return { series, categories };
+    };
+
+    // ---- Helper to update chart ----
+    const updateChart = (chartObj: any, chartData: any, isHourChart = false) => {
+      const tickAmount = isHourChart
+        ? Math.ceil(chartData.categories.length / 6) // dynamic tick interval for readability
+        : undefined;
+
+      return {
+        ...chartObj,
+        series: chartData.series,
+        chart: { type: 'line', height: 350 },
+        stroke: { width: 2 },
+        xaxis: {
+          categories: chartData.categories,
+          tickAmount: tickAmount,
+          labels: isHourChart ? { rotate: -45 } : {},
+        },
+      };
+    };
+
+    // ---- Chart configurations ----
+    const chartConfigs = [
+      { key: 'leads', resKey: 'left', target: 'dayLeadChart' },
+      { key: 'testDrives', resKey: 'left', target: 'dayEventChart' },
+      { key: 'followups', resKey: 'left', target: 'dayTaskChart' },
+      { key: 'calls', resKey: 'left', target: 'dayCallsChart' },
+      { key: 'lastLogin', resKey: 'left', target: 'dayLastLoginChart' },
+
+      { key: 'leads', resKey: 'right', target: 'hourLeadChart' },
+      { key: 'testDrives', resKey: 'right', target: 'hourEventChart' },
+      { key: 'followups', resKey: 'right', target: 'hourTaskChart' },
+      { key: 'calls', resKey: 'right', target: 'hourCallsChart' },
+      { key: 'lastLogin', resKey: 'right', target: 'hourLastLoginChart' },
+
+
+    ];
+
+    // ---- Loop through charts and update ----
+    chartConfigs.forEach(({ key, resKey, target }) => {
+      const isHourChart = resKey === 'right';
+      const chartData = transform(normalizeData(res[resKey], key), isHourChart);
+      (this as any)[target] = updateChart((this as any)[target], chartData, isHourChart);
+    });
+  }
+
+
   fetchTrendChartWithFilters() {
     const token = localStorage.getItem('token');
-    if (!token) {
-      console.error('❌ No token found in localStorage');
-      return;
-    }
+    console.log('Token:', localStorage.getItem('token'),"second method");
 
-    const headers = new HttpHeaders({
-      authorization: `Bearer ${token}`,
-    });
+    if (!token) return;
+
+    const headers = new HttpHeaders({Authorization: `Bearer ${token}`});
+
+    let dealerIds = '';
+
+    // Only include dealer_ids if the user interacted
+    if (this.userTouchedDealers && this.selectedDealers.length > 0) {
+      dealerIds = this.selectedDealers.join(',');
+    }
 
     let params = new HttpParams()
-      .set('metric', this.selectedMetric)
-      .set('dateFilter', this.selectedDateFilter);
+      .set('type', this.selectedDateFilter)
+      .set('timezone', 'Asia/Calcutta');
 
-    if (this.selectedDealers.length > 0) {
-      params = params.set('dealer_id', this.selectedDealers.join(','));
+    if (dealerIds.trim()) {
+      params = params.set('dealer_ids', dealerIds);
     }
-    // 👉 don’t set dealer_id when none selected
 
     this.http
       .get<any>(`${this.BASE_URL}${this.TREND_CHART_URL}`, { headers, params })
       .subscribe({
         next: (res) => {
-          console.log('✅ Filtered API Response:', res);
-          this.updateChart(res.data || []);
+          this.updateAllChartsFromApi(res);
         },
-        error: (err) => {
-          console.error('❌ API Error:', err);
-        },
+        error: (err) => console.error(err),
       });
   }
 
-  // updateChart(data: any[]) {
-  //   if (!data || data.length === 0) {
-  //     this.chartOptions = {
-  //       ...this.chartOptions,
-  //       series: [],
-  //       xaxis: {
-  //         ...this.chartOptions.xaxis,
-  //         categories: [],
-  //       },
-  //     };
-  //     return;
-  //   }
-
-  //   const transformedData = this.transformDataForChart(data);
-
-  //   console.log('Categories being set:', transformedData.categories);
-  //   console.log(
-  //     'First few categories:',
-  //     transformedData.categories.slice(0, 5)
-  //   );
-
-  //   // Completely rebuild chartOptions instead of merging
-  //   // this.chartOptions = {
-  //   //   series: transformedData.series,
-  //   //   chart: {
-  //   //     height: 350,
-  //   //     type: this.chartOptions.chart?.type || 'line',
-  //   //     zoom: { enabled: false },
-  //   //     toolbar: { show: true },
-  //   //   },
-  //   //   dataLabels: {
-  //   //     enabled: false,
-  //   //   },
-  //   //   stroke: {
-  //   //     width: 2,
-  //   //     curve: 'smooth',
-  //   //   },
-  //   //   legend: {
-  //   //     position: 'top',
-  //   //     horizontalAlign: 'left',
-  //   //     fontSize: '12px',
-  //   //     itemMargin: {
-  //   //       horizontal: 10,
-  //   //       vertical: 4,
-  //   //     },
-  //   //   },
-  //   //   markers: {
-  //   //     size: 0,
-  //   //     hover: { sizeOffset: 6 },
-  //   //   },
-  //   //   xaxis: {
-  //   //     type: 'category',
-  //   //     categories: transformedData.categories,
-  //   //     labels: {
-  //   //       rotate: -45,
-  //   //       hideOverlappingLabels: true,
-  //   //       showDuplicates: false,
-  //   //       style: {
-  //   //         fontSize: '10px',
-  //   //       },
-  //   //     },
-  //   //     tickPlacement: 'on',
-  //   //     sorted: false,
-  //   //   },
-  //   //   tooltip: {
-  //   //     x: {},
-  //   //     y: {
-  //   //       formatter: (val: number) => val.toString(),
-  //   //     },
-  //   //   },
-  //   //   grid: {
-  //   //     show: true,
-  //   //     borderColor: '#e0e0e0',
-  //   //     strokeDashArray: 3,
-  //   //     position: 'back',
-  //   //     xaxis: {
-  //   //       lines: {
-  //   //         show: true,
-  //   //       },
-  //   //     },
-  //   //     yaxis: {
-  //   //       lines: {
-  //   //         show: true,
-  //   //       },
-  //   //     },
-  //   //   },
-  //   //   colors: [
-  //   //     '#2a8eff',
-  //   //     '#0f5fb8',
-  //   //     '#1676e6',
-  //   //     '#86c1ff',
-  //   //     '#57a8ff',
-  //   //     '#059669',
-  //   //     '#0ea5e9',
-  //   //     '#9333ea',
-  //   //     '#d97706',
-  //   //     '#e11d48',
-  //   //     '#0d4c90',
-  //   //     '#0c3f76',
-  //   //     '#64748b',
-  //   //     '#475569',
-  //   //     '#14b8a6',
-  //   //   ],
-  //   // };
-  //   const palette = [
-  //     '#008FFB',
-  //     '#00E396',
-  //     '#FEB019',
-  //     '#FF4560',
-  //     '#775DD0',
-  //     '#546E7A',
-  //     '#26A69A',
-  //     '#D4526E',
-  //   ];
-
-  //   // Assign colors dynamically per series
-  //   const seriesWithColors = transformedData.series.map((s, i) => ({
-  //     ...s,
-  //     color: palette[i % palette.length], // avoid duplicates by modulo
-  //   }));
-
-  //   this.chartOptions = {
-  //     series: seriesWithColors, // <-- use colored series
-  //     chart: {
-  //       height: 350,
-  //       type: this.chartOptions.chart?.type || 'line',
-  //       zoom: { enabled: false },
-  //       toolbar: { show: true },
-  //     },
-  //     dataLabels: { enabled: false },
-  //     stroke: { width: 2, curve: 'smooth' },
-  //     markers: { size: 0, hover: { sizeOffset: 6 } },
-  //     legend: {
-  //       position: 'top',
-  //       horizontalAlign: 'left',
-  //       fontSize: '12px',
-  //       itemMargin: { horizontal: 10, vertical: 4 },
-  //     },
-  //     xaxis: {
-  //       type: 'category',
-  //       categories: transformedData.categories,
-  //       labels: {
-  //         rotate: -45,
-  //         hideOverlappingLabels: true,
-  //         showDuplicates: false,
-  //         style: { fontSize: '10px' },
-  //       },
-  //       tickPlacement: 'on',
-  //     },
-  //     tooltip: { x: {}, y: { formatter: (val: number) => val.toString() } },
-  //     grid: { show: true, borderColor: '#e0e0e0', strokeDashArray: 3 },
-  //     responsive: [
-  //       {
-  //         breakpoint: 768,
-  //         options: {
-  //           xaxis: { labels: { style: { fontSize: '8px' }, rotate: -60 } },
-  //           chart: { height: 300 },
-  //         },
-  //       },
-  //     ],
-  //   };
-  // }
-  updateChart(data: any[]) {
-    if (!data || data.length === 0) {
-      this.chartOptions = {
-        ...this.chartOptions,
-        series: [],
-        xaxis: {
-          ...this.chartOptions.xaxis,
-          categories: [],
-        },
-      };
-      return;
-    }
-
-    const transformedData = this.transformDataForChart(data);
-
-    console.log('Categories being set:', transformedData.categories);
-    console.log(
-      'First few categories:',
-      transformedData.categories.slice(0, 5)
-    );
-
-    // Completely rebuild chartOptions instead of merging
-    // this.chartOptions = {
-    //   series: transformedData.series,
-    //   chart: {
-    //     height: 350,
-    //     type: this.chartOptions.chart?.type || 'line',
-    //     zoom: { enabled: false },
-    //     toolbar: { show: true },
-    //   },
-    //   dataLabels: {
-    //     enabled: false,
-    //   },
-    //   stroke: {
-    //     width: 2,
-    //     curve: 'smooth',
-    //   },
-    //   legend: {
-    //     position: 'top',
-    //     horizontalAlign: 'left',
-    //     fontSize: '12px',
-    //     itemMargin: {
-    //       horizontal: 10,
-    //       vertical: 4,
-    //     },
-    //   },
-    //   markers: {
-    //     size: 0,
-    //     hover: { sizeOffset: 6 },
-    //   },
-    //   xaxis: {
-    //     type: 'category',
-    //     categories: transformedData.categories,
-    //     labels: {
-    //       rotate: -45,
-    //       hideOverlappingLabels: true,
-    //       showDuplicates: false,
-    //       style: {
-    //         fontSize: '10px',
-    //       },
-    //     },
-    //     tickPlacement: 'on',
-    //     sorted: false,
-    //   },
-    //   tooltip: {
-    //     x: {},
-    //     y: {
-    //       formatter: (val: number) => val.toString(),
-    //     },
-    //   },
-    //   grid: {
-    //     show: true,
-    //     borderColor: '#e0e0e0',
-    //     strokeDashArray: 3,
-    //     position: 'back',
-    //     xaxis: {
-    //       lines: {
-    //         show: true,
-    //       },
-    //     },
-    //     yaxis: {
-    //       lines: {
-    //         show: true,
-    //       },
-    //     },
-    //   },
-    //   colors: [
-    //     '#2a8eff',
-    //     '#0f5fb8',
-    //     '#1676e6',
-    //     '#86c1ff',
-    //     '#57a8ff',
-    //     '#059669',
-    //     '#0ea5e9',
-    //     '#9333ea',
-    //     '#d97706',
-    //     '#e11d48',
-    //     '#0d4c90',
-    //     '#0c3f76',
-    //     '#64748b',
-    //     '#475569',
-    //     '#14b8a6',
-    //   ],
-    // };
-    const palette = [
-      '#008FFB',
-      '#00E396',
-      '#FEB019',
-      '#FF4560',
-      '#775DD0',
-      '#546E7A',
-      '#26A69A',
-      '#D4526E',
-    ];
-
-    // Assign colors dynamically per series
-    const seriesWithColors = transformedData.series.map((s, i) => ({
-      ...s,
-      color: palette[i % palette.length], // avoid duplicates by modulo
-    }));
-    this.chartOptions = {
-      // series: transformedData.series,
-      series: seriesWithColors, // <-- use colored series
-
-      chart: {
-        height: 350,
-        type: this.chartOptions.chart?.type || 'line',
-        zoom: { enabled: false },
-        toolbar: { show: true },
-      },
-      dataLabels: { enabled: false },
-      stroke: { width: 2, curve: 'smooth' },
-      markers: { size: 0, hover: { sizeOffset: 6 } },
-      legend: {
-        position: 'top',
-        horizontalAlign: 'left',
-        fontSize: '12px',
-        itemMargin: { horizontal: 10, vertical: 4 },
-        tooltipHoverFormatter: function (val: string, opts: any): string {
-          const pointIndex = opts.dataPointIndex;
-          if (pointIndex !== undefined && pointIndex >= 0) {
-            return `${val} - <strong>${
-              opts.w.globals.series[opts.seriesIndex][pointIndex]
-            }</strong>`;
-          }
-          return val; // fallback: just show legend name
-        },
-      },
-      xaxis: {
-        type: 'category',
-        categories: transformedData.categories,
-        tickPlacement: 'on',
-        tickAmount: 8,
-        labels: {
-          rotate: -45,
-          hideOverlappingLabels: true,
-          showDuplicates: false,
-          style: {
-            fontSize: '10px',
-          },
-        },
-      },
-
-      tooltip: {
-        x: {},
-        y: { formatter: (val: number) => val.toString() },
-      },
-      grid: { show: true, borderColor: '#e0e0e0', strokeDashArray: 3 },
-      colors: [
-        '#2a8eff',
-        '#0f5fb8',
-        '#1676e6',
-        '#86c1ff',
-        '#57a8ff',
-        '#059669',
-        '#0ea5e9',
-        '#9333ea',
-        '#d97706',
-        '#e11d48',
-        '#0d4c90',
-        '#0c3f76',
-        '#64748b',
-        '#475569',
-        '#14b8a6',
-      ],
-      responsive: [
-        {
-          breakpoint: 1024,
-          options: {
-            xaxis: {
-              tickAmount: 8, // 7 labels for ~30 days
-              labels: {
-                style: { fontSize: '8px' },
-                rotate: -45,
-              },
-            },
-          },
-        },
-        {
-          breakpoint: 768,
-          options: {
-            xaxis: {
-              tickAmount: 8, // 4 labels only on mobile
-              labels: {
-                style: { fontSize: '7px' },
-                rotate: -60,
-              },
-            },
-            chart: { height: 260 },
-          },
-        },
-      ],
-    };
-  }
-  transformDataForChart(data: any[]) {
+  transformDataForChart = (data: any[]) => {
     if (!data || data.length === 0) return { series: [], categories: [] };
 
-    // Get unique labels first
-    const uniqueLabels = Array.from(new Set(data.map((item) => item.label)));
-    console.log('Original unique labels:', uniqueLabels);
-
-    // Get unique labels and sort them chronologically
-    const allLabels = uniqueLabels.sort((a, b) => {
-      // Parse dates in "DD MMM" format for proper sorting
-      const parseDate = (dateStr: string) => {
-        try {
-          const [day, month] = dateStr.trim().split(' ');
-          const monthMap: { [key: string]: number } = {
-            Jan: 0,
-            Feb: 1,
-            Mar: 2,
-            Apr: 3,
-            May: 4,
-            Jun: 5,
-            Jul: 6,
-            Aug: 7,
-            Sep: 8,
-            Oct: 9,
-            Nov: 10,
-            Dec: 11,
-          };
-
-          const dayNum = parseInt(day, 10);
-          const monthNum = monthMap[month];
-
-          // Validate parsed values
-          if (
-            isNaN(dayNum) ||
-            monthNum === undefined ||
-            dayNum < 1 ||
-            dayNum > 31
-          ) {
-            console.warn(`Invalid date format: ${dateStr}`);
-            return new Date(0); // fallback to epoch
-          }
-
-          // Use 2024 as the year since your data seems to be from August-September
-          const year = 2024;
-          return new Date(year, monthNum, dayNum);
-        } catch (error) {
-          console.warn(`Error parsing date: ${dateStr}`, error);
-          return new Date(0); // fallback to epoch
-        }
+    // Keep a map of label → date for sorting
+    const labelDateMap = data.reduce((map, item) => {
+      const label = item.label;
+      const dateStr = label.split(',')[1]?.trim(); // "15 Sep"
+      const [day, month] = dateStr.split(' ');
+      const monthMap: { [key: string]: number } = {
+        Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+        Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
       };
+      const dateObj = new Date(2024, monthMap[month] || 0, parseInt(day, 10));
+      map[label] = dateObj;
+      return map;
+    }, {} as Record<string, Date>);
 
-      const dateA = parseDate(a);
-      const dateB = parseDate(b);
-      return dateA.getTime() - dateB.getTime();
-    });
-
-    console.log('Sorted labels (categories):', allLabels);
-    console.log('First 5 sorted labels:', allLabels.slice(0, 5));
+    // Sort labels based on date
+    const sortedLabels = Object.keys(labelDateMap).sort(
+      (a, b) => labelDateMap[a].getTime() - labelDateMap[b].getTime()
+    );
 
     // Group data by dealer
     const dealerGroups: { [key: string]: any[] } = {};
-    data.forEach((item) => {
-      const key = item.dealer_name;
+    data.forEach(item => {
+      const key = item.dealer_name || 'Unknown';
       if (!dealerGroups[key]) dealerGroups[key] = [];
       dealerGroups[key].push(item);
     });
 
-    console.log('Dealer groups:', Object.keys(dealerGroups));
-
-    const series = Object.keys(dealerGroups).map((dealerName) => {
-      const dealerData = dealerGroups[dealerName];
-      const dealerMap = new Map(
-        dealerData.map((d: any) => [d.label, Number(d.count) || 0])
-      );
-      const alignedData = allLabels.map((label) => dealerMap.get(label) || 0);
-      return {
-        name: dealerName,
-        data: alignedData,
-      };
+    // Build series aligned to sorted labels
+    const series = Object.keys(dealerGroups).map(key => {
+      const map = new Map(dealerGroups[key].map(d => [d.label, Number(d.count) || 0]));
+      return { name: key, data: sortedLabels.map(label => map.get(label) || 0) };
     });
 
-    console.log('Final series data:', series);
-    console.log('Final categories being returned:', allLabels);
-
-    return { series, categories: allLabels };
-  }
+    return { series, categories: sortedLabels }; // ✅ categories are label strings
+  };
 
   groupDataByDealer(data: any[]) {
     return data.reduce((groups: any, item: any) => {
@@ -852,5 +608,38 @@ export class TrendChartComponent {
     if (!dropdown || !dropdown.classList.contains('flt1')) {
       this.dropdownOpen = false;
     }
+  }
+
+  // Dealer-wise activity charts
+  updateDealerCharts(res: any) {
+    this.dealerCharts = []; // reset
+    const dealerMetrics = ['leads', 'testDrives', 'tasks'];
+
+    dealerMetrics.forEach(metric => {
+      const data = res.left?.[metric] || [];
+      if (!data || data.length === 0) return;
+
+      const categories = data.map((d: any) => d.label);
+      const series = [
+        {
+          name: metric,
+          data: data.map((d: any) => Number(d.count) || 0),
+        },
+      ];
+
+      this.dealerCharts.push({
+        title: `Count of ${metric}`,
+        average: res.topCards?.[metric] || 0,
+        series,
+        chart: { type: 'bar', height: 200, toolbar: { show: false } },
+        xaxis: { categories, type: 'category', labels: { rotate: -45 } },
+        stroke: { width: 2 },
+        markers: { size: 0 },
+        tooltip: { y: { formatter: (val: number) => val.toString() } },
+        legend: { show: false },
+        grid: { show: true, borderColor: '#e0e0e0', strokeDashArray: 3 },
+        colors: ['#FF4560'],
+      });
+    });
   }
 }

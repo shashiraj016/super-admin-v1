@@ -748,7 +748,7 @@ export class SummaryComponent implements OnInit {
     model: string = ''
   ) {
     const apiUrl =
-      'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
+      'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
     const token = localStorage.getItem('token');
 
     let query = '';

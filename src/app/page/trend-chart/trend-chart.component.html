@@ -1,112 +1,245 @@
-<section class="bg-white rounded-2xl shadow-sm border border-slate-200" style="margin-top: 39px;margin-bottom:15px;">
-    <div
-        class="p-4 sm:p-6 border-b border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4 delar_usage">
-        <div>
-            <h2 class="text-lg font-semibold">Dealer Usage — Last 30 Days</h2>
-            <p class="text-slate-500 text-sm">Daily usage by metric </p>
+<div class="dashboard-container">
+    <!-- Header with Stats -->
+    <div class="dashboard-header">
+        <div class="dashboard-title">SMART ASSIST - USAGE PATTERNS (data till 15Sept25)</div>
+        <div class="stats-row">
+            <div class="stat-item">
+                <span class="stat-number">{{ topLeads | number }}</span>
+                <span class="stat-label"># Leads</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ topTasks | number }}</span>
+                <span class="stat-label"># Tasks</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ topTDs | number }}</span>
+                <span class="stat-label"># TDs</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ topCall | number }}</span>
+                <span class="stat-label"># Calls</span>
+            </div>
         </div>
+    </div>
 
-        <div class="flex flex-col md:flex-row md:items-center gap-3 Granularity_section">
-            <div class="flex flex-wrap items-center gap-2 wrapper-content">
-                <div class="dropdown flt1" [class.show]="dropdownOpen" style="margin-right: 5px;">
-                    <button class="no-border time-dropdown dropdown-toggle" type="button" (click)="toggleDropdown()">
-                        {{ selectedDealers.length > 0 ? 'Dealers Selected (' + selectedDealers.length + ')' : 'Select
-                        Dealers' }}
-                    </button>
-                    <div class="dropdown-menu show" *ngIf="dropdownOpen">
-                        <div class="px-2 py-1">
-                            <input type="text" class="form-control" placeholder="Search dealers..."
-                                [(ngModel)]="dealerSearch" (input)="filterDealers()"
-                                (click)="$event.stopPropagation()" />
+    <!-- Filter Controls -->
+    <div class="filter-section">
+        <div class="filter-row">
+            <div class="distinct-users">{{DistinctUsers | number}}</div>
+
+            <div class="filter-group">
+                <div class="flex flex-col md:flex-row md:items-center gap-3 Granularity_section">
+                    <div class="flex flex-wrap items-center gap-2 wrapper-content">
+                        <div class="dropdown flt1" [class.show]="dropdownOpen" style="margin-right: 5px;">
+                            <button class="no-border time-dropdown dropdown-toggle" type="button"
+                                (click)="toggleDropdown()">
+                                {{ selectedDealers.length > 0 ? 'Dealers Selected (' + selectedDealers.length + ')' :
+                                'Select
+                                Dealers' }}
+                            </button>
+                            <div class="dropdown-menu show" *ngIf="dropdownOpen">
+                                <div class="px-2 py-1">
+                                    <input type="text" class="form-control" placeholder="Search dealers..."
+                                        [(ngModel)]="dealerSearch" (input)="filterDealers()"
+                                        (click)="$event.stopPropagation()" />
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center px-2 py-1 border-bottom"
+                                    style="display: flex;">
+                                    <label class="mb-0 d-flex align-items-center" (click)="$event.stopPropagation()">
+                                        <input type="checkbox" class="me-2" [checked]="areAllSelected()"
+                                            (change)="toggleSelectAll($event); $event.stopPropagation()" />
+                                        Select All
+                                    </label>
+                                    <button type="button" class="btn btn-link btn-sm text-danger p-0 ms-auto"
+                                        id="clearbtn" (click)="clearSelection(); $event.stopPropagation()">
+                                        Clear
+                                    </button>
+                                </div>
+                                <ng-container *ngIf="filteredDealers.length > 0; else noDealers">
+                                    <div *ngFor="let dealer of filteredDealers"
+                                        class="dropdown-item d-flex align-items-center"
+                                        (click)="$event.stopPropagation()">
+                                        <input type="checkbox" class="me-2" [checked]="isDealerSelected(dealer)"
+                                            style="border:1px solid black"
+                                            (change)="toggleDealerSelection(dealer); $event.stopPropagation()" />
+                                        <span (click)="toggleDealerSelection(dealer); $event.stopPropagation()">
+                                            {{ dealer.dealer_name }}
+                                        </span>
+                                    </div>
+                                </ng-container>
+                                <ng-template #noDealers>
+                                    <div class="dropdown-item text-muted text-center">
+                                        No dealers found
+                                    </div>
+                                </ng-template>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center px-2 py-1 border-bottom"
-                            style="display: flex;">
-                            <label class="mb-0 d-flex align-items-center" (click)="$event.stopPropagation()">
-                                <input type="checkbox" class="me-2" [checked]="areAllSelected()"
-                                    (change)="toggleSelectAll($event); $event.stopPropagation()" />
-                                Select All
-                            </label>
-                            <button type="button" class="btn btn-link btn-sm text-danger p-0 ms-auto" id="clearbtn"
-                                (click)="clearSelection(); $event.stopPropagation()">
-                                Clear
+
+
+                        <!-- Date Filter -->
+                        <label for="usageGran" class="text-sm text-slate-600">Date Filter</label>
+                        <select id="usageGran" [(ngModel)]="selectedDateFilter" (change)="fetchTrendChartWithFilters()"
+                            class="no-border rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                            <option value="DAY">Today</option>
+                            <option value="YESTERDAY">Yesterday</option>
+                            <option value="WEEK">This Week</option>
+                            <option value="LAST_WEEK">Last Week</option>
+                            <option value="MTD">This Month</option>
+                            <option value="LAST_MONTH">Last Month</option>
+                            <option value="QTD">This Quarter</option>
+                            <option value="LAST_QUARTER">Last Quarter</option>
+                            <option value="SIX_MONTH">Last 6 Months</option>
+                            <option value="YTD">Year to Date</option>
+                        </select>
+
+
+                        <div class="flex items-center gap-2 ">
+                            <button (click)="switchChartType()"
+                                class=" no-border switchChart px-3 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm font-medium">
+                                Switch Chart ({{ chartOptions.chart?.type }})
                             </button>
                         </div>
-                        <ng-container *ngIf="filteredDealers.length > 0; else noDealers">
-                            <div *ngFor="let dealer of filteredDealers" class="dropdown-item d-flex align-items-center"
-                                (click)="$event.stopPropagation()">
-                                <input type="checkbox" class="me-2" [checked]="isDealerSelected(dealer)"
-                                    style="border:1px solid black"
-                                    (change)="toggleDealerSelection(dealer); $event.stopPropagation()" />
-                                <span (click)="toggleDealerSelection(dealer); $event.stopPropagation()">
-                                    {{ dealer.dealer_name }}
-                                </span>
-                            </div>
-                        </ng-container>
-                        <ng-template #noDealers>
-                            <div class="dropdown-item text-muted text-center">
-                                No dealers found
-                            </div>
-                        </ng-template>
                     </div>
                 </div>
-
-
-                <!-- Metric selector -->
-                <!-- Date Filter -->
-                <label for="usageGran" class="text-sm text-slate-600">Date Filter</label>
-                <select id="usageGran" [(ngModel)]="selectedDateFilter" (change)="fetchTrendChartWithFilters()"
-                    class=" no-border rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                    <option value="LAST_30_DAYS" selected>Last 30 Days</option>
-                    <option value="LAST_4_WEEKS">Last 4 Weeks</option>
-                    <option value="LAST_6_MONTHS">Last 6 Months</option>
-                </select>
-
-                <!-- Metric -->
-                <label for="usageMetric" class="text-sm text-slate-600">Metric</label>
-                <select id="usageMetric" [(ngModel)]="selectedMetric" (change)="fetchTrendChartWithFilters()"
-                    class=" no-border rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                    <option value="last_login">Last login</option>
-                    <option value="leads">Leads</option>
-                    <option value="follow_up">Follow-ups</option>
-                    <option value="unique_testdrive">Unique Test Drives</option>
-                    <option value="calls" selected>Total Calls</option>
-                </select>
-
-                <div class="flex items-center gap-2 ">
-                    <button (click)="switchChartType()"
-                        class=" no-border switchChart px-3 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm font-medium">
-                        Switch Chart ({{ chartOptions.chart?.type }})
-                    </button>
-                </div>
-
             </div>
 
-            <!-- <button
-                class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold buttons">
-                <i data-lucide="download-cloud" class="w-4 h-4"></i> Load Usage
-            </button> -->
+
 
 
         </div>
     </div>
 
-    <div>
-        <!-- <div id="usageLocalLoader" class="hidden flex items-center gap-2 text-sm text-slate-600 mb-3">
-            <div class="h-5 w-5 rounded-full border-2 border-slate-300 border-t-brand-600 animate-spin"></div>
-        </div> -->
+    <!-- Charts Section -->
+    <div class="charts-container">
+        <div class="charts-grid">
+            <!-- Day Level -->
+            <div class="chart-card">
+                <div class="chart-title">Day Level</div>
 
-        <!-- <div id="usageHint" class="text-sm text-slate-500 mb-3">
-            Click <span class="font-semibold text-slate-700">Load Usage</span> to fetch 30 days of usage per dealer.
-        </div> -->
+                <!-- Lead Graph -->
+                <apx-chart [series]="dayLeadChart.series!" [chart]="dayLeadChart.chart!" [xaxis]="dayLeadChart.xaxis!"
+                    [stroke]="dayLeadChart.stroke!" [markers]="dayLeadChart.markers!" [legend]="dayLeadChart.legend!"
+                    [tooltip]="dayLeadChart.tooltip!" [colors]="dayLeadChart.colors!" [grid]="dayLeadChart.grid!">
+                </apx-chart>
+
+                <!-- Event Graph -->
+                <apx-chart [series]="dayEventChart.series!" [chart]="dayEventChart.chart!"
+                    [xaxis]="dayEventChart.xaxis!" [stroke]="dayEventChart.stroke!" [markers]="dayEventChart.markers!"
+                    [legend]="dayEventChart.legend!" [tooltip]="dayEventChart.tooltip!" [colors]="dayEventChart.colors!"
+                    [grid]="dayEventChart.grid!">
+                </apx-chart>
+
+                <!-- Task Graph -->
+                <apx-chart [series]="dayTaskChart.series!" [chart]="dayTaskChart.chart!" [xaxis]="dayTaskChart.xaxis!"
+                    [stroke]="dayTaskChart.stroke!" [markers]="dayTaskChart.markers!" [legend]="dayTaskChart.legend!"
+                    [tooltip]="dayTaskChart.tooltip!" [colors]="dayTaskChart.colors!" [grid]="dayTaskChart.grid!">
+                </apx-chart>
+
+                <!-- Calls Graph -->
+                <apx-chart [series]="dayCallsChart.series!" [chart]="dayCallsChart.chart!"
+                    [xaxis]="dayCallsChart.xaxis!" [stroke]="dayCallsChart.stroke!" [markers]="dayCallsChart.markers!"
+                    [legend]="dayCallsChart.legend!" [tooltip]="dayCallsChart.tooltip!" [colors]="dayCallsChart.colors!"
+                    [grid]="dayCallsChart.grid!">
+                </apx-chart>
+
+                <!-- Last Login Graph -->
+                <apx-chart [series]="dayLastLoginChart.series!" [chart]="dayLastLoginChart.chart!"
+                    [xaxis]="dayLastLoginChart.xaxis!" [stroke]="dayLastLoginChart.stroke!"
+                    [markers]="dayLastLoginChart.markers!" [legend]="dayLastLoginChart.legend!"
+                    [tooltip]="dayLastLoginChart.tooltip!" [colors]="dayLastLoginChart.colors!"
+                    [grid]="dayLastLoginChart.grid!">
+                </apx-chart>
+            </div>
+
+            <!-- Hour Level -->
+            <div class="chart-card">
+                <div class="chart-title">Hour Level</div>
+
+                <!-- Lead Graph -->
+                <apx-chart [series]="hourLeadChart.series!" [chart]="hourLeadChart.chart!"
+                    [xaxis]="hourLeadChart.xaxis!" [stroke]="hourLeadChart.stroke!" [markers]="hourLeadChart.markers!"
+                    [legend]="hourLeadChart.legend!" [tooltip]="hourLeadChart.tooltip!" [colors]="hourLeadChart.colors!"
+                    [grid]="hourLeadChart.grid!">
+                </apx-chart>
+
+                <!-- Event Graph -->
+                <apx-chart [series]="hourEventChart.series!" [chart]="hourEventChart.chart!"
+                    [xaxis]="hourEventChart.xaxis!" [stroke]="hourEventChart.stroke!"
+                    [markers]="hourEventChart.markers!" [legend]="hourEventChart.legend!"
+                    [tooltip]="hourEventChart.tooltip!" [colors]="hourEventChart.colors!" [grid]="hourEventChart.grid!">
+                </apx-chart>
+
+                <!-- Task Graph -->
+                <apx-chart [series]="hourTaskChart.series!" [chart]="hourTaskChart.chart!"
+                    [xaxis]="hourTaskChart.xaxis!" [stroke]="hourTaskChart.stroke!" [markers]="hourTaskChart.markers!"
+                    [legend]="hourTaskChart.legend!" [tooltip]="hourTaskChart.tooltip!" [colors]="hourTaskChart.colors!"
+                    [grid]="hourTaskChart.grid!">
+                </apx-chart>
+
+                <!-- Calls Graph -->
+                <apx-chart [series]="hourCallsChart.series!" [chart]="hourCallsChart.chart!"
+                    [xaxis]="hourCallsChart.xaxis!" [stroke]="hourCallsChart.stroke!"
+                    [markers]="hourCallsChart.markers!" [legend]="hourCallsChart.legend!"
+                    [tooltip]="hourCallsChart.tooltip!" [colors]="hourCallsChart.colors!" [grid]="hourCallsChart.grid!">
+                </apx-chart>
+
+                <!-- Last Login Graph -->
+                <apx-chart [series]="hourLastLoginChart.series!" [chart]="hourLastLoginChart.chart!"
+                    [xaxis]="hourLastLoginChart.xaxis!" [stroke]="hourLastLoginChart.stroke!"
+                    [markers]="hourLastLoginChart.markers!" [legend]="hourLastLoginChart.legend!"
+                    [tooltip]="hourLastLoginChart.tooltip!" [colors]="hourLastLoginChart.colors!"
+                    [grid]="hourLastLoginChart.grid!">
+                </apx-chart>
+            </div>
+        </div>
 
 
+        <!-- Dealer-wise Activity -->
+        <div class="dealer-activity">
+            <div class="chart-title">Dealer-wise Activity</div>
+            <div class="activity-grid">
+                <div class="activity-card" *ngFor="let chart of dealerCharts">
+                    <div class="activity-header">
+                        <span class="activity-title">{{ chart.title }}</span>
+                        <span class="activity-average">All India Avg: {{ chart.average }}</span>
+                    </div>
+                    <apx-chart [series]="chart.series" [chart]="chart.chart" [xaxis]="chart.xaxis"
+                        [stroke]="chart.stroke" [markers]="chart.markers" [legend]="chart.legend"
+                        [tooltip]="chart.tooltip" [colors]="chart.colors" [grid]="chart.grid">
+                    </apx-chart>
+                </div>
+            </div>
+        </div>
 
-        <div class="relative">
-            <apx-chart [series]="chartOptions.series!" [chart]="chartOptions.chart!" [xaxis]="chartOptions.xaxis!"
-                [dataLabels]="chartOptions.dataLabels!" [grid]="chartOptions.grid!" [stroke]="chartOptions.stroke!"
-                [title]="chartOptions.title!" [markers]="chartOptions.markers!" [legend]="chartOptions.legend!"
-                [tooltip]="chartOptions.tooltip!">
-            </apx-chart>
+
+        <!-- Dealer Activity Section -->
+        <div class="dealer-activity">
+            <div class="chart-title">Dealer-wise Activity</div>
+            <div class="activity-grid">
+                <div class="activity-card">
+                    <div class="activity-header">
+                        <span class="activity-title">Count of leads</span>
+                        <span class="activity-average">All India Avg: 14</span>
+                    </div>
+                    <div id="leadsChart"></div>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-header">
+                        <span class="activity-title">Count of events</span>
+                        <span class="activity-average">All India Avg: 34</span>
+                    </div>
+                    <div id="eventsChart"></div>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-header">
+                        <span class="activity-title">Count of tasks</span>
+                        <span class="activity-average">All India Avg: 152</span>
+                    </div>
+                    <div id="tasksChart"></div>
+                </div>
+            </div>
         </div>
     </div>
-</section>
+</div>
