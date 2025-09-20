@@ -102,10 +102,6 @@
                     </div>
                 </div>
             </div>
-
-
-
-
         </div>
     </div>
 
@@ -194,52 +190,55 @@
         </div>
 
 
-        <!-- Dealer-wise Activity -->
-        <div class="dealer-activity">
-            <div class="chart-title">Dealer-wise Activity</div>
-            <div class="activity-grid">
-                <div class="activity-card" *ngFor="let chart of dealerCharts">
-                    <div class="activity-header">
-                        <span class="activity-title">{{ chart.title }}</span>
-                        <span class="activity-average">All India Avg: {{ chart.average }}</span>
+        <!-- PS-wise Activity Section -->
+        <div class="ps-wise-activity" *ngIf="psWiseCharts.length > 0">
+            <div class="ps-section-header">
+                <div class="chart-title">{{ sectionTitle }}</div>
+                <!-- Role Filter Dropdown -->
+                <select [(ngModel)]="roleFilter" (change)="processPsWiseActivity(psWiseData)">
+                    <option value="PS">PS</option>
+                    <option value="SM">SM</option>
+                    <option value="Both">Both</option>
+                </select>
+            </div>
+
+            <!-- Dealer Sections -->
+            <div class="dealer-section" *ngFor="let dealerGroup of psWiseCharts">
+                <div class="dealer-row">
+                    <!-- Dealer Name Column -->
+                    <div class="dealer-info-column">
+                        <div class="dealer-name">{{ dealerGroup.dealerName }}</div>
+                        <div class="employee-list">
+                            <div class="employee-item" *ngFor="let user of dealerGroup.users">
+                                <span class="employee-name">{{ user.name }}</span>
+                                <span class="employee-role">({{ user.role }})</span>
+                            </div>
+                        </div>
                     </div>
-                    <apx-chart [series]="chart.series" [chart]="chart.chart" [xaxis]="chart.xaxis"
-                        [stroke]="chart.stroke" [markers]="chart.markers" [legend]="chart.legend"
-                        [tooltip]="chart.tooltip" [colors]="chart.colors" [grid]="chart.grid">
-                    </apx-chart>
+
+                    <!-- Charts Column -->
+                    <div class="charts-row">
+                        <div class="metric-chart" *ngFor="let chart of dealerGroup.charts">
+                            <div class="chart-header">
+                                <span class="chart-title">{{ chart.title }}</span>
+                                <div class="chart-averages">
+                                    <span class="all-india-avg">All India Avg: {{ chart.allIndiaAvg }}</span>
+                                    <span class="dealer-avg">Avg: {{ chart.dealerAvg }}</span>
+                                </div>
+                            </div>
+
+                            <div class="chart-container">
+                                <apx-chart [series]="chart.series" [chart]="chart.chart"
+                                    [plotOptions]="chart.plotOptions" [xaxis]="chart.xaxis" [yaxis]="chart.yaxis"
+                                    [colors]="chart.colors" [dataLabels]="chart.dataLabels" [tooltip]="chart.tooltip"
+                                    [legend]="chart.legend">
+                                </apx-chart>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-
-        <!-- Dealer Activity Section -->
-        <div class="dealer-activity">
-            <div class="chart-title">Dealer-wise Activity</div>
-            <div class="activity-grid">
-                <div class="activity-card">
-                    <div class="activity-header">
-                        <span class="activity-title">Count of leads</span>
-                        <span class="activity-average">All India Avg: 14</span>
-                    </div>
-                    <div id="leadsChart"></div>
-                </div>
-
-                <div class="activity-card">
-                    <div class="activity-header">
-                        <span class="activity-title">Count of events</span>
-                        <span class="activity-average">All India Avg: 34</span>
-                    </div>
-                    <div id="eventsChart"></div>
-                </div>
-
-                <div class="activity-card">
-                    <div class="activity-header">
-                        <span class="activity-title">Count of tasks</span>
-                        <span class="activity-average">All India Avg: 152</span>
-                    </div>
-                    <div id="tasksChart"></div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>

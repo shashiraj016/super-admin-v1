@@ -11,10 +11,6 @@ import {
 } from "./chunk-XRWHQTOO.js";
 import "./chunk-BR4HVS4K.js";
 import {
-  DomSanitizer
-} from "./chunk-TLZC2Y3Y.js";
-import "./chunk-VE4VKEY2.js";
-import {
   DOCUMENT,
   NgIf
 } from "./chunk-VQTUPGZA.js";

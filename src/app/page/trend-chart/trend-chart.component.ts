@@ -162,12 +162,16 @@ export class TrendChartComponent {
   hourLastLoginChart: Partial<ChartOptions> = {};
 
 
-  dealerCharts: any[] = []; // array of dealer-wise charts
-
+  psWiseCharts: any[] = [];
+  psWiseData: any = {};
   constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
     this.fetchTrendChart();
+  }
+
+  objectKeys(obj: any): string[] {
+    return Object.keys(obj || {});
   }
 
   dealers: any[] = []; // Your dealers array
@@ -186,6 +190,7 @@ export class TrendChartComponent {
   topTDs: number = 0;
   topCall: number = 0;
   DistinctUsers: number = 0
+  roleFilter: 'PS' | 'SM' | 'Both' = 'PS'; // default
 
 
 
@@ -338,6 +343,11 @@ export class TrendChartComponent {
   updateAllChartsFromApi(res: any) {
     if (!res) return;
 
+    if (res.psWiseActivity) {
+      this.psWiseData = res.psWiseActivity;
+      this.processPsWiseActivity(res.psWiseActivity);
+    }
+
     // ---- Normalize input data ----
     const normalizeData = (input: any, key: string) => {
       if (!input) return [];
@@ -477,11 +487,11 @@ export class TrendChartComponent {
 
   fetchTrendChartWithFilters() {
     const token = localStorage.getItem('token');
-    console.log('Token:', localStorage.getItem('token'),"second method");
+    console.log('Token:', localStorage.getItem('token'), "second method");
 
     if (!token) return;
 
-    const headers = new HttpHeaders({Authorization: `Bearer ${token}`});
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
     let dealerIds = '';
 
@@ -502,6 +512,13 @@ export class TrendChartComponent {
       .get<any>(`${this.BASE_URL}${this.TREND_CHART_URL}`, { headers, params })
       .subscribe({
         next: (res) => {
+          if (res.topCards) {
+            this.topLeads = res.topCards.leads || 0;
+            this.topTasks = res.topCards.followups || 0;
+            this.topTDs = res.topCards.testDrives || 0;
+            this.topCall = res.topCards.calls || 0;
+            this.DistinctUsers = res.topCards.distinctUsers || 0;
+          }
           this.updateAllChartsFromApi(res);
         },
         error: (err) => console.error(err),
@@ -609,36 +626,111 @@ export class TrendChartComponent {
     }
   }
 
-  // Dealer-wise activity charts
-  updateDealerCharts(res: any) {
-    this.dealerCharts = []; // reset
-    const dealerMetrics = ['leads', 'testDrives', 'tasks'];
+  // Add this method to process PS-wise activity data
+ processPsWiseActivity(psWiseActivity: any) {
+  if (!psWiseActivity) return;
 
-    dealerMetrics.forEach(metric => {
-      const data = res.left?.[metric] || [];
-      if (!data || data.length === 0) return;
+  const metrics = ['leads', 'testDrives', 'followups', 'calls'] as const;
+  const metricLabels: { [key: string]: string } = {
+    leads: 'Count of leads',
+    testDrives: 'Count of events',
+    followups: 'Count of tasks',
+    calls: 'Count of calls'
+  };
 
-      const categories = data.map((d: any) => d.label);
-      const series = [
-        {
-          name: metric,
-          data: data.map((d: any) => Number(d.count) || 0),
-        },
-      ];
+  this.psWiseCharts = [];
 
-      this.dealerCharts.push({
-        title: `Count of ${metric}`,
-        average: res.topCards?.[metric] || 0,
-        series,
-        chart: { type: 'bar', height: 200, toolbar: { show: false } },
-        xaxis: { categories, type: 'category', labels: { rotate: -45 } },
-        stroke: { width: 2 },
-        markers: { size: 0 },
-        tooltip: { y: { formatter: (val: number) => val.toString() } },
-        legend: { show: false },
-        grid: { show: true, borderColor: '#e0e0e0', strokeDashArray: 3 },
-        colors: ['#FF4560'],
-      });
+  const calculateAllIndiaAvg = (metric: string) => {
+    let totalSum = 0;
+    let totalCount = 0;
+    Object.values(psWiseActivity).forEach((users: any) => {
+      if (Array.isArray(users)) {
+        users.forEach((user: any) => {
+          if (this.roleFilter === 'Both' || user.role === this.roleFilter) {
+            totalSum += user[metric] || 0;
+            totalCount++;
+          }
+        });
+      }
     });
+    return totalCount > 0 ? Math.round(totalSum / totalCount) : 0;
+  };
+
+  Object.entries(psWiseActivity).forEach(([dealerName, users]: [string, any]) => {
+    if (!Array.isArray(users)) return;
+
+    // Filter users based on role
+    const filteredUsers = users.filter(u =>
+      this.roleFilter === 'Both' ? true : u.role === this.roleFilter
+    );
+
+    const charts: any[] = [];
+
+    metrics.forEach(metric => {
+      const metricData = filteredUsers
+        .map(u => ({ x: u.name, y: u[metric] || 0, dealer: dealerName }))
+        .filter(u => u.y > 0);
+
+      if (metricData.length > 0) {
+        const dealerAvg = Math.round(metricData.reduce((sum, d) => sum + d.y, 0) / metricData.length);
+
+        charts.push({
+          title: metricLabels[metric],
+          allIndiaAvg: calculateAllIndiaAvg(metric),
+          dealerAvg,
+          series: [{ name: metricLabels[metric], data: metricData }],
+          chart: { type: 'bar', height: 350, toolbar: { show: false } },
+          plotOptions: { bar: { horizontal: true, distributed: true, barHeight: '70%' } },
+          colors: this.generateColors(metricData.length),
+          xaxis: { categories: metricData.map(d => d.x), labels: { style: { fontSize: '10px' } } },
+          yaxis: { labels: { style: { fontSize: '10px' } } },
+          dataLabels: { enabled: true, style: { fontSize: '10px', fontWeight: 'bold' } },
+          tooltip: {
+            custom: ({ dataPointIndex }: any) => {
+              const user = metricData[dataPointIndex];
+              return `
+                <div style="padding:8px;">
+                  <strong>${user.x}</strong><br>
+                  <span>${user.dealer}</span><br>
+                  <span>${metricLabels[metric]}: ${user.y}</span>
+                </div>
+              `;
+            }
+          },
+          legend: { show: false }
+        });
+      }
+    });
+
+    if (charts.length > 0) {
+      this.psWiseCharts.push({
+        dealerName,
+        users: filteredUsers,
+        charts
+      });
+    }
+  });
+}
+
+
+  get sectionTitle() {
+  if (this.roleFilter === 'Both') return 'PS+SM Activity';
+  return `${this.roleFilter}-wise Activity`;
+}
+
+
+  generateColors(count: number): string[] {
+    const baseColors = [
+      '#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0',
+      '#546E7A', '#26a69a', '#D10CE8', '#FF6B35', '#C7F464'
+    ];
+
+    const colors = [];
+    for (let i = 0; i < count; i++) {
+      colors.push(baseColors[i % baseColors.length]);
+    }
+    return colors;
   }
+
+
 }
