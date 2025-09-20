@@ -45,6 +45,7 @@ import {
   ApexXAxis,
   ApexDataLabels,
   ApexStroke,
+  ApexPlotOptions,
   ApexTitleSubtitle,
   ChartComponent,
 } from 'ng-apexcharts';
@@ -56,6 +57,9 @@ export type ChartOptions = {
   xaxis: ApexXAxis;
   dataLabels: ApexDataLabels;
   stroke: ApexStroke;
+  plotOptions?: ApexPlotOptions; // ✅ added
+  tooltip?: ApexTooltip; // ✅ added
+  legend?: ApexLegend; // ✅ added
   title: ApexTitleSubtitle;
   responsive?: ApexResponsive[]; // ✅ add this line
 };
@@ -113,6 +117,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   sortColumn: string | null = 'saLeads';
   sortDirection: 'asc' | 'desc' | 'default' = 'desc';
   skipDefaultSelection = false;
+  loadingUsers: { [dealerId: string]: boolean } = {};
+  filteredDealerData: any[] = [];
 
   currentPageMap: { [dealerId: string]: number } = {}; // track current page per dealer
   showAllSMs: { [dealerId: string]: boolean } = {};
@@ -141,6 +147,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   callLogDealers: Dealer[] = []; // for call logs, fixed order
   isInitialLoad = true;
   invalidDateRange: boolean = false;
+  expandedSummaryRow: string | null = null;
+  dealersData: any[] = []; // <-- holds the full API response
 
   loading = false; // Declare this in your component
   selectedDealer: any = null;
@@ -168,22 +176,13 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   isLoading = false;
   overallData: any = {}; // 👈 holds overall API response metrics
 
-  // dealerSummaryCallsViewType: 'table' | 'chart' = 'table';
-  dealerSummaryCallsViewType: 'table' | 'chart' | 'enquiry' | 'cold' = 'table';
+  dealerSummaryCallsViewType: 'table' | 'chart' = 'table';
 
-  selectedFilter:
-    | 'DAY'
-    | 'YESTERDAY'
-    | 'WEEK'
-    | 'LAST_WEEK'
-    | 'MTD'
-    | 'LAST_MONTH'
-    | 'QTD'
-    | 'LAST_QUARTER'
-    | 'SIX_MONTH'
-    | 'YTD'
-    | 'CUSTOM'
-    | 'LIFETIME' = 'DAY';
+  // Dropdown (enquiries or coldcalls)
+  dealerSummaryCallsDataType: 'enquiries' | 'coldcalls' = 'enquiries';
+
+  selectedFilter!: FilterType;
+
   dealerColors: string[] = [
     '#e6f2ff', // light blue
     '#f9f2ec', // light peach
@@ -230,25 +229,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   Math = Math;
   itemsPerPagedeal: number = 10; // or 4
   currentDisplayCount: number = 10; // Track current number of items shown (initialize in ngOnInit)
-  // kpiData: any = {
-  //   dealers: 0,
-  //   activeNetwork: 0,
-  //   users: 0,
-  //   activeUsers: 0,
-  //   leads: 0,
-  //   calls: 0,
-  // };
-  // kpiData: any = {
-  //   dealers: 0,
-  //   activeNetwork: 0,
-  //   users: 0,
-  //   activeUsers: 0,
-  //   leads: 0,
-  //   calls: 0,
-  //   totalFollowUps: 0,
-  //   uniqueTestDrives: 0,
-  //   completedTestDrives: 0,
-  // };
   kpiData: any = {
     dealers: 0,
     activeNetwork: 0,
@@ -332,43 +312,31 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private toastr: ToastrService
   ) {}
   data: any; // To hold your data
-  apiUrl: string =
-    'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew';
-  ngOnInit() {
+  apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
+
+  ngOnInit(): void {
+    // 1️⃣ Read persisted filter from localStorage
+    const savedFilter = localStorage.getItem('selectedFilter') as FilterType;
+    this.selectedFilter = savedFilter ?? 'DAY';
+
+    // 2️⃣ Fetch data based on selected filter
+    if (this.selectedFilter !== 'CUSTOM') {
+      const apiFilter = this.mapFilterToApi(this.selectedFilter);
+      this.fetchSuperAdminDashboard(apiFilter);
+    }
+
+    // Other initializations
     const savedData = localStorage.getItem('kpiData');
     if (savedData) {
-      // Always parse full object
       this.kpiData = { ...JSON.parse(savedData) };
     }
-    this.loadKpiData('DAY'); // fetch fresh data
-
-    // this.loadKpiData('DAY');
-
-    this.selectedTime = 'MTD'; // or 'ALL'
-    this.onTimeChange(this.selectedTime); // <-- this ensures API call on load
-    // this.dashboardService.getKpiData('MTD').subscribe({
-    //   next: (res: any) => {
-    //     if (res.status === 200) {
-    //       this.kpiData = res.data; // <--- assign the nested 'data' object
-    //     }
-    //   },
-    //   error: (err) => {
-    //     console.error(err);
-    //   },
-    // });
-
-    // this.fetchKpiData();
     this.currentDisplayCount = this.itemsPerPage;
-    this.selectedFilter = 'DAY';
-    this.fetchSuperAdminDashboard(this.selectedFilter); // or 'QTD', 'MTD' based on dropdown
-    this.onDropdownChange(); // Auto-trigger on page load with default values
+
     this.context.onSideBarClick$.next({
       role: 'dashboard',
       pageTitle: 'Dashboard',
     });
-    this.selectedFilter = 'DAY';
   }
-
   initializeDisplay() {
     this.currentDisplayCount = this.itemsPerPage;
   }
@@ -423,6 +391,22 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.showCustomDatePicker = !this.showCustomDatePicker;
   }
 
+  getFilterLabel(filter: string): string {
+    const labels: Record<string, string> = {
+      DAY: 'Today',
+      YESTERDAY: 'Yesterday',
+      WEEK: 'This Week',
+      LAST_WEEK: 'Last Week',
+      MTD: 'This Month',
+      LAST_MONTH: 'Last Month',
+      QTD: 'This Quarter',
+      LAST_QUARTER: 'Last Quarter',
+      SIX_MONTH: 'Last 6 Months',
+      YTD: 'This Year',
+      LIFETIME: 'Lifetime',
+    };
+    return labels[filter] || filter;
+  }
   getDealerBackground(index: number): string {
     const backgrounds = [
       'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // Purple to Blue
@@ -439,15 +423,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     return backgrounds[index % backgrounds.length];
   }
-  // getSortedUsers(dealerId: string) {
-  //   const users = this.dealerUsers[dealerId] ?? [];
-  //   return [...users].sort((a, b) => {
-  //     if (a.active && !b.active) return -1;
-  //     if (!a.active && b.active) return 1;
 
-  //     return a.user.toLowerCase().localeCompare(b.user.toLowerCase());
-  //   });
-  // }
   getSortedUsers(dealerId: string) {
     console.log('🔥 getSortedUsers called for dealer', dealerId);
 
@@ -509,22 +485,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     });
   }
 
-  // getSortedDealersForSummary() {
-  //   const list =
-  //     this.selectedDealers.length > 0 ? this.selectedDealers : this.dealers;
-
-  //   if (!this.sortColumn || this.sortDirection === 'default') {
-  //     return list; // no sorting applied
-  //   }
-
-  //   const column = this.sortColumn;
-
-  //   return [...list].sort((a, b) => {
-  //     const valA = (a as any)[column] ?? 0;
-  //     const valB = (b as any)[column] ?? 0;
-  //     return this.sortDirection === 'asc' ? valA - valB : valB - valA;
-  //   });
-  // }
   getSortedDealersForSummary() {
     const list =
       this.selectedDealers.length > 0 ? this.selectedDealers : this.dealers;
@@ -545,14 +505,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     return list;
   }
-  // fetchKpiData() {
-  //   const token = localStorage.getItem('token') || '';
-  //   this.dashboardService.getKpiData(token).subscribe((res: any) => {
-  //     if (res.status === 200) {
-  //       this.kpiData = res.data; // <-- assign the whole data object
-  //     }
-  //   });
-  // }
 
   private mapTimeToApi(time: string): 'MTD' | 'QTD' | 'YTD' {
     switch (time) {
@@ -657,61 +609,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     }
   }
 
-  // onFilterChange(
-  //   filter:
-  //     | 'DAY'
-  //     | 'YESTERDAY'
-  //     | 'WEEK'
-  //     | 'LAST_WEEK'
-  //     | 'MTD'
-  //     | 'LAST_MONTH'
-  //     | 'QTD'
-  //     | 'LAST_QUARTER'
-  //     | 'SIX_MONTH'
-  //     | 'YTD'
-  //     | 'LIFETIME'
-  //     | 'CUSTOM'
-  // ): void {
-  //   this.selectedFilter = filter;
-  //   const apiFilter = this.mapFilterToApi(filter); // ✅ now strongly typed
-  //   const activeSMId = this.activeSM;
-
-  //   if (apiFilter === 'CUSTOM') return;
-
-  //   if (this.selectedDealerId) {
-  //     const dealerId = this.selectedDealerId;
-
-  //     this.dashboardService.getNoSMUsers(dealerId).subscribe({
-  //       next: (res: any) => {
-  //         const selectedDealer = res.data.dealerData.find(
-  //           (d: any) => d.dealerId === dealerId
-  //         );
-
-  //         this.dealerUsers = {
-  //           ...this.dealerUsers,
-  //           [dealerId]: selectedDealer?.users || [],
-  //         };
-
-  //         this.displayedDealerUsers =
-  //           this.dealerUsers[dealerId]?.slice(0, 10) || [];
-
-  //         const smList = this.dealerSMS[dealerId] || [];
-  //         this.activeSM = smList.some((s) => s.sm_id === activeSMId)
-  //           ? activeSMId
-  //           : null;
-  //       },
-  //       error: (err: any) => {
-  //         console.error('Error fetching dealer users:', err);
-  //         this.dealerUsers = { ...this.dealerUsers, [dealerId]: [] };
-  //         this.displayedDealerUsers = [];
-  //       },
-  //     });
-  //   } else {
-  //     this.fetchDashboardDataForTopCards(apiFilter);
-  //     this.fetchSuperAdminDashboard(apiFilter);
-  //   }
-  // }
-  // On filter change
   toggleNameSelection(dealer: any): void {
     // show loader
     this.isLoading = true;
@@ -726,56 +623,54 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.selectedDealers.push(dealer);
     }
 
-    // 👉 call your API (same as onFilterChange)
     // or refresh dashboard data
     this.fetchSuperAdminDashboard(this.selectedFilter);
-
-    // loader will be stopped inside fetchSuperAdminDashboard() after response
   }
 
   // onFilterChange(filter: FilterType): void {
-  //   const apiFilter = this.mapFilterToApi(filter);
-  //   if (apiFilter === 'CUSTOM') return;
-
-  //   // Reset
-  //   this.expandedRow = null;
-  //   this.dealerUsers = {};
-  //   this.userCallLogs = {};
-  //   this.dealerCallLogs = {};
-
-  //   // ✅ Single API call handles both dealer + filter
-  //   this.fetchSuperAdminDashboard(apiFilter);
-  // }
-  // onFilterChange(filter: FilterType): void {
-  //   const apiFilter = this.mapFilterToApi(filter);
-
   //   // Reset tables and states
   //   this.expandedRow = null;
   //   this.dealerUsers = {};
   //   this.userCallLogs = {};
   //   this.dealerCallLogs = {};
 
-  //   // ✅ Always fetch, including CUSTOM (URL logic is already inside fetchSuperAdminDashboard)
+  //   this.selectedFilter = filter;
+
+  //   // Persist selection
+  //   localStorage.setItem('selectedFilter', filter);
+
+  //   if (filter === 'CUSTOM') {
+  //     // Only show date inputs, do NOT call API yet
+  //     return;
+  //   }
+
+  //   // For normal filters, call API immediately
+  //   const apiFilter = this.mapFilterToApi(filter);
   //   this.fetchSuperAdminDashboard(apiFilter);
   // }
   onFilterChange(filter: FilterType): void {
-    // Reset tables and states
-    this.expandedRow = null;
+    // Collapse expanded rows completely
+    this.expandedSummaryRow = null;
+    this.expandedRow = null; // <- Reset call logs row
+
+    // Clear all dealer/user data
     this.dealerUsers = {};
     this.userCallLogs = {};
     this.dealerCallLogs = {};
 
-    if (filter === 'CUSTOM') {
-      // Only show date inputs, do NOT call API yet
-      this.selectedFilter = 'CUSTOM';
-      return;
-    }
+    // Detect changes immediately
+    this.cd.detectChanges();
 
-    // For normal filters, call API immediately
+    // Set the new filter
     this.selectedFilter = filter;
+    localStorage.setItem('selectedFilter', filter);
+
+    if (filter === 'CUSTOM') return;
+
     const apiFilter = this.mapFilterToApi(filter);
     this.fetchSuperAdminDashboard(apiFilter);
   }
+
   fetchDealerSMs(
     dealerId: string,
     type: 'MTD' | 'QTD' | 'YTD',
@@ -786,7 +681,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -817,7 +712,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (!token) return;
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -887,22 +782,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   get totalPagesdealer(): number {
     return Math.ceil(this.dealers.length / this.dealersPerPage);
   }
-  // loadKpiData(type: string = 'DAY') {
-  //   this.http
-  //     .get<any>(
-  //       `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`
-  //     )
-  //     .subscribe({
-  //       next: (res) => {
-  //         if (res.status === 200) {
-  //           this.kpiData = res.data; // ✅ directly bind data
-  //         }
-  //       },
-  //       error: (err) => {
-  //         console.error('Error fetching KPI data:', err);
-  //       },
-  //     });
-  // }
+
   loadKpiData(type: string = 'DAY') {
     // Get token from session storage
     const token = localStorage.getItem('token');
@@ -914,7 +794,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http
       .get<any>(
-        `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`,
+        `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`,
         { headers }
       )
       .subscribe({
@@ -1107,9 +987,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.searchDealer(target.value);
   }
 
-  // 202-10-09
-  // Add this property to your component if not already there
-
   fetchSuperAdminDashboard(type: string): void {
     this.isLoading = true;
 
@@ -1128,17 +1005,17 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     if (!this.selectedDealers?.length) {
       url = isCustomMode
-        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
+        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
     } else if (this.selectedDealers.length === 1) {
       url = isCustomMode
-        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
+        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
     } else {
       const dealerIds = this.selectedDealers.map((d) => d.dealerId).join(',');
       url = isCustomMode
-        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
+        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
     }
 
     console.log('🌐 API URL:', url);
@@ -1180,33 +1057,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           // Replace dealers
           this.dealers = [...newDealerData];
 
-          // --- Select all dealers by default ---
-          // --- Select all dealers by default ONLY on first load ---
-          // if (this.isInitialLoad && this.dealers.length > 0) {
-          //   this.selectedDealers = [...this.dealers];
-          //   this.isAllSelected = true;
-          //   this.isInitialLoad = false; // Disable for subsequent API calls
-          // }
-          // Inside API success
-          // if (this.isInitialLoad) {
-          //   // Only on first load, select all dealers
-          //   if (this.dealers.length > 0) {
-          //     this.selectedDealers = [...this.dealers];
-          //     this.isAllSelected = true;
-          //   }
-          //   this.isInitialLoad = false;
-          // } else {
-          //   // Subsequent API calls: preserve current selection
-          //   if (this.selectedDealers?.length > 0) {
-          //     this.selectedDealers = this.selectedDealers
-          //       .map(
-          //         (sel) =>
-          //           this.dealers.find((d) => d.dealerId === sel.dealerId)!
-          //       )
-          //       .filter(Boolean);
-          //   }
-          // }
-          // --- Ensure totalCalls exists ---
           this.dealers.forEach((d) => {
             if (!d.callLogs)
               d.callLogs = {
@@ -1231,40 +1081,17 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           // --- Sort users inside each dealer (totalCalls) ---
           this.dealers.forEach((dealer) => {
             const users = dealer.users ?? [];
-            this.userCallLogs[dealer.dealerId] = [...users]
-              .sort(
-                (a, b) =>
-                  Number(b.calls?.totalCalls ?? 0) -
-                  Number(a.calls?.totalCalls ?? 0)
-              )
-              .map((u) => ({
-                userId: u.user_id,
-                name: u.user,
-                calls: {
-                  total: Number(u.calls?.totalCalls ?? 0),
-                  outgoing: Number(u.calls?.outgoing ?? 0),
-                  incoming: Number(u.calls?.incoming ?? 0),
-                  connected: Number(u.calls?.connected ?? 0),
-                  declined: Number(u.calls?.declined ?? 0),
-                  durationSec: Number(u.calls?.durationSec ?? 0),
-                },
-              }));
+            const mappedUsers = [...users].map((u) => ({
+              userId: u.user_id,
+              user: u.user,
+              calls: u.calls ?? {},
+              enquiriesCalls: u.enquiriesCalls ?? {},
+              coldCalls: u.coldCalls ?? {},
+            }));
+
+            dealer.users = mappedUsers; // <-- update dealer.users
+            this.userCallLogs[dealer.dealerId] = mappedUsers;
           });
-
-          // --- Sync & Sort selectedDealers for Call Logs table ---
-          // if (this.selectedDealers?.length > 0) {
-          //   this.selectedDealers = this.selectedDealers
-          //     .map(
-          //       (sel) => this.dealers.find((d) => d.dealerId === sel.dealerId)!
-          //     )
-          //     .filter(Boolean);
-
-          //   // ✅ Sort selected dealers ONLY by totalCalls (Call Logs table requirement)
-          //   this.selectedDealers.sort(
-          //     (a, b) =>
-          //       Number(b.callLogs.totalCalls ?? 0) -
-          //       Number(a.callLogs.totalCalls ?? 0)
-          //   );
 
           // --- Select all dealers on first load, otherwise preserve selection ---
           if (this.isInitialLoad) {
@@ -1366,81 +1193,190 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           this.kpiData = { ...updatedKpi };
           this.cdr.detectChanges();
 
-          // --- Chart logic unchanged ---
-          const categories = [
-            'Total Calls',
-            'Outgoing Calls',
-            'Incoming Calls',
-            'Declined Calls',
-            'Connected Calls',
-          ];
-          const dealersToShow = this.selectedDealers?.length
-            ? this.dealers.filter((d) =>
-                this.selectedDealers.some((sel) => sel.dealerId === d.dealerId)
-              )
-            : this.dealers;
-
-          const series = dealersToShow.map((d) => ({
-            name: d.dealerName || 'Unknown Dealer',
-            data: [
-              d.callLogs?.totalCalls ?? 0,
-              d.callLogs?.outgoing ?? 0,
-              d.callLogs?.incoming ?? 0,
-              d.callLogs?.declined ?? 0,
-              d.callLogs?.connected ?? 0,
-            ],
-          }));
-
-          const palette = [
-            '#008FFB',
-            '#00E396',
-            '#FEB019',
-            '#FF4560',
-            '#775DD0',
-            '#546E7A',
-            '#26A69A',
-            '#D4526E',
-          ];
-          const seriesWithColors = series.map((s, i) => ({
-            ...s,
-            color: palette[i % palette.length],
-          }));
+          // this.chartOptions = {
+          //   series: [
+          //     { name: 'Series 1', data: [44, 55, 41, 64, 22, 43, 21] },
+          //     { name: 'Series 2', data: [53, 32, 33, 52, 13, 44, 32] },
+          //   ],
+          //   chart: {
+          //     type: 'bar',
+          //     height: 430,
+          //     stacked: true, // ✅ important for combined tooltip
+          //   },
+          //   plotOptions: {
+          //     bar: {
+          //       horizontal: true,
+          //       dataLabels: { position: 'top' },
+          //     },
+          //   },
+          //   dataLabels: {
+          //     enabled: true,
+          //     offsetX: -6,
+          //     style: { fontSize: '12px', colors: ['#fff'] },
+          //   },
+          //   stroke: { show: true, width: 1, colors: ['#fff'] },
+          //   tooltip: {
+          //     shared: true,
+          //     intersect: false,
+          //     custom: (opts: any) => {
+          //       const dataPointIndex = opts.dataPointIndex;
+          //       const w = opts.w;
+          //       const dealerName = w.globals.labels[dataPointIndex];
+          //       let tooltipText = `<strong>${dealerName}</strong><br/>`;
+          //       w.config.series.forEach((s: any) => {
+          //         const value = s.data[dataPointIndex];
+          //         tooltipText += `${s.name}: ${value}<br/>`;
+          //       });
+          //       return tooltipText;
+          //     },
+          //   },
+          //   xaxis: {
+          //     categories: [
+          //       'Total Calls',
+          //       'Outgoing',
+          //       'Incoming',
+          //       'Declined',
+          //       'Connected',
+          //       'Duration',
+          //     ],
+          //   },
+          //   title: {
+          //     text: 'Dealer-wise Calls Analysis (Dummy Data)',
+          //     align: 'left',
+          //   },
+          //   legend: {
+          //     show: true,
+          //     position: 'bottom',
+          //     horizontalAlign: 'center',
+          //     markers: { width: 12, height: 12 },
+          //   },
+          // } as any;
 
           this.chartOptions = {
-            series: seriesWithColors,
+            series: [
+              {
+                name: 'Total Calls',
+                data: this.dealers.map(
+                  (d) => this.getDealerCalls(d)?.totalCalls ?? 0
+                ),
+              },
+              {
+                name: 'Incoming',
+                data: this.dealers.map(
+                  (d) => this.getDealerCalls(d)?.incoming ?? 0
+                ),
+              },
+              {
+                name: 'Outgoing',
+                data: this.dealers.map(
+                  (d) => this.getDealerCalls(d)?.outgoing ?? 0
+                ),
+              },
+              {
+                name: 'Connected',
+                data: this.dealers.map(
+                  (d) => this.getDealerCalls(d)?.connected ?? 0
+                ),
+              },
+              {
+                name: 'Declined',
+                data: this.dealers.map(
+                  (d) => this.getDealerCalls(d)?.declined ?? 0
+                ),
+              },
+              // {
+              //   name: 'Duration',
+              //   data: this.dealers.map(
+              //     (d) => this.getDealerCalls(d)?.durationSec ?? 0
+              //   ),
+              // },
+            ],
             chart: {
-              type: 'line',
-              height: 350,
-              offsetX: 0,
-              offsetY: 0,
-              toolbar: {
-                show: true,
-                tools: {
-                  download: true,
-                  selection: false,
-                  zoom: false,
-                  zoomin: true,
-                  zoomout: true,
-                  pan: false,
-                  reset: false,
+              type: 'bar',
+              height: 430,
+              stacked: true,
+            },
+            plotOptions: {
+              bar: { horizontal: true, dataLabels: { position: 'center' } },
+            },
+            dataLabels: {
+              enabled: true,
+              offsetX: -6,
+              style: { fontSize: '12px', colors: ['grey'] },
+            },
+            stroke: { show: true, width: 1, colors: ['#fff'] },
+            // tooltip: { shared: true, intersect: false },
+            tooltip: {
+              shared: true,
+              intersect: false,
+              y: {
+                formatter: (val, opts) => {
+                  const dealerName =
+                    opts?.w?.globals?.labels[opts.dataPointIndex];
+                  const series = opts?.w?.config?.series;
+                  let tooltipText = `${dealerName}<br/>`;
+                  series.forEach((s: any) => {
+                    const value = s.data[opts.dataPointIndex];
+                    tooltipText += `${s.name}: ${value}<br/>`;
+                  });
+                  return tooltipText;
                 },
               },
             },
-            dataLabels: { enabled: false },
-            stroke: { curve: 'smooth', width: 2 },
-            title: { text: 'Dealer-wise Calls Analysis', align: 'left' },
-            xaxis: { categories, labels: { rotate: -45 } },
+            xaxis: {
+              categories: this.dealers.map((d) => d.dealerName), // ✅ Dealer names here
+            },
+            title: {
+              text: 'Dealer-wise Calls Analysis',
+              align: 'left',
+            },
             legend: {
-              show: series.length > 0,
+              show: true,
               position: 'bottom',
               horizontalAlign: 'center',
-              showForSingleSeries: true,
-              markers: { width: 12, height: 12 },
+              markers: {
+                size: 12, // ✅ correct property
+              },
             },
             responsive: [
-              { breakpoint: 768, options: { title: { align: 'left' } } },
+              {
+                breakpoint: 768, // for tablets and below
+                options: {
+                  xaxis: {
+                    labels: {
+                      rotate: -60, // more tilt on small screens
+                      style: {
+                        fontSize: '9px',
+                      },
+                    },
+                  },
+                  legend: {
+                    position: 'bottom',
+                    fontSize: '10px',
+                  },
+                },
+              },
+              {
+                breakpoint: 480, // for phones
+                options: {
+                  xaxis: {
+                    labels: {
+                      show: true,
+                      rotate: -75,
+                      style: {
+                        fontSize: '8px',
+                      },
+                    },
+                  },
+                  legend: {
+                    position: 'bottom',
+                    fontSize: '8px',
+                  },
+                },
+              },
             ],
-          } as any;
+          };
+          console.log('Chart series:', this.chartOptions.series);
         } else {
           this.dealers = [];
           this.filteredDealers = [];
@@ -1479,14 +1415,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       },
     });
   }
-
-  // clearSelection(): void {
-  //   this.selectedDealers = [];
-  //   this.dealerSearch = '';
-
-  //   // ✅ This was correct - no mapping needed since mapFilterToApi just returns same value
-  //   this.fetchSuperAdminDashboard(this.selectedFilter);
-  // }
 
   private aggregateDealerData(selected: any[]): any {
     const agg = {
@@ -1538,7 +1466,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
 
     this.http.get<any>(url, { headers }).subscribe(
       (res) => {
@@ -1562,43 +1490,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     );
   }
 
-  // applyCustomDate() {
-  //   if (!this.customStartDate || !this.customEndDate) {
-  //     this.toastr.warning('Please select both start and end dates', 'Warning', {
-  //       timeOut: 3000, // Auto close after 3s
-  //       progressBar: true,
-  //       positionClass: 'toast-top-right', // top-right, bottom-right, bottom-left, top-left
-  //     });
-  //     return;
-  //   }
-
-  //   // ✅ Validate date order
-  //   if (new Date(this.customEndDate) < new Date(this.customStartDate)) {
-  //     this.toastr.error('End date cannot be earlier than start date', 'Error', {
-  //       timeOut: 3000,
-  //       progressBar: true,
-  //       positionClass: 'toast-top-right',
-  //     });
-  //     return;
-  //   }
-
-  //   this.selectedFilter = 'CUSTOM';
-
-  //   const start = this.customStartDate;
-  //   const end = this.customEndDate;
-
-  //   // ✅ Show loader
-  //   this.isLoading = true;
-
-  //   // Call API for custom date
-  //   this.fetchDealersWithCustomDate(start, end);
-
-  //   // Optional: add CSS class for applied effect
-  //   const inputs = document.querySelector('.custom-inputs');
-  //   if (inputs) {
-  //     inputs.classList.add('applied');
-  //   }
-  // }
   applyCustomDate() {
     if (!this.customStartDate || !this.customEndDate) {
       this.toastr.warning('Please select both start and end dates', 'Warning');
@@ -1615,24 +1506,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.fetchSuperAdminDashboard('CUSTOM'); // Call API with proper dates
   }
-  // resetCustomDate() {
-  //   this.customStartDate = '';
-  //   this.customEndDate = '';
 
-  //   this.selectedFilter = 'DAY';
-
-  //   // ✅ Show loader
-  //   this.isLoading = true;
-
-  //   // Fetch default data
-  //   this.onFilterChange(this.selectedFilter);
-
-  //   // Remove applied visual effect
-  //   const inputs = document.querySelector('.custom-inputs');
-  //   if (inputs) {
-  //     inputs.classList.remove('applied');
-  //   }
-  // }
   resetCustomDate() {
     this.customStartDate = '';
     this.customEndDate = '';
@@ -1674,283 +1548,19 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     return `${h}:${m}:${s}`;
   }
 
-  // THIS IS  PRORPE WORDKING CODE DOWN OK
-  // toggleRow(event: Event, dealer: any, rowId: string): void {
-  //   const id = dealer.dealerId;
-  //   if (!id) return;
-
-  //   if (this.expandedRow === rowId) {
-  //     this.expandedRow = null;
-  //     return;
-  //   }
-
-  //   this.expandedRow = rowId;
-
-  //   // Only fetch if not already fetched
-  //   if (!this.dealerUsers[id]) {
-  //     const token = localStorage.getItem('token');
-
-  //     this.dashboardService
-  //       .getDealerUsers(id, this.selectedFilter, token!)
-  //       .subscribe({
-  //         next: (res: any) => {
-  //           const dealerData = Array.isArray(res?.data?.dealerData)
-  //             ? res.data.dealerData.find((d: any) => d.dealerId === id)
-  //             : res?.data?.dealerData;
-
-  //           if (!dealerData) {
-  //             this.dealerUsers[id] = [];
-  //             this.dealerCallLogs[id] = null;
-  //             this.userCallLogs[id] = [];
-  //             return;
-  //           }
-
-  //           // Map users for Activities table
-  //           this.dealerUsers[id] = dealerData.users || [];
-
-  //           // Map dealer-level call logs
-  //           this.dealerCallLogs[id] = dealerData.callLogs
-  //             ? {
-  //                 total: dealerData.callLogs.totalCalls,
-  //                 outgoing: dealerData.callLogs.outgoing,
-  //                 incoming: dealerData.callLogs.incoming,
-  //                 connected: dealerData.callLogs.connected,
-  //                 declined: dealerData.callLogs.declined,
-  //                 duration: this.formatDuration(
-  //                   dealerData.callLogs.durationSec || 0
-  //                 ),
-  //               }
-  //             : null;
-
-  //           // Map user-level call logs
-  //           this.userCallLogs[id] =
-  //             dealerData.users?.map((user: any) => ({
-  //               userId: user.user_id,
-  //               name: user.user,
-  //               role: user.user_role,
-  //               active: user.active,
-  //               calls: user.calls
-  //                 ? {
-  //                     total: user.calls.totalCalls,
-  //                     outgoing: user.calls.outgoing,
-  //                     incoming: user.calls.incoming,
-  //                     connected: user.calls.connected,
-  //                     declined: user.calls.declined,
-  //                     duration: this.formatDuration(user.calls.durationSec),
-  //                   }
-  //                 : {
-  //                     total: 0,
-  //                     outgoing: 0,
-  //                     incoming: 0,
-  //                     connected: 0,
-  //                     declined: 0,
-  //                     duration: '0s',
-  //                   },
-  //             })) || [];
-
-  //           this.cd.detectChanges();
-  //           console.log('Mapped User Call Logs:', this.userCallLogs[id]);
-  //         },
-  //         error: (err) => {
-  //           console.error(err);
-  //           this.dealerUsers[id] = [];
-  //           this.dealerCallLogs[id] = null;
-  //           this.userCallLogs[id] = [];
-  //         },
-  //       });
-  //   }
-  // }
-  // toggleRow(event: Event, dealer: any, rowId: string): void {
-  //   const id = dealer.dealerId;
-  //   if (!id) return;
-
-  //   if (this.expandedRow === rowId) {
-  //     this.expandedRow = null;
-  //     return;
-  //   }
-
-  //   this.expandedRow = rowId;
-
-  //   const token = localStorage.getItem('token');
-  //   if (!token) return;
-
-  //   // Always fetch users on toggle (based on current filter)
-  //   this.dashboardService
-  //     .getDealerUsers(id, this.selectedFilter, token)
-  //     .subscribe({
-  //       next: (res: any) => {
-  //         const dealerData = Array.isArray(res?.data?.dealerData)
-  //           ? res.data.dealerData.find((d: any) => d.dealerId === id)
-  //           : res?.data?.dealerData;
-
-  //         if (!dealerData) {
-  //           this.dealerUsers[id] = [];
-  //           this.dealerCallLogs[id] = null;
-  //           this.userCallLogs[id] = [];
-  //           return;
-  //         }
-
-  //         // Map users
-  //         this.dealerUsers[id] = dealerData.users || [];
-
-  //         // Dealer-level call logs
-  //         this.dealerCallLogs[id] = dealerData.callLogs
-  //           ? {
-  //               total: dealerData.callLogs.totalCalls,
-  //               outgoing: dealerData.callLogs.outgoing,
-  //               incoming: dealerData.callLogs.incoming,
-  //               connected: dealerData.callLogs.connected,
-  //               declined: dealerData.callLogs.declined,
-  //               duration: this.formatDuration(
-  //                 dealerData.callLogs.durationSec || 0
-  //               ),
-  //             }
-  //           : null;
-
-  //         // User-level call logs
-  //         this.userCallLogs[id] =
-  //           dealerData.users?.map((user: any) => ({
-  //             userId: user.user_id,
-  //             name: user.user,
-  //             role: user.user_role,
-  //             active: user.active,
-  //             calls: user.calls
-  //               ? {
-  //                   total: user.calls.totalCalls,
-  //                   outgoing: user.calls.outgoing,
-  //                   incoming: user.calls.incoming,
-  //                   connected: user.calls.connected,
-  //                   declined: user.calls.declined,
-  //                   duration: this.formatDuration(user.calls.durationSec),
-  //                 }
-  //               : {
-  //                   total: 0,
-  //                   outgoing: 0,
-  //                   incoming: 0,
-  //                   connected: 0,
-  //                   declined: 0,
-  //                   duration: '0s',
-  //                 },
-  //           })) || [];
-
-  //         this.cd.detectChanges();
-  //         console.log('Mapped User Call Logs:', this.userCallLogs[id]);
-  //       },
-  //       error: (err) => {
-  //         console.error(err);
-  //         this.dealerUsers[id] = [];
-  //         this.dealerCallLogs[id] = null;
-  //         this.userCallLogs[id] = [];
-  //       },
-  //     });
-  // }
-  // toggleRow(event: Event, dealer: any, rowId: string): void {
-  //   const id = dealer.dealerId;
-  //   if (!id) return;
-
-  //   if (this.expandedRow === rowId) {
-  //     this.expandedRow = null;
-  //     return;
-  //   }
-
-  //   this.expandedRow = rowId;
-
-  //   const token = localStorage.getItem('token');
-  //   if (!token) return;
-
-  //   // Always fetch users on toggle (based on current filter)
-  //   this.dashboardService
-  //     .getDealerUsers(id, this.selectedFilter, token)
-  //     .subscribe({
-  //       next: (res: any) => {
-  //         const dealerData = Array.isArray(res?.data?.dealerData)
-  //           ? res.data.dealerData.find((d: any) => d.dealerId === id)
-  //           : res?.data?.dealerData;
-
-  //         if (!dealerData) {
-  //           this.dealerUsers[id] = [];
-  //           this.dealerCallLogs[id] = null;
-  //           this.userCallLogs[id] = [];
-  //           return;
-  //         }
-
-  //         // Map users
-  //         this.dealerUsers[id] = dealerData.users || [];
-
-  //         // Dealer-level call logs
-  //         this.dealerCallLogs[id] = dealerData.callLogs
-  //           ? {
-  //               total: dealerData.callLogs.totalCalls,
-  //               outgoing: dealerData.callLogs.outgoing,
-  //               incoming: dealerData.callLogs.incoming,
-  //               connected: dealerData.callLogs.connected,
-  //               declined: dealerData.callLogs.declined,
-  //               duration: this.formatDuration(
-  //                 dealerData.callLogs.durationSec || 0
-  //               ),
-  //             }
-  //           : null;
-
-  //         // User-level call logs
-  //         this.userCallLogs[id] =
-  //           dealerData.users?.map((user: any) => ({
-  //             userId: user.user_id,
-  //             name: user.user,
-  //             role: user.user_role,
-  //             active: user.active,
-  //             calls: user.calls
-  //               ? {
-  //                   total: user.calls.totalCalls,
-  //                   outgoing: user.calls.outgoing,
-  //                   incoming: user.calls.incoming,
-  //                   connected: user.calls.connected,
-  //                   declined: user.calls.declined,
-  //                   duration: this.formatDuration(user.calls.durationSec),
-  //                 }
-  //               : {
-  //                   total: 0,
-  //                   outgoing: 0,
-  //                   incoming: 0,
-  //                   connected: 0,
-  //                   declined: 0,
-  //                   duration: '0s',
-  //                 },
-  //           })) || [];
-
-  //         // ✅ Sort alphabetically by name
-  //         this.userCallLogs[id].sort((a, b) =>
-  //           (a?.name ?? '')
-  //             .toString()
-  //             .trim()
-  //             .localeCompare((b?.name ?? '').toString().trim(), undefined, {
-  //               sensitivity: 'base',
-  //             })
-  //         );
-
-  //         this.cd.detectChanges();
-  //         console.log('Mapped + Sorted User Call Logs:', this.userCallLogs[id]);
-  //       },
-  //       error: (err) => {
-  //         console.error(err);
-  //         this.dealerUsers[id] = [];
-  //         this.dealerCallLogs[id] = null;
-  //         this.userCallLogs[id] = [];
-  //       },
-  //     });
-  // }
-  // NOW COMMENTED
   toggleRow(event: Event, dealer: any): void {
     const id = dealer.dealerId;
     if (!id) return;
 
-    // ✅ Toggle row expansion
+    // Toggle row expansion for summary only
     this.expandedRow = this.expandedRow === id ? null : id;
 
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    let request$;
+    this.loadingUsers[id] = true;
 
+    let request$;
     if (
       this.selectedFilter === 'CUSTOM' &&
       this.customStartDate &&
@@ -1972,486 +1582,29 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     request$.subscribe({
       next: (res: any) => {
+        this.loadingUsers[id] = false;
+
         const dealerData = Array.isArray(res?.data?.dealerData)
           ? res.data.dealerData.find((d: any) => d.dealerId === id)
           : res?.data?.dealerData;
 
         if (!dealerData) {
           this.dealerUsers[id] = [];
-          this.dealerCallLogs[id] = null;
-          this.userCallLogs[id] = [];
           return;
         }
 
+        // ✅ Only set dealerUsers (for summary table)
         this.dealerUsers[id] = dealerData.users || [];
 
-        this.dealerCallLogs[id] = dealerData.callLogs
-          ? {
-              total: dealerData.callLogs.totalCalls,
-              outgoing: dealerData.callLogs.outgoing,
-              incoming: dealerData.callLogs.incoming,
-              connected: dealerData.callLogs.connected,
-              declined: dealerData.callLogs.declined,
-              duration: this.formatDuration(
-                dealerData.callLogs.durationSec || 0
-              ),
-            }
-          : null;
-
-        this.userCallLogs[id] =
-          dealerData.users?.map((user: any) => ({
-            userId: user.user_id,
-            name: user.user,
-            role: user.user_role,
-            active: user.active,
-            calls: user.calls
-              ? {
-                  total: user.calls.totalCalls,
-                  outgoing: user.calls.outgoing,
-                  incoming: user.calls.incoming,
-                  connected: user.calls.connected,
-                  declined: user.calls.declined,
-                  duration: this.formatDuration(user.calls.durationSec),
-                }
-              : {
-                  total: 0,
-                  outgoing: 0,
-                  incoming: 0,
-                  connected: 0,
-                  declined: 0,
-                  duration: '0s',
-                },
-          })) || [];
-
-        // Optional: sort users
-        this.userCallLogs[id].sort((a, b) =>
-          (a?.name ?? '')
-            .toString()
-            .trim()
-            .localeCompare((b?.name ?? '').toString().trim(), undefined, {
-              sensitivity: 'base',
-            })
-        );
-
         this.cd.detectChanges();
-        console.log('Mapped + Sorted User Call Logs:', this.userCallLogs[id]);
       },
       error: (err) => {
+        this.loadingUsers[id] = false;
         console.error(err);
         this.dealerUsers[id] = [];
-        this.dealerCallLogs[id] = null;
-        this.userCallLogs[id] = [];
       },
     });
   }
-
-  // toggleRow(event: Event, dealer: any, rowId: string): void {
-  //   const id = dealer.dealerId;
-  //   if (!id) return;
-
-  //   if (this.expandedRow === rowId) {
-  //     this.expandedRow = null;
-  //     return;
-  //   }
-
-  //   this.expandedRow = rowId;
-
-  //   const token = localStorage.getItem('token');
-  //   if (!token) return;
-
-  //   let request$;
-
-  //   // ✅ Check if filter is CUSTOM → use custom date API
-  //   if (
-  //     this.selectedFilter === 'CUSTOM' &&
-  //     this.customStartDate &&
-  //     this.customEndDate
-  //   ) {
-  //     request$ = this.dashboardService.getDealersByCustomDate(
-  //       this.customStartDate,
-  //       this.customEndDate,
-  //       token,
-  //       id
-  //     );
-  //   } else {
-  //     // ✅ Default to type API
-  //     request$ = this.dashboardService.getDealerUsers(
-  //       id,
-  //       this.selectedFilter,
-  //       token
-  //     );
-  //   }
-
-  //   // 🔥 Fetch dealer data
-  //   request$.subscribe({
-  //     next: (res: any) => {
-  //       const dealerData = Array.isArray(res?.data?.dealerData)
-  //         ? res.data.dealerData.find((d: any) => d.dealerId === id)
-  //         : res?.data?.dealerData;
-
-  //       if (!dealerData) {
-  //         this.dealerUsers[id] = [];
-  //         this.dealerCallLogs[id] = null;
-  //         this.userCallLogs[id] = [];
-  //         return;
-  //       }
-
-  //       // Map users
-  //       this.dealerUsers[id] = dealerData.users || [];
-
-  //       // Dealer-level call logs
-  //       this.dealerCallLogs[id] = dealerData.callLogs
-  //         ? {
-  //             total: dealerData.callLogs.totalCalls,
-  //             outgoing: dealerData.callLogs.outgoing,
-  //             incoming: dealerData.callLogs.incoming,
-  //             connected: dealerData.callLogs.connected,
-  //             declined: dealerData.callLogs.declined,
-  //             // duration: dealerData.callLogs.durationSec,
-  //                             duration: this.formatDuration(dealerData.calls.durationSec),
-  //           }
-  //         : null;
-  //       console.log('User call logs rawwwwwwwwwwwwwwwwwww:', dealerData.users); // 👈 ADD HERE
-
-  //       // User-level call logs
-  //       this.userCallLogs[id] =
-  //         dealerData.users?.map((user: any) => ({
-  //           userId: user.user_id,
-  //           name: user.user,
-  //           role: user.user_role,
-  //           active: user.active,
-  //           calls: user.calls
-  //             ? {
-  //                 total: user.calls.totalCalls,
-  //                 outgoing: user.calls.outgoing,
-  //                 incoming: user.calls.incoming,
-  //                 connected: user.calls.connected,
-  //                 declined: user.calls.declined,
-  //                 duration: this.formatDuration(user.calls.durationSec),
-  //               }
-  //             : {
-  //                 total: 0,
-  //                 outgoing: 0,
-  //                 incoming: 0,
-  //                 connected: 0,
-  //                 declined: 0,
-  //                 duration: '0s',
-  //               },
-  //         })) || [];
-
-  //       // ✅ Sort alphabetically by name
-  //       this.userCallLogs[id].sort((a, b) =>
-  //         (a?.name ?? '')
-  //           .toString()
-  //           .trim()
-  //           .localeCompare((b?.name ?? '').toString().trim(), undefined, {
-  //             sensitivity: 'base',
-  //           })
-  //       );
-
-  //       this.cd.detectChanges();
-  //       console.log('Mapped + Sorted User Call Logs:', this.userCallLogs[id]);
-  //     },
-  //     error: (err) => {
-  //       console.error(err);
-  //       this.dealerUsers[id] = [];
-  //       this.dealerCallLogs[id] = null;
-  //       this.userCallLogs[id] = [];
-  //     },
-  //   });
-  // }
-
-  // THIS CODE IS WITH ALPHABETICLA SORTING AND ACTIVE INACTIVE LOGIC
-  // toggleRow(event: Event, dealer: any, rowId: string): void {
-  //   const id = dealer.dealerId;
-  //   if (!id) return;
-
-  //   if (this.expandedRow === rowId) {
-  //     this.expandedRow = null;
-  //     return;
-  //   }
-
-  //   this.expandedRow = rowId;
-
-  //   // --- Default sort dealers by lowest totalUsers ---
-  //   if (this.dealers && this.dealers.length) {
-  //     this.dealers.sort((a: any, b: any) => {
-  //       if (a.totalUsers === b.totalUsers) {
-  //         return a.dealerName.localeCompare(b.dealerName); // tie-breaker by name
-  //       }
-  //       return a.totalUsers - b.totalUsers; // ascending (lowest first)
-  //     });
-  //   }
-
-  //   // Only fetch if not already fetched
-  //   if (!this.dealerUsers[id]) {
-  //     const token = localStorage.getItem('token');
-
-  //     this.dashboardService
-  //       .getDealerUsers(id, this.selectedFilter, token!)
-  //       .subscribe({
-  //         next: (res: any) => {
-  //           const dealerData = Array.isArray(res?.data?.dealerData)
-  //             ? res.data.dealerData.find((d: any) => d.dealerId === id)
-  //             : res?.data?.dealerData;
-
-  //           if (!dealerData) {
-  //             this.dealerUsers[id] = [];
-  //             this.dealerCallLogs[id] = null;
-  //             this.userCallLogs[id] = [];
-  //             return;
-  //           }
-
-  //           // Map users for Activities table
-  //           this.dealerUsers[id] = dealerData.users || [];
-
-  //           // Map dealer-level call logs
-  //           this.dealerCallLogs[id] = dealerData.callLogs
-  //             ? {
-  //                 total: dealerData.callLogs.totalCalls,
-  //                 outgoing: dealerData.callLogs.outgoing,
-  //                 incoming: dealerData.callLogs.incoming,
-  //                 connected: dealerData.callLogs.connected,
-  //                 declined: dealerData.callLogs.declined,
-  //                 duration: this.formatDuration(
-  //                   dealerData.callLogs.durationSec || 0
-  //                 ),
-  //               }
-  //             : null;
-
-  //           // Map user-level call logs
-  //           this.userCallLogs[id] =
-  //             dealerData.users?.map((user: any) => ({
-  //               userId: user.user_id,
-  //               name: user.user,
-  //               role: user.user_role,
-  //               active: user.active,
-  //               calls: user.calls
-  //                 ? {
-  //                     total: user.calls.totalCalls,
-  //                     outgoing: user.calls.outgoing,
-  //                     incoming: user.calls.incoming,
-  //                     connected: user.calls.connected,
-  //                     declined: user.calls.declined,
-  //                     duration: this.formatDuration(user.calls.durationSec),
-  //                   }
-  //                 : {
-  //                     total: 0,
-  //                     outgoing: 0,
-  //                     incoming: 0,
-  //                     connected: 0,
-  //                     declined: 0,
-  //                     duration: '0s',
-  //                   },
-  //             })) || [];
-
-  //           this.cd.detectChanges();
-  //           console.log(
-  //             'Mapped & Sorted User Activities:',
-  //             this.dealerUsers[id]
-  //           );
-  //           console.log(
-  //             'Mapped & Sorted User Call Logs:',
-  //             this.userCallLogs[id]
-  //           );
-  //         },
-  //         error: (err) => {
-  //           console.error(err);
-  //           this.dealerUsers[id] = [];
-  //           this.dealerCallLogs[id] = null;
-  //           this.userCallLogs[id] = [];
-  //         },
-  //       });
-  //   }
-  // }
-
-  // fetchDealersWithCustomDate(start: string, end: string) {
-  //   const token = localStorage.getItem('token');
-  //   this.dashboardService.getDealersByCustomDate(start, end, token!).subscribe({
-  //     next: (res: any) => {
-  //       this.ngZone.run(() => {
-  //         this.dealers = res?.data?.dealers || [];
-  //         this.cdr.detectChanges();
-  //       });
-  //     },
-  //     error: (err) => {
-  //       console.error(err);
-  //       this.ngZone.run(() => {
-  //         this.dealers = [];
-  //       });
-  //     },
-  //   });
-  // }
-
-  // fetchDealersWithCustomDate(start: string, end: string) {
-  //   const token = localStorage.getItem('token');
-  //   this.dashboardService.getDealersByCustomDate(start, end, token!).subscribe({
-  //     next: (res: any) => {
-  //       this.ngZone.run(() => {
-  //         if (res?.status === 200 && res.data) {
-  //           // ✅ KPI top card data
-  //           this.kpiData = {
-  //             dealers: res.data.dealers ?? 0,
-  //             activeNetwork: res.data.activeNetwork ?? 0,
-  //             users: res.data.users ?? 0,
-  //             activeUsers: res.data.activeUsers ?? 0,
-  //             leads: res.data.leads ?? 0,
-  //             calls: res.data.calls ?? 0,
-  //             totalFollowUps: res.data.totalFollowUps ?? 0,
-  //             uniqueTestDrives: res.data.uniqueTestDrives ?? 0,
-  //             completedTestDrives: res.data.completedTestDrives ?? 0,
-  //           };
-
-  //           // ✅ Table data
-  //           this.dealers = res.data.dealerData ?? [];
-
-  //           // ✅ Sort dealers by leads
-  //           this.dealers.sort((a: any, b: any) => {
-  //             const leadsA =
-  //               (a.saLeads || 0) +
-  //               (a.cxpLeads || 0) +
-  //               (a.icsLeads || 0) +
-  //               (a.manuallyEnteredLeads || 0);
-  //             const leadsB =
-  //               (b.saLeads || 0) +
-  //               (b.cxpLeads || 0) +
-  //               (b.icsLeads || 0) +
-  //               (b.manuallyEnteredLeads || 0);
-  //             return leadsB - leadsA;
-  //           });
-
-  //           // ✅ Chart refresh
-  //           const categories = this.dealers.map((d: any) => d.dealerName);
-  //           const connected = this.dealers.map(
-  //             (d: any) => d.callLogs.connected
-  //           );
-  //           const declined = this.dealers.map((d: any) => d.callLogs.declined);
-  //           const durationSec = this.dealers.map(
-  //             (d: any) => d.callLogs.durationSec
-  //           );
-  //           const incoming = this.dealers.map((d: any) => d.callLogs.incoming);
-  //           const outgoing = this.dealers.map((d: any) => d.callLogs.outgoing);
-  //           const totalCalls = this.dealers.map(
-  //             (d: any) => d.callLogs.totalCalls
-  //           );
-
-  //           this.chartOptions = {
-  //             ...this.chartOptions, // keep previous config
-  //             series: [
-  //               { name: 'Total Calls', data: totalCalls },
-  //               { name: 'Outgoing Calls', data: outgoing },
-  //               { name: 'Incoming Calls', data: incoming },
-  //               { name: 'Duration Sec', data: durationSec },
-  //               { name: 'Declined Calls', data: declined },
-  //               { name: 'Connected Calls', data: connected },
-  //             ],
-  //             xaxis: { categories },
-  //           };
-
-  //           // ✅ Force UI refresh
-  //           this.cdr.detectChanges();
-  //         } else {
-  //           this.dealers = [];
-  //           this.kpiData = {};
-  //         }
-  //       });
-  //     },
-  //     error: (err) => {
-  //       console.error(err);
-  //       this.ngZone.run(() => {
-  //         this.dealers = [];
-  //         this.kpiData = {};
-  //       });
-  //     },
-  //   });
-  // }
-  // fetchDealersWithCustomDate(start: string, end: string) {
-  //   const token = localStorage.getItem('token');
-  //   this.dashboardService.getDealersByCustomDate(start, end, token!).subscribe({
-  //     next: (res: any) => {
-  //       this.ngZone.run(() => {
-  //         if (res?.status === 200 && res.data) {
-  //           // ✅ KPI top card data
-  //           this.kpiData = {
-  //             dealers: res.data.dealers ?? 0,
-  //             activeNetwork: res.data.activeNetwork ?? 0,
-  //             users: res.data.users ?? 0,
-  //             activeUsers: res.data.activeUsers ?? 0,
-  //             leads: res.data.leads ?? 0,
-  //             calls: res.data.calls ?? 0,
-  //             totalFollowUps: res.data.totalFollowUps ?? 0,
-  //             uniqueTestDrives: res.data.uniqueTestDrives ?? 0,
-  //             completedTestDrives: res.data.completedTestDrives ?? 0,
-  //           };
-
-  //           // ✅ Table data
-  //           this.dealers = res.data.dealerData ?? [];
-
-  //           // ✅ Sort dealers by leads
-  //           this.dealers.sort((a: any, b: any) => {
-  //             const leadsA =
-  //               (a.saLeads || 0) +
-  //               (a.cxpLeads || 0) +
-  //               (a.icsLeads || 0) +
-  //               (a.manuallyEnteredLeads || 0);
-  //             const leadsB =
-  //               (b.saLeads || 0) +
-  //               (b.cxpLeads || 0) +
-  //               (b.icsLeads || 0) +
-  //               (b.manuallyEnteredLeads || 0);
-  //             return leadsB - leadsA;
-  //           });
-
-  //           // ✅ Chart refresh
-  //           const categories = this.dealers.map((d: any) => d.dealerName);
-  //           const connected = this.dealers.map(
-  //             (d: any) => d.callLogs.connected
-  //           );
-  //           const declined = this.dealers.map((d: any) => d.callLogs.declined);
-  //           const durationSec = this.dealers.map(
-  //             (d: any) => d.callLogs.durationSec
-  //           );
-  //           const incoming = this.dealers.map((d: any) => d.callLogs.incoming);
-  //           const outgoing = this.dealers.map((d: any) => d.callLogs.outgoing);
-  //           const totalCalls = this.dealers.map(
-  //             (d: any) => d.callLogs.totalCalls
-  //           );
-
-  //           this.chartOptions = {
-  //             ...this.chartOptions, // keep previous config
-  //             series: [
-  //               { name: 'Total Calls', data: totalCalls },
-  //               { name: 'Outgoing Calls', data: outgoing },
-  //               { name: 'Incoming Calls', data: incoming },
-  //               { name: 'Duration Sec', data: durationSec },
-  //               { name: 'Declined Calls', data: declined },
-  //               { name: 'Connected Calls', data: connected },
-  //             ],
-  //             xaxis: { categories },
-  //           };
-
-  //           // ✅ Force UI refresh
-  //           this.cdr.detectChanges();
-  //         } else {
-  //           this.dealers = [];
-  //           this.kpiData = {};
-  //         }
-
-  //         // ✅ Hide loader when API success finishes
-  //         this.isLoading = false;
-  //       });
-  //     },
-  //     error: (err) => {
-  //       console.error(err);
-  //       this.ngZone.run(() => {
-  //         this.dealers = [];
-  //         this.kpiData = {};
-  //         // ✅ Hide loader even on error
-  //         this.isLoading = false;
-  //       });
-  //     },
-  //   });
-  // }
 
   fetchDealersWithCustomDate(start: string, end: string) {
     const token = localStorage.getItem('token');
@@ -2597,8 +1750,19 @@ export class DashboardComponent implements AfterViewInit, OnInit {
                 (d: any) => d.callLogs?.totalCalls ?? 0
               );
 
+              // this.chartOptions = {
+              //   ...this.chartOptions,
+              //   series: [
+              //     { name: 'Total Calls', data: totalCalls },
+              //     { name: 'Outgoing Calls', data: outgoing },
+              //     { name: 'Incoming Calls', data: incoming },
+              //     { name: 'Duration Sec', data: durationSec },
+              //     { name: 'Declined Calls', data: declined },
+              //     { name: 'Connected Calls', data: connected },
+              //   ],
+              //   xaxis: { categories },
+              // };
               this.chartOptions = {
-                ...this.chartOptions,
                 series: [
                   { name: 'Total Calls', data: totalCalls },
                   { name: 'Outgoing Calls', data: outgoing },
@@ -2607,9 +1771,26 @@ export class DashboardComponent implements AfterViewInit, OnInit {
                   { name: 'Declined Calls', data: declined },
                   { name: 'Connected Calls', data: connected },
                 ],
+                chart: { type: 'bar', height: 430 },
+                plotOptions: {
+                  // ✅ THIS PART IS MISSING IN YOUR DYNAMIC CHART
+                  bar: { horizontal: true, dataLabels: { position: 'top' } },
+                },
+                dataLabels: {
+                  enabled: true,
+                  offsetX: -6,
+                  style: { fontSize: '12px', colors: ['#fff'] },
+                },
+                stroke: { show: true, width: 1, colors: ['#fff'] },
+                tooltip: { shared: true, intersect: false },
                 xaxis: { categories },
-              };
-
+                title: { text: 'Dealer-wise Calls Analysis', align: 'left' },
+                legend: {
+                  show: true,
+                  position: 'bottom',
+                  horizontalAlign: 'center',
+                },
+              } as any;
               // Force UI refresh
               this.cdr.detectChanges();
             } else {
@@ -2669,42 +1850,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.fetchSuperAdminDashboard(apiFilter);
     }
   }
-  // onDealerClick(dealerId: string): void {
-  //   if (this.selectedDealerId === dealerId) {
-  //     this.selectedDealerId = null; // collapse if already open
-  //     return;
-  //   }
 
-  //   this.selectedDealerId = dealerId;
-
-  //   // Fetch SM data only if not already fetched
-  //   if (!this.dealerSMS[dealerId]) {
-  //     this.loadingSM = true; // Set loading state to true
-
-  //     const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${this.selectedFilter}&dealer_id=${dealerId}`;
-  //     const token = localStorage.getItem('token');
-
-  //     const headers = new HttpHeaders({
-  //       Authorization: `Bearer ${token}`,
-  //     });
-
-  //     this.http.get<any>(url, { headers }).subscribe({
-  //       next: (res) => {
-  //         if (res?.status === 200 && res.data?.sms) {
-  //           this.dealerSMS[dealerId] = res.data.sms;
-  //         } else {
-  //           this.dealerSMS[dealerId] = [];
-  //         }
-  //         this.loadingSM = false; // Set loading state to false
-  //       },
-  //       error: (err) => {
-  //         console.error('Failed to fetch SM data:', err);
-  //         this.dealerSMS[dealerId] = [];
-  //         this.loadingSM = false; // Set loading state to false on error
-  //       },
-  //     });
-  //   }
-  // }
   onDealerClick(dealerId: string, type: string) {
     const token = localStorage.getItem('token')!;
 
@@ -2714,7 +1860,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.customEndDate
     ) {
       // For custom date mode, build URL with start_date and end_date parameters
-      const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
+      const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
 
       this.http
         .get(url, { headers: { Authorization: `Bearer ${token}` } })
@@ -2723,7 +1869,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         });
     } else {
       // Fallback: legacy API with type
-      const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
+      const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
       this.http
         .get(url, { headers: { Authorization: `Bearer ${token}` } })
         .subscribe((res) => {
@@ -2795,8 +1941,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.loadingPS = true; // start loading
 
     const type = this.selectedFilter;
-    const baseUrl =
-      'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew';
+    const baseUrl = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
     const dealerId = this.selectedDealerId;
     const smId = this.selectedSM.sm_id;
     const url = `${baseUrl}?type=${type}&dealer_id=${dealerId}&sm_id=${smId}`;
@@ -2898,10 +2043,123 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.table2Length = 10;
   }
 
-  dealerEngagementView(viewType: 'table' | 'chart' | 'enquiry' | 'cold') {
-    this.dealerSummaryCallsViewType = viewType;
+  // dealerEngagementView(type: 'table' | 'chart' | 'enquiries' | 'coldcalls') {
+  //   if (type === 'table' || type === 'chart') {
+  //     this.dealerSummaryCallsViewType = type; // handle tab
+  //   } else {
+  //     this.dealerSummaryCallsDataType = type; // handle dropdown
+  //   }
+
+  //   // Load data based on both selections
+  //   this.loadDealerData(
+  //     this.dealerSummaryCallsDataType,
+  //     this.dealerSummaryCallsViewType
+  //   );
+  // }
+  dealerEngagementView(type: 'table' | 'chart' | 'enquiries' | 'coldcalls') {
+    if (type === 'table' || type === 'chart') {
+      this.dealerSummaryCallsViewType = type;
+    } else {
+      this.dealerSummaryCallsDataType = type;
+
+      // ✅ Close any open user call logs table when switching data type
+      this.expandedRow = null;
+
+      // ✅ Refresh chart when data type changes
+      this.updateDealerChart();
+    }
+
+    // ✅ Refresh dealer table
+    this.loadDealerData(
+      this.dealerSummaryCallsDataType,
+      this.dealerSummaryCallsViewType
+    );
+
+    // ✅ Refresh user table for expanded row
+    this.refreshUserCallLogsForFilterChange();
   }
 
+  refreshUserCallLogs(dealer: any) {
+    const id = dealer.dealerId;
+    const usersFromLogs = this.userCallLogs[id] ?? [];
+
+    // Update calls based on selected type
+    this.userCallLogs[id] = [
+      ...usersFromLogs.map((userLog: any) => {
+        const userData =
+          dealer.users?.find((u: any) => u.user_id === userLog.userId) || {};
+        const calls = this.getUserCalls(userData);
+        const durationSec = Number(calls?.durationSec ?? calls?.duration ?? 0);
+
+        return {
+          userId: userData.user_id || userLog.userId,
+          name: userData.user || userLog.name,
+          calls: {
+            total: Number(calls?.totalCalls ?? 0),
+            outgoing: Number(calls?.outgoing ?? 0),
+            incoming: Number(calls?.incoming ?? 0),
+            connected: Number(calls?.connected ?? 0),
+            declined: Number(calls?.declined ?? 0),
+            duration: this.formatDuration(durationSec),
+            durationSec,
+          },
+        };
+      }),
+    ];
+  }
+
+  refreshUserCallLogsForFilterChange() {
+    if (!this.expandedRow) return;
+
+    const dealer = this.dealersData.find(
+      (d) => d.dealerId === this.expandedRow
+    );
+    if (!dealer) return;
+
+    const id = dealer.dealerId;
+
+    // Recompute userCallLogs using getUserCalls()
+    this.userCallLogs[id] =
+      dealer.users?.map((user: any) => {
+        const calls = this.getUserCalls(user); // this recalculates based on current filter
+        const durationSec = Number(calls?.durationSec ?? calls?.duration ?? 0);
+
+        return {
+          userId: user.user_id,
+          name: user.user,
+          calls: {
+            total: Number(calls?.totalCalls ?? 0),
+            outgoing: Number(calls?.outgoing ?? 0),
+            incoming: Number(calls?.incoming ?? 0),
+            connected: Number(calls?.connected ?? 0),
+            declined: Number(calls?.declined ?? 0),
+            duration: this.formatDuration(durationSec),
+            durationSec,
+          },
+        };
+      }) || [];
+  }
+
+  loadDealerData(
+    dataType: 'enquiries' | 'coldcalls',
+    viewType: 'table' | 'chart'
+  ) {
+    // map API response to only pick relevant call data
+    this.filteredDealerData = this.dealersData.map((dealer) => {
+      return {
+        dealerId: dealer.dealerId,
+        dealerName: dealer.dealerName,
+        totalCalls:
+          dataType === 'enquiries'
+            ? dealer.enquiriesCalls.totalCalls
+            : dealer.coldCalls.totalCalls,
+        connectedCalls:
+          dataType === 'enquiries'
+            ? dealer.enquiriesCalls.connectedCalls
+            : dealer.coldCalls.connectedCalls,
+      };
+    });
+  }
   updateDisplayedDealers() {
     this.displayedDealers = this.dealers.slice(0, this.itemsToShow);
     this.showMoreVisible = this.itemsToShow < this.dealers.length;
@@ -2916,7 +2174,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -2988,41 +2246,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     });
   }
 
-  initLineChart() {
-    const ctx: any = document.getElementById('enquiryLineChart');
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr'], // sample months
-        datasets: [
-          {
-            data: [3, 5, 7, 4], // Replace with dynamic values if needed
-            borderColor: '#4CAF50',
-            tension: 0.4,
-            pointRadius: 0,
-            borderWidth: 2,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          tooltip: { enabled: true }, // ✅ Enable this
-        },
-        scales: {
-          x: { display: false },
-          y: { display: false },
-        },
-      },
-    });
-  }
-
   fetchData(): void {
     this.http
-      .get<any>(
-        'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew'
-      )
+      .get<any>('https://uat.smartassistapp.in/api/superAdmin/dashbaordNew')
       .subscribe(
         (response) => {
           console.log('API Response:', response); // Log the response to check its structure
@@ -3062,78 +2288,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     return this.dashboardData?.leads?.change || 0;
   }
 
-  // sortData(column: string) {
-  //   const arrayToSort =
-  //     this.selectedDealers.length > 0 ? this.selectedDealers : this.dealers;
-
-  //   // Toggle sorting
-  //   if (this.sortColumn !== column) {
-  //     this.sortColumn = column;
-  //     this.sortDirection = 'desc';
-  //   } else if (this.sortDirection === 'desc') {
-  //     this.sortDirection = 'asc';
-  //   } else if (this.sortDirection === 'asc') {
-  //     this.sortDirection = 'default';
-  //   }
-
-  //   if (this.sortDirection === 'default') {
-  //     // Reset to original order
-  //     if (this.selectedDealers.length > 0) {
-  //       // Keep only selected dealers but reset order
-  //       this.selectedDealers = this.originalDealers
-  //         .filter((d) =>
-  //           this.selectedDealers.some((s) => s.dealerId === d.dealerId)
-  //         )
-  //         .map((d) => ({
-  //           ...d,
-  //           callLogs: { ...d.callLogs },
-  //           users: d.users ? [...d.users] : [],
-  //         }));
-  //     } else {
-  //       // Reset all dealers
-  //       this.dealers = this.originalDealers.map((d) => ({
-  //         ...d,
-  //         callLogs: { ...d.callLogs },
-  //         users: d.users ? [...d.users] : [],
-  //       }));
-  //     }
-  //     this.sortColumn = null; // hide arrows
-  //   } else {
-  //     // Sort ascending/descending
-  //     const sortedArray = arrayToSort
-  //       .map((d) => ({
-  //         ...d,
-  //         callLogs: { ...d.callLogs },
-  //         users: d.users ? [...d.users] : [],
-  //       }))
-  //       .sort((a, b) => {
-  //         const valA = a[column] ?? 0;
-  //         const valB = b[column] ?? 0;
-  //         return this.sortDirection === 'asc' ? valA - valB : valB - valA;
-  //       });
-
-  //     // Assign back to correct array
-  //     if (this.selectedDealers.length > 0) {
-  //       this.selectedDealers = sortedArray;
-  //     } else {
-  //       this.dealers = sortedArray;
-  //     }
-  //   }
-  // }
-  // sortData(column: string) {
-  //   if (this.sortColumn === column) {
-  //     // toggle asc → desc → default
-  //     this.sortDirection =
-  //       this.sortDirection === 'asc'
-  //         ? 'desc'
-  //         : this.sortDirection === 'desc'
-  //         ? 'default'
-  //         : 'asc';
-  //   } else {
-  //     this.sortColumn = column;
-  //     this.sortDirection = 'asc'; // start with ascending when switching columns
-  //   }
-  // }
   sortData(column: string) {
     // Toggle sort direction
     if (this.sortColumn === column) {
@@ -3164,7 +2318,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   fetchDashboardDataForTopCards(filter: string) {
     const token = localStorage.getItem('token') || '';
-    let url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM`;
+    let url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM`;
 
     if (filter === 'CUSTOM' && this.customStartDate && this.customEndDate) {
       url += `?startDate=${this.customStartDate}&endDate=${this.customEndDate}`;
@@ -3207,62 +2361,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.filteredDealers = [...this.dealers];
     }
   }
-  // areAllSelected(): boolean {
-  //   return (
-  //     this.filteredDealers.length > 0 &&
-  //     this.filteredDealers.every((d) => this.isDealerSelected(d))
-  //   );
-  // }
-
-  // Toggle select all dealers
-  // toggleSelectAll(event: Event): void {
-  //   const checked = (event.target as HTMLInputElement).checked;
-  //   if (checked) {
-  //     this.filteredDealers.forEach((d) => {
-  //       if (!this.isDealerSelected(d)) {
-  //         this.toggleDealerSelection(d);
-  //       }
-  //     });
-  //   } else {
-  //     this.filteredDealers.forEach((d) => {
-  //       if (this.isDealerSelected(d)) {
-  //         this.toggleDealerSelection(d);
-  //       }
-  //     });
-  //   }
-  // }
-  // toggleDropdown(): void {
-  //   this.dropdownOpen = !this.dropdownOpen;
-  //   if (this.dropdownOpen) {
-  //     this.filteredDealers = [...this.dealers];
-  //   }
-  // }
-
-  // areAllSelected(): boolean {
-  //   return (
-  //     this.filteredDealers.length > 0 &&
-  //     this.selectedDealers.length === this.filteredDealers.length
-  //   );
-  // }
-
-  // toggleSelectAll(event: any) {
-  //   if (event.target.checked) {
-  //     // Add all filtered dealers to selectedDealers
-  //     this.filteredDealers.forEach((d) => {
-  //       if (!this.selectedDealers.some((sd) => sd.dealerId === d.dealerId)) {
-  //         this.selectedDealers.push(d);
-  //       }
-  //     });
-  //   } else {
-  //     // Remove all filtered dealers from selectedDealers
-  //     this.selectedDealers = this.selectedDealers.filter(
-  //       (sd) => !this.filteredDealers.some((fd) => fd.dealerId === sd.dealerId)
-  //     );
-  //   }
-
-  //   // Call API after selection
-  //   this.fetchSuperAdminDashboard(this.selectedFilter);
-  // }
 
   toggleSelectAll(event: any) {
     const checked = event.target.checked;
@@ -3283,31 +2381,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.fetchSuperAdminDashboard(this.selectedFilter);
   }
 
-  // isDealerSelected(dealer: any): boolean {
-  //   return this.selectedDealers.includes(dealer.dealer_id);
-  // }
-
-  // toggleDealerSelection(dealer: any): void {
-  //   const id = dealer.dealer_id;
-  //   if (this.selectedDealers.includes(id)) {
-  //     this.selectedDealers = this.selectedDealers.filter(d => d !== id);
-  //   } else {
-  //     this.selectedDealers = [...this.selectedDealers, id];
-  //   }
-  // }
   clearSelection(): void {
     this.selectedDealers = [];
     this.cdr.detectChanges(); // forces Angular to refresh view immediately
   }
 
-  // trackByDealerId(index: number, dealer: any): string {
-  //   return dealer.dealer_id;
-  // }
-
-  // Clear all selected dealers
-  // clearSelection(): void {
-  //   this.selectedDealers = [];a
-  // }
   selectDealer(dealer: any) {
     this.selectedDealer = dealer;
     this.dealerSearch = '';
@@ -3334,35 +2412,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     return this.selectedDealers.some((d) => d.dealerId === dealer.dealerId);
   }
 
-  // toggleDealerSelection(dealer: any): void {
-  //   const index = this.selectedDealers.findIndex(
-  //     (d) => d.dealerId === dealer.dealerId
-  //   );
-
-  //   if (index > -1) {
-  //     this.selectedDealers.splice(index, 1); // ✅ unselect
-  //   } else {
-  //     this.selectedDealers.push(dealer); // ✅ select (full dealer object)
-  //   }
-  // }
-
-  // toggleDealerSelection(dealer: any): void {
-  //   // show loader immediately
-  //   this.isLoading = true;
-
-  //   const index = this.selectedDealers.findIndex(
-  //     (d) => d.dealerId === dealer.dealerId
-  //   );
-
-  //   if (index > -1) {
-  //     this.selectedDealers.splice(index, 1); // ✅ unselect
-  //   } else {
-  //     this.selectedDealers.push(dealer); // ✅ select
-  //   }
-
-  //   // 👉 Refresh dashboard data after dealer selection
-  //   this.fetchSuperAdminDashboard(this.selectedFilter);
-  // }
   toggleDealerSelection(dealer: any) {
     const index = this.selectedDealers.findIndex(
       (d) => d.dealerId === dealer.dealerId
@@ -3386,189 +2435,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     );
   }
 
-  // exportToCSV() {
-  //   console.log('Export clicked', this.dealers); // Debug
-  //   if (!this.dealers || this.dealers.length === 0) {
-  //     console.warn('No dealers to export');
-  //     return;
-  //   }
-
-  //   // Updated headers according to your table
-  //   const headers = [
-  //     'Dealer',
-  //     'Total Users',
-  //     'registerUsers',
-  //     'Active Users',
-  //     'Leads SA',
-  //     'Leads Sync with CXP',
-  //     'Leads Sync with ICS',
-  //     'Leads Manually Entered with CXP',
-  //     'Follow-ups SA',
-  //     'Follow-ups Sync with CXP',
-  //     'Follow-ups Completed',
-  //     'Follow-ups Upcoming',
-  //     'Follow-ups Overdue',
-  //     'Test Drives SA',
-  //     'Test Drives Sync with CXP',
-  //     'Test Drives Completed',
-  //     'Test Drives Upcoming',
-  //     'Test Drives Overdue',
-  //     'Opportunities Converted',
-  //   ];
-
-  //   // Map dealers to match new headers
-  //   const rows = this.dealers.map((dealer) => [
-  //     `"${dealer.dealerName}"`, // Dealer name in quotes to handle commas
-  //     dealer.totalUsers || 0,
-  //     dealer.registerUsers || 0,
-  //     dealer.activeUsers || 0,
-  //     dealer.saLeads || 0,
-  //     dealer.cxpLeads || 0,
-  //     dealer.icsLeads || 0,
-  //     dealer.manuallyEnteredLeads || 0,
-  //     dealer.saFollowUps || 0,
-  //     dealer.cxpFollowUps || 0,
-  //     dealer.completedFollowUps || 0,
-  //     dealer.openFollowUps || 0,
-  //     dealer.closedFollowUps || 0,
-  //     dealer.saTestDrives || 0,
-  //     dealer.cxpTestDrives || 0,
-  //     dealer.completedTestDrives || 0,
-  //     dealer.upcomingTestDrives || 0,
-  //     dealer.closedTestDrives || 0,
-  //     dealer.opportunitiesConverted || 0,
-  //   ]);
-
-  //   const csvContent = [
-  //     headers.join(','),
-  //     ...rows.map((r) => r.join(',')),
-  //   ].join('\n');
-
-  //   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  //   const url = URL.createObjectURL(blob);
-
-  //   const a = document.createElement('a');
-  //   a.href = url;
-  //   a.download = 'dealer_summary.csv';
-  //   a.style.display = 'none';
-  //   document.body.appendChild(a);
-  //   a.click();
-  //   document.body.removeChild(a);
-  //   URL.revokeObjectURL(url);
-  // }
-
-  // exportUserCallLogsToCSV() {
-  //   console.log('Export User Call Logs clicked', this.dealers); // Debug
-
-  //   if (!this.dealers || this.dealers.length === 0) {
-  //     console.warn('No dealers to export');
-  //     return;
-  //   }
-
-  //   const headers = [
-  //     'Dealer',
-  //     'Active',
-  //     'Total Calls',
-  //     'Outgoing',
-  //     'Incoming',
-  //     'Connected',
-  //     'Declined',
-  //     'Duration',
-  //   ];
-
-  //   const rows: any[] = [];
-
-  //   const fetchPromises = this.dealers.map((dealer) => {
-  //     // If userCallLogs already exist, use them
-  //     if (this.userCallLogs[dealer.dealerId]?.length) {
-  //       return Promise.resolve({
-  //         dealer,
-  //         users: this.userCallLogs[dealer.dealerId],
-  //       });
-  //     }
-
-  //     // Otherwise, fetch from API
-  //     const token = localStorage.getItem('token')!;
-  //     return this.dashboardService
-  //       .getDealerUsers(dealer.dealerId, this.selectedFilter, token)
-  //       .toPromise()
-  //       .then((res: any) => {
-  //         const dealerData = Array.isArray(res?.data?.dealerData)
-  //           ? res.data.dealerData.find(
-  //               (d: any) => d.dealerId === dealer.dealerId
-  //             )
-  //           : res?.data?.dealerData;
-
-  //         const users =
-  //           dealerData?.users?.map((user: any) => ({
-  //             userId: user.user_id,
-  //             name: user.user,
-  //             role: user.user_role,
-  //             active: user.active,
-  //             calls: user.calls
-  //               ? {
-  //                   total: user.calls.totalCalls,
-  //                   outgoing: user.calls.outgoing,
-  //                   incoming: user.calls.incoming,
-  //                   connected: user.calls.connected,
-  //                   declined: user.calls.declined,
-  //                   duration: this.formatDuration(user.calls.durationSec),
-  //                 }
-  //               : {
-  //                   total: 0,
-  //                   outgoing: 0,
-  //                   incoming: 0,
-  //                   connected: 0,
-  //                   declined: 0,
-  //                   duration: '0s',
-  //                 },
-  //           })) || [];
-
-  //         // Save to userCallLogs for future use
-  //         this.userCallLogs[dealer.dealerId] = users;
-
-  //         return { dealer, users };
-  //       })
-  //       .catch(() => ({ dealer, users: [] }));
-  //   });
-
-  //   // Wait for all dealer user logs to be ready
-  //   Promise.all(fetchPromises).then((dealerUsersList) => {
-  //     dealerUsersList.forEach(({ dealer, users }) => {
-  //       users.forEach((user: any) => {
-  //         rows.push([
-  //           `"${dealer.dealerName}"`,
-  //           `"${user.name}"`,
-  //           `"${user.role}"`,
-  //           user.active ? 'Active' : 'Inactive',
-  //           user.calls?.total || 0,
-  //           user.calls?.outgoing || 0,
-  //           user.calls?.incoming || 0,
-  //           user.calls?.connected || 0,
-  //           user.calls?.declined || 0,
-  //           `"${user.calls?.duration || '0s'}"`,
-  //         ]);
-  //       });
-  //     });
-
-  //     // Generate CSV
-  //     const csvContent = [
-  //       headers.join(','),
-  //       ...rows.map((r) => r.join(',')),
-  //     ].join('\n');
-  //     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  //     const url = URL.createObjectURL(blob);
-
-  //     const a = document.createElement('a');
-  //     a.href = url;
-  //     a.download = 'dealer_calls.csv';
-  //     a.style.display = 'none';
-  //     document.body.appendChild(a);
-  //     a.click();
-  //     document.body.removeChild(a);
-  //     URL.revokeObjectURL(url);
-  //   });
-  // }
   exportToCSV() {
     // Get the same list as the table is showing
     const dealersToExport = this.getSortedDealersForSummary();
@@ -3586,7 +2452,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       'Leads SA',
       'Leads Sync with CXP',
       'Leads Sync with ICS',
-      'Leads Manually Entered with CXP',
+      'Digital Leads',
       'Follow-ups SA',
       'Follow-ups Sync with CXP',
       'Follow-ups Completed',
@@ -3595,6 +2461,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       'Test Drives SA',
       'Test Drives Sync with CXP',
       'Test Drives Completed',
+      'Test Drives Unique',
       'Test Drives Upcoming',
       'Test Drives Overdue',
       'Opportunities Converted',
@@ -3617,6 +2484,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       dealer.saTestDrives || 0,
       dealer.cxpTestDrives || 0,
       dealer.completedTestDrives || 0,
+      dealer.uniqueTestDrives || 0,
       dealer.upcomingTestDrives || 0,
       dealer.closedTestDrives || 0,
       dealer.opportunitiesConverted || 0,
@@ -3643,13 +2511,17 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   trackByUserId(index: number, user: any) {
     return user.user_id; // Use unique ID if available, fallback to username
   }
+
   // exportDealerCalllogstocxp() {
-  //   if (!this.dealers || this.dealers.length === 0) {
+  //   const list =
+  //     this.selectedDealers.length > 0 ? this.selectedDealers : this.dealers;
+
+  //   if (!list || list.length === 0) {
   //     console.warn('No dealers to export');
   //     return;
   //   }
 
-  //   // Only include columns visible in the dealer summary table
+  //   // ✅ Only include columns visible in the dealer call logs table
   //   const headers = [
   //     'Dealer',
   //     'Total Calls',
@@ -3660,16 +2532,15 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     'Duration',
   //   ];
 
-  //   const rows = this.dealers.map((dealer) => [
+  //   const rows = list.map((dealer) => [
   //     `"${dealer.dealerName}"`,
   //     dealer.callLogs?.totalCalls || 0,
   //     dealer.callLogs?.outgoing || 0,
   //     dealer.callLogs?.incoming || 0,
   //     dealer.callLogs?.connected || 0,
   //     dealer.callLogs?.declined || 0,
-  //     // dealer.callLogs?.durationSec || '00:00:00',
   //     dealer.callLogs?.durationSec
-  //       ? this.formatDuration(dealer.callLogs.durationSec) // ✅ use formatted value
+  //       ? this.formatDuration(dealer.callLogs.durationSec) // ✅ format duration
   //       : '00:00:00',
   //   ]);
 
@@ -3690,18 +2561,29 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   document.body.removeChild(a);
   //   URL.revokeObjectURL(url);
 
-  //   console.log('Dealer summary CSV exported successfully');
+  //   console.log('Dealer call logs CSV exported successfully');
   // }
   exportDealerCalllogstocxp() {
-    const list =
-      this.selectedDealers.length > 0 ? this.selectedDealers : this.dealers;
+    // ✅ Use the same data as your table
+    let list =
+      this.displayedDealers?.length > 0
+        ? [...this.displayedDealers] // clone to avoid mutating table data
+        : this.selectedDealers.length > 0
+        ? [...this.selectedDealers]
+        : [...this.dealers];
 
     if (!list || list.length === 0) {
       console.warn('No dealers to export');
       return;
     }
 
-    // ✅ Only include columns visible in the dealer call logs table
+    // ✅ Sort by totalCalls DESC (highest first)
+    list.sort((a, b) => {
+      const callsA = this.getDealerCalls(a)?.totalCalls || 0;
+      const callsB = this.getDealerCalls(b)?.totalCalls || 0;
+      return callsB - callsA;
+    });
+
     const headers = [
       'Dealer',
       'Total Calls',
@@ -3712,17 +2594,19 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       'Duration',
     ];
 
-    const rows = list.map((dealer) => [
-      `"${dealer.dealerName}"`,
-      dealer.callLogs?.totalCalls || 0,
-      dealer.callLogs?.outgoing || 0,
-      dealer.callLogs?.incoming || 0,
-      dealer.callLogs?.connected || 0,
-      dealer.callLogs?.declined || 0,
-      dealer.callLogs?.durationSec
-        ? this.formatDuration(dealer.callLogs.durationSec) // ✅ format duration
-        : '00:00:00',
-    ]);
+    const rows = list.map((dealer) => {
+      const calls = this.getDealerCalls(dealer);
+
+      return [
+        `"${dealer.dealerName}"`,
+        calls.totalCalls || 0,
+        calls.outgoing || 0,
+        calls.incoming || 0,
+        calls.connected || 0,
+        calls.declined || 0,
+        calls.duration || '00:00:00',
+      ];
+    });
 
     const csvContent = [
       headers.join(','),
@@ -3742,5 +2626,330 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     URL.revokeObjectURL(url);
 
     console.log('Dealer call logs CSV exported successfully');
+  }
+
+  toggleSummaryRow(event: Event, dealer: any): void {
+    event.stopPropagation();
+    const id = dealer.dealerId;
+    this.expandedSummaryRow = this.expandedSummaryRow === id ? null : id;
+
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    // set loading state
+    this.loadingUsers[id] = true;
+
+    let request$;
+    if (
+      this.selectedFilter === 'CUSTOM' &&
+      this.customStartDate &&
+      this.customEndDate
+    ) {
+      request$ = this.dashboardService.getDealersByCustomDate(
+        this.customStartDate,
+        this.customEndDate,
+        token,
+        id
+      );
+    } else {
+      request$ = this.dashboardService.getDealerUsers(
+        id,
+        this.selectedFilter,
+        token
+      );
+    }
+
+    request$.subscribe({
+      next: (res: any) => {
+        this.loadingUsers[id] = false;
+
+        const dealerData = Array.isArray(res?.data?.dealerData)
+          ? res.data.dealerData.find((d: any) => d.dealerId === id)
+          : res?.data?.dealerData;
+
+        if (!dealerData) {
+          this.dealerUsers[id] = [];
+          this.dealerCallLogs[id] = null;
+          this.userCallLogs[id] = [];
+          return;
+        }
+
+        // ✅ Save users
+        this.dealerUsers[id] = dealerData.users || [];
+
+        // ✅ Save dealer-level call logs
+        this.dealerCallLogs[id] = dealerData.callLogs ?? null;
+
+        // ✅ Map user call logs
+        this.userCallLogs[id] =
+          dealerData.users?.map((user: any) => {
+            const durationSec = Number(user.calls?.durationSec ?? 0);
+
+            return {
+              userId: user.user_id,
+              name: user.user,
+              role: user.user_role,
+              active: user.active,
+              calls: {
+                total: Number(user.calls?.totalCalls ?? 0),
+                outgoing: Number(user.calls?.outgoing ?? 0),
+                incoming: Number(user.calls?.incoming ?? 0),
+                connected: Number(user.calls?.connected ?? 0),
+                declined: Number(user.calls?.declined ?? 0),
+                duration: this.formatDuration(durationSec),
+                durationSec,
+              },
+            };
+          }) || [];
+
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        this.loadingUsers[id] = false;
+        console.error(err);
+        this.dealerUsers[id] = [];
+        this.dealerCallLogs[id] = null;
+        this.userCallLogs[id] = [];
+      },
+    });
+  }
+  // toggleCallLogsRow(event: Event, dealer: any): void {
+  //   event.stopPropagation();
+  //   const id = dealer.dealerId;
+
+  //   // Toggle expand
+  //   this.expandedRow = this.expandedRow === id ? null : id;
+
+  //   if (!this.expandedRow) return;
+
+  //   const token = localStorage.getItem('token');
+  //   if (!token) return;
+
+  //   this.loadingUsers[id] = true;
+
+  //   let request$;
+  //   if (
+  //     this.selectedFilter === 'CUSTOM' &&
+  //     this.customStartDate &&
+  //     this.customEndDate
+  //   ) {
+  //     request$ = this.dashboardService.getDealersByCustomDate(
+  //       this.customStartDate,
+  //       this.customEndDate,
+  //       token,
+  //       id
+  //     );
+  //   } else {
+  //     request$ = this.dashboardService.getDealerUsers(
+  //       id,
+  //       this.selectedFilter,
+  //       token
+  //     );
+  //   }
+
+  //   request$.subscribe({
+  //     next: (res: any) => {
+  //       this.loadingUsers[id] = false;
+
+  //       const dealerData = Array.isArray(res?.data?.dealerData)
+  //         ? res.data.dealerData.find((d: any) => d.dealerId === id)
+  //         : res?.data?.dealerData;
+
+  //       if (!dealerData) {
+  //         this.userCallLogs[id] = [];
+  //         return;
+  //       }
+  //       this.userCallLogs[id] =
+  //         dealerData.users?.map((user: any) => {
+  //           const calls = this.getUserCalls(user); // ✅ Use the dynamic type here
+  //           const durationSec = Number(
+  //             calls?.durationSec ?? calls?.duration ?? 0
+  //           );
+
+  //           return {
+  //             userId: user.user_id,
+  //             name: user.user,
+  //             calls: {
+  //               total: Number(calls?.totalCalls ?? 0),
+  //               outgoing: Number(calls?.outgoing ?? 0),
+  //               incoming: Number(calls?.incoming ?? 0),
+  //               connected: Number(calls?.connected ?? 0),
+  //               declined: Number(calls?.declined ?? 0),
+  //               duration: this.formatDuration(durationSec),
+  //               durationSec,
+  //             },
+  //           };
+  //         }) || [];
+  //     },
+  //     error: (err) => {
+  //       this.loadingUsers[id] = false;
+  //       console.error(err);
+  //       this.userCallLogs[id] = [];
+  //     },
+  //   });
+  // }
+  toggleCallLogsRow(event: Event, dealer: any) {
+    event.stopPropagation();
+    const id = dealer.dealerId;
+
+    this.expandedRow = this.expandedRow === id ? null : id;
+    if (!this.expandedRow) return;
+
+    // Fetch user data when row expands
+    this.fetchDealerUsers(dealer);
+  }
+  fetchDealerUsers(dealer: any) {
+    const id = dealer.dealerId;
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    this.loadingUsers[id] = true;
+
+    let request$ =
+      this.selectedFilter === 'CUSTOM' &&
+      this.customStartDate &&
+      this.customEndDate
+        ? this.dashboardService.getDealersByCustomDate(
+            this.customStartDate,
+            this.customEndDate,
+            token,
+            id
+          )
+        : this.dashboardService.getDealerUsers(id, this.selectedFilter, token);
+
+    request$.subscribe({
+      next: (res: any) => {
+        this.loadingUsers[id] = false;
+
+        const dealerData = Array.isArray(res?.data?.dealerData)
+          ? res.data.dealerData.find((d: any) => d.dealerId === id)
+          : res?.data?.dealerData;
+
+        if (!dealerData) {
+          this.userCallLogs[id] = [];
+          return;
+        }
+
+        // Map users based on selected type
+        this.userCallLogs[id] =
+          dealerData.users?.map((user: any) => {
+            const calls = this.getUserCalls(user);
+            const durationSec = Number(
+              calls?.durationSec ?? calls?.duration ?? 0
+            );
+
+            return {
+              userId: user.user_id,
+              name: user.user,
+              calls: {
+                total: Number(calls?.totalCalls ?? 0),
+                outgoing: Number(calls?.outgoing ?? 0),
+                incoming: Number(calls?.incoming ?? 0),
+                connected: Number(calls?.connected ?? 0),
+                declined: Number(calls?.declined ?? 0),
+                duration: this.formatDuration(durationSec),
+                durationSec,
+              },
+            };
+          }) || [];
+      },
+      error: () => {
+        this.loadingUsers[id] = false;
+        this.userCallLogs[id] = [];
+      },
+    });
+  }
+  getDealerCalls(dealer: any) {
+    let calls: any = {};
+
+    if (this.dealerSummaryCallsDataType === 'enquiries') {
+      calls = dealer.enquiriesCalls || {};
+    } else if (this.dealerSummaryCallsDataType === 'coldcalls') {
+      calls = dealer.coldCalls || {};
+    } else {
+      calls = dealer.callLogs || {};
+    }
+
+    // normalize duration field (different APIs use `duration` vs `durationSec`)
+    const durationSec = calls.durationSec ?? calls.duration ?? 0;
+
+    return {
+      ...calls,
+      duration: this.formatDuration(Number(durationSec)),
+    };
+  }
+
+  // getDealerCalls(dealer: any) {
+  //   if (this.dealerSummaryCallsDataType === 'enquiries') {
+  //     return dealer.enquiriesCalls;
+  //   } else if (this.dealerSummaryCallsDataType === 'coldcalls') {
+  //     return dealer.coldCalls;
+  //   } else {
+  //     return dealer.callLogs;
+  //   }
+  // }
+  // getUserCalls(user: any) {
+  //   console.log(
+  //     '🔹 getUserCalls called for:',
+  //     user.user,
+  //     'Type:',
+  //     this.dealerSummaryCallsDataType
+  //   );
+
+  //   // Always fallback to `calls` if specific type doesn't exist
+  //   if (this.dealerSummaryCallsDataType === 'enquiries') {
+  //     return user.enquiriesCalls ?? user.calls ?? {};
+  //   } else if (this.dealerSummaryCallsDataType === 'coldcalls') {
+  //     return user.coldCalls ?? user.calls ?? {};
+  //   } else {
+  //     return user.calls ?? {};
+  //   }
+  // }
+  getUserCalls(user: any) {
+    if (this.dealerSummaryCallsDataType === 'enquiries') {
+      return user.enquiriesCalls ?? user.calls ?? {};
+    } else if (this.dealerSummaryCallsDataType === 'coldcalls') {
+      return user.coldCalls ?? user.calls ?? {};
+    } else {
+      return user.calls ?? {};
+    }
+  }
+  updateDealerChart() {
+    this.chartOptions = {
+      ...this.chartOptions, // keep old chart settings like tooltip, legend, etc.
+      series: [
+        {
+          name: 'Total Calls',
+          data: this.dealers.map(
+            (d) => this.getDealerCalls(d)?.totalCalls ?? 0
+          ),
+        },
+        {
+          name: 'Incoming',
+          data: this.dealers.map((d) => this.getDealerCalls(d)?.incoming ?? 0),
+        },
+        {
+          name: 'Outgoing',
+          data: this.dealers.map((d) => this.getDealerCalls(d)?.outgoing ?? 0),
+        },
+        {
+          name: 'Connected',
+          data: this.dealers.map((d) => this.getDealerCalls(d)?.connected ?? 0),
+        },
+        {
+          name: 'Declined',
+          data: this.dealers.map((d) => this.getDealerCalls(d)?.declined ?? 0),
+        },
+        {
+          name: 'Duration',
+          data: this.dealers.map(
+            (d) => this.getDealerCalls(d)?.durationSec ?? 0
+          ),
+        },
+      ],
+      xaxis: {
+        categories: this.dealers.map((d) => d.dealerName),
+      },
+    };
   }
 }

@@ -29,7 +29,10 @@
                                 </svg> -->
 
                                 <!-- Filter Dropdown -->
-                                <select [(ngModel)]="selectedFilter" (change)="onFilterChange(selectedFilter)">
+                                <!-- <select [(ngModel)]="selectedFilter" (change)="onFilterChange(selectedFilter)"> -->
+                                <select [(ngModel)]="selectedSummaryFilter"
+                                    (change)="onFilterChange(selectedSummaryFilter)">
+
                                     <!-- <option value="all">All</option> -->
                                     <option value="DAY">Today</option>
                                     <option value="YESTERDAY">Yesterday</option>
@@ -285,8 +288,9 @@
                                         <div class="chart-container">
                                             <div class="progress-wrapper">
                                                 <div class="progress"
-                                                    [attr.title]="'Actual: ' + kpi.value + ', Target: ' + kpi.target"
+                                                    [attr.title]="'Actual: ' + kpi.value + ', Target: ' + kpi.target + getStaticMsg(kpi.name)"
                                                     (click)="showTooltip($event, kpi)">
+
                                                     <div class="bar"
                                                         [style.width.%]="getProgressWidth(kpi.value, kpi.target)"
                                                         [ngStyle]="{ 'background-color': getProgressColor(kpi.value, kpi.target) }">
@@ -369,8 +373,10 @@
                                         </div> -->
                                         <div class="chart-container">
                                             <div class="progress-wrapper">
+                                                <!-- <div class="progress"
+                                                    [title]="('Actual: ' + kpi.value + ', Target: ' + kpi.target + getProductivityMsg(kpi.name))"> -->
                                                 <div class="progress"
-                                                    [attr.title]="'Actual: ' + kpi.value + ', Target: ' + kpi.target"
+                                                    [attr.title]="'Actual: ' + kpi.value + ', Target: ' + kpi.target + getProductivityMsg(kpi.name)"
                                                     (click)="showTooltip($event, kpi)">
                                                     <div class="bar"
                                                         [style.width.%]="getProgressWidth(kpi.value, kpi.target)"
@@ -436,6 +442,8 @@
                                         </div> -->
                                         <div class="chart-container">
                                             <div class="progress-wrapper">
+                                                <!-- <div class="progress"
+                                                    [title]="('Actual: ' + kpi.value + ', Target: ' + kpi.target + getProductivityMsg(kpi.name))"> -->
                                                 <div class="progress"
                                                     [attr.title]="'Actual: ' + kpi.value + ', Target: ' + kpi.target"
                                                     (click)="showTooltip($event, kpi)">
@@ -529,8 +537,10 @@
                                         </div> -->
                                         <div class="chart-container">
                                             <div class="progress-wrapper">
+                                                <!-- <div class="progress"
+                                                    [title]="('Actual: ' + kpi.value + ', Target: ' + kpi.target + getActivePsMsg(kpi.name))"> -->
                                                 <div class="progress"
-                                                    [attr.title]="'Actual: ' + kpi.value + ', Target: ' + kpi.target"
+                                                    [attr.title]="'Actual: ' + kpi.value + ', Target: ' + kpi.target + getActivePsMsg(kpi.name)"
                                                     (click)="showTooltip($event, kpi)">
                                                     <div class="bar"
                                                         [style.width.%]="getProgressWidth(kpi.value, kpi.target)"
@@ -561,12 +571,11 @@
                             <!-- <div class="total-bar">Total: 90</div> -->
                         </div>
 
-                        <!-- Tooltip container (only for iOS tap) -->
+
                         <div *ngIf="tooltipText" class="custom-tooltip" [style.top.px]="tooltipY"
                             [style.left.px]="tooltipX">
                             {{ tooltipText }}
                         </div>
-
 
 
                     </section>

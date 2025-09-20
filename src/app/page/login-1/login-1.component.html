@@ -150,13 +150,10 @@
           <i class="fas fa-lock"></i>
         </div>
         <div class="div relative">
-          <!-- Floating label -->
-          <h5 class="absolute left-4 top-2 text-gray-500 text-sm transition-all duration-200">
-            New Password
-          </h5>
-          <input [(ngModel)]="loginObj.newPwd" #inputElement [type]="showPassword ? 'text' : 'password'"
-            class="forms-control focus:outline-none focus:border-none border-transparent focus:ring-0 w-full py-2 px-4 bg-transparent text-gray-800 peer"
-            name="password" required />
+          <input [(ngModel)]="loginObj.newPwd" name="password" [type]="showPassword ? 'text' : 'password'"
+            class="forms-control peer focus:outline-none focus:border-none border-transparent focus:ring-0 w-full py-2 px-4 bg-transparent text-gray-800"
+            placeholder=" " required />
+          <label class="floating-label">New Password</label>
           <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
             class="icon11 absolute right-8 top-1/2 transform -translate-y-1/2 cursor-pointer"
             (click)="togglePassword('password')"></i>
@@ -168,13 +165,11 @@
           <i class="fas fa-lock"></i>
         </div>
         <div class="div relative">
-          <!-- Floating label -->
-          <h5 class="absolute left-4 top-2 text-gray-500 text-sm transition-all duration-200">
-            Confirm Password
-          </h5>
-          <input [(ngModel)]="loginObj.confirmPassword" #inputElement [type]="showConfirmPassword ? 'text' : 'password'"
-            class="forms-control focus:outline-none focus:border-none border-transparent focus:ring-0 w-full py-2 px-4 bg-transparent text-gray-800 peer"
-            name="confirm-password" required />
+          <input [(ngModel)]="loginObj.confirmPassword" name="confirm-password"
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            class="forms-control peer focus:outline-none focus:border-none border-transparent focus:ring-0 w-full py-2 px-4 bg-transparent text-gray-800"
+            placeholder=" " required />
+          <label class="floating-label">Confirm Password</label>
           <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
             class="icon11 absolute right-8 top-1/2 transform -translate-y-1/2 cursor-pointer"
             (click)="togglePassword('confirmPassword')"></i>
