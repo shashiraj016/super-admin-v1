@@ -1,23 +1,27 @@
 <div class="dashboard-container">
     <!-- Header with Stats -->
     <div class="dashboard-header">
-        <div class="dashboard-title">SMART ASSIST - USAGE PATTERNS (data till 15Sept25)</div>
+        <div class="dashboard-title">SMART ASSIST - USAGE PATTERNS</div>
         <div class="stats-row">
             <div class="stat-item">
-                <span class="stat-number">{{ topLeads | number }}</span>
-                <span class="stat-label"># Leads</span>
+                <span class="stat-number">{{DistinctUsers | number}}</span>
+                <span class="stat-label">Active Users</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ topsaLeads | number }} / {{topdigitalLeads | number}}</span>
+                <span class="stat-label">Sa Leads / Digital Lead</span>
             </div>
             <div class="stat-item">
                 <span class="stat-number">{{ topTasks | number }}</span>
-                <span class="stat-label"># Tasks</span>
+                <span class="stat-label">Tasks</span>
             </div>
             <div class="stat-item">
-                <span class="stat-number">{{ topTDs | number }}</span>
-                <span class="stat-label"># TDs</span>
+                <span class="stat-number">{{ topUTDs | number }}</span>
+                <span class="stat-label">UTDs</span>
             </div>
             <div class="stat-item">
-                <span class="stat-number">{{ topCall | number }}</span>
-                <span class="stat-label"># Calls</span>
+                <span class="stat-number">{{ topenquiryCalls | number }} / {{ topcoldCalls | number }}</span>
+                <span class="stat-label">Enquiry calls / Cold calls</span>
             </div>
         </div>
     </div>
@@ -25,11 +29,13 @@
     <!-- Filter Controls -->
     <div class="filter-section">
         <div class="filter-row">
-            <div class="distinct-users">{{DistinctUsers | number}}</div>
+
 
             <div class="filter-group">
                 <div class="flex flex-col md:flex-row md:items-center gap-3 Granularity_section">
                     <div class="flex flex-wrap items-center gap-2 wrapper-content">
+                        <label for="usageGran" class="text-sm text-slate-600">Dealer Filter</label>
+
                         <div class="dropdown flt1" [class.show]="dropdownOpen" style="margin-right: 5px;">
                             <button class="no-border time-dropdown dropdown-toggle" type="button"
                                 (click)="toggleDropdown()">
@@ -107,85 +113,223 @@
 
     <!-- Charts Section -->
     <div class="charts-container">
-        <div class="charts-grid">
-            <!-- Day Level -->
-            <div class="chart-card">
-                <div class="chart-title">Day Level</div>
-
-                <!-- Lead Graph -->
-                <apx-chart [series]="dayLeadChart.series!" [chart]="dayLeadChart.chart!" [xaxis]="dayLeadChart.xaxis!"
-                    [stroke]="dayLeadChart.stroke!" [markers]="dayLeadChart.markers!" [legend]="dayLeadChart.legend!"
-                    [tooltip]="dayLeadChart.tooltip!" [colors]="dayLeadChart.colors!" [grid]="dayLeadChart.grid!">
-                </apx-chart>
-
-                <!-- Event Graph -->
-                <apx-chart [series]="dayEventChart.series!" [chart]="dayEventChart.chart!"
-                    [xaxis]="dayEventChart.xaxis!" [stroke]="dayEventChart.stroke!" [markers]="dayEventChart.markers!"
-                    [legend]="dayEventChart.legend!" [tooltip]="dayEventChart.tooltip!" [colors]="dayEventChart.colors!"
-                    [grid]="dayEventChart.grid!">
-                </apx-chart>
-
-                <!-- Task Graph -->
-                <apx-chart [series]="dayTaskChart.series!" [chart]="dayTaskChart.chart!" [xaxis]="dayTaskChart.xaxis!"
-                    [stroke]="dayTaskChart.stroke!" [markers]="dayTaskChart.markers!" [legend]="dayTaskChart.legend!"
-                    [tooltip]="dayTaskChart.tooltip!" [colors]="dayTaskChart.colors!" [grid]="dayTaskChart.grid!">
-                </apx-chart>
-
-                <!-- Calls Graph -->
-                <apx-chart [series]="dayCallsChart.series!" [chart]="dayCallsChart.chart!"
-                    [xaxis]="dayCallsChart.xaxis!" [stroke]="dayCallsChart.stroke!" [markers]="dayCallsChart.markers!"
-                    [legend]="dayCallsChart.legend!" [tooltip]="dayCallsChart.tooltip!" [colors]="dayCallsChart.colors!"
-                    [grid]="dayCallsChart.grid!">
-                </apx-chart>
-
-                <!-- Last Login Graph -->
-                <apx-chart [series]="dayLastLoginChart.series!" [chart]="dayLastLoginChart.chart!"
-                    [xaxis]="dayLastLoginChart.xaxis!" [stroke]="dayLastLoginChart.stroke!"
-                    [markers]="dayLastLoginChart.markers!" [legend]="dayLastLoginChart.legend!"
-                    [tooltip]="dayLastLoginChart.tooltip!" [colors]="dayLastLoginChart.colors!"
-                    [grid]="dayLastLoginChart.grid!">
-                </apx-chart>
+        <div class="accordion-container">
+            <!-- Leads Accordion -->
+            <div class="accordion-item" [class.active]="accordionStates.leads">
+                <div class="accordion-header" (click)="toggleAccordion('leads')">
+                    <div class="accordion-title">
+                        <h3>Leads</h3>
+                    </div>
+                    <div class="accordion-toggle">
+                        <svg class="accordion-icon" [class.rotated]="accordionStates.leads" width="16" height="16"
+                            viewBox="0 0 16 16">
+                            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="accordion-content" [class.expanded]="accordionStates.leads">
+                    <div class="charts-pair">
+                        <div class="chart-section">
+                            <div class="chart-level-title">Day Level</div>
+                            <div class="chart-wrapper">
+                                <apx-chart [series]="dayLeadChart.series!" [chart]="dayLeadChart.chart!"
+                                    [xaxis]="dayLeadChart.xaxis!" [stroke]="dayLeadChart.stroke!"
+                                    [markers]="dayLeadChart.markers!" [legend]="dayLeadChart.legend!"
+                                    [tooltip]="dayLeadChart.tooltip!" [colors]="dayLeadChart.colors!"
+                                    [grid]="dayLeadChart.grid!">
+                                </apx-chart>
+                            </div>
+                        </div>
+                        <div class="chart-section">
+                            <div class="chart-level-title">Hour Level</div>
+                            <div class="chart-wrapper">
+                                <apx-chart [series]="hourLeadChart.series!" [chart]="hourLeadChart.chart!"
+                                    [xaxis]="hourLeadChart.xaxis!" [stroke]="hourLeadChart.stroke!"
+                                    [markers]="hourLeadChart.markers!" [legend]="hourLeadChart.legend!"
+                                    [tooltip]="hourLeadChart.tooltip!" [colors]="hourLeadChart.colors!"
+                                    [grid]="hourLeadChart.grid!">
+                                </apx-chart>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Hour Level -->
-            <div class="chart-card">
-                <div class="chart-title">Hour Level</div>
+            <!-- Events Accordion -->
+            <div class="accordion-item" [class.active]="accordionStates.events">
+                <div class="accordion-header" (click)="toggleAccordion('events')">
+                    <div class="accordion-title">
+                        <h3>Events</h3>
+                    </div>
+                    <div class="accordion-toggle">
+                        <svg class="accordion-icon" [class.rotated]="accordionStates.events" width="16" height="16"
+                            viewBox="0 0 16 16">
+                            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="accordion-content" [class.expanded]="accordionStates.events">
+                    <div class="charts-pair">
+                        <div class="chart-section">
+                            <div class="chart-level-title">Day Level</div>
+                            <div class="chart-wrapper">
+                                <apx-chart [series]="dayEventChart.series!" [chart]="dayEventChart.chart!"
+                                    [xaxis]="dayEventChart.xaxis!" [stroke]="dayEventChart.stroke!"
+                                    [markers]="dayEventChart.markers!" [legend]="dayEventChart.legend!"
+                                    [tooltip]="dayEventChart.tooltip!" [colors]="dayEventChart.colors!"
+                                    [grid]="dayEventChart.grid!">
+                                </apx-chart>
+                            </div>
+                        </div>
+                        <div class="chart-section">
+                            <div class="chart-level-title">Hour Level</div>
+                            <div class="chart-wrapper">
+                                <apx-chart [series]="hourEventChart.series!" [chart]="hourEventChart.chart!"
+                                    [xaxis]="hourEventChart.xaxis!" [stroke]="hourEventChart.stroke!"
+                                    [markers]="hourEventChart.markers!" [legend]="hourEventChart.legend!"
+                                    [tooltip]="hourEventChart.tooltip!" [colors]="hourEventChart.colors!"
+                                    [grid]="hourEventChart.grid!">
+                                </apx-chart>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                <!-- Lead Graph -->
-                <apx-chart [series]="hourLeadChart.series!" [chart]="hourLeadChart.chart!"
-                    [xaxis]="hourLeadChart.xaxis!" [stroke]="hourLeadChart.stroke!" [markers]="hourLeadChart.markers!"
-                    [legend]="hourLeadChart.legend!" [tooltip]="hourLeadChart.tooltip!" [colors]="hourLeadChart.colors!"
-                    [grid]="hourLeadChart.grid!">
-                </apx-chart>
+            <!-- Tasks Accordion -->
+            <div class="accordion-item" [class.active]="accordionStates.tasks">
+                <div class="accordion-header" (click)="toggleAccordion('tasks')">
+                    <div class="accordion-title">
+                        <h3>Tasks</h3>
+                    </div>
+                    <div class="accordion-toggle">
+                        <svg class="accordion-icon" [class.rotated]="accordionStates.tasks" width="16" height="16"
+                            viewBox="0 0 16 16">
+                            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="accordion-content" [class.expanded]="accordionStates.tasks">
+                    <div class="charts-pair">
+                        <div class="chart-section">
+                            <div class="chart-level-title">Day Level</div>
+                            <div class="chart-wrapper">
+                                <apx-chart [series]="dayTaskChart.series!" [chart]="dayTaskChart.chart!"
+                                    [xaxis]="dayTaskChart.xaxis!" [stroke]="dayTaskChart.stroke!"
+                                    [markers]="dayTaskChart.markers!" [legend]="dayTaskChart.legend!"
+                                    [tooltip]="dayTaskChart.tooltip!" [colors]="dayTaskChart.colors!"
+                                    [grid]="dayTaskChart.grid!">
+                                </apx-chart>
+                            </div>
+                        </div>
+                        <div class="chart-section">
+                            <div class="chart-level-title">Hour Level</div>
+                            <div class="chart-wrapper">
+                                <apx-chart [series]="hourTaskChart.series!" [chart]="hourTaskChart.chart!"
+                                    [xaxis]="hourTaskChart.xaxis!" [stroke]="hourTaskChart.stroke!"
+                                    [markers]="hourTaskChart.markers!" [legend]="hourTaskChart.legend!"
+                                    [tooltip]="hourTaskChart.tooltip!" [colors]="hourTaskChart.colors!"
+                                    [grid]="hourTaskChart.grid!">
+                                </apx-chart>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                <!-- Event Graph -->
-                <apx-chart [series]="hourEventChart.series!" [chart]="hourEventChart.chart!"
-                    [xaxis]="hourEventChart.xaxis!" [stroke]="hourEventChart.stroke!"
-                    [markers]="hourEventChart.markers!" [legend]="hourEventChart.legend!"
-                    [tooltip]="hourEventChart.tooltip!" [colors]="hourEventChart.colors!" [grid]="hourEventChart.grid!">
-                </apx-chart>
+            <!-- Calls Accordion -->
+            <div class="accordion-item" [class.active]="accordionStates.calls">
+                <div class="accordion-header" (click)="toggleAccordion('calls')">
+                    <div class="accordion-title">
+                        <h3>{{ getCurrentCallTypeLabel() }}</h3>
+                        <div class="call-type-dropdown" (click)="$event.stopPropagation()">
+                            <select [(ngModel)]="selectedCallType" (change)="onCallTypeChange()"
+                                class="call-type-select">
+                                <option *ngFor="let callType of callTypes" [value]="callType.value">
+                                    {{ callType.label }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="accordion-toggle">
+                        <svg class="accordion-icon" [class.rotated]="accordionStates.calls" width="16" height="16"
+                            viewBox="0 0 16 16">
+                            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="accordion-content" [class.expanded]="accordionStates.calls">
+                    <div class="charts-pair">
+                        <div class="chart-section">
+                            <div class="chart-level-title">Day Level</div>
+                            <div class="chart-wrapper">
+                                <apx-chart [series]="dayCallsChart.series!" [chart]="dayCallsChart.chart!"
+                                    [xaxis]="dayCallsChart.xaxis!" [stroke]="dayCallsChart.stroke!"
+                                    [markers]="dayCallsChart.markers!" [legend]="dayCallsChart.legend!"
+                                    [tooltip]="dayCallsChart.tooltip!" [colors]="dayCallsChart.colors!"
+                                    [grid]="dayCallsChart.grid!">
+                                </apx-chart>
+                            </div>
+                        </div>
+                        <div class="chart-section">
+                            <div class="chart-level-title">Hour Level</div>
+                            <div class="chart-wrapper">
+                                <apx-chart [series]="hourCallsChart.series!" [chart]="hourCallsChart.chart!"
+                                    [xaxis]="hourCallsChart.xaxis!" [stroke]="hourCallsChart.stroke!"
+                                    [markers]="hourCallsChart.markers!" [legend]="hourCallsChart.legend!"
+                                    [tooltip]="hourCallsChart.tooltip!" [colors]="hourCallsChart.colors!"
+                                    [grid]="hourCallsChart.grid!">
+                                </apx-chart>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                <!-- Task Graph -->
-                <apx-chart [series]="hourTaskChart.series!" [chart]="hourTaskChart.chart!"
-                    [xaxis]="hourTaskChart.xaxis!" [stroke]="hourTaskChart.stroke!" [markers]="hourTaskChart.markers!"
-                    [legend]="hourTaskChart.legend!" [tooltip]="hourTaskChart.tooltip!" [colors]="hourTaskChart.colors!"
-                    [grid]="hourTaskChart.grid!">
-                </apx-chart>
-
-                <!-- Calls Graph -->
-                <apx-chart [series]="hourCallsChart.series!" [chart]="hourCallsChart.chart!"
-                    [xaxis]="hourCallsChart.xaxis!" [stroke]="hourCallsChart.stroke!"
-                    [markers]="hourCallsChart.markers!" [legend]="hourCallsChart.legend!"
-                    [tooltip]="hourCallsChart.tooltip!" [colors]="hourCallsChart.colors!" [grid]="hourCallsChart.grid!">
-                </apx-chart>
-
-                <!-- Last Login Graph -->
-                <apx-chart [series]="hourLastLoginChart.series!" [chart]="hourLastLoginChart.chart!"
-                    [xaxis]="hourLastLoginChart.xaxis!" [stroke]="hourLastLoginChart.stroke!"
-                    [markers]="hourLastLoginChart.markers!" [legend]="hourLastLoginChart.legend!"
-                    [tooltip]="hourLastLoginChart.tooltip!" [colors]="hourLastLoginChart.colors!"
-                    [grid]="hourLastLoginChart.grid!">
-                </apx-chart>
+            <!-- Last Login Accordion -->
+            <div class="accordion-item" [class.active]="accordionStates.lastLogin">
+                <div class="accordion-header" (click)="toggleAccordion('lastLogin')">
+                    <div class="accordion-title">
+                        <h3>Last Login</h3>
+                    </div>
+                    <div class="accordion-toggle">
+                        <svg class="accordion-icon" [class.rotated]="accordionStates.lastLogin" width="16" height="16"
+                            viewBox="0 0 16 16">
+                            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="accordion-content" [class.expanded]="accordionStates.lastLogin">
+                    <div class="charts-pair">
+                        <div class="chart-section">
+                            <div class="chart-level-title">Day Level</div>
+                            <div class="chart-wrapper">
+                                <apx-chart [series]="dayLastLoginChart.series!" [chart]="dayLastLoginChart.chart!"
+                                    [xaxis]="dayLastLoginChart.xaxis!" [stroke]="dayLastLoginChart.stroke!"
+                                    [markers]="dayLastLoginChart.markers!" [legend]="dayLastLoginChart.legend!"
+                                    [tooltip]="dayLastLoginChart.tooltip!" [colors]="dayLastLoginChart.colors!"
+                                    [grid]="dayLastLoginChart.grid!">
+                                </apx-chart>
+                            </div>
+                        </div>
+                        <div class="chart-section">
+                            <div class="chart-level-title">Hour Level</div>
+                            <div class="chart-wrapper">
+                                <apx-chart [series]="hourLastLoginChart.series!" [chart]="hourLastLoginChart.chart!"
+                                    [xaxis]="hourLastLoginChart.xaxis!" [stroke]="hourLastLoginChart.stroke!"
+                                    [markers]="hourLastLoginChart.markers!" [legend]="hourLastLoginChart.legend!"
+                                    [tooltip]="hourLastLoginChart.tooltip!" [colors]="hourLastLoginChart.colors!"
+                                    [grid]="hourLastLoginChart.grid!">
+                                </apx-chart>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -195,44 +339,77 @@
             <div class="ps-section-header">
                 <div class="chart-title">{{ sectionTitle }}</div>
                 <!-- Role Filter Dropdown -->
-                <select [(ngModel)]="roleFilter" (change)="processPsWiseActivity(psWiseData)">
+                <select [(ngModel)]="roleFilter" (change)="processPsWiseActivity(psWiseData)"
+                    class="role-filter-select">
                     <option value="PS">PS</option>
                     <option value="SM">SM</option>
                     <option value="Both">Both</option>
                 </select>
             </div>
 
-            <!-- Dealer Sections -->
-            <div class="dealer-section" *ngFor="let dealerGroup of psWiseCharts">
-                <div class="dealer-row">
-                    <!-- Dealer Name Column -->
-                    <div class="dealer-info-column">
-                        <div class="dealer-name">{{ dealerGroup.dealerName }}</div>
-                        <div class="employee-list">
-                            <div class="employee-item" *ngFor="let user of dealerGroup.users">
-                                <span class="employee-name">{{ user.name }}</span>
-                                <span class="employee-role">({{ user.role }})</span>
-                            </div>
+            <!-- Dealer Accordion Container -->
+            <div class="ps-accordion-container">
+                <div class="ps-accordion-item" *ngFor="let dealerGroup of psWiseCharts; let i = index"
+                    [class.active]="psAccordionStates[i]">
+
+                    <!-- Accordion Header -->
+                    <div class="ps-accordion-header" (click)="togglePsAccordion(i)">
+                        <div class="ps-accordion-title">
+                            <h3>{{ dealerGroup.dealerName }}</h3>
+                            <div class="user-count-badge-header info">{{ dealerGroup.users.length }} Users</div>
+                        </div>
+                        <div class="ps-accordion-toggle">
+                            <svg class="ps-accordion-icon" [class.rotated]="psAccordionStates[i]" width="16" height="16"
+                                viewBox="0 0 16 16">
+                                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"
+                                    stroke-linecap="round" />
+                            </svg>
                         </div>
                     </div>
 
-                    <!-- Charts Column -->
-                    <div class="charts-row">
-                        <div class="metric-chart" *ngFor="let chart of dealerGroup.charts">
-                            <div class="chart-header">
-                                <span class="chart-title">{{ chart.title }}</span>
-                                <div class="chart-averages">
-                                    <span class="all-india-avg">All India Avg: {{ chart.allIndiaAvg }}</span>
-                                    <span class="dealer-avg">Avg: {{ chart.dealerAvg }}</span>
+                    <!-- Accordion Content -->
+                    <div class="ps-accordion-content" [class.expanded]="psAccordionStates[i]">
+                        <div class="dealer-row">
+                            <!-- Dealer Name Column - Keep original structure -->
+                            <div class="dealer-info-column">
+
+                                <div class="dealer-name">{{ dealerGroup.dealerName }}</div>
+                                <div class="employee-list">
+                                    <div class="employee-item" *ngFor="let user of dealerGroup.users">
+                                        <span class="employee-name">{{ user.name }}</span>
+                                        <span class="employee-role">({{ user.role }})</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="chart-container">
-                                <apx-chart [series]="chart.series" [chart]="chart.chart"
-                                    [plotOptions]="chart.plotOptions" [xaxis]="chart.xaxis" [yaxis]="chart.yaxis"
-                                    [colors]="chart.colors" [dataLabels]="chart.dataLabels" [tooltip]="chart.tooltip"
-                                    [legend]="chart.legend">
-                                </apx-chart>
+                            <!-- Charts Column -->
+                            <div class="charts-row">
+                                <div class="metric-chart" *ngFor="let chart of dealerGroup.charts">
+                                    <div class="chart-header">
+                                        <!-- Chart Title -->
+                                        <span class="chart-title">{{ chart.title }}</span>
+                                        <!-- Only show dropdown for Calls chart -->
+                                        <ng-container *ngIf="chart.title.toLowerCase().includes('calls')">
+                                            <select [(ngModel)]="psWiseSelectedCallType"
+                                                (change)="psWiseOnCallTypeChange()" class="ps-calls-select">
+                                                <option *ngFor="let type of psWiseCallTypes" [value]="type.value">
+                                                    {{ type.label }}
+                                                </option>
+                                            </select>
+                                        </ng-container>
+                                        <div class="chart-averages">
+                                            <span class="dealer-avg">Avg: {{ chart.dealerAvg }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="chart-container">
+                                        <apx-chart [series]="chart.series" [chart]="chart.chart"
+                                            [plotOptions]="chart.plotOptions" [xaxis]="chart.xaxis"
+                                            [yaxis]="chart.yaxis" [colors]="chart.colors"
+                                            [dataLabels]="chart.dataLabels" [tooltip]="chart.tooltip"
+                                            [legend]="chart.legend">
+                                        </apx-chart>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
