@@ -571,8 +571,63 @@ body {
   padding: 20px;
 }
 
+.chart-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chart-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.chart-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Custom select wrapper */
+.custom-select-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.ps-calls-select {
+  appearance: none; /* remove default arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding: 2px 24px 2px 6px; /* space for arrow */
+  font-size: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+}
+
+
+
+/* Custom arrow */
+.select-arrow {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none; /* arrow doesn’t block clicks */
+  font-size: 10px;
+  color: #555;
+}
+
+.chart-averages {
+  font-size: 12px;
+  color: #666;
+}
+
+
 .dashboard-container {
-  max-width: 1400px;
+  /* max-width: 1400px; */
   margin: 0 auto;
   background: white;
   border-radius: 16px;
@@ -652,11 +707,6 @@ body {
   padding: 4px 8px;
   font-size: 14px;
   background: white;
-}
-
-/* Charts Section */
-.charts-container {
-  padding: 24px;
 }
 
 .charts-grid {
@@ -997,7 +1047,7 @@ body {
 
 /* Main Charts Container */
 .charts-container {
-  padding: 24px;
+  padding: 9px;
   background: white;
 }
 
@@ -1571,13 +1621,13 @@ body {
   overflow: hidden;
   transition: all 0.3s ease;
   max-height: 0;
-  opacity: 0;
+  /* opacity: 0; */
 }
 
 .accordion-content.expanded {
   max-height: 800px;
   opacity: 1;
-  padding: 20px;
+  /* padding: 20px; */
 }
 
 /* Charts Pair Layout */
@@ -1687,7 +1737,7 @@ body {
   font-weight: bold;
   border: 1px solid #ddd;
   border-radius: 4px;
-  margin-bottom: 5px;
+  /* margin-bottom: 5px; */
 }
 
 .accordion-header .user-count-badge {
@@ -1705,10 +1755,10 @@ body {
 }
 
 .accordion-content {
-  padding: 10px;
+  /* padding: 10px; */
   border: 1px solid #ddd;
   border-radius: 4px;
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
 }
 
 
@@ -1886,7 +1936,7 @@ body {
 .ps-accordion-content.expanded {
   max-height: 1200px;
   opacity: 1;
-  padding: 20px;
+  /* padding: 20px; */
 }
 
 /* Dealer Row Content - Keep Original Structure */

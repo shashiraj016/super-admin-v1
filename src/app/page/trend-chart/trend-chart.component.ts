@@ -354,13 +354,10 @@ export class TrendChartComponent {
       });
   }
 
+  private chartUpdateTimeout: any;
+
   updateAllChartsFromApi(res: any) {
     if (!res) return;
-
-    if (res.psWiseActivity) {
-      this.psWiseData = res.psWiseActivity;
-      this.processPsWiseActivity(res.psWiseActivity);
-    }
 
     // ---- Normalize input data ----
     const normalizeData = (input: any, key: string) => {
@@ -396,81 +393,75 @@ export class TrendChartComponent {
       return [];
     };
 
-    // ---- Transform data into chart series & categories ----
+    // ---- Transform data into chart-ready format ----
     const transform = (data: any[], isHourChart = false) => {
-      if (!data || data.length === 0) return { series: [], categories: [] };
-
+      if (!data || !data.length) return { series: [], categories: [] };
       const xKey = isHourChart ? 'hour' : 'label';
 
-      // Unique categories
-      const uniqueCategories = Array.from(new Set(data.map((item) => item[xKey])));
-
-      // Sort categories
-      const sortedCategories = uniqueCategories.sort((a, b) => {
+      // 1️⃣ unique categories
+      const categories = Array.from(new Set(data.map((item) => item[xKey]))).sort((a, b) => {
         if (isHourChart) {
           const [ah, am] = a.split(':').map(Number);
           const [bh, bm] = b.split(':').map(Number);
           return ah * 60 + am - (bh * 60 + bm);
         } else {
-          const parseDate = (dateStr: string) => {
-            const parts = dateStr.split(',').map((s) => s.trim());
-            const [, dayMonth] = parts.length > 1 ? parts : ['', parts[0]];
-            const [day, month] = dayMonth.split(' ');
-            const monthMap: { [key: string]: number } = {
-              Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
-              Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11,
-            };
-            return new Date(2024, monthMap[month] || 0, parseInt(day, 10));
-          };
-          return parseDate(a as string).getTime() - parseDate(b as string).getTime();
+          return new Date(a).getTime() - new Date(b).getTime();
         }
       });
 
-      // Group by dealer
-      const dealerGroups: { [key: string]: any[] } = {};
+      // 2️⃣ dealer → category → count map
+      const dealerMap = new Map<string, Map<string, number>>();
       data.forEach((item) => {
         const dealer = item.dealer_name || 'All Dealers';
-        if (!dealerGroups[dealer]) dealerGroups[dealer] = [];
-        dealerGroups[dealer].push(item);
+        if (!dealerMap.has(dealer)) dealerMap.set(dealer, new Map());
+        dealerMap.get(dealer)!.set(item[xKey], Number(item.count) || 0);
       });
 
-      // Build series
-      const series = Object.keys(dealerGroups).map((dealer) => {
-        const map = new Map(dealerGroups[dealer].map((d: any) => [d[xKey], Number(d.count) || 0]));
-        return {
-          name: dealer,
-          data: sortedCategories.map((cat) => map.get(cat) || 0),
-        };
-      });
-
-      // Format categories for x-axis
-      const categories = isHourChart
-        ? sortedCategories.map((h) => {
-          const [hh, mm] = h.split(':').map(Number);
-          return `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
-        })
-        : sortedCategories;
+      // 3️⃣ build series
+      const series = Array.from(dealerMap.entries()).map(([dealer, catMap]) => ({
+        name: dealer,
+        data: categories.map((cat) => catMap.get(cat) || 0),
+      }));
 
       return { series, categories };
     };
 
-    // ---- Helper to update chart ----
-    const updateChart = (chartObj: any, chartData: any, isHourChart = false) => {
-      const tickAmount = isHourChart
-        ? Math.ceil(chartData.categories.length / 6) // dynamic tick interval for readability
-        : undefined;
+    // ---- Efficient chart update ----
+    const updateChart = (chartRef: any, chartData: any, isHourChart = false) => {
+      if (!chartRef) return;
 
-      return {
-        ...chartObj,
-        series: chartData.series,
-        chart: { type: 'line', height: 350 },
-        stroke: { width: 2 },
-        xaxis: {
-          categories: chartData.categories,
-          tickAmount: tickAmount,
-          labels: isHourChart ? { rotate: -45 } : {},
-        },
-      };
+      const tickAmount = isHourChart ? Math.ceil(chartData.categories.length / 6) : undefined;
+
+      if (chartRef.updateOptions && chartRef.updateSeries) {
+        // ✅ If chart object is already an ApexCharts instance
+        chartRef.updateSeries(chartData.series, true);
+        chartRef.updateOptions(
+          {
+            xaxis: {
+              categories: chartData.categories,
+              tickAmount,
+              labels: isHourChart ? { rotate: -45 } : {},
+            },
+            stroke: { width: 2 },
+          },
+          true
+        );
+      } else {
+        // fallback: overwrite config (first load case)
+        chartRef = {
+          ...chartRef,
+          series: chartData.series,
+          chart: { type: 'line', height: 350 },
+          stroke: { width: 2 },
+          xaxis: {
+            categories: chartData.categories,
+            tickAmount,
+            labels: isHourChart ? { rotate: -45 } : {},
+          },
+        };
+      }
+
+      return chartRef;
     };
 
     // ---- Chart configurations ----
@@ -478,36 +469,36 @@ export class TrendChartComponent {
       { key: 'leads', resKey: 'left', target: 'dayLeadChart' },
       { key: 'utd', resKey: 'left', target: 'dayEventChart' },
       { key: 'followups', resKey: 'left', target: 'dayTaskChart' },
-      { key: this.selectedCallType, resKey: 'left', target: 'dayCallsChart' }, // Use selected call type
+      { key: this.selectedCallType, resKey: 'left', target: 'dayCallsChart' },
       { key: 'lastLogin', resKey: 'left', target: 'dayLastLoginChart' },
 
       { key: 'leads', resKey: 'right', target: 'hourLeadChart' },
       { key: 'utd', resKey: 'right', target: 'hourEventChart' },
       { key: 'followups', resKey: 'right', target: 'hourTaskChart' },
-      { key: this.selectedCallType, resKey: 'right', target: 'hourCallsChart' }, // Use selected call type
+      { key: this.selectedCallType, resKey: 'right', target: 'hourCallsChart' },
       { key: 'lastLogin', resKey: 'right', target: 'hourLastLoginChart' },
     ];
 
-    // ---- Loop through charts and update ----
-    chartConfigs.forEach(({ key, resKey, target }) => {
-      const isHourChart = resKey === 'right';
-      const chartData = transform(normalizeData(res[resKey], key), isHourChart);
-      (this as any)[target] = updateChart((this as any)[target], chartData, isHourChart);
-    });
+    // ---- Debounce heavy updates ----
+    clearTimeout(this.chartUpdateTimeout);
+    this.chartUpdateTimeout = setTimeout(() => {
+      chartConfigs.forEach(({ key, resKey, target }) => {
+        const isHourChart = resKey === 'right';
+        const chartData = transform(normalizeData(res[resKey], key), isHourChart);
+        (this as any)[target] = updateChart((this as any)[target], chartData, isHourChart);
+      });
+    }, 100); // small debounce to batch updates
   }
 
+  private filterUpdateTimeout: any;
 
   fetchTrendChartWithFilters() {
     const token = localStorage.getItem('token');
-    console.log('Token:', localStorage.getItem('token'), "second method");
-
     if (!token) return;
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-
     let dealerIds = '';
 
-    // Only include dealer_ids if the user interacted
     if (this.userTouchedDealers && this.selectedDealers.length > 0) {
       dealerIds = this.selectedDealers.join(',');
     }
@@ -520,85 +511,39 @@ export class TrendChartComponent {
       params = params.set('dealer_ids', dealerIds);
     }
 
-    this.http
-      .get<any>(`${this.BASE_URL}${this.TREND_CHART_URL}`, { headers, params })
-      .subscribe({
-        next: (res) => {
-          if (res.topCards) {
-            this.topLeads = res.topCards.leads || 0;
-            this.topsaLeads = res.topCards.saLeads || 0;
-            this.topdigitalLeads = res.topCards.digitalLeads || 0;
-            this.topTasks = res.topCards.followups || 0;
-            this.topUTDs = res.topCards.testDrives || 0;
-            this.topCall = res.topCards.calls || 0;
-            this.topenquiryCalls = res.topCards.enquiryCalls || 0;
-            this.topcoldCalls = res.topCards.coldCalls || 0;
-            this.DistinctUsers = res.topCards.distinctUsers || 0;
-          }
-          this.updateAllChartsFromApi(res);
-        },
-        error: (err) => console.error(err),
-      });
+    clearTimeout(this.filterUpdateTimeout);
+    this.filterUpdateTimeout = setTimeout(() => {
+      this.http.get<any>(`${this.BASE_URL}${this.TREND_CHART_URL}`, { headers, params })
+        .subscribe({
+          next: (res) => {
+            // Update top cards immediately
+            if (res.topCards) {
+              this.topLeads = res.topCards.leads || 0;
+              this.topsaLeads = res.topCards.saLeads || 0;
+              this.topdigitalLeads = res.topCards.digitalLeads || 0;
+              this.topTasks = res.topCards.followups || 0;
+              this.topUTDs = res.topCards.testDrives || 0;
+              this.topCall = res.topCards.calls || 0;
+              this.topenquiryCalls = res.topCards.enquiryCalls || 0;
+              this.topcoldCalls = res.topCards.coldCalls || 0;
+              this.DistinctUsers = res.topCards.distinctUsers || 0;
+            }
+
+            // Update charts
+            this.updateAllChartsFromApi(res);
+
+            // Store PS data but don't process it yet
+            if (res.psWiseActivity) {
+              this.psWiseData = res.psWiseActivity;
+              // Process PS data separately with delay
+              this.scheduleProcessPsActivity();
+            }
+          },
+          error: (err) => console.error(err),
+        });
+    }, 200);
   }
 
-  transformDataForChart = (data: any[]) => {
-    if (!data || data.length === 0) return { series: [], categories: [] };
-
-    // Keep a map of label → date for sorting
-    const labelDateMap = data.reduce((map, item) => {
-      const label = item.label;
-      const dateStr = label.split(',')[1]?.trim(); // "15 Sep"
-      const [day, month] = dateStr.split(' ');
-      const monthMap: { [key: string]: number } = {
-        Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
-        Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
-      };
-      const dateObj = new Date(2024, monthMap[month] || 0, parseInt(day, 10));
-      map[label] = dateObj;
-      return map;
-    }, {} as Record<string, Date>);
-
-    // Sort labels based on date
-    const sortedLabels = Object.keys(labelDateMap).sort(
-      (a, b) => labelDateMap[a].getTime() - labelDateMap[b].getTime()
-    );
-
-    // Group data by dealer
-    const dealerGroups: { [key: string]: any[] } = {};
-    data.forEach(item => {
-      const key = item.dealer_name || 'Unknown';
-      if (!dealerGroups[key]) dealerGroups[key] = [];
-      dealerGroups[key].push(item);
-    });
-
-    // Build series aligned to sorted labels
-    const series = Object.keys(dealerGroups).map(key => {
-      const map = new Map(dealerGroups[key].map(d => [d.label, Number(d.count) || 0]));
-      return { name: key, data: sortedLabels.map(label => map.get(label) || 0) };
-    });
-
-    return { series, categories: sortedLabels }; // ✅ categories are label strings
-  };
-
-  groupDataByDealer(data: any[]) {
-    return data.reduce((groups: any, item: any) => {
-      const dealerName = item.dealer_name || 'Unknown Dealer';
-      if (!groups[dealerName]) {
-        groups[dealerName] = [];
-      }
-      groups[dealerName].push(item);
-      return groups;
-    }, {});
-  }
-
-  formatDate(dateString: string): string {
-    // Format date for x-axis labels
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: '2-digit',
-    });
-  }
 
   getExportFileName(): string {
     // Metric label mapping for readability
@@ -665,99 +610,286 @@ export class TrendChartComponent {
 
 
   // Add this method to process PS-wise activity data
- processPsWiseActivity(psWiseActivity: any) {
-  if (!psWiseActivity) return;
+  processPsWiseActivity(psWiseActivity: any) {
+    console.log('==== Start processPsWiseActivity ====');
+    if (!psWiseActivity) return;
 
-  const metrics = ['saLeads', 'uniquetestDrives', 'followups', 'lastLogin', 'target'] as const;
-  const metricLabels: { [key: string]: string } = {
-    saLeads: 'saLeads',
-    uniquetestDrives: 'events',
-    followups: 'tasks',
-    calls: 'calls',
-    coldCalls: 'cold calls',
-    enquiryCalls: 'enquiry calls',
-    lastLogin: 'last login',
-    target: 'target'
-  };
+    const staticMetrics = ['saLeads', 'uniquetestDrives', 'followups', 'lastLogin', 'target'];
+    const dynamicCallMetrics = ['calls', 'coldCalls', 'enquiryCalls'];
 
-  this.psWiseCharts = [];
+    const metricLabels: Record<string, string> = {
+      saLeads: 'saLeads',
+      uniquetestDrives: 'events',
+      followups: 'tasks',
+      calls: 'calls',
+      coldCalls: 'cold calls',
+      enquiryCalls: 'enquiry calls',
+      lastLogin: 'last login',
+      target: 'target'
+    };
 
-  const calculateAllIndiaAvg = (metric: string) => {
-    let totalSum = 0;
-    let totalCount = 0;
-    Object.values(psWiseActivity).forEach((users: any) => {
-      if (Array.isArray(users)) {
-        users.forEach((user: any) => {
-          if (this.roleFilter === 'Both' || user.role === this.roleFilter) {
-            totalSum += user[metric] || 0;
-            totalCount++;
+    this.psWiseCharts = [];
+
+    // --- Precompute All-India averages ---
+    const allMetrics = [...staticMetrics, ...dynamicCallMetrics];
+    const allIndiaAvgMap: Record<string, number> = {};
+
+    allMetrics.forEach(metric => {
+      let sum = 0, count = 0;
+      Object.values(psWiseActivity).forEach((users: any) => {
+        if (!Array.isArray(users)) return;
+        users.forEach(u => {
+          if (this.roleFilter === 'Both' || u.role === this.roleFilter) {
+            sum += u[metric] || 0;
+            count++;
           }
         });
-      }
+      });
+      allIndiaAvgMap[metric] = count > 0 ? Math.round(sum / count) : 0;
+      console.log(`All India Avg for ${metric}:`, allIndiaAvgMap[metric]);
     });
-    return totalCount > 0 ? Math.round(totalSum / totalCount) : 0;
-  };
 
-  Object.entries(psWiseActivity).forEach(([dealerName, users]: [string, any]) => {
-    if (!Array.isArray(users)) return;
+    // --- Process per dealer asynchronously to avoid blocking ---
+    Promise.resolve().then(() => {
+      Object.entries(psWiseActivity).forEach(([dealerName, users]: [string, any]) => {
+        if (!Array.isArray(users)) return;
+
+        const filteredUsers = users.filter(u =>
+          this.roleFilter === 'Both' ? true : u.role === this.roleFilter
+        );
+
+        const charts: any[] = [];
+
+        // Process static metrics
+        staticMetrics.forEach(metric => {
+          const metricData = filteredUsers.map(u => ({
+            x: u.name,
+            y: u[metric] && u[metric] > 0 ? u[metric] : 0.0001, // tiny placeholder for zero
+            displayVal: u[metric] || 0,
+            dealer: dealerName
+          }));
+
+          if (metricData.length > 0) {
+            const dealerAvg = Math.round(metricData.reduce((sum, d) => sum + d.displayVal, 0) / metricData.length);
+
+            charts.push({
+              title: metricLabels[metric],
+              allIndiaAvg: allIndiaAvgMap[metric],
+              dealerAvg,
+              series: [{ name: metricLabels[metric], data: metricData.map(d => d.y) }],
+              chart: { type: 'bar', height: 350, toolbar: { show: false } },
+              plotOptions: { bar: { horizontal: true, distributed: true, barHeight: '70%' } },
+              colors: this.generateColors(metricData.length),
+              xaxis: { categories: metricData.map(d => d.x), labels: { style: { fontSize: '10px' } } },
+              yaxis: { labels: { style: { fontSize: '10px' } } },
+              dataLabels: {
+                enabled: true,
+                formatter: (_val: number, opts: any) => metricData[opts.dataPointIndex].displayVal,
+                style: { fontSize: '10px', fontWeight: 'bold' }
+              },
+              tooltip: {
+                custom: ({ dataPointIndex }: any) => {
+                  const user = metricData[dataPointIndex];
+                  return `<div style="padding:8px;">
+                          <strong>${user.x}</strong><br>
+                          <span>${user.dealer}</span><br>
+                          <span>${metricLabels[metric]}: ${user.displayVal}</span>
+                        </div>`;
+                }
+              },
+              legend: { show: false },
+              key: metricLabels[metric].toLowerCase().replace(/\s/g, '')
+            });
+          }
+        });
+
+        // Process selected call metric dynamically
+        const callMetric = this.psWiseSelectedCallType || 'calls';
+        if (dynamicCallMetrics.includes(callMetric)) {
+          const callData = filteredUsers.map(u => ({
+            x: u.name,
+            y: u[callMetric] && u[callMetric] > 0 ? u[callMetric] : 0.0001,
+            displayVal: u[callMetric] || 0,
+            dealer: dealerName
+          }));
+
+          if (callData.length > 0) {
+            const dealerAvg = Math.round(callData.reduce((sum, d) => sum + d.displayVal, 0) / callData.length);
+
+            charts.push({
+              title: metricLabels[callMetric],
+              allIndiaAvg: allIndiaAvgMap[callMetric],
+              dealerAvg,
+              series: [{ name: metricLabels[callMetric], data: callData.map(d => d.y) }],
+              chart: { type: 'bar', height: 350, toolbar: { show: false } },
+              plotOptions: { bar: { horizontal: true, distributed: true, barHeight: '70%', dataLabels: { position: 'right' } } },
+              colors: this.generateColors(callData.length),
+              xaxis: { categories: callData.map(d => d.x), labels: { style: { fontSize: '10px' } } },
+              yaxis: { labels: { style: { fontSize: '10px' } } },
+              dataLabels: { enabled: true, formatter: (_val: number, opts: any) => callData[opts.dataPointIndex].displayVal, style: { fontSize: '10px', fontWeight: 'bold' } },
+              tooltip: {
+                custom: ({ dataPointIndex }: any) => {
+                  const user = callData[dataPointIndex];
+                  return `<div style="padding:8px;">
+                          <strong>${user.x}</strong><br>
+                          <span>${user.dealer}</span><br>
+                          <span>${metricLabels[callMetric]}: ${user.displayVal}</span>
+                        </div>`;
+                }
+              },
+              legend: { show: false },
+              key: 'countOfCalls'
+            });
+          }
+        }
+
+        if (charts.length > 0) {
+          this.psWiseCharts.push({ dealerName, users: filteredUsers, charts });
+        }
+      });
+
+      console.log('Final psWiseCharts array:', this.psWiseCharts);
+
+      // Initialize accordion states after processing
+      this.initializePsAccordionStates();
+
+      console.log('==== End processPsWiseActivity ====');
+    });
+  }
+
+  private psProcessingTimeout: any;
+
+  scheduleProcessPsActivity() {
+    clearTimeout(this.psProcessingTimeout);
+    // Process PS data after main UI updates are complete
+    this.psProcessingTimeout = setTimeout(() => {
+      this.processPsWiseActivityChunked();
+    }, 500);
+  }
+
+  processPsWiseActivityChunked() {
+    console.log('==== Start processPsWiseActivity (Chunked) ====');
+    if (!this.psWiseData) return;
+
+    const staticMetrics = ['saLeads', 'uniquetestDrives', 'followups', 'lastLogin', 'target'];
+    const dynamicCallMetrics = ['calls', 'coldCalls', 'enquiryCalls'];
+
+    const metricLabels: Record<string, string> = {
+      saLeads: 'saLeads',
+      uniquetestDrives: 'events',
+      followups: 'tasks',
+      calls: 'calls',
+      coldCalls: 'cold calls',
+      enquiryCalls: 'enquiry calls',
+      lastLogin: 'last login',
+      target: 'target'
+    };
+
+    // Clear existing data
+    this.psWiseCharts = [];
+
+    // Precompute averages (this is fast)
+    const allIndiaAvgMap = this.computeAllIndiaAverages(staticMetrics, dynamicCallMetrics);
+
+    // Get all dealers to process
+    const dealers = Object.entries(this.psWiseData);
+
+    // Process dealers in chunks
+    this.processNextDealerChunk(dealers, 0, staticMetrics, metricLabels, allIndiaAvgMap);
+  }
+
+  processNextDealerChunk(dealers: [string, any][], currentIndex: number, staticMetrics: string[], metricLabels: Record<string, string>, allIndiaAvgMap: Record<string, number>) {
+    const CHUNK_SIZE = 1; // Process one dealer at a time
+    const endIndex = Math.min(currentIndex + CHUNK_SIZE, dealers.length);
+
+    // Process current chunk
+    for (let i = currentIndex; i < endIndex; i++) {
+      const [dealerName, users] = dealers[i];
+      const dealerCharts = this.processSingleDealer(dealerName, users, staticMetrics, metricLabels, allIndiaAvgMap);
+      if (dealerCharts) {
+        this.psWiseCharts.push(dealerCharts);
+      }
+    }
+
+    // Continue with next chunk if there are more dealers
+    if (endIndex < dealers.length) {
+      // Use setTimeout to yield control back to browser
+      setTimeout(() => {
+        this.processNextDealerChunk(dealers, endIndex, staticMetrics, metricLabels, allIndiaAvgMap);
+      }, 10); // Small delay to allow UI updates
+    } else {
+      // All done - initialize accordion states
+      this.initializePsAccordionStates();
+      console.log('==== End processPsWiseActivity (Chunked) ====');
+    }
+  }
+  computeAllIndiaAverages(staticMetrics: string[], dynamicCallMetrics: string[]) {
+    const allMetrics = [...staticMetrics, ...dynamicCallMetrics];
+    const allIndiaAvgMap: Record<string, number> = {};
+
+    allMetrics.forEach(metric => {
+      let sum = 0, count = 0;
+      Object.values(this.psWiseData).forEach((users: any) => {
+        if (!Array.isArray(users)) return;
+        users.forEach(u => {
+          if (this.roleFilter === 'Both' || u.role === this.roleFilter) {
+            sum += u[metric] || 0;
+            count++;
+          }
+        });
+      });
+      allIndiaAvgMap[metric] = count > 0 ? Math.round(sum / count) : 0;
+    });
+
+    return allIndiaAvgMap;
+  }
+
+  processSingleDealer(dealerName: string, users: any, staticMetrics: string[], metricLabels: Record<string, string>, allIndiaAvgMap: Record<string, number>) {
+    if (!Array.isArray(users)) return null;
 
     const filteredUsers = users.filter(u =>
       this.roleFilter === 'Both' ? true : u.role === this.roleFilter
     );
 
+    if (filteredUsers.length === 0) return null;
+
     const charts: any[] = [];
 
-    // Static metrics (leads, testDrives, followups, lastLogin, target)
-    metrics.forEach(metric => {
+    // Process static metrics
+    staticMetrics.forEach(metric => {
       const metricData = filteredUsers.map(u => ({
         x: u.name,
-        // 👇 Always include 0, but give a tiny placeholder bar if val=0
         y: u[metric] && u[metric] > 0 ? u[metric] : 0.0001,
         displayVal: u[metric] || 0,
         dealer: dealerName
       }));
 
       if (metricData.length > 0) {
-        const dealerAvg =
-          Math.round(metricData.reduce((sum, d) => sum + d.displayVal, 0) / metricData.length);
+        const dealerAvg = Math.round(metricData.reduce((sum, d) => sum + d.displayVal, 0) / metricData.length);
 
         charts.push({
           title: metricLabels[metric],
-          allIndiaAvg: calculateAllIndiaAvg(metric),
+          allIndiaAvg: allIndiaAvgMap[metric],
           dealerAvg,
           series: [{ name: metricLabels[metric], data: metricData.map(d => d.y) }],
           chart: { type: 'bar', height: 350, toolbar: { show: false } },
-          plotOptions: {
-            bar: {
-              horizontal: true,
-              distributed: true,
-              barHeight: '70%',
-              // dataLabels: { position: 'right' } 
-            }
-          },
+          plotOptions: { bar: { horizontal: true, distributed: true, barHeight: '70%' } },
           colors: this.generateColors(metricData.length),
-          xaxis: {
-            categories: metricData.map(d => d.x),
-            labels: { style: { fontSize: '10px' } }
-          },
+          xaxis: { categories: metricData.map(d => d.x), labels: { style: { fontSize: '10px' } } },
           yaxis: { labels: { style: { fontSize: '10px' } } },
           dataLabels: {
             enabled: true,
-            formatter: (_val: number, opts: any) => {
-              return metricData[opts.dataPointIndex].displayVal; // show real 0
-            },
+            formatter: (_val: number, opts: any) => metricData[opts.dataPointIndex].displayVal,
             style: { fontSize: '10px', fontWeight: 'bold' }
           },
           tooltip: {
             custom: ({ dataPointIndex }: any) => {
               const user = metricData[dataPointIndex];
-              return `
-                <div style="padding:8px;">
-                  <strong>${user.x}</strong><br>
-                  <span>${user.dealer}</span><br>
-                  <span>${metricLabels[metric]}: ${user.displayVal}</span>
-                </div>
-              `;
+              return `<div style="padding:8px;">
+                                <strong>${user.x}</strong><br>
+                                <span>${user.dealer}</span><br>
+                                <span>${metricLabels[metric]}: ${user.displayVal}</span>
+                              </div>`;
             }
           },
           legend: { show: false },
@@ -766,8 +898,8 @@ export class TrendChartComponent {
       }
     });
 
-    // **Dynamic calls chart (dropdown-controlled)**
-    const callMetric = this.psWiseSelectedCallType; // 'calls', 'coldCalls', or 'enquiryCalls'
+    // Process call metrics
+    const callMetric = this.psWiseSelectedCallType || 'calls';
     const callData = filteredUsers.map(u => ({
       x: u.name,
       y: u[callMetric] && u[callMetric] > 0 ? u[callMetric] : 0.0001,
@@ -776,46 +908,31 @@ export class TrendChartComponent {
     }));
 
     if (callData.length > 0) {
-      const dealerAvg =
-        Math.round(callData.reduce((sum, d) => sum + d.displayVal, 0) / callData.length);
+      const dealerAvg = Math.round(callData.reduce((sum, d) => sum + d.displayVal, 0) / callData.length);
 
       charts.push({
         title: metricLabels[callMetric],
-        allIndiaAvg: calculateAllIndiaAvg(callMetric),
+        allIndiaAvg: allIndiaAvgMap[callMetric],
         dealerAvg,
         series: [{ name: metricLabels[callMetric], data: callData.map(d => d.y) }],
         chart: { type: 'bar', height: 350, toolbar: { show: false } },
-        plotOptions: {
-          bar: {
-            horizontal: true,
-            distributed: true,
-            barHeight: '70%',
-            dataLabels: { position: 'right' }
-          }
-        },
+        plotOptions: { bar: { horizontal: true, distributed: true, barHeight: '70%' } },
         colors: this.generateColors(callData.length),
-        xaxis: {
-          categories: callData.map(d => d.x),
-          labels: { style: { fontSize: '10px' } }
-        },
+        xaxis: { categories: callData.map(d => d.x), labels: { style: { fontSize: '10px' } } },
         yaxis: { labels: { style: { fontSize: '10px' } } },
         dataLabels: {
           enabled: true,
-          formatter: (_val: number, opts: any) => {
-            return callData[opts.dataPointIndex].displayVal;
-          },
+          formatter: (_val: number, opts: any) => callData[opts.dataPointIndex].displayVal,
           style: { fontSize: '10px', fontWeight: 'bold' }
         },
         tooltip: {
           custom: ({ dataPointIndex }: any) => {
             const user = callData[dataPointIndex];
-            return `
-              <div style="padding:8px;">
-                <strong>${user.x}</strong><br>
-                <span>${user.dealer}</span><br>
-                <span>${metricLabels[callMetric]}: ${user.displayVal}</span>
-              </div>
-            `;
+            return `<div style="padding:8px;">
+                            <strong>${user.x}</strong><br>
+                            <span>${user.dealer}</span><br>
+                            <span>${metricLabels[callMetric]}: ${user.displayVal}</span>
+                          </div>`;
           }
         },
         legend: { show: false },
@@ -823,18 +940,8 @@ export class TrendChartComponent {
       });
     }
 
-    if (charts.length > 0) {
-      this.psWiseCharts.push({
-        dealerName,
-        users: filteredUsers,
-        charts
-      });
-    }
-  });
-
-  // Initialize accordion states after processing all dealers
-  this.initializePsAccordionStates();
-}
+    return charts.length > 0 ? { dealerName, users: filteredUsers, charts } : null;
+  }
 
 
 

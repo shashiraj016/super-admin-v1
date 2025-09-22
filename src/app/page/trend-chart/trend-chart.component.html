@@ -1,15 +1,14 @@
 <div class="dashboard-container">
     <!-- Header with Stats -->
     <div class="dashboard-header">
-        <div class="dashboard-title">SMART ASSIST - USAGE PATTERNS</div>
         <div class="stats-row">
             <div class="stat-item">
                 <span class="stat-number">{{DistinctUsers | number}}</span>
                 <span class="stat-label">Active Users</span>
             </div>
             <div class="stat-item">
-                <span class="stat-number">{{ topsaLeads | number }} / {{topdigitalLeads | number}}</span>
-                <span class="stat-label">Sa Leads / Digital Lead</span>
+                <span class="stat-number">{{ topsaLeads | number }}</span>
+                <span class="stat-label">Leads</span>
             </div>
             <div class="stat-item">
                 <span class="stat-number">{{ topTasks | number }}</span>
@@ -99,12 +98,12 @@
                         </select>
 
 
-                        <div class="flex items-center gap-2 ">
+                        <!-- <div class="flex items-center gap-2 ">
                             <button (click)="switchChartType()"
                                 class=" no-border switchChart px-3 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm font-medium">
                                 Switch Chart ({{ chartOptions.chart?.type }})
                             </button>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -241,7 +240,7 @@
             </div>
 
             <!-- Calls Accordion -->
-            <div class="accordion-item" [class.active]="accordionStates.calls">
+            <!-- <div class="accordion-item" [class.active]="accordionStates.calls">
                 <div class="accordion-header" (click)="toggleAccordion('calls')">
                     <div class="accordion-title">
                         <h3>{{ getCurrentCallTypeLabel() }}</h3>
@@ -288,7 +287,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Last Login Accordion -->
             <div class="accordion-item" [class.active]="accordionStates.lastLogin">
@@ -371,36 +370,37 @@
                     <div class="ps-accordion-content" [class.expanded]="psAccordionStates[i]">
                         <div class="dealer-row">
                             <!-- Dealer Name Column - Keep original structure -->
-                            <div class="dealer-info-column">
 
-                                <div class="dealer-name">{{ dealerGroup.dealerName }}</div>
-                                <div class="employee-list">
-                                    <div class="employee-item" *ngFor="let user of dealerGroup.users">
-                                        <span class="employee-name">{{ user.name }}</span>
-                                        <span class="employee-role">({{ user.role }})</span>
-                                    </div>
-                                </div>
-                            </div>
 
                             <!-- Charts Column -->
                             <div class="charts-row">
                                 <div class="metric-chart" *ngFor="let chart of dealerGroup.charts">
                                     <div class="chart-header">
-                                        <!-- Chart Title -->
-                                        <span class="chart-title">{{ chart.title }}</span>
-                                        <!-- Only show dropdown for Calls chart -->
-                                        <ng-container *ngIf="chart.title.toLowerCase().includes('calls')">
-                                            <select [(ngModel)]="psWiseSelectedCallType"
-                                                (change)="psWiseOnCallTypeChange()" class="ps-calls-select">
-                                                <option *ngFor="let type of psWiseCallTypes" [value]="type.value">
-                                                    {{ type.label }}
-                                                </option>
-                                            </select>
-                                        </ng-container>
+                                        <div class="chart-header-top">
+                                            <!-- Chart Title -->
+                                            <span class="chart-title">{{ chart.title }}</span>
+
+                                            <!-- Only show dropdown for Calls chart -->
+                                            <ng-container *ngIf="chart.title.toLowerCase().includes('calls')">
+                                                <div class="custom-select-wrapper">
+                                                    <select [(ngModel)]="psWiseSelectedCallType"
+                                                        (change)="psWiseOnCallTypeChange()" class="ps-calls-select">
+                                                        <option *ngFor="let type of psWiseCallTypes"
+                                                            [value]="type.value">
+                                                            {{ type.label }}
+                                                        </option>
+                                                    </select>
+                                                    <span class="select-arrow">&#9662;</span>
+                                                </div>
+                                            </ng-container>
+                                        </div>
+
+                                        <!-- Avg always in second row -->
                                         <div class="chart-averages">
                                             <span class="dealer-avg">Avg: {{ chart.dealerAvg }}</span>
                                         </div>
                                     </div>
+
                                     <div class="chart-container">
                                         <apx-chart [series]="chart.series" [chart]="chart.chart"
                                             [plotOptions]="chart.plotOptions" [xaxis]="chart.xaxis"
