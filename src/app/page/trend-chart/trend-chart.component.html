@@ -1,4 +1,7 @@
 <div class="dashboard-container">
+    <div *ngIf="isLoading" class="loader-overlay">
+        <div class="spinner"></div>
+    </div>
     <!-- Header with Stats -->
     <div class="dashboard-header">
         <div class="stats-row">
@@ -338,8 +341,7 @@
             <div class="ps-section-header">
                 <div class="chart-title">{{ sectionTitle }}</div>
                 <!-- Role Filter Dropdown -->
-                <select [(ngModel)]="roleFilter" (change)="processPsWiseActivity(psWiseData)"
-                    class="role-filter-select">
+                <select [(ngModel)]="roleFilter" (change)="scheduleProcessPsActivity()" class="role-filter-select">
                     <option value="PS">PS</option>
                     <option value="SM">SM</option>
                     <option value="Both">Both</option>

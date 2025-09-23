@@ -4,6 +4,7 @@
   </div>
   <div class="header2" [ngClass]="{ 'sidebar-open': isSidebarOpen, 'sidebar-closed': !isSidebarOpen }"
     style="border-radius:7px;padding:10px;margin-top:1rem;">
+
     <div class="filter-message mb-2" *ngIf="selectedFilter">
       Showing results for:
       <span *ngIf="selectedFilter !== 'CUSTOM'">{{ getFilterLabel(selectedFilter) }}</span>
@@ -294,7 +295,7 @@
 
                   <!-- Test Drives -->
                   <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('totalTestDrives')">
-                    Total
+                    SA
                     <span class="sort-arrows">
                       <span class="arrow-up"
                         [class.active]="sortColumn==='totalTestDrives' && sortDirection==='asc'">▲</span>
@@ -325,7 +326,7 @@
                         [class.active]="sortColumn==='completedTestDrives' && sortDirection==='desc'">▼</span>
                     </span>
                   </th>
-                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('saTestDrives')">
+                  <!-- <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('saTestDrives')">
                     SA
                     <span class="sort-arrows">
                       <span class="arrow-up"
@@ -333,7 +334,7 @@
                       <span class="arrow-down"
                         [class.active]="sortColumn==='saTestDrives' && sortDirection==='desc'">▼</span>
                     </span>
-                  </th>
+                  </th> -->
                   <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('uniqueTestDrives')">
                     Unique
                     <span class="sort-arrows">
@@ -405,7 +406,10 @@
                     <td class="td-right" style="color:#222fb9">{{ dealer.saLeads ?? 0 }}</td>
                     <td class="td-right">{{ dealer.manuallyEnteredLeads ?? 0 }}</td>
 
-                    <td class="td-right" [ngStyle]="{'color': dealer.saLeads === dealer.cxpLeads ? 'green' : 'red'}">
+                    <!-- <td class="td-right" [ngStyle]="{'color': dealer.saLeads === dealer.cxpLeads ? 'black': 'red'}">
+                      {{ dealer.cxpLeads ?? 0 }}
+                    </td> -->
+                    <td class="td-right" [ngStyle]="{'color': dealer.cxpLeads < dealer.saLeads ? 'red' : 'black'}">
                       {{ dealer.cxpLeads ?? 0 }}
                     </td>
                     <td class="td-right">{{ dealer.icsLeads ?? 0 }}</td>
@@ -414,8 +418,12 @@
 
                     <td class="td-right" style="color:#222fb9">{{ dealer.saFollowUps ?? 0 }}</td>
                     <!-- SA FOLLOWUPS -->
-                    <td class="td-right"
+                    <!-- <td class="td-right"
                       [ngStyle]="{'color': dealer.saFollowUps === dealer.cxpFollowUps ? 'green' : 'red'}">
+                      {{ dealer.cxpFollowUps ?? 0 }}
+                    </td> -->
+                    <td class="td-right"
+                      [ngStyle]="{'color': dealer.cxpFollowUps < dealer.saFollowUps ? 'red' : 'black'}">
                       {{ dealer.cxpFollowUps ?? 0 }}
                     </td>
 
@@ -426,8 +434,12 @@
                     <td class="td-right">{{ dealer.closedFollowUps ?? 0 }}</td>
                     <!-- <td class="td-right">{{ dealer.cxpFollowUps ?? 0 }}</td> -->
                     <td class="td-right">{{dealer.totalTestDrives}}</td>
-                    <td class="td-right"
+                    <!-- <td class="td-right"
                       [ngStyle]="{'color': dealer.saTestDrives === dealer.cxpTestDrives ? 'green' : 'red'}">
+                      {{ dealer.cxpTestDrives ?? 0 }}
+                    </td> -->
+                    <td class="td-right"
+                      [ngStyle]="{'color': dealer.cxpTestDrives < dealer.saTestDrives ? 'red' : 'black'}">
                       {{ dealer.cxpTestDrives ?? 0 }}
                     </td>
                     <td class="td-right">{{ dealer.completedTestDrives ?? 0 }}</td>
@@ -597,7 +609,11 @@
 
                 <button class="nav-button" [ngClass]="{ 'active': dealerSummaryCallsViewType === 'chart' }"
                   (click)="dealerEngagementView('chart')">
-                  <i class="fas fa-chart-line" style="margin-right: 8px;"></i> Line Chart
+<<<<<<< HEAD
+                  <i class="fas fa-chart-bar" style="margin-right: 8px;"></i> Bar Chart
+=======
+                  <i class="fas fa-chart-line" style="margin-right: 8px;"></i> Bar Chart
+>>>>>>> 5f042c38a623da492f0f60e59288989838b653a3
                 </button>
               </div>
 

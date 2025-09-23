@@ -201,6 +201,7 @@ export class TrendChartComponent {
     { value: 'enquiryCalls', label: 'Enquiry Calls' },
     { value: 'coldCalls', label: 'Cold Calls' }
   ];
+  isLoading = false;
 
 
 
@@ -318,10 +319,13 @@ export class TrendChartComponent {
       .set('type', 'DAY')
       .set('timezone', Intl.DateTimeFormat().resolvedOptions().timeZone);
 
+    this.isLoading = true;
     this.http
       .get<any>(`${this.BASE_URL}${this.TREND_CHART_URL}`, { headers, params })
       .subscribe({
         next: (res) => {
+          this.isLoading = false; 
+
           console.log('✅ API Response:', res.topCards);
 
           // store dealer list on first load
@@ -339,7 +343,7 @@ export class TrendChartComponent {
             this.topsaLeads = res.topCards.saLeads || 0;
             this.topdigitalLeads = res.topCards.digitalLeads || 0;
             this.topTasks = res.topCards.followups || 0;
-            this.topUTDs = res.topCards.testDrives || 0;
+            this.topUTDs = res.topCards.utd || 0;
             this.topCall = res.topCards.calls || 0;
             this.topenquiryCalls = res.topCards.enquiryCalls || 0;
             this.topcoldCalls = res.topCards.coldCalls || 0;
@@ -451,7 +455,7 @@ export class TrendChartComponent {
         chartRef = {
           ...chartRef,
           series: chartData.series,
-          chart: { type: 'line', height: 350 },
+          chart: { type: 'line', height: 300 },
           stroke: { width: 2 },
           xaxis: {
             categories: chartData.categories,
@@ -513,9 +517,11 @@ export class TrendChartComponent {
 
     clearTimeout(this.filterUpdateTimeout);
     this.filterUpdateTimeout = setTimeout(() => {
+       this.isLoading = true;
       this.http.get<any>(`${this.BASE_URL}${this.TREND_CHART_URL}`, { headers, params })
         .subscribe({
           next: (res) => {
+            
             // Update top cards immediately
             if (res.topCards) {
               this.topLeads = res.topCards.leads || 0;
@@ -538,8 +544,10 @@ export class TrendChartComponent {
               // Process PS data separately with delay
               this.scheduleProcessPsActivity();
             }
+              this.isLoading = false; 
           },
           error: (err) => console.error(err),
+          
         });
     }, 200);
   }
@@ -610,161 +618,162 @@ export class TrendChartComponent {
 
 
   // Add this method to process PS-wise activity data
-  processPsWiseActivity(psWiseActivity: any) {
-    console.log('==== Start processPsWiseActivity ====');
-    if (!psWiseActivity) return;
+  // processPsWiseActivity(psWiseActivity: any) {
+  //   console.log('==== Start processPsWiseActivity ====');
+  //   if (!psWiseActivity) return;
 
-    const staticMetrics = ['saLeads', 'uniquetestDrives', 'followups', 'lastLogin', 'target'];
-    const dynamicCallMetrics = ['calls', 'coldCalls', 'enquiryCalls'];
+  //   const staticMetrics = ['saLeads', 'uniquetestDrives', 'followups', 'lastLogin', 'target'];
+  //   const dynamicCallMetrics = ['calls', 'coldCalls', 'enquiryCalls'];
 
-    const metricLabels: Record<string, string> = {
-      saLeads: 'saLeads',
-      uniquetestDrives: 'events',
-      followups: 'tasks',
-      calls: 'calls',
-      coldCalls: 'cold calls',
-      enquiryCalls: 'enquiry calls',
-      lastLogin: 'last login',
-      target: 'target'
-    };
+  //   const metricLabels: Record<string, string> = {
+  //     saLeads: 'SALeads',
+  //     uniquetestDrives: 'Events',
+  //     followups: 'Tasks',
+  //     calls: 'calls',
+  //     coldCalls: 'cold calls',
+  //     enquiryCalls: 'Enquiry calls',
+  //     lastLogin: 'last login',
+  //     target: 'target'
+  //   };
 
-    this.psWiseCharts = [];
+  //   this.psWiseCharts = [];
 
-    // --- Precompute All-India averages ---
-    const allMetrics = [...staticMetrics, ...dynamicCallMetrics];
-    const allIndiaAvgMap: Record<string, number> = {};
+  //   // --- Precompute All-India averages ---
+  //   const allMetrics = [...staticMetrics, ...dynamicCallMetrics];
+  //   const allIndiaAvgMap: Record<string, number> = {};
 
-    allMetrics.forEach(metric => {
-      let sum = 0, count = 0;
-      Object.values(psWiseActivity).forEach((users: any) => {
-        if (!Array.isArray(users)) return;
-        users.forEach(u => {
-          if (this.roleFilter === 'Both' || u.role === this.roleFilter) {
-            sum += u[metric] || 0;
-            count++;
-          }
-        });
-      });
-      allIndiaAvgMap[metric] = count > 0 ? Math.round(sum / count) : 0;
-      console.log(`All India Avg for ${metric}:`, allIndiaAvgMap[metric]);
-    });
+  //   allMetrics.forEach(metric => {
+  //     let sum = 0, count = 0;
+  //     Object.values(psWiseActivity).forEach((users: any) => {
+  //       if (!Array.isArray(users)) return;
+  //       users.forEach(u => {
+  //         if (this.roleFilter === 'Both' || u.role === this.roleFilter) {
+  //           sum += u[metric] || 0;
+  //           count++;
+  //         }
+  //       });
+  //     });
+  //     allIndiaAvgMap[metric] = count > 0 ? Math.round(sum / count) : 0;
+  //     console.log(`All India Avg for ${metric}:`, allIndiaAvgMap[metric]);
+  //   });
 
-    // --- Process per dealer asynchronously to avoid blocking ---
-    Promise.resolve().then(() => {
-      Object.entries(psWiseActivity).forEach(([dealerName, users]: [string, any]) => {
-        if (!Array.isArray(users)) return;
+  //   // --- Process per dealer asynchronously to avoid blocking ---
+  //   Promise.resolve().then(() => {
+  //     Object.entries(psWiseActivity).forEach(([dealerName, users]: [string, any]) => {
+  //       if (!Array.isArray(users)) return;
 
-        const filteredUsers = users.filter(u =>
-          this.roleFilter === 'Both' ? true : u.role === this.roleFilter
-        );
+  //       const filteredUsers = users.filter(u =>
+  //         this.roleFilter === 'Both' ? true : u.role === this.roleFilter
+  //       );
 
-        const charts: any[] = [];
+  //       const charts: any[] = [];
 
-        // Process static metrics
-        staticMetrics.forEach(metric => {
-          const metricData = filteredUsers.map(u => ({
-            x: u.name,
-            y: u[metric] && u[metric] > 0 ? u[metric] : 0.0001, // tiny placeholder for zero
-            displayVal: u[metric] || 0,
-            dealer: dealerName
-          }));
+  //       // Process static metrics
+  //       staticMetrics.forEach(metric => {
+  //         const metricData = filteredUsers.map(u => ({
+  //           x: u.name,
+  //           y: u[metric] && u[metric] > 0 ? u[metric] : 0.0001, // tiny placeholder for zero
+  //           displayVal: u[metric] || 0,
+  //           dealer: dealerName
+  //         }));
 
-          if (metricData.length > 0) {
-            const dealerAvg = Math.round(metricData.reduce((sum, d) => sum + d.displayVal, 0) / metricData.length);
+  //         if (metricData.length > 0) {
+  //           const dealerAvg = Math.round(metricData.reduce((sum, d) => sum + d.displayVal, 0) / metricData.length);
 
-            charts.push({
-              title: metricLabels[metric],
-              allIndiaAvg: allIndiaAvgMap[metric],
-              dealerAvg,
-              series: [{ name: metricLabels[metric], data: metricData.map(d => d.y) }],
-              chart: { type: 'bar', height: 350, toolbar: { show: false } },
-              plotOptions: { bar: { horizontal: true, distributed: true, barHeight: '70%' } },
-              colors: this.generateColors(metricData.length),
-              xaxis: { categories: metricData.map(d => d.x), labels: { style: { fontSize: '10px' } } },
-              yaxis: { labels: { style: { fontSize: '10px' } } },
-              dataLabels: {
-                enabled: true,
-                formatter: (_val: number, opts: any) => metricData[opts.dataPointIndex].displayVal,
-                style: { fontSize: '10px', fontWeight: 'bold' }
-              },
-              tooltip: {
-                custom: ({ dataPointIndex }: any) => {
-                  const user = metricData[dataPointIndex];
-                  return `<div style="padding:8px;">
-                          <strong>${user.x}</strong><br>
-                          <span>${user.dealer}</span><br>
-                          <span>${metricLabels[metric]}: ${user.displayVal}</span>
-                        </div>`;
-                }
-              },
-              legend: { show: false },
-              key: metricLabels[metric].toLowerCase().replace(/\s/g, '')
-            });
-          }
-        });
+  //           charts.push({
+  //             title: metricLabels[metric],
+  //             allIndiaAvg: allIndiaAvgMap[metric],
+  //             dealerAvg,
+  //             series: [{ name: metricLabels[metric], data: metricData.map(d => d.y) }],
+  //             chart: { type: 'bar', height: 350, toolbar: { show: false } },
+  //             plotOptions: { bar: { horizontal: true, distributed: true, barHeight: '70%' } },
+  //             colors: this.generateColors(metricData.length),
+  //             xaxis: { categories: metricData.map(d => d.x), labels: { style: { fontSize: '10px' } } },
+  //             yaxis: { labels: { style: { fontSize: '10px' } } },
+  //             dataLabels: {
+  //               enabled: true,
+  //               formatter: (_val: number, opts: any) => metricData[opts.dataPointIndex].displayVal,
+  //               style: { fontSize: '10px', fontWeight: 'bold' }
+  //             },
+  //             tooltip: {
+  //               custom: ({ dataPointIndex }: any) => {
+  //                 const user = metricData[dataPointIndex];
+  //                 return `<div style="padding:8px;">
+  //                         <strong>${user.x}</strong><br>
+  //                         <span>${user.dealer}</span><br>
+  //                         <span>${metricLabels[metric]}: ${user.displayVal}</span>
+  //                       </div>`;
+  //               }
+  //             },
+  //             legend: { show: false },
+  //             key: metricLabels[metric].toLowerCase().replace(/\s/g, '')
+  //           });
+  //         }
+  //       });
 
-        // Process selected call metric dynamically
-        const callMetric = this.psWiseSelectedCallType || 'calls';
-        if (dynamicCallMetrics.includes(callMetric)) {
-          const callData = filteredUsers.map(u => ({
-            x: u.name,
-            y: u[callMetric] && u[callMetric] > 0 ? u[callMetric] : 0.0001,
-            displayVal: u[callMetric] || 0,
-            dealer: dealerName
-          }));
+  //       // Process selected call metric dynamically
+  //       const callMetric = this.psWiseSelectedCallType || 'calls';
+  //       if (dynamicCallMetrics.includes(callMetric)) {
+  //         const callData = filteredUsers.map(u => ({
+  //           x: u.name,
+  //           y: u[callMetric] && u[callMetric] > 0 ? u[callMetric] : 0.0001,
+  //           displayVal: u[callMetric] || 0,
+  //           dealer: dealerName
+  //         }));
 
-          if (callData.length > 0) {
-            const dealerAvg = Math.round(callData.reduce((sum, d) => sum + d.displayVal, 0) / callData.length);
+  //         if (callData.length > 0) {
+  //           const dealerAvg = Math.round(callData.reduce((sum, d) => sum + d.displayVal, 0) / callData.length);
 
-            charts.push({
-              title: metricLabels[callMetric],
-              allIndiaAvg: allIndiaAvgMap[callMetric],
-              dealerAvg,
-              series: [{ name: metricLabels[callMetric], data: callData.map(d => d.y) }],
-              chart: { type: 'bar', height: 350, toolbar: { show: false } },
-              plotOptions: { bar: { horizontal: true, distributed: true, barHeight: '70%', dataLabels: { position: 'right' } } },
-              colors: this.generateColors(callData.length),
-              xaxis: { categories: callData.map(d => d.x), labels: { style: { fontSize: '10px' } } },
-              yaxis: { labels: { style: { fontSize: '10px' } } },
-              dataLabels: { enabled: true, formatter: (_val: number, opts: any) => callData[opts.dataPointIndex].displayVal, style: { fontSize: '10px', fontWeight: 'bold' } },
-              tooltip: {
-                custom: ({ dataPointIndex }: any) => {
-                  const user = callData[dataPointIndex];
-                  return `<div style="padding:8px;">
-                          <strong>${user.x}</strong><br>
-                          <span>${user.dealer}</span><br>
-                          <span>${metricLabels[callMetric]}: ${user.displayVal}</span>
-                        </div>`;
-                }
-              },
-              legend: { show: false },
-              key: 'countOfCalls'
-            });
-          }
-        }
+  //           charts.push({
+  //             title: metricLabels[callMetric],
+  //             allIndiaAvg: allIndiaAvgMap[callMetric],
+  //             dealerAvg,
+  //             series: [{ name: metricLabels[callMetric], data: callData.map(d => d.y) }],
+  //             chart: { type: 'bar', height: 350, toolbar: { show: false } },
+  //             plotOptions: { bar: { horizontal: true, distributed: true, barHeight: '70%', dataLabels: { position: 'right' } } },
+  //             colors: this.generateColors(callData.length),
+  //             xaxis: { categories: callData.map(d => d.x), labels: { style: { fontSize: '10px' } } },
+  //             yaxis: { labels: { style: { fontSize: '10px' } } },
+  //             dataLabels: { enabled: true, formatter: (_val: number, opts: any) => callData[opts.dataPointIndex].displayVal, style: { fontSize: '10px', fontWeight: 'bold' } },
+  //             tooltip: {
+  //               custom: ({ dataPointIndex }: any) => {
+  //                 const user = callData[dataPointIndex];
+  //                 return `<div style="padding:8px;">
+  //                         <strong>${user.x}</strong><br>
+  //                         <span>${user.dealer}</span><br>
+  //                         <span>${metricLabels[callMetric]}: ${user.displayVal}</span>
+  //                       </div>`;
+  //               }
+  //             },
+  //             legend: { show: false },
+  //             key: 'countOfCalls'
+  //           });
+  //         }
+  //       }
 
-        if (charts.length > 0) {
-          this.psWiseCharts.push({ dealerName, users: filteredUsers, charts });
-        }
-      });
+  //       if (charts.length > 0) {
+  //         this.psWiseCharts.push({ dealerName, users: filteredUsers, charts });
+  //       }
+  //     });
 
-      console.log('Final psWiseCharts array:', this.psWiseCharts);
+  //     console.log('Final psWiseCharts array:', this.psWiseCharts);
 
-      // Initialize accordion states after processing
-      this.initializePsAccordionStates();
+  //     // Initialize accordion states after processing
+  //     this.initializePsAccordionStates();
 
-      console.log('==== End processPsWiseActivity ====');
-    });
-  }
+  //     console.log('==== End processPsWiseActivity ====');
+  //   });
+  // }
 
   private psProcessingTimeout: any;
 
   scheduleProcessPsActivity() {
+    this.isLoading = true;
     clearTimeout(this.psProcessingTimeout);
     // Process PS data after main UI updates are complete
     this.psProcessingTimeout = setTimeout(() => {
       this.processPsWiseActivityChunked();
-    }, 500);
+    }, 100);
   }
 
   processPsWiseActivityChunked() {
@@ -775,14 +784,14 @@ export class TrendChartComponent {
     const dynamicCallMetrics = ['calls', 'coldCalls', 'enquiryCalls'];
 
     const metricLabels: Record<string, string> = {
-      saLeads: 'saLeads',
-      uniquetestDrives: 'events',
-      followups: 'tasks',
-      calls: 'calls',
-      coldCalls: 'cold calls',
-      enquiryCalls: 'enquiry calls',
-      lastLogin: 'last login',
-      target: 'target'
+      saLeads: 'SA Leads',
+      uniquetestDrives: 'Events',
+      followups: 'Tasks',
+      calls: 'Calls',
+      coldCalls: 'Cold calls',
+      enquiryCalls: 'Enquiry calls',
+      lastLogin: 'Last login',
+      target: 'Target'
     };
 
     // Clear existing data
@@ -820,9 +829,11 @@ export class TrendChartComponent {
     } else {
       // All done - initialize accordion states
       this.initializePsAccordionStates();
+      this.isLoading = false;
       console.log('==== End processPsWiseActivity (Chunked) ====');
     }
   }
+
   computeAllIndiaAverages(staticMetrics: string[], dynamicCallMetrics: string[]) {
     const allMetrics = [...staticMetrics, ...dynamicCallMetrics];
     const allIndiaAvgMap: Record<string, number> = {};
@@ -857,39 +868,65 @@ export class TrendChartComponent {
 
     // Process static metrics
     staticMetrics.forEach(metric => {
-      const metricData = filteredUsers.map(u => ({
-        x: u.name,
-        y: u[metric] && u[metric] > 0 ? u[metric] : 0.0001,
-        displayVal: u[metric] || 0,
-        dealer: dealerName
-      }));
+      const metricData = filteredUsers.map(u => {
+        const value = u[metric];
+        const hasValue = value !== null && value !== undefined && value > 0;
+
+        return {
+          x: u.name,
+          y: hasValue ? value : 0, // Use 0 for invisible bars
+          displayVal: value || 0, // Always show the actual value (including 0)
+          dealer: dealerName,
+          hasValue: hasValue // Track if original value was meaningful
+        };
+      });
 
       if (metricData.length > 0) {
-        const dealerAvg = Math.round(metricData.reduce((sum, d) => sum + d.displayVal, 0) / metricData.length);
+        const dealerAvg = Math.round(
+          metricData.reduce((sum, d) => sum + d.displayVal, 0) / metricData.length
+        );
+
+        // Generate colors - normal colors for all, but zero values will be invisible anyway
+        const colorsArray = this.generateColors(metricData.length);
 
         charts.push({
           title: metricLabels[metric],
           allIndiaAvg: allIndiaAvgMap[metric],
           dealerAvg,
-          series: [{ name: metricLabels[metric], data: metricData.map(d => d.y) }],
+          series: [{
+            name: metricLabels[metric],
+            data: metricData.map(d => d.y)
+          }],
           chart: { type: 'bar', height: 350, toolbar: { show: false } },
-          plotOptions: { bar: { horizontal: true, distributed: true, barHeight: '70%' } },
-          colors: this.generateColors(metricData.length),
-          xaxis: { categories: metricData.map(d => d.x), labels: { style: { fontSize: '10px' } } },
+          plotOptions: {
+            bar: {
+              horizontal: true,
+              distributed: true,
+              barHeight: '70%'
+            }
+          },
+          colors: colorsArray,
+          xaxis: {
+            categories: metricData.map(d => d.x),
+            labels: { style: { fontSize: '10px' } }
+          },
           yaxis: { labels: { style: { fontSize: '10px' } } },
           dataLabels: {
             enabled: true,
-            formatter: (_val: number, opts: any) => metricData[opts.dataPointIndex].displayVal,
+            formatter: (_val: number, opts: any) => {
+              const dataPoint = metricData[opts.dataPointIndex];
+              return dataPoint.hasValue ? dataPoint.displayVal : '0'; // Show '0' for zero values
+            },
             style: { fontSize: '10px', fontWeight: 'bold' }
           },
           tooltip: {
             custom: ({ dataPointIndex }: any) => {
               const user = metricData[dataPointIndex];
               return `<div style="padding:8px;">
-                                <strong>${user.x}</strong><br>
-                                <span>${user.dealer}</span><br>
-                                <span>${metricLabels[metric]}: ${user.displayVal}</span>
-                              </div>`;
+              <strong>${user.x}</strong><br>
+              <span>${user.dealer}</span><br>
+              <span>${metricLabels[metric]}: ${user.displayVal}</span>
+            </div>`;
             }
           },
           legend: { show: false },
@@ -898,41 +935,68 @@ export class TrendChartComponent {
       }
     });
 
-    // Process call metrics
+    // Process call metrics with same logic
     const callMetric = this.psWiseSelectedCallType || 'calls';
-    const callData = filteredUsers.map(u => ({
-      x: u.name,
-      y: u[callMetric] && u[callMetric] > 0 ? u[callMetric] : 0.0001,
-      displayVal: u[callMetric] || 0,
-      dealer: dealerName
-    }));
+    const callData = filteredUsers.map(u => {
+      const value = u[callMetric];
+      const hasValue = value !== null && value !== undefined && value > 0;
+
+      return {
+        x: u.name,
+        y: hasValue ? value : 0, // Use 0 for invisible bars
+        displayVal: value || 0,
+        dealer: dealerName,
+        hasValue: hasValue
+      };
+    });
+
+    const hasAnyMeaningfulCallData = callData.some(d => d.hasValue);
 
     if (callData.length > 0) {
-      const dealerAvg = Math.round(callData.reduce((sum, d) => sum + d.displayVal, 0) / callData.length);
+      const dealerAvg = Math.round(
+        callData.reduce((sum, d) => sum + d.displayVal, 0) / callData.length
+      );
+
+      const colorsArray = this.generateColors(callData.length);
 
       charts.push({
         title: metricLabels[callMetric],
         allIndiaAvg: allIndiaAvgMap[callMetric],
         dealerAvg,
-        series: [{ name: metricLabels[callMetric], data: callData.map(d => d.y) }],
+        series: [{
+          name: metricLabels[callMetric],
+          data: callData.map(d => d.y)
+        }],
         chart: { type: 'bar', height: 350, toolbar: { show: false } },
-        plotOptions: { bar: { horizontal: true, distributed: true, barHeight: '70%' } },
-        colors: this.generateColors(callData.length),
-        xaxis: { categories: callData.map(d => d.x), labels: { style: { fontSize: '10px' } } },
+        plotOptions: {
+          bar: {
+            horizontal: true,
+            distributed: true,
+            barHeight: '70%'
+          }
+        },
+        colors: colorsArray,
+        xaxis: {
+          categories: callData.map(d => d.x),
+          labels: { style: { fontSize: '10px' } }
+        },
         yaxis: { labels: { style: { fontSize: '10px' } } },
         dataLabels: {
           enabled: true,
-          formatter: (_val: number, opts: any) => callData[opts.dataPointIndex].displayVal,
+          formatter: (_val: number, opts: any) => {
+            const dataPoint = callData[opts.dataPointIndex];
+            return dataPoint.hasValue ? dataPoint.displayVal : '0'; // Show '0' for zero values
+          },
           style: { fontSize: '10px', fontWeight: 'bold' }
         },
         tooltip: {
           custom: ({ dataPointIndex }: any) => {
             const user = callData[dataPointIndex];
             return `<div style="padding:8px;">
-                            <strong>${user.x}</strong><br>
-                            <span>${user.dealer}</span><br>
-                            <span>${metricLabels[callMetric]}: ${user.displayVal}</span>
-                          </div>`;
+            <strong>${user.x}</strong><br>
+            <span>${user.dealer}</span><br>
+            <span>${metricLabels[callMetric]}: ${user.displayVal}</span>
+          </div>`;
           }
         },
         legend: { show: false },
@@ -942,7 +1006,6 @@ export class TrendChartComponent {
 
     return charts.length > 0 ? { dealerName, users: filteredUsers, charts } : null;
   }
-
 
 
 
@@ -965,7 +1028,7 @@ export class TrendChartComponent {
 
   psWiseOnCallTypeChange() {
     if (this.psWiseData) {
-      this.processPsWiseActivity(this.psWiseData);
+      this.scheduleProcessPsActivity();
     }
   }
 
