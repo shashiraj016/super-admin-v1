@@ -149,6 +149,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   invalidDateRange: boolean = false;
   expandedSummaryRow: string | null = null;
   dealersData: any[] = []; // <-- holds the full API response
+  refreshingSA = false;
+  showQuickActionBtn = true; // 👈 initially visible
+  lastScrollTop = 0; // keep track of last scroll position
+  isSticky = false;
+  originalHeaderOffsetTop: number = 0;
 
   loading = false; // Declare this in your component
   selectedDealer: any = null;
@@ -310,7 +315,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private cd: ChangeDetectorRef,
     private eRef: ElementRef,
     private toastr: ToastrService
-  ) { }
+  ) {}
   data: any; // To hold your data
   apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
 
@@ -549,9 +554,13 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (this.totalTestDrives() && this.totalOrders()) {
       this.doughnutChart(this.totalTestDrives(), this.totalOrders()); // 👈 changed
     }
+    const header = document.querySelector('.sticky-header') as HTMLElement;
+    if (header) {
+      this.originalHeaderOffsetTop = header.offsetTop; // store original position once
+    }
   }
 
-  onFilterClick(filter: 'MTD' | 'QTD' | 'YTD') { }
+  onFilterClick(filter: 'MTD' | 'QTD' | 'YTD') {}
 
   toggleShowAllSMs(dealerId: string) {
     this.showAllSMs[dealerId] = !this.showAllSMs[dealerId];
@@ -2298,8 +2307,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         this.sortDirection === 'asc'
           ? 'desc'
           : this.sortDirection === 'desc'
-            ? 'default'
-            : 'asc';
+          ? 'default'
+          : 'asc';
     } else {
       this.sortColumn = column;
       this.sortDirection = 'asc';
@@ -2572,8 +2581,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.displayedDealers?.length > 0
         ? [...this.displayedDealers] // clone to avoid mutating table data
         : this.selectedDealers.length > 0
-          ? [...this.selectedDealers]
-          : [...this.dealers];
+        ? [...this.selectedDealers]
+        : [...this.dealers];
 
     if (!list || list.length === 0) {
       console.warn('No dealers to export');
@@ -2881,14 +2890,14 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     let request$ =
       this.selectedFilter === 'CUSTOM' &&
-        this.customStartDate &&
-        this.customEndDate
+      this.customStartDate &&
+      this.customEndDate
         ? this.dashboardService.getDealersByCustomDate(
-          this.customStartDate,
-          this.customEndDate,
-          token,
-          id
-        )
+            this.customStartDate,
+            this.customEndDate,
+            token,
+            id
+          )
         : this.dashboardService.getDealerUsers(id, this.selectedFilter, token);
 
     request$.subscribe({
@@ -3025,5 +3034,29 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         categories: this.dealers.map((d) => d.dealerName),
       },
     };
+  }
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    const scrollY = window.scrollY || document.documentElement.scrollTop;
+
+    // Show/hide Quick Action button
+    this.showQuickActionBtn = scrollY < this.lastScrollTop;
+
+    this.lastScrollTop = scrollY <= 0 ? 0 : scrollY;
+
+    // Sticky header logic
+    this.isSticky = scrollY >= this.originalHeaderOffsetTop;
+  }
+  refreshSuperAdminDealers() {
+    console.log('🔄 Refresh SuperAdmin dealers clicked');
+    this.refreshingSA = true;
+
+    // Call your existing SuperAdmin dashboard API fetch
+    this.fetchSuperAdminDashboard(this.selectedFilter);
+
+    // Reset refreshing state after data comes back (or use API complete)
+    setTimeout(() => {
+      this.refreshingSA = false;
+    }, 1500);
   }
 }

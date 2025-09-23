@@ -1,11 +1,11 @@
 import {
-  BaseIcon,
-  ChevronRightIcon
-} from "./chunk-DGJUEYUQ.js";
-import {
   Tooltip,
   TooltipModule
 } from "./chunk-4MCSJQDF.js";
+import {
+  BaseIcon,
+  ChevronRightIcon
+} from "./chunk-DGJUEYUQ.js";
 import "./chunk-LRZ2MEGS.js";
 import {
   PrimeTemplate,

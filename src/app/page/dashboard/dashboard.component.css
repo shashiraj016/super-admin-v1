@@ -17,12 +17,73 @@
   margin: 0 auto;
   position: relative;
 }
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none !important;
+}
+
+/* Chrome / Edge (new WebKit behavior) */
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-password-toggle-button {
+  display: none !important;
+}
+
+.sticky-header {
+  position: relative; /* normal flow */
+  width: 100%;
+  z-index: 9999;
+  background: white;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  border-radius: 7px;
+}
+
+.sticky-header.fixed {
+  position: fixed; /* sticks when scrolling */
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.sticky-col,
+.sticky-col-header {
+  position: sticky;
+  left: 0;
+  background: white;
+}
+
+.sticky-col-header {
+  z-index: 3;
+  background: #f8fafc;
+}
+input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+.sticky-col {
+  z-index: 2;
+}
 
 .table-responsive {
   /* width: 80%; */
   overflow-x: auto;
 }
 /* */
+#refresh button,
+#refresh button:focus,
+#refresh button:active,
+#refresh button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border: 1px solid #ccc !important;
+}
+
+#refresh button:focus {
+  outline: none; /* removes the default focus outline */
+  box-shadow: none; /* in case Bootstrap adds a shadow */
+}
 
 table {
   width: 100% !important;
@@ -2042,7 +2103,7 @@ div[style*="overflow-y: auto"]::-webkit-scrollbar-button {
 .header2,
 .nav-buttons {
   overflow: visible !important;
-  z-index: auto !important;
+  /* z-index: auto !important; */
 }
 
 .nav-button-group {

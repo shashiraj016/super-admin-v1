@@ -4,7 +4,7 @@ import {
   DOCUMENT,
   NgForOf,
   NgIf
-} from "./chunk-VQTUPGZA.js";
+} from "./chunk-IBV2NKXC.js";
 import {
   Component,
   ElementRef,
@@ -38,11 +38,11 @@ import {
   ɵɵtemplate,
   ɵɵtext,
   ɵɵtextInterpolate
-} from "./chunk-ZVAEDLR7.js";
+} from "./chunk-C55OZUCH.js";
+import "./chunk-T5SIKDG3.js";
 import {
   require_cjs
 } from "./chunk-IT3GT3QQ.js";
-import "./chunk-T5SIKDG3.js";
 import "./chunk-NAEIJZ4P.js";
 import {
   __toESM
