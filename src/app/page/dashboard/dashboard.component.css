@@ -27,7 +27,13 @@ input[type="password"]::-webkit-credentials-auto-fill-button,
 input[type="password"]::-webkit-password-toggle-button {
   display: none !important;
 }
+.sticky-header.with-zindex {
+  z-index: 2000 !important; /* or whatever you used before */
+}
 
+.sticky-header.no-zindex {
+  z-index: auto; /* or 0 */
+}
 .sticky-header {
   position: relative; /* normal flow */
   width: 100%;
@@ -4340,7 +4346,7 @@ body {
 }
 
 .main-content {
-  max-width: 150rem !important;
+  /* max-width: 150rem !important; */
   margin: 0 auto;
   /* padding: 1.5rem 1rem; */
   display: flex;
@@ -4610,12 +4616,51 @@ body {
   border-bottom-left-radius: 0.75rem;
 }
 
-.table-row:nth-child(even) {
+/* .table-row:nth-child(even) {
   background: #f9fafb;
 }
 
 .table-row:hover {
-  background: #eef7ff;
+  background: #eef7ff !important;
+} */
+ 
+.table-row td {
+  transition: background-color 0.3s;
+}
+
+.table-row:hover td {
+  background-color: #eef7ff; /* sky-blue hover */
+}
+
+.table-row td button {
+  background-color: transparent; /* buttons don’t cover the hover */
+  border: none; /* optional */
+}
+
+.table-row td button:focus {
+  outline: none; /* remove blue focus */
+  box-shadow: none;
+}
+/* Optional: zebra stripes for even rows */
+.call-logs-table tr:nth-child(even) td {
+  background-color: #f9fafb;
+}
+
+/* Hover effect */
+.call-logs-table tr:hover td {
+  background-color: #eef7ff !important; /* sky-blue hover */
+  transition: background-color 0.3s;
+}
+
+/* Make buttons inside row transparent so they don't block hover */
+.call-logs-table tr td button {
+  background-color: transparent;
+  border: none;
+}
+
+.call-logs-table tr td button:focus {
+  outline: none;
+  box-shadow: none;
 }
 
 .td-font-medium {
@@ -4677,6 +4722,8 @@ body {
 .sub-row-inner {
   padding: 1rem 1.5rem;
   border-top: 1px solid #e2e8f0;
+  border: 1px solid #ccc;
+  border-radius: 10px;
 }
 
 .sub-row-title {

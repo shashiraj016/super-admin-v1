@@ -13,12 +13,24 @@
   </div>
   <!-- <div class="header2" [ngClass]="{ 'sidebar-open': isSidebarOpen, 'sidebar-closed': !isSidebarOpen }"
     style="border-radius:7px;padding:10px;margin-top:1rem;"> -->
-  <div class="header2 sticky-header"
-    [ngClass]="{ 'fixed': isSticky, 'sidebar-open': isSidebarOpen, 'sidebar-closed': !isSidebarOpen }">
+  <!-- <div class="header2 sticky-header"
+    [ngClass]="{ 'fixed': isSticky, 'sidebar-open': isSidebarOpen, 'sidebar-closed': !isSidebarOpen }"> -->
+
+
+
+
+
+  <div class="header2 sticky-header" [ngClass]="{
+             'with-zindex': !showLogoutModal, 
+             'no-zindex': showLogoutModal,
+             'fixed': isSticky,
+             'sidebar-open': isSidebarOpen,
+             'sidebar-closed': !isSidebarOpen
+           }">
 
     <div class="filter-message" *ngIf="selectedFilter" style="margin:0;white-space: nowrap;">
       Showing results for:
-      <span *ngIf="selectedFilter !== 'CUSTOM'">{{ getFilterLabel(selectedFilter) }}</span>
+      <!-- <span *ngIf="selectedFilter !== 'CUSTOM'">{{ getFilterLabel(selectedFilter) }}</span> -->
       <span *ngIf="selectedFilter === 'CUSTOM'">
         {{ customStartDate | date:'shortDate' }} - {{ customEndDate | date:'shortDate' }}
       </span>
@@ -50,13 +62,58 @@
           <button (click)="resetCustomDate()" class="reset-btn flt2">Reset</button>
         </div>
 
-        <div class="dropdown flt1" [class.show]="dropdownOpen">
+        <div class="dropdown flt1" [class.show]="dropdownOpen" style="margin-right: 5px;">
           <button class="time-dropdown dropdown-toggle" type="button" (click)="toggleDropdown()"
             [disabled]="selectedFilter === 'CUSTOM' && invalidDateRange">
             {{ selectedDealers.length > 0 ? 'Dealers Selected (' + selectedDealers.length + ')' : 'Select Dealers' }}
           </button>
           <div class="dropdown-menu show" *ngIf="dropdownOpen">
-            <!-- dropdown content -->
+            <div class="px-2 py-1">
+              <input type="text" class="form-control" placeholder="Search dealers..." [(ngModel)]="dealerSearch"
+                (input)="filterDealers()" (click)="$event.stopPropagation()" />
+            </div>
+
+            <!-- <div class="d-flex justify-content-between align-items-center px-2 py-1 border-bottom">
+                        <label class="mb-0 d-flex align-items-center" (click)="$event.stopPropagation()">
+                          <input type="checkbox" class="me-2" [checked]="areAllSelected()"
+                            (change)="toggleSelectAll($event); $event.stopPropagation()" />
+                          Select All
+                        </label>
+                        <button type="button" class="btn btn-link btn-sm text-danger p-0 ms-auto" id="clearbtn"
+                          Clear
+                        </button>
+                      </div> -->
+            <div class="d-flex justify-content-between align-items-center px-2 py-1 border-bottom"
+              style="display: flex;">
+              <label class="mb-0 d-flex align-items-center" (click)="$event.stopPropagation()">
+                <input type="checkbox" class="me-2" [checked]="areAllSelected()"
+                  (change)="toggleSelectAll($event); $event.stopPropagation()" />
+                Select All
+              </label>
+              <button type="button" class="btn btn-link btn-sm text-danger p-0 ms-auto" id="clearbtn"
+                (click)="clearSelection(); $event.stopPropagation()">
+                Clear
+              </button>
+            </div>
+
+            <ng-container *ngIf="filteredDealers.length > 0; else noDealers">
+              <div *ngFor="let dealer of filteredDealers; trackBy: trackByDealerId" class="dropdown-item">
+
+
+                <input type="checkbox" class="me-2" [checked]="isDealerSelected(dealer)" style="border:1px solid black"
+                  (change)="toggleDealerSelection(dealer); $event.stopPropagation()" />
+
+                <span (click)="toggleDealerSelection(dealer); $event.stopPropagation()">
+                  {{ dealer.dealerName }}
+                </span>
+              </div>
+            </ng-container>
+
+            <ng-template #noDealers>
+              <div class="dropdown-item text-muted text-center">
+                No dealers found
+              </div>
+            </ng-template>
           </div>
         </div>
       </div>
@@ -71,8 +128,6 @@
 
     </div>
   </div>
-
-
   <div class="content-section active" style="margin-bottom: 2rem;">
     <main class="main-content">
       <section class="kpi-section">
@@ -231,6 +286,18 @@
                     </span>
                   </th>
 
+                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('saFollowUps')">
+                    SA
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='saFollowUps' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='saFollowUps' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
+
+
                   <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('cxpFollowUps')">
                     Sync with CXP
                     <span class="sort-arrows">
@@ -334,7 +401,7 @@
                     </span>
                   </th>
 
-                  <th class="th-right group-divider sortable-header" style="cursor:pointer;"
+                  <th class="th-right sortable-header  group-divider " style="cursor:pointer;"
                     (click)="sortData('closedTestDrives')">
                     Overdue
                     <span class="sort-arrows">
@@ -506,8 +573,10 @@
                                     {{ user.active ? 'Active' : 'Inactive' }}
                                   </span>
                                 </td>
-                                <td class="td-rigth">{{ user.last_login | date:'dd-MM-yyyy HH:mm' }}</td>
-
+                                <!-- <td class="td-rigth">{{ user.last_login | date:'dd-MM-yyyy HH:mm' }}</td> -->
+                                <td class="td-rigth">
+                                  {{ user.last_login ? (user.last_login | date:'dd-MM-yyyy HH:mm') : '-' }}
+                                </td>
 
 
                                 <td class="td-right">{{ user.leads?.sa ?? 0 }}</td>
@@ -626,7 +695,7 @@
                   <th class="th-right">Duration</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody class="call-logs-table">
                 <!-- Show loading row -->
 
 

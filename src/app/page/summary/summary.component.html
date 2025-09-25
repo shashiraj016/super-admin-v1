@@ -239,12 +239,14 @@
                                 <!-- <button type="button" class="btn refresh-btn" (click)="refreshData()" title="Refresh">
                                     <i class="fas fa-sync-alt"></i>
                                 </button> -->
-                                <button type="button" class="btn refresh-btn" (click)="refreshData()"
+                                <!-- <button type="button" class="btn refresh-btn" (click)="refreshData()"
                                     [disabled]="isLoading" title="Refresh">
                                     <i *ngIf="!isLoading" class="fas fa-sync-alt"></i>
                                     <i *ngIf="isLoading" class="fas fa-spinner fa-spin"></i>
+                                </button> -->
+                                <button class="btn btn-sm" (click)="refreshData()">
+                                    <i class="fa fa-refresh"></i> Refresh
                                 </button>
-
                             </div>
                         </section>
                     </div>

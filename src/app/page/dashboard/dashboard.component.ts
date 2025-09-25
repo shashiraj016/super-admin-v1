@@ -119,6 +119,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   skipDefaultSelection = false;
   loadingUsers: { [dealerId: string]: boolean } = {};
   filteredDealerData: any[] = [];
+  showLogoutModal: boolean = false;
 
   currentPageMap: { [dealerId: string]: number } = {}; // track current page per dealer
   showAllSMs: { [dealerId: string]: boolean } = {};
@@ -1264,44 +1265,43 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           //   },
           // } as any;
 
+          const targetDealers =
+            this.selectedDealers.length > 0
+              ? this.selectedDealers
+              : this.dealers;
+
           this.chartOptions = {
             series: [
               {
                 name: 'Total Calls',
-                data: this.dealers.map(
+                data: targetDealers.map(
                   (d) => this.getDealerCalls(d)?.totalCalls ?? 0
                 ),
               },
               {
                 name: 'Incoming',
-                data: this.dealers.map(
+                data: targetDealers.map(
                   (d) => this.getDealerCalls(d)?.incoming ?? 0
                 ),
               },
               {
                 name: 'Outgoing',
-                data: this.dealers.map(
+                data: targetDealers.map(
                   (d) => this.getDealerCalls(d)?.outgoing ?? 0
                 ),
               },
               {
                 name: 'Connected',
-                data: this.dealers.map(
+                data: targetDealers.map(
                   (d) => this.getDealerCalls(d)?.connected ?? 0
                 ),
               },
               {
                 name: 'Declined',
-                data: this.dealers.map(
+                data: targetDealers.map(
                   (d) => this.getDealerCalls(d)?.declined ?? 0
                 ),
               },
-              // {
-              //   name: 'Duration',
-              //   data: this.dealers.map(
-              //     (d) => this.getDealerCalls(d)?.durationSec ?? 0
-              //   ),
-              // },
             ],
             chart: {
               type: 'bar',
@@ -1309,15 +1309,24 @@ export class DashboardComponent implements AfterViewInit, OnInit {
               stacked: true,
             },
             plotOptions: {
-              bar: { horizontal: true, dataLabels: { position: 'center' } },
+              bar: {
+                horizontal: true,
+
+                dataLabels: { position: 'center' },
+              },
             },
             dataLabels: {
               enabled: true,
-              offsetX: -6,
-              style: { fontSize: '12px', colors: ['grey'] },
+              style: {
+                fontSize: '12px',
+                colors: ['#fff'],
+              },
             },
-            stroke: { show: true, width: 1, colors: ['#fff'] },
-            // tooltip: { shared: true, intersect: false },
+            stroke: {
+              show: true,
+              width: 1,
+              colors: ['#fff'],
+            },
             tooltip: {
               shared: true,
               intersect: false,
@@ -1336,7 +1345,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
               },
             },
             xaxis: {
-              categories: this.dealers.map((d) => d.dealerName), // ✅ Dealer names here
+              categories: targetDealers.map((d) => d.dealerName), // ✅ only selected dealers
             },
             title: {
               text: 'Dealer-wise Calls Analysis',
@@ -1346,20 +1355,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
               show: true,
               position: 'bottom',
               horizontalAlign: 'center',
-              markers: {
-                size: 12, // ✅ correct property
-              },
+              markers: { size: 12 },
             },
             responsive: [
               {
-                breakpoint: 768, // for tablets and below
+                breakpoint: 768,
                 options: {
                   xaxis: {
                     labels: {
-                      rotate: -60, // more tilt on small screens
-                      style: {
-                        fontSize: '9px',
-                      },
+                      rotate: -60,
+                      style: { fontSize: '9px' },
                     },
                   },
                   legend: {
@@ -1369,15 +1374,13 @@ export class DashboardComponent implements AfterViewInit, OnInit {
                 },
               },
               {
-                breakpoint: 480, // for phones
+                breakpoint: 480,
                 options: {
                   xaxis: {
                     labels: {
                       show: true,
                       rotate: -75,
-                      style: {
-                        fontSize: '8px',
-                      },
+                      style: { fontSize: '8px' },
                     },
                   },
                   legend: {
@@ -1388,6 +1391,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
               },
             ],
           };
+
           console.log('Chart series:', this.chartOptions.series);
         } else {
           this.dealers = [];
@@ -3047,14 +3051,29 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     // Sticky header logic
     this.isSticky = scrollY >= this.originalHeaderOffsetTop;
   }
+  // refreshSuperAdminDealers() {
+  //   console.log('🔄 Refresh SuperAdmin dealers clicked');
+  //   this.refreshingSA = true;
+
+  //   // Call your existing SuperAdmin dashboard API fetch
+  //   this.fetchSuperAdminDashboard(this.selectedFilter);
+
+  //   // Reset refreshing state after data comes back (or use API complete)
+  //   setTimeout(() => {
+  //     this.refreshingSA = false;
+  //   }, 1500);
+  // }
   refreshSuperAdminDealers() {
     console.log('🔄 Refresh SuperAdmin dealers clicked');
     this.refreshingSA = true;
 
+    // Collapse all expanded rows
+    this.expandedSummaryRow = null;
+
     // Call your existing SuperAdmin dashboard API fetch
     this.fetchSuperAdminDashboard(this.selectedFilter);
 
-    // Reset refreshing state after data comes back (or use API complete)
+    // Reset refreshing state after data comes back
     setTimeout(() => {
       this.refreshingSA = false;
     }, 1500);

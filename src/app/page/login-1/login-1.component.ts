@@ -268,7 +268,7 @@ export class Login1Component {
         next: () => {
           this.toastr.success('OTP sent to your email', 'Success');
           this.showVerifyOtp();
-          // this.startCountdown();
+          this.startCountdown();
         },
         error: (error) => {
           // console.error('Login error:', error);
@@ -434,18 +434,18 @@ export class Login1Component {
   //   }, this.SESSION_TIMEOUT);
   // }
 
-  // private startCountdown() {
-  //   this.countdown = 5 * 60;
-  //   if (this.countdownInterval) {
-  //     clearInterval(this.countdownInterval);
-  //   }
-  //   this.countdownInterval = setInterval(() => {
-  //     this.countdown--;
-  //     if (this.countdown === 0) {
-  //       clearInterval(this.countdownInterval);
-  //     }
-  //   }, 1000);
-  // }
+  private startCountdown() {
+    this.countdown = 5 * 60;
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
+    this.countdownInterval = setInterval(() => {
+      this.countdown--;
+      if (this.countdown === 0) {
+        clearInterval(this.countdownInterval);
+      }
+    }, 1000);
+  }
 
   // Utility methods for input styling
   addClass(event: FocusEvent): void {

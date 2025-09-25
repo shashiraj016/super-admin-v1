@@ -401,7 +401,10 @@ input[type="password"] {
   align-items: center;
   justify-content: center;
 }
-
+input:focus + .floating-label,
+input:not(:placeholder-shown) + .floating-label {
+  color: #6b7280; /* gray instead of blue */
+}
 .btn {
   display: block;
   width: 100%;
@@ -477,4 +480,14 @@ input[type="password"]::-webkit-password-toggle-button {
 /* Extra for Webkit browsers (Chrome, Safari, Edge) */
 input[type="password"]::-webkit-textfield-decoration-container {
   /* display: none !important; */
+}
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none !important;
+}
+
+/* Chrome / Edge (new WebKit behavior) */
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-password-toggle-button {
+  display: none !important;
 }
