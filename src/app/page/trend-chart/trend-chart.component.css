@@ -173,6 +173,8 @@ label {
     align-items: center;
     width: auto;
   }
+
+
 }
 
 /* Wrapper content for filters */
@@ -200,7 +202,6 @@ label {
   align-items: center;
   justify-content: space-between;
   min-width: 160px;
-  padding: 0.625rem 1rem;
   background: #ffffff;
   border: 1px solid #d1d5db;
   border-radius: 0.75rem;
@@ -416,17 +417,17 @@ label {
     gap: 1.5rem;
   }
 
-  .wrapper-content > * {
+  .wrapper-content>* {
     width: 100%;
   }
 
   /* Stack labels and inputs */
-  .wrapper-content > label {
+  .wrapper-content>label {
     margin-top: 1rem;
     margin-bottom: 0.25rem;
   }
 
-  .wrapper-content > label:first-child {
+  .wrapper-content>label:first-child {
     margin-top: 0;
   }
 }
@@ -517,6 +518,7 @@ label {
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
+
   .time-dropdown,
   .standard-dropdown,
   #usageGran,
@@ -527,6 +529,7 @@ label {
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
+
   .time-dropdown,
   .standard-dropdown,
   .dropdown-menu,
@@ -592,17 +595,7 @@ body {
   display: inline-block;
 }
 
-.ps-calls-select {
-  appearance: none; /* remove default arrow */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  padding: 2px 24px 2px 6px; /* space for arrow */
-  font-size: 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: white;
-  cursor: pointer;
-}
+
 
 /* Custom arrow */
 .select-arrow {
@@ -610,7 +603,8 @@ body {
   right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  pointer-events: none; /* arrow doesn’t block clicks */
+  pointer-events: none;
+  /* arrow doesn’t block clicks */
   font-size: 10px;
   color: #555;
 }
@@ -762,8 +756,7 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .stats-row {
-  }
+  .stats-row {}
 }
 
 @media (max-width: 768px) {
@@ -1156,15 +1149,18 @@ body {
 
 /* Remove old chart styles that conflict */
 .chart-card {
-  display: none; /* Hide old layout */
+  display: none;
+  /* Hide old layout */
 }
 
 .charts-grid {
-  display: none; /* Hide old grid layout */
+  display: none;
+  /* Hide old grid layout */
 }
 
 .metrics-grid {
-  display: none; /* Hide old column layout */
+  display: none;
+  /* Hide old column layout */
 }
 
 /* Container for label + dropdown */
@@ -1202,7 +1198,8 @@ body {
   background: #ffffff;
   border: 1px solid #d1d5db;
   border-radius: 4px;
-  padding: 4px 24px 4px 8px; /* right padding for arrow */
+  padding: 4px 24px 4px 8px;
+  /* right padding for arrow */
   font-size: 10px;
   color: #374151;
   cursor: pointer;
@@ -1214,7 +1211,8 @@ body {
   writing-mode: horizontal-tb;
   text-orientation: mixed;
   transform: rotate(180deg);
-  outline: none; /* removes blue focus border */
+  outline: none;
+  /* removes blue focus border */
 }
 
 /* Custom arrow using background SVG */
@@ -1268,7 +1266,8 @@ body {
     writing-mode: horizontal-tb;
     min-width: 120px;
     font-size: 12px;
-    padding: 6px 30px 6px 12px; /* extra padding for arrow */
+    padding: 6px 30px 6px 12px;
+    /* extra padding for arrow */
   }
 }
 
@@ -1293,7 +1292,7 @@ body {
   z-index: 1;
 }
 
-.dashboard-header > * {
+.dashboard-header>* {
   position: relative;
   z-index: 2;
 }
@@ -1452,9 +1451,12 @@ body {
 
 .user-count {
   display: flex;
-  align-items: center; /* vertical center */
-  justify-content: space-between; /* pushes badge to the right */
-  gap: 8px; /* spacing between text and badge */
+  align-items: center;
+  /* vertical center */
+  justify-content: space-between;
+  /* pushes badge to the right */
+  gap: 8px;
+  /* spacing between text and badge */
 }
 
 .dealer-name {
@@ -1464,7 +1466,8 @@ body {
 }
 
 .user-count-badge {
-  background-color: #2196f3; /* example color */
+  background-color: #2196f3;
+  /* example color */
   color: #fff;
   /* border-radius: 12px; */
   padding: 2px 8px;
@@ -1953,10 +1956,14 @@ body {
   gap: 12px;
   padding: 12px;
 
-  flex-wrap: nowrap; /* Don't wrap to new line */
-  overflow-x: auto; /* Enable horizontal scroll */
-  overflow-y: hidden; /* Prevent vertical scroll */
-  -webkit-overflow-scrolling: touch; /* Smooth scroll on mobile */
+  flex-wrap: nowrap;
+  /* Don't wrap to new line */
+  overflow-x: auto;
+  /* Enable horizontal scroll */
+  overflow-y: hidden;
+  /* Prevent vertical scroll */
+  -webkit-overflow-scrolling: touch;
+  /* Smooth scroll on mobile */
 }
 
 .metric-chart {
@@ -1983,19 +1990,7 @@ body {
   color: #1f2937;
 }
 
-.ps-calls-select {
-  appearance: none;
-  background: white;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 11px;
-  font-weight: 500;
-  color: #374151;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  max-width: 140px;
-}
+
 
 .ps-calls-select:hover {
   border-color: #9ca3af;
@@ -2107,28 +2102,34 @@ body {
 }
 
 .charts-row::-webkit-scrollbar {
-  height: 6px; /* Thin scrollbar height */
+  height: 6px;
+  /* Thin scrollbar height */
 }
 
 .charts-row::-webkit-scrollbar-track {
-  background: #f1f5f9; /* Light background */
+  background: #f1f5f9;
+  /* Light background */
   border-radius: 3px;
 }
 
 .charts-row::-webkit-scrollbar-thumb {
-  background: #cbd5e1; /* Gray thumb */
+  background: #cbd5e1;
+  /* Gray thumb */
   border-radius: 3px;
   transition: background 0.3s ease;
 }
 
 .charts-row::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8; /* Darker on hover */
+  background: #94a3b8;
+  /* Darker on hover */
 }
 
 /* ===== Firefox Scrollbar ===== */
 .charts-row {
-  scrollbar-width: thin; /* Make it thin */
-  scrollbar-color: #cbd5e1 #f1f5f9; /* thumb color | track color */
+  scrollbar-width: thin;
+  /* Make it thin */
+  scrollbar-color: #cbd5e1 #f1f5f9;
+  /* thumb color | track color */
 }
 
 .loader-overlay {
@@ -2147,8 +2148,10 @@ body {
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #e8e8e8; /* background circle */
-  border-top: 4px solid #555; /* spinning part */
+  border: 4px solid #e8e8e8;
+  /* background circle */
+  border-top: 4px solid #555;
+  /* spinning part */
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -2157,6 +2160,7 @@ body {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -2202,14 +2206,16 @@ body {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem; /* reduced gap */
+  gap: 0.5rem;
+  /* reduced gap */
   width: 100%;
 }
 
 .filter-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem; /* compact spacing between filters */
+  gap: 0.5rem;
+  /* compact spacing between filters */
   flex: 1;
   min-width: 0;
 }
@@ -2217,13 +2223,15 @@ body {
 .filter-item {
   display: flex;
   align-items: center;
-  gap: 0.25rem; /* smaller gap between label and control */
+  gap: 0.25rem;
+  /* smaller gap between label and control */
   flex-shrink: 0;
 }
 
 .filter-item label {
   white-space: nowrap;
-  font-size: 0.8125rem; /* slightly smaller */
+  font-size: 0.8125rem;
+  /* slightly smaller */
   color: #4b5563;
 }
 
@@ -2231,7 +2239,8 @@ body {
 .filter-item button {
   padding: 0.2rem 0.4rem;
   font-size: 0.8125rem;
-  min-width: 90px; /* prevent shrinking too much */
+  min-width: 90px;
+  /* prevent shrinking too much */
   background-color: white;
   border: 1px solid #d1d5db;
 }
@@ -2239,24 +2248,28 @@ body {
 .stats-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem; /* compact gap between stats */
+  gap: 0.5rem;
+  /* compact gap between stats */
   justify-content: flex-end;
   align-items: center;
 }
 
 .stat-item {
   text-align: center;
-  min-width: 70px; /* prevent stats from shrinking too much */
+  min-width: 70px;
+  /* prevent stats from shrinking too much */
 }
 
 .stat-number {
   font-weight: 600;
-  font-size: 1rem; /* slightly smaller */
+  font-size: 1rem;
+  /* slightly smaller */
   line-height: 1.2;
 }
 
 .stat-label {
-  font-size: 0.75rem; /* smaller label */
+  font-size: 0.75rem;
+  /* smaller label */
   color: #4b5563;
   white-space: nowrap;
 }
@@ -2318,18 +2331,12 @@ body {
 
 .chart-title-row {
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   align-items: center;
+  width: 100%;
 }
 
-.call-type-selector select {
-  padding: 4px 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 12px;
-  background: white;
-  outline: none;
-}
+
 
 .averages-row {
   display: flex;
@@ -2406,7 +2413,7 @@ body {
 }
 
 .ps-section-header .chart-title {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 600;
   color: #333;
 }
@@ -2417,7 +2424,7 @@ body {
 
 .dealer-header h3 {
   margin: 0;
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 600;
   color: #333;
 }
@@ -2436,6 +2443,30 @@ body {
   padding: 3px;
   gap: 10px;
   overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+}
+
+/* WebKit browsers: Chrome, Edge, Safari */
+.horizontal-charts-container::-webkit-scrollbar {
+  height: 6px;
+  /* horizontal scrollbar height */
+}
+
+.horizontal-charts-container::-webkit-scrollbar-track {
+  background: transparent;
+  /* track color */
+}
+
+.horizontal-charts-container::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  /* thumb color */
+  border-radius: 3px;
+}
+
+.horizontal-charts-container::-webkit-scrollbar-thumb:hover {
+  background-color: #999;
+  /* thumb hover color */
 }
 
 .chart-column {
@@ -2460,9 +2491,7 @@ body {
 }
 
 .call-type-selector select {
-  padding: 4px 8px;
   border: 1px solid #ddd;
-  border-radius: 4px;
   font-size: 12px;
   background: white;
   outline: none;
@@ -2561,7 +2590,8 @@ body {
   font-weight: 600;
   color: #007bff;
   font-size: 12px;
-  min-width: 30px; /* Add this line */
+  min-width: 30px;
+  /* Add this line */
   text-align: right;
 }
 
@@ -2570,7 +2600,8 @@ body {
   min-height: 20px;
   display: flex;
   align-items: center;
-  gap: 8px; /* Add this line */
+  gap: 8px;
+  /* Add this line */
 }
 
 .bar-background {
@@ -2647,7 +2678,8 @@ body {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: calc(400px - 80px); /* Subtract header height */
+  max-height: calc(400px - 80px);
+  /* Subtract header height */
   padding: 0;
 }
 
@@ -2672,7 +2704,8 @@ body {
 
 .dealer-block {
   border-bottom: 1px solid #f0f0f0;
-  flex-shrink: 0; /* Prevent dealer blocks from shrinking */
+  flex-shrink: 0;
+  /* Prevent dealer blocks from shrinking */
 }
 
 .dealer-block:last-child {
@@ -2704,16 +2737,10 @@ body {
   font-size: 14px;
   font-weight: 600;
   color: #333;
+  margin-right: 35px;
 }
 
-.call-type-selector select {
-  padding: 4px 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 12px;
-  background: white;
-  outline: none;
-}
+
 
 .averages-row {
   display: flex;

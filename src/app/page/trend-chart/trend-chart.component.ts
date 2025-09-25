@@ -51,97 +51,7 @@ export type ChartOptions = {
   styleUrls: ['./trend-chart.component.css'],
 })
 export class TrendChartComponent {
-  public chartOptions: Partial<ChartOptions> = {
-    series: [], // Will be populated dynamically from API
-    chart: {
-      height: 350,
-      // width: 1280,
-      type: 'line',
-      zoom: { enabled: false },
-      toolbar: { show: true }, // cleaner UI
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    stroke: {
-      width: 2,
-      curve: 'smooth',
-    },
-    legend: {
-      position: 'top',
-      horizontalAlign: 'left',
-      fontSize: '12px',
-      itemMargin: {
-        horizontal: 10,
-        vertical: 4,
-      },
-      tooltipHoverFormatter: function (val: string, opts: any) {
-        return (
-          val +
-          ' - <strong>' +
-          opts.w.globals.series[opts.seriesIndex][opts.dataPointIndex] +
-          '</strong>'
-        );
-      },
-    },
-    markers: {
-      size: 0,
-      hover: { sizeOffset: 6 },
-    },
-    // Replace your current xaxis configuration with this:
-    xaxis: {
-      type: 'category',
-      categories: [], // Will be populated with your date labels
-      labels: {
-        rotate: -45,
-        hideOverlappingLabels: true,
-        showDuplicates: false,
-        style: {
-          fontSize: '10px',
-        },
-        // Remove any formatter that might be converting to numbers
-      },
-      tickPlacement: 'on',
-      sorted: false,
-    },
 
-    // Replace your current tooltip configuration with this:
-    tooltip: {
-      x: {
-        formatter: (val: any) => {
-          // Return the label as-is, don't try to parse as date
-          return val.toString();
-        },
-      },
-      y: {
-        formatter: (val: number) => val.toString(),
-      },
-    },
-    grid: {
-      show: true, // make sure grid is enabled
-      borderColor: '#e0e0e0', // lighter gray lines
-      strokeDashArray: 3, // dashed lines for better readability
-      position: 'back', // behind chart elements
-      xaxis: {
-        lines: {
-          show: true, // vertical grid lines
-        },
-      },
-      yaxis: {
-        lines: {
-          show: true, // horizontal grid lines
-        },
-      },
-      row: {
-        colors: ['transparent'], // no row stripes
-        opacity: 0,
-      },
-      column: {
-        colors: ['transparent'], // no column stripes
-        opacity: 0,
-      },
-    },
-  };
 
   BASE_URL = 'https://uat.smartassistapp.in';
   TREND_CHART_URL = '/api/superAdmin/dashboard/trend-chart';
@@ -165,7 +75,7 @@ export class TrendChartComponent {
   shouldFillBars = false;
   private lastScrollTop = 0;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
     this.fetchTrendChart();
@@ -219,26 +129,26 @@ export class TrendChartComponent {
   ];
   isLoading = false;
 
-  switchChartType() {
-    this.currentChartTypeIndex =
-      (this.currentChartTypeIndex + 1) % this.chartTypes.length;
+  // switchChartType() {
+  //   this.currentChartTypeIndex =
+  //     (this.currentChartTypeIndex + 1) % this.chartTypes.length;
 
-    const newType: ChartType = this.chartTypes[this.currentChartTypeIndex];
+  //   const newType: ChartType = this.chartTypes[this.currentChartTypeIndex];
 
-    this.chartOptions = {
-      ...this.chartOptions,
-      chart: {
-        ...this.chartOptions.chart,
-        type: newType,
-        animations: {
-          enabled: true,
-          speed: 800, // only allowed props
-          animateGradually: { enabled: true, delay: 150 },
-          dynamicAnimation: { enabled: true, speed: 600 },
-        },
-      },
-    };
-  }
+  //   this.chartOptions = {
+  //     ...this.chartOptions,
+  //     chart: {
+  //       ...this.chartOptions.chart,
+  //       type: newType,
+  //       animations: {
+  //         enabled: true,
+  //         speed: 800, // only allowed props
+  //         animateGradually: { enabled: true, delay: 150 },
+  //         dynamicAnimation: { enabled: true, speed: 600 },
+  //       },
+  //     },
+  //   };
+  // }
 
   toggleDropdown() {
     this.dropdownOpen = !this.dropdownOpen;
@@ -442,65 +352,95 @@ export class TrendChartComponent {
       return { series, categories };
     };
 
-    // ---- Efficient chart update ----
-    const updateChart = (
-      chartRef: any,
-      chartData: any,
-      isHourChart = false,
-      metricKey: string = ''
-    ) => {
-      if (!chartRef) return;
+    // ---- Enhanced chart update with better data labels ----
+   const updateChart = (
+  chartRef: any,
+  chartData: any,
+  isHourChart = false,
+  metricKey: string = ''
+) => {
+  if (!chartRef) return;
 
-      const isAllDealersSingleLine =
-        chartData.series.length === 1 &&
-        chartData.series[0].name === 'All Dealers';
+  const isAllDealersSingleLine =
+    chartData.series.length === 1 &&
+    (chartData.series[0].name === 'All Dealers' ||
+      this.selectedDealers.length === 0 ||
+      !this.userTouchedDealers);
 
-      let fixedColors: string[] = [];
-      if (isAllDealersSingleLine) {
-        if (metricKey === 'leads') fixedColors = ['#000080']; // navy blue
-        if (metricKey === 'utd') fixedColors = ['#FFA500']; // orange
-        if (metricKey === 'followups') fixedColors = ['#008000']; // green
-        if (metricKey.toLowerCase().includes('call')) fixedColors = ['#800080']; // purple
-        if (metricKey === 'lastLogin') fixedColors = ['#FF0000']; // red
-      }
+  let fixedColors: string[] = [];
+  if (isAllDealersSingleLine) {
+    if (metricKey === 'leads') fixedColors = ['#000080'];
+    if (metricKey === 'utd') fixedColors = ['#FFA500'];
+    if (metricKey === 'followups') fixedColors = ['#008000'];
+    if (metricKey.toLowerCase().includes('call')) fixedColors = ['#800080'];
+    if (metricKey === 'lastLogin') fixedColors = ['#FF0000'];
+  }
 
-      const chartOptions = {
-        chart: { height: 150, toolbar: { show: false } },
-        stroke: { curve: 'smooth', width: 1 },
-        markers: { size: 4 },
-        tooltip: { enabled: true },
-        legend: { show: false },
-        xaxis: {
-          categories: chartData.categories,
-          labels: { rotate: isHourChart ? 0 : -60 },
-        },
-        yaxis: { labels: { formatter: (val: number) => val.toString() } },
-        grid: { show: true, padding: { left: 0, right: 0, top: 0, bottom: 0 } },
-        colors: fixedColors.length ? fixedColors : undefined,
-        dataLabels: isAllDealersSingleLine
-          ? {
-              enabled: true,
-              formatter: (val: number) => val.toString(),
-              style: { colors: ['#000'], fontSize: '12px', fontWeight: 'bold' },
-              background: { enabled: false },
-              offsetY: -6,
-            }
-          : { enabled: false },
-      };
+  // --- Adjust height for mobile screens ---
+  const isMobile = window.innerWidth <= 768;
+  const chartHeight = isMobile ? 300 : 150;
 
-      if (chartRef.updateOptions && chartRef.updateSeries) {
-        chartRef.updateSeries(chartData.series, true);
-        chartRef.updateOptions(chartOptions, true);
-      } else {
-        chartRef = {
-          ...chartRef,
-          series: chartData.series,
-          ...chartOptions,
-        };
-      }
+  const chartOptions: ApexCharts.ApexOptions = {
+    chart: {
+      height: chartHeight,
+      toolbar: { show: false },
+      type: 'line',
+    },
+    stroke: {
+      curve: 'smooth',
+      width: isAllDealersSingleLine ? 2 : 1,
+    },
+    markers: {
+      size: isAllDealersSingleLine ? 5 : 3,
+      strokeWidth: isAllDealersSingleLine ? 2 : 1,
+    },
+    tooltip: { enabled: true },
+    xaxis: {
+      categories: chartData.categories,
+      labels: { rotate: isHourChart ? 0 : -60 },
+    },
+    yaxis: {
+      labels: { formatter: (val: number) => val.toString() },
+    },
+    grid: {
+      show: true,
+      padding: { left: 0, right: 0, top: 0, bottom: 0 },
+    },
+    colors: fixedColors.length ? fixedColors : undefined,
+    dataLabels: {
+      enabled: isAllDealersSingleLine,
+      formatter: (val: number) => (val > 0 ? val.toString() : ''),
+      style: {
+        colors: ['#000'],
+        fontSize: '11px',
+        fontWeight: '600',
+      },
+      background: {
+        enabled: true,
+        foreColor: '#000',
+        borderColor: '#fff',
+        borderWidth: 1,
+        borderRadius: 3,
+        padding: 2,
+        opacity: 0.9,
+      },
+    },
+  };
 
-      return chartRef;
+  if (chartRef.updateOptions && chartRef.updateSeries) {
+    chartRef.updateSeries(chartData.series, true);
+    chartRef.updateOptions(chartOptions, true);
+  } else {
+    chartRef = {
+      ...chartRef,
+      series: chartData.series,
+      ...chartOptions,
     };
+  }
+
+  return chartRef;
+};
+
 
     // ---- Chart configurations ----
     const chartConfigs = [
@@ -959,6 +899,7 @@ export class TrendChartComponent {
           name: u.name,
           value: u[metric] || 0,
           dealer: dealerName,
+          role: u.role,
         }))
         .sort((a, b) => b.value - a.value);
 
@@ -988,6 +929,7 @@ export class TrendChartComponent {
         name: u.name,
         value: u[callMetric] || 0,
         dealer: dealerName,
+        role: u.role,
       }))
       .sort((a, b) => b.value - a.value);
 
