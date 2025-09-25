@@ -2,6 +2,31 @@
     <div *ngIf="isLoading" class="loader-overlay">
         <div class="spinner"></div>
     </div>
+    <!-- Header with Stats -->
+    <!-- <div class="dashboard-header">
+        <div class="stats-row">
+            <div class="stat-item">
+                <span class="stat-number">{{DistinctUsers | number}}</span>
+                <span class="stat-label">Active Users</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ topsaLeads | number }}</span>
+                <span class="stat-label">Leads</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ topTasks | number }}</span>
+                <span class="stat-label">Tasks</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ topUTDs | number }}</span>
+                <span class="stat-label">UTDs</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ topenquiryCalls | number }} / {{ topcoldCalls | number }}</span>
+                <span class="stat-label">Enquiry calls / Cold calls</span>
+            </div>
+        </div>
+    </div> -->
 
     <!-- Filter Controls -->
     <!-- <div class="filter-section">
@@ -95,6 +120,8 @@
             </div>
         </div>
     </div>
+
+
 
     <!-- Charts Section -->
     <div class="charts-container">
@@ -206,14 +233,13 @@
         <!-- PS-wise Activity Section -->
         <div class="ps-wise-activity" *ngIf="psWiseCharts.length > 0">
             <div class="ps-section-header">
-                <div class="chart-title">{{ sectionTitle }}</div>
+                <div class="chart-title">PS-wise Activity</div>
                 <!-- Role Filter Dropdown -->
                 <select [(ngModel)]="roleFilter" (change)="scheduleProcessPsActivity()" class="role-filter-select">
                     <option value="PS">PS</option>
                     <option value="SM">SM</option>
                     <option value="Both">Both</option>
                 </select>
-
             </div>
 
             <!-- Scrollable Dealers Container -->
@@ -262,8 +288,7 @@
                                     <div class="user-bar" *ngFor="let user of chart.users; let i = index">
                                         <!-- User Info -->
                                         <div class="user-info">
-                                            <span class="user-name" [title]="user.name">{{ user.name }} <small
-                                                    *ngIf="user.role">({{ user.role }})</small></span>
+                                            <span class="user-name" [title]="user.name">{{ user.name }}</span>
                                         </div>
 
                                         <!-- Bar Container -->

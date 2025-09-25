@@ -196,7 +196,7 @@
                   <th rowspan="2" class="sticky-col-header th-left">Dealer</th>
                   <th colspan="3" class="th-right group-divider ">Users</th>
                   <th colspan="4" class="th-right group-divider">Leads</th>
-                  <th colspan="5" class="th-right group-divider">Follow-ups</th>
+                  <th colspan="8" class="th-right group-divider">Follow-ups</th>
                   <th colspan="6" class="th-right group-divider">Test Drives</th>
 
                 </tr>
@@ -284,6 +284,34 @@
                         [class.active]="sortColumn==='saFollowUps' && sortDirection==='asc'">▲</span>
                       <span class="arrow-down"
                         [class.active]="sortColumn==='saFollowUps' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('taskFollowups')">
+                    Task Followups
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='taskFollowups' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='taskFollowups' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('callFollowups')">
+                    Call Followups
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='callFollowups' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='callFollowups' && sortDirection==='desc'">▼</span>
+                    </span>
+                  </th>
+
+                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('connectedFollowups')">
+                    Connected Followups
+                    <span class="sort-arrows">
+                      <span class="arrow-up"
+                        [class.active]="sortColumn==='connectedFollowups' && sortDirection==='asc'">▲</span>
+                      <span class="arrow-down"
+                        [class.active]="sortColumn==='connectedFollowups' && sortDirection==='desc'">▼</span>
                     </span>
                   </th>
 
@@ -464,6 +492,12 @@
 
 
                     <td class="td-right" style="color:#222fb9">{{ dealer.saFollowUps ?? 0 }}</td>
+                    <td class="td-right" style="color:#222fb9">{{ dealer.taskFollowups ?? 0 }}</td>
+                    <td class="td-right" style="color:#222fb9">{{ dealer.callFollowups ?? 0 }}</td>
+
+                    <td class="td-right" style="color:#222fb9">{{ dealer.connectedFollowups ?? 0 }}</td>
+
+
                     <!-- SA FOLLOWUPS -->
                     <!-- <td class="td-right"
                       [ngStyle]="{'color': dealer.saFollowUps === dealer.cxpFollowUps ? 'green' : 'red'}">
@@ -532,6 +566,10 @@
                                 <th>Sync with ICS</th>
                                 <!-- <th>Manually Entered from CXP</th> -->
                                 <th>SA Follow-ups</th>
+                                <th>Task Followups</th>
+                                <th>Call Followups</th>
+
+                                <th>Connected Followups</th>
                                 <th>Sync with CXP</th>
                                 <th>Completed</th>
 
@@ -539,12 +577,14 @@
                                 <th>Overdue</th>
                                 <!-- <th>Follow-ups (CXP)</th> -->
 
-                                <th>Total Test Drives</th>
-                                <th>Sync with CXP</th>
+                                <!-- <th>Total Test Drives</th> -->
+                                <!-- <th>Sync with CXP</th>
 
 
-                                <th>Completed </th>
+                                <th>Completed </th> -->
                                 <th>SA Test Drives</th>
+                                <th>Sync with CXP</th>
+                                <th>Completed</th>
 
                                 <th>Unique</th>
                                 <th>Upcoming </th>
@@ -588,18 +628,28 @@
 
 
                                 <td class="td-right">{{ user.followups?.sa ?? 0 }}</td>
+                                <td class="td-right">{{ user.followups?.taskFollowups ?? 0 }}</td>
+                                <td class="td-right">{{ user.followups?.callFollowups ?? 0 }}</td>
+                                <td class="td-right">{{ user.followups?.connectedFollowups ?? 0 }}</td>
+
+
+
+
+
                                 <td class="td-right">{{ user.followups?.cxp ?? 0 }}</td>
                                 <td class="td-right">{{ user.followups?.completed ?? 0 }}</td>
                                 <td class="td-right">{{ user.followups?.open ?? 0 }}</td>
                                 <td class="td-right">{{ user.followups?.closed ?? 0 }}</td>
 
-                                <td class="td-right">{{ user.testdrives?.total ?? 0 }}</td>
+                                <!-- <td class="td-right">{{ user.testdrives?.total ?? 0 }}</td> -->
 
-                                <td class="td-right">{{ user.testdrives?.cxp ?? 0 }}</td>
+                                <!-- <td class="td-right">{{ user.testdrives?.cxp ?? 0 }}</td> -->
 
                                 <!-- <td class="td-right">{{ user.testdrives?.unique ?? 0 }}</td> -->
-                                <td class="td-right">{{ user.testdrives?.completed ?? 0 }}</td>
                                 <td class="td-right">{{ user.testdrives?.sa ?? 0 }}</td>
+                                <td class="td-right">{{ user.testdrives?.cxp ?? 0 }}</td>
+                                <td class="td-right">{{ user.testdrives?.completed ?? 0 }}</td>
+
 
                                 <td class="td-rigth">{{user.testdrives?.unique ?? 0}}</td>
                                 <td class="td-right">{{ user.testdrives?.upcoming ?? 0 }}</td>

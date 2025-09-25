@@ -494,18 +494,39 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     });
   }
 
+  // getSortedDealersForSummary() {
+  //   const list =
+  //     this.selectedDealers.length > 0 ? this.selectedDealers : this.dealers;
+
+  //   // If no sort column or default direction, return list
+  //   if (!this.sortColumn || this.sortDirection === 'default') {
+  //     return list;
+  //   }
+
+  //   const column = this.sortColumn; // TypeScript now knows this is string
+
+  //   // In-place sort
+  //   list.sort((a: any, b: any) => {
+  //     const valA = a[column] ?? 0;
+  //     const valB = b[column] ?? 0;
+  //     return this.sortDirection === 'asc' ? valA - valB : valB - valA;
+  //   });
+
+  //   return list;
+  // }
   getSortedDealersForSummary() {
     const list =
-      this.selectedDealers.length > 0 ? this.selectedDealers : this.dealers;
+      this.selectedDealers.length > 0
+        ? [...this.selectedDealers]
+        : [...this.dealers];
 
-    // If no sort column or default direction, return list
     if (!this.sortColumn || this.sortDirection === 'default') {
       return list;
     }
 
-    const column = this.sortColumn; // TypeScript now knows this is string
+    const column = this.sortColumn;
 
-    // In-place sort
+    // Sort cloned list
     list.sort((a: any, b: any) => {
       const valA = a[column] ?? 0;
       const valB = b[column] ?? 0;
@@ -514,7 +535,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     return list;
   }
-
   private mapTimeToApi(time: string): 'MTD' | 'QTD' | 'YTD' {
     switch (time) {
       case '1M':
