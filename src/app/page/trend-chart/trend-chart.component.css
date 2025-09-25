@@ -1309,6 +1309,7 @@ body {
 .stats-row {
   display: flex;
   justify-content: center;
+
   /* flex-wrap: wrap; */
 }
 
@@ -2653,7 +2654,7 @@ body {
 
 /* Custom scrollbar for dealers container */
 .dealers-scroll-container::-webkit-scrollbar {
-  width: 8px;
+  width: 2px !important;
 }
 
 .dealers-scroll-container::-webkit-scrollbar-track {
@@ -2757,11 +2758,67 @@ body {
   background: #f1f1f1;
 }
 
+.dashboard-top {
+  position: relative; /* default */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #fff;
+  transition: all 0.3s ease;
+  box-shadow: none;
+}
+/* Scrollbar for .dealers-scroll-container */
+.dealers-scroll-container {
+  overflow-y: auto; /* must have for scrollbar */
+  max-height: 500px; /* set as per your design */
+}
+
+/* Chrome, Edge, Safari */
+.dealers-scroll-container::-webkit-scrollbar {
+  width: 6px; /* thin width */
+}
+
+.dealers-scroll-container::-webkit-scrollbar-track {
+  background: #f1f1f1; /* track color */
+}
+
+.dealers-scroll-container::-webkit-scrollbar-thumb {
+  background-color: #888; /* thumb color */
+  border-radius: 3px;
+}
+
+.dealers-scroll-container::-webkit-scrollbar-thumb:hover {
+  background-color: #555; /* hover effect */
+}
+
+/* Firefox */
+.dealers-scroll-container {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+.dashboard-top.sticky {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-top.hidden {
+  transform: translateY(-100%);
+}
+
 .custom-chart-container::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 2px;
 }
 
+/* Horizontal scrollbar (WebKit: Chrome, Edge, Safari) */
+.custom-chart-container::-webkit-scrollbar {
+  height: 4px; /* horizontal thickness */
+}
 .user-info {
   min-width: 120px;
   max-width: 120px;
@@ -2794,6 +2851,10 @@ body {
   background-color: #f8f9fa;
   overflow: hidden;
   position: relative;
+}
+/* Use ::ng-deep for WebKit browsers */
+::ng-deep .dealers-scroll-container::-webkit-scrollbar {
+  width: 6px; /* thin scrollbar */
 }
 
 .user-value {
@@ -2868,5 +2929,8 @@ body {
 
   .custom-chart-wrapper {
     max-height: 200px;
+  }
+  .stat-item {
+    flex: 1 1 45%; /* 2 per row */
   }
 }

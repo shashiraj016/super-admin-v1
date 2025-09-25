@@ -29,9 +29,12 @@
     </div> -->
 
     <!-- Filter Controls -->
+    <!-- <div class="filter-section">
+        <div class="filter-row">
+            <div class="dashboard-top"> -->
     <div class="filter-section">
         <div class="filter-row">
-            <div class="dashboard-top">
+            <div class="dashboard-top" #headerSection [class.sticky]="isSticky" [class.hidden]="isHidden">
                 <!-- Filters Section (Left) -->
                 <div class="filter-group">
                     <!-- Dealer Filter (your full working code) -->

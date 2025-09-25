@@ -197,7 +197,8 @@
                   <th colspan="3" class="th-right group-divider ">Users</th>
                   <th colspan="4" class="th-right group-divider">Leads</th>
                   <th colspan="5" class="th-right group-divider">Follow-ups</th>
-                  <th colspan="7" class="th-right group-divider">Test Drives</th>
+                  <th colspan="6" class="th-right group-divider">Test Drives</th>
+
                 </tr>
                 <tr>
 
@@ -286,7 +287,7 @@
                     </span>
                   </th>
 
-                  <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('saFollowUps')">
+                  <!-- <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('saFollowUps')">
                     SA
                     <span class="sort-arrows">
                       <span class="arrow-up"
@@ -294,7 +295,7 @@
                       <span class="arrow-down"
                         [class.active]="sortColumn==='saFollowUps' && sortDirection==='desc'">▼</span>
                     </span>
-                  </th>
+                  </th> -->
 
 
 
@@ -489,7 +490,7 @@
                       {{ dealer.cxpTestDrives ?? 0 }}
                     </td>
                     <td class="td-right">{{ dealer.completedTestDrives ?? 0 }}</td>
-                    <td class="td-right" style="color:#222fb9">{{ dealer.saTestDrives ?? 0 }}</td>
+                    <!-- <td class="td-right" style="color:#222fb9">{{ dealer.saTestDrives ?? 0 }}</td> -->
 
                     <td class="td-rigth">{{dealer.uniqueTestDrives ?? 0}}</td>
                     <td class="td-right">{{ dealer.upcomingTestDrives ?? 0 }}</td>

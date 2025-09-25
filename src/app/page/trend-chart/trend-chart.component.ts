@@ -51,6 +51,14 @@ export type ChartOptions = {
   styleUrls: ['./trend-chart.component.css'],
 })
 export class TrendChartComponent {
+  @ViewChild('headerSection', { static: true }) headerSection!: ElementRef;
+  headerOffset!: number;
+  showQuickActionBtn = true; // 👈 initially visible
+  originalHeaderOffsetTop: number = 0;
+
+  isSticky = false;
+  isHidden = false;
+  // lastScrollTop = 0;
   public chartOptions: Partial<ChartOptions> = {
     series: [], // Will be populated dynamically from API
     chart: {
@@ -170,20 +178,36 @@ export class TrendChartComponent {
   ngOnInit(): void {
     this.fetchTrendChart();
   }
+  ngAfterViewInit() {
+    const header = document.querySelector('.dashboard-top') as HTMLElement;
+    if (header) {
+      this.originalHeaderOffsetTop = header.offsetTop;
+    }
+  }
 
+  // @HostListener('window:scroll', [])
+  // onWindowScroll() {
+  //   const scrollY = window.scrollY || document.documentElement.scrollTop;
+
+  //   // Show/hide Quick Action button
+  //   this.showQuickActionBtn = scrollY < this.lastScrollTop;
+
+  //   this.lastScrollTop = scrollY <= 0 ? 0 : scrollY;
+
+  //   // Sticky header logic
+  //   this.isSticky = scrollY >= this.originalHeaderOffsetTop;
+  // }
   @HostListener('window:scroll', [])
   onWindowScroll() {
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const scrollY = window.scrollY || document.documentElement.scrollTop;
 
-    if (scrollTop > this.lastScrollTop) {
-      // user is scrolling down
-      this.shouldFillBars = true;
-    } else {
-      // user is scrolling up (optional: reset if you want)
-      // this.shouldFillBars = false;
-    }
+    // Sticky logic: only stick when scroll passes original position
+    this.isSticky = scrollY >= this.originalHeaderOffsetTop;
 
-    this.lastScrollTop = scrollTop;
+    // Never hide the header
+    this.isHidden = false;
+
+    this.lastScrollTop = scrollY <= 0 ? 0 : scrollY;
   }
 
   objectKeys(obj: any): string[] {
@@ -306,10 +330,8 @@ export class TrendChartComponent {
 
   fetchTrendChart() {
     const token = localStorage.getItem('token');
-    console.log('Token:', localStorage.getItem('token'));
 
     if (!token) {
-      console.error('❌ No token found in localStorage');
       return;
     }
 
@@ -339,8 +361,6 @@ export class TrendChartComponent {
         next: (res) => {
           this.isLoading = false;
 
-          console.log('✅ API Response:', res.topCards);
-
           // store dealer list on first load
           if (res.activeDealers) {
             this.dealers = res.activeDealers;
@@ -368,9 +388,7 @@ export class TrendChartComponent {
 
           this.updateAllChartsFromApi(res);
         },
-        error: (err) => {
-          console.error('❌ API Error:', err);
-        },
+        error: (err) => {},
       });
   }
 
@@ -820,7 +838,6 @@ export class TrendChartComponent {
   }
 
   processPsWiseActivityChunked() {
-    console.log('==== Start processPsWiseActivity (Chunked) ====');
     if (!this.psWiseData) return;
 
     const staticMetrics = [
@@ -906,7 +923,6 @@ export class TrendChartComponent {
       // All done - initialize accordion states
       this.initializePsAccordionStates();
       this.isLoading = false;
-      console.log('==== End processPsWiseActivity (Chunked) ====');
     }
   }
 

@@ -100,7 +100,7 @@ export class OverviewComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadDealers();
+    // this.loadDealers();
     // this.fetchSummary();
 
     // Sidebar toggle
@@ -137,8 +137,7 @@ export class OverviewComponent implements OnInit {
   }
 
   onFilterChange(filter: string) {
-    console.log('Filter selected:', filter);
-    this.loadDealers(filter); // 🔹 reload API with selected filter
+    // this.loadDealers(filter); // 🔹 reload API with selected filter
     this.selectedFilter = filter;
     // this.fetchSummary();
   }
@@ -192,12 +191,12 @@ export class OverviewComponent implements OnInit {
     this.selectedPS = 'all';
     this.selectedModel = 'all';
 
-    console.log('Filters reset ->', {
-      filter: this.selectedFilter,
-      dealer: this.selectedDealer,
-      ps: this.selectedPS,
-      model: this.selectedModel,
-    });
+    // console.log('Filters reset ->', {
+    //   filter: this.selectedFilter,
+    //   dealer: this.selectedDealer,
+    //   ps: this.selectedPS,
+    //   model: this.selectedModel,
+    // });
 
     // reload data using API default (if you want to call API)
     // use defaultApiType because backend may not accept 'all'
@@ -243,74 +242,70 @@ export class OverviewComponent implements OnInit {
   }
 
   // 🔹 Load dealers and extract New Inquiry KPI
-  loadDealers(type: string = 'DAY') {
-    const apiUrl =
-      'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
-    const token = localStorage.getItem('token');
+  // loadDealers(type: string = 'DAY') {
+  //   const apiUrl =
+  //     'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
+  //   const token = localStorage.getItem('token');
 
-    this.http
-      .get<any>(apiUrl, {
-        headers: { Authorization: `Bearer ${token}` },
-        params: { type },
-      })
-      .subscribe({
-        next: (res) => {
-          if (res.success && res.data) {
-            // 🔹 Dealers
-            if (res.data.dealers) {
-              this.dealers = res.data.dealers.map((d: any) => ({
-                dealer_id: d.dealer_id,
-                dealer_name: d.dealer_name,
-                efforts: d.efforts,
-                productivity: d.productivity, // <-- add this
-                otherKpis: d.otherKpis, // <-- add this
-                aggregatedMetrics: d.aggregatedMetrics,
-              }));
-              console.log('Dealers loaded:', this.dealers);
-            }
+  //   this.http
+  //     .get<any>(apiUrl, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //       params: { type },
+  //     })
+  //     .subscribe({
+  //       next: (res) => {
+  //         if (res.success && res.data) {
+  //           // 🔹 Dealers
+  //           if (res.data.dealers) {
+  //             this.dealers = res.data.dealers.map((d: any) => ({
+  //               dealer_id: d.dealer_id,
+  //               dealer_name: d.dealer_name,
+  //               efforts: d.efforts,
+  //               productivity: d.productivity, // <-- add this
+  //               otherKpis: d.otherKpis, // <-- add this
+  //               aggregatedMetrics: d.aggregatedMetrics,
+  //             }));
+  //           }
 
-            // 🔹 Users (PS)
-            this.users = res.data.dealers.flatMap(
-              (d: any) =>
-                d.users?.map((u: any) => ({
-                  user_id: u.user_id,
-                  name: u.name,
-                  dealer_id: d.dealer_id,
-                })) || []
-            );
-            console.log('Users (PS) loaded:', this.users);
+  //           // 🔹 Users (PS)
+  //           this.users = res.data.dealers.flatMap(
+  //             (d: any) =>
+  //               d.users?.map((u: any) => ({
+  //                 user_id: u.user_id,
+  //                 name: u.name,
+  //                 dealer_id: d.dealer_id,
+  //               })) || []
+  //           );
 
-            // 🔹 Models
-            if (res.data.models) {
-              this.models = res.data.models
-                .filter((m: any) => m.model_name)
-                .map((m: any) => ({
-                  model: m.model,
-                  model_name: m.model_name,
-                }));
-              console.log('Models loaded:', this.models);
-            }
+  //           // 🔹 Models
+  //           if (res.data.models) {
+  //             this.models = res.data.models
+  //               .filter((m: any) => m.model_name)
+  //               .map((m: any) => ({
+  //                 model: m.model,
+  //                 model_name: m.model_name,
+  //               }));
+  //           }
 
-            // 🔹 Extract aggregated New Inquiry KPI (first dealer or aggregatedMetrics)
-            if (res.data.aggregatedMetrics?.efforts?.['New Inquiry']) {
-              this.newInquiryKpi =
-                res.data.aggregatedMetrics.efforts['New Inquiry'];
-            } else if (this.dealers.length > 0) {
-              // fallback: take first dealer's New Inquiry
-              this.newInquiryKpi = this.getKpiByName(
-                this.dealers[0],
-                'efforts',
-                'New Inquiry'
-              );
-            }
+  //           // 🔹 Extract aggregated New Inquiry KPI (first dealer or aggregatedMetrics)
+  //           if (res.data.aggregatedMetrics?.efforts?.['New Inquiry']) {
+  //             this.newInquiryKpi =
+  //               res.data.aggregatedMetrics.efforts['New Inquiry'];
+  //           } else if (this.dealers.length > 0) {
+  //             // fallback: take first dealer's New Inquiry
+  //             this.newInquiryKpi = this.getKpiByName(
+  //               this.dealers[0],
+  //               'efforts',
+  //               'New Inquiry'
+  //             );
+  //           }
 
-            console.log('New Inquiry KPI:', this.newInquiryKpi);
-          }
-        },
-        error: (err) =>
-          console.error('Error fetching dealers/users/models', err),
-      });
-  }
+  //         }
+  //       },
+  //       error: (err) =>
+  //         console.error('Error fetching dealers/users/models', err),
+  //     });
+  // }
   loadDashboard(type: string) {
     const apiUrl =
       'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';

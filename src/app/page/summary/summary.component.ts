@@ -738,7 +738,6 @@ export class SummaryComponent implements OnInit {
   //     });
   // }
   getStaticMsg(name: string): string {
-    console.log('Checking static msg forrrrrrrrrrrrrrrrrrr:', name);
     switch (name) {
       case 'New Enquiry':
         return ' (2 per day per ps)';
@@ -852,16 +851,12 @@ export class SummaryComponent implements OnInit {
       query += `&modal=${encodeURIComponent(model)}`;
     }
 
-    console.log('API call URL:', `${apiUrl}?${query}`);
-
     this.http
       .get<any>(`${apiUrl}?${query}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .subscribe({
         next: (res) => {
-          console.log('Full API response:', res);
-
           if (!this.allDealers || this.allDealers.length === 0) {
             this.allDealers = res.dealers || [];
           }
@@ -993,7 +988,6 @@ export class SummaryComponent implements OnInit {
           if (callback) callback(); // stop loader
         },
         error: (err) => {
-          console.error('Error fetching data', err);
           if (callback) callback(); // stop loader even on error
 
           this.efforts = [];
@@ -1304,7 +1298,6 @@ export class SummaryComponent implements OnInit {
   //   this.loadDealers('DAY', 'all', null, modelParam);
   // }
   callAPI() {
-    console.log('');
     const modelParam = this.selectedModels.length
       ? this.selectedModels.join(',')
       : 'all';

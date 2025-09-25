@@ -381,7 +381,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   toggleExpand(index: number): void {
     this.expandedRows[index] = !this.expandedRows[index];
-    console.log(`Order ${index + 1} expanded:`, this.expandedRows[index]);
+    // console.log(`Order ${index + 1} expanded:`, this.expandedRows[index]);
   }
   getStrokeColor(change: number): string {
     const value = Number(change); // Ensure type
@@ -431,18 +431,18 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   getSortedUsers(dealerId: string) {
-    console.log('🔥 getSortedUsers called for dealer', dealerId);
+    // console.log('🔥 getSortedUsers called for dealer', dealerId);
 
     const users = this.dealerUsers[dealerId] ?? [];
-    console.log(
-      '📊 Sorting dealer summary users:',
-      dealerId,
-      users.map((u) => ({
-        user: u.user,
-        saLeads: u.leads?.sa,
-        totalCalls: u.calls?.total,
-      }))
-    );
+    // console.log(
+    //   '📊 Sorting dealer summary users:',
+    //   dealerId,
+    //   users.map((u) => ({
+    //     user: u.user,
+    //     saLeads: u.leads?.sa,
+    //     totalCalls: u.calls?.total,
+    //   }))
+    // );
 
     return [...users].sort((a, b) => {
       const saA = a.leads?.sa ?? 0;
@@ -463,18 +463,18 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   getSortedCallLogs(dealerId: string) {
-    console.log('🔥 getSortedCallLogs called for dealer', dealerId);
+    // console.log('🔥 getSortedCallLogs called for dealer', dealerId);
 
     const users = this.userCallLogs[dealerId] ?? [];
-    console.log(
-      '📞 Sorting call log users:',
-      dealerId,
-      users.map((u) => ({
-        user: u.name,
-        totalCalls: u.calls?.total,
-        saLeads: u.leads?.sa,
-      }))
-    );
+    // console.log(
+    //   '📞 Sorting call log users:',
+    //   dealerId,
+    //   users.map((u) => ({
+    //     user: u.name,
+    //     totalCalls: u.calls?.total,
+    //     saLeads: u.leads?.sa,
+    //   }))
+    // );
     return [...users].sort((a, b) => {
       const totalA = a.calls?.total ?? 0;
       const totalB = b.calls?.total ?? 0;
@@ -533,14 +533,14 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const token = localStorage.getItem('token');
     if (!token) {
-      console.error('No token found in localStorage!');
+      // console.error('No token found in localStorage!');
       return;
     }
 
     const apiType = this.mapTimeToApi(time);
 
     this.dashboardService.getDealers(apiType, token).subscribe((res: any) => {
-      console.log('API Response dealerssssssssssss:', res);
+      // console.log('API Response dealerssssssssssss:', res);
       if (res.status === 200 && res.data?.dealers) {
         this.dealers = res.data.dealers;
         this.expandedDealer = null;
@@ -714,7 +714,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         }
       },
       error: (err) => {
-        console.error('Failed to fetch SM data:', err);
+        // console.error('Failed to fetch SM data:', err);
         this.dealerSMS[dealerId] = [];
         this.activeSM = null;
       },
@@ -732,7 +732,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         this.psData[smId] = res?.data?.ps || [];
       },
       error: (err) => {
-        console.error('Failed to fetch PS data:', err);
+        // console.error('Failed to fetch PS data:', err);
         this.psData[smId] = [];
       },
     });
@@ -867,16 +867,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.activePS = this.activePS === id ? null : id;
   }
   onDropdownChange() {
-    console.log('Dropdown changed:');
-    console.log('selectedCategory:', this.selectedCategory);
-    console.log('selectedDuration:', this.selectedDuration);
+    // console.log('Dropdown changed:');
+    // console.log('selectedCategory:', this.selectedCategory);
+    // console.log('selectedDuration:', this.selectedDuration);
 
     if (this.selectedCategory && this.selectedDuration) {
-      console.log('✅ Both dropdowns selected. Proceeding to fetch data...');
+      // console.log('✅ Both dropdowns selected. Proceeding to fetch data...');
       this.selectedOption = `${this.selectedCategory}-${this.selectedDuration}`;
       // this.updateDataBasedOnSelection(); // Fetch data
     } else {
-      console.warn('⚠️ One or both dropdowns not selected. Skipping fetch.');
+      // console.warn('⚠️ One or both dropdowns not selected. Skipping fetch.');
     }
   }
 
@@ -937,7 +937,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   loadDealersForPage(page: number): void {
-    console.log(`Loading dealers for page ${page}`);
+    // console.log(`Loading dealers for page ${page}`);
     const accordions = document.querySelectorAll(
       '.accordion.level-1'
     ) as NodeListOf<HTMLElement>;
@@ -953,12 +953,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   changeTablePage(tableId: string, direction: number): void {
-    console.log(`Changing page for ${tableId} by ${direction}`);
+    // console.log(`Changing page for ${tableId} by ${direction}`);
   }
 
   // Add search functionality
   searchDealer(searchTerm: string): void {
-    console.log('Searching for:', searchTerm);
+    // console.log('Searching for:', searchTerm);
   }
 
   autoCollapseOthers(currentId: string): void {
@@ -985,14 +985,14 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     filterElements.forEach((element: HTMLElement) => {
       element.addEventListener('change', (event: Event) => {
         const target = event.target as HTMLInputElement | HTMLSelectElement;
-        console.log('Filter changed:', target.value);
+        // console.log('Filter changed:', target.value);
         this.handleFilterChange(target.value);
       });
     });
   }
 
   private handleFilterChange(value: string): void {
-    console.log('Handling filter change:', value);
+    // console.log('Handling filter change:', value);
   }
 
   onSearchChange(event: Event): void {
@@ -1003,12 +1003,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   fetchSuperAdminDashboard(type: string): void {
     this.isLoading = true;
 
-    console.log('🚀 fetchSuperAdminDashboard called with:', type);
-    console.log(
-      '📍 Selected dealers:',
-      this.selectedDealers?.length,
-      this.selectedDealers
-    );
+    // console.log('🚀 fetchSuperAdminDashboard called with:', type);
+    // console.log(
+    //   '📍 Selected dealers:',
+    //   this.selectedDealers?.length,
+    //   this.selectedDealers
+    // );
 
     let url = '';
     const isCustomMode =
@@ -1031,11 +1031,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
     }
 
-    console.log('🌐 API URL:', url);
+    // console.log('🌐 API URL:', url);
 
     const token = localStorage.getItem('token');
     if (!token) {
-      console.error('No token found in localStorage!');
+      // console.error('No token found in localStorage!');
       this.isLoading = false;
       return;
     }
@@ -1045,7 +1045,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
         this.isLoading = false;
-        console.log('📦 Full API Response:', res);
+        // console.log('📦 Full API Response:', res);
 
         if (res?.status === 200 && res.data) {
           const globalDealers = res.data.dealers ?? 0;
@@ -1064,8 +1064,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           };
 
           const newDealerData = res.data.dealerData ?? [];
-          console.log('🏪 Previous dealers count:', this.dealers?.length || 0);
-          console.log('🏪 New dealers count:', newDealerData.length);
+          // console.log('🏪 Previous dealers count:', this.dealers?.length || 0);
+          // console.log('🏪 New dealers count:', newDealerData.length);
 
           // Replace dealers
           this.dealers = [...newDealerData];
@@ -1392,7 +1392,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             ],
           };
 
-          console.log('Chart series:', this.chartOptions.series);
+          // console.log('Chart series:', this.chartOptions.series);
         } else {
           this.dealers = [];
           this.filteredDealers = [];
@@ -1413,7 +1413,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       },
       error: (err) => {
         this.isLoading = false;
-        console.error('❌ API failed:', err);
+        // console.error('❌ API failed:', err);
         this.dealers = [];
         this.filteredDealers = [];
         this.userCallLogs = {};
@@ -1500,7 +1500,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         }
       },
       (err) => {
-        console.error('Error fetching dealers:', err);
+        // console.error('Error fetching dealers:', err);
         this.dealers = []; // clear on error
       }
     );
@@ -1616,7 +1616,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       },
       error: (err) => {
         this.loadingUsers[id] = false;
-        console.error(err);
+        // console.error(err);
         this.dealerUsers[id] = [];
       },
     });
@@ -1829,7 +1829,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           });
         },
         error: (err) => {
-          console.error(err);
+          // console.error(err);
           this.ngZone.run(() => {
             this.dealers = [];
             this.kpiData = {
@@ -1881,7 +1881,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.http
         .get(url, { headers: { Authorization: `Bearer ${token}` } })
         .subscribe((res) => {
-          console.log('Custom dealer response', res);
+          // console.log('Custom dealer response', res);
         });
     } else {
       // Fallback: legacy API with type
@@ -1889,7 +1889,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.http
         .get(url, { headers: { Authorization: `Bearer ${token}` } })
         .subscribe((res) => {
-          console.log('Non-custom dealer response', res);
+          // console.log('Non-custom dealer response', res);
         });
     }
   }
@@ -1945,12 +1945,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     return colors[index % colors.length];
   }
   onPSCardClick(psId: number): void {
-    console.log('Clicked PS ID:', psId);
+    // console.log('Clicked PS ID:', psId);
   }
 
   fetchPS1Data(): void {
     if (!this.selectedSM || !this.selectedDealerId) {
-      console.warn('SM or Dealer not selected');
+      // console.warn('SM or Dealer not selected');
       return;
     }
 
@@ -1964,7 +1964,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const token = localStorage.getItem('token');
 
     if (!token) {
-      console.error('No token found in localStorage');
+      // console.error('No token found in localStorage');
       this.loadingPS = false; // stop loading on error
       return;
     }
@@ -1987,14 +1987,14 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             retail: ps.retail,
           }));
         } else {
-          console.warn('No PS data found in API response');
+          // console.warn('No PS data found in API response');
           this.ps1Data = [];
         }
 
         this.loadingPS = false; // stop loading after success
       },
       error: (err) => {
-        console.error('Error fetching PS1 data:', err);
+        // console.error('Error fetching PS1 data:', err);
         this.ps1Data = [];
         this.loadingPS = false; // stop loading after error
       },
@@ -2184,7 +2184,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   fetchDashboardData(type: 'MTD' | 'QTD' | 'YTD' = 'MTD') {
     const token = localStorage.getItem('token');
     if (!token) {
-      console.error('Token not found!');
+      // console.error('Token not found!');
       return;
     }
 
@@ -2194,7 +2194,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
-        console.log(`API response for type=${type}:`, res);
+        // console.log(`API response for type=${type}:`, res);
         const data = res?.data || {};
 
         const cleanChange = (val: any): number => {
@@ -2225,39 +2225,39 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         this.orderProgressValue = Math.abs(this.orderChange);
         this.orderStrokeColor = this.getStrokeColor(this.orderChange);
 
-        console.log('✅ Final Parsed Data:', {
-          leads: {
-            current: this.currentLeads,
-            previous: this.previousLeads,
-            change: this.changeDisplay,
-          },
-          testDrives: {
-            current: this.currentTestDrives,
-            previous: this.previousTestDrives,
-            change: this.testDriveChange,
-          },
-          orders: {
-            current: this.currentOrders,
-            previous: this.previousOrders,
-            change: this.orderChange,
-          },
-        });
+        // console.log('✅ Final Parsed Data:', {
+        //   leads: {
+        //     current: this.currentLeads,
+        //     previous: this.previousLeads,
+        //     change: this.changeDisplay,
+        //   },
+        //   testDrives: {
+        //     current: this.currentTestDrives,
+        //     previous: this.previousTestDrives,
+        //     change: this.testDriveChange,
+        //   },
+        //   orders: {
+        //     current: this.currentOrders,
+        //     previous: this.previousOrders,
+        //     change: this.orderChange,
+        //   },
+        // });
 
         if (data.kpi) {
           const totalTestDrives = Number(data.kpi.totalTestDrives) || 0;
           const totalOrders = Number(data.kpi.totalOrders) || 0;
 
           if (totalTestDrives > 0 || totalOrders > 0) {
-            console.log('📊 Creating Doughnut Chart with:', {
-              totalTestDrives,
-              totalOrders,
-            });
+            // console.log('📊 Creating Doughnut Chart with:', {
+            //   totalTestDrives,
+            //   totalOrders,
+            // });
             // Optional: createDoughnutChart(totalTestDrives, totalOrders);
           }
         }
       },
       error: (err) => {
-        console.error('Dashboard API error:', err);
+        // console.error('Dashboard API error:', err);
       },
     });
   }
@@ -2267,23 +2267,23 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       .get<any>('https://uat.smartassistapp.in/api/superAdmin/dashbaordNew')
       .subscribe(
         (response) => {
-          console.log('API Response:', response); // Log the response to check its structure
+          // console.log('API Response:', response); // Log the response to check its structure
           if (response?.data) {
             this.data = response.data; // Assign the 'data' part of the response
-            console.log('Data after assignment:', this.data); // Check if `this.data` is populated correctly
+            // console.log('Data after assignment:', this.data); // Check if `this.data` is populated correctly
           } else {
-            console.error('No data in response:', response);
+            // console.error('No data in response:', response);
           }
         },
         (error) => {
-          console.error('Error fetching data:', error);
+          // console.error('Error fetching data:', error);
         }
       );
   }
 
   getLeadChange() {
-    console.log('Data:', this.data); // Log the entire data object
-    console.log('Lead Change:', this.data?.leads?.change); // Log the specific change value
+    // console.log('Data:', this.data); // Log the entire data object
+    // console.log('Lead Change:', this.data?.leads?.change); // Log the specific change value
 
     if (this.data?.leads?.change) {
       return this.data.leads.change; // This should return 100 based on your API response
@@ -2298,8 +2298,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   getLeadPercentageChange(): number {
-    console.log(this.dashboardData);
-    console.log(this.dashboardData?.leads?.change);
+    // console.log(this.dashboardData);
+    // console.log(this.dashboardData?.leads?.change);
 
     return this.dashboardData?.leads?.change || 0;
   }
@@ -2352,7 +2352,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
           }
         },
         error: (err) => {
-          console.error('Error fetching dealer data:', err);
+          // console.error('Error fetching dealer data:', err);
           this.dealers = [];
         },
       });
@@ -2456,7 +2456,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const dealersToExport = this.getSortedDealersForSummary();
 
     if (!dealersToExport || dealersToExport.length === 0) {
-      console.warn('No dealers to export');
+      // console.warn('No dealers to export');
       return;
     }
 
@@ -2589,7 +2589,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         : [...this.dealers];
 
     if (!list || list.length === 0) {
-      console.warn('No dealers to export');
+      // console.warn('No dealers to export');
       return;
     }
 
@@ -2641,7 +2641,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    console.log('Dealer call logs CSV exported successfully');
+    // console.log('Dealer call logs CSV exported successfully');
   }
 
   // toggleSummaryRow(event: Event, dealer: any): void {
@@ -3064,7 +3064,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //   }, 1500);
   // }
   refreshSuperAdminDealers() {
-    console.log('🔄 Refresh SuperAdmin dealers clicked');
+    // console.log('🔄 Refresh SuperAdmin dealers clicked');
     this.refreshingSA = true;
 
     // Collapse all expanded rows
