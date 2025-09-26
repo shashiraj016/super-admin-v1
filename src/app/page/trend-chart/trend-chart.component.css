@@ -612,7 +612,6 @@ body {
   /* max-width: 1400px; */
   margin: 0 auto;
   background: white;
-  border-radius: 16px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
@@ -761,7 +760,7 @@ body {
   }
 
   .stats-row {
-    flex-direction: column;
+    /* flex-direction: column; */
   }
 
   body {
@@ -1407,14 +1406,12 @@ body {
   }
 
   .stats-row {
-    flex-direction: column;
     gap: 12px;
     align-items: center;
   }
 
   .stat-item {
     width: 100%;
-    max-width: 300px;
   }
 
   .stat-number {
@@ -2952,3 +2949,49 @@ body {
 }
 
 /*  */
+
+@media (max-width: 768px) {
+  .filter-group label {
+    font-size: 8px !important;
+  }
+
+  .filter-group .flt1 {
+    width: 140px !important;
+  }
+
+  .filter-group .filter-item {
+    width: 120px !important;
+  }
+
+  .filter-group .filter-item select {
+    font-size: 9px !important;
+  }
+
+  .no-border{
+    font-size: 8px;
+  }
+
+  .filter-group{
+    padding-left: 4px ;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-wrapper {
+    flex-wrap: wrap;     /* ✅ allow wrapping only on mobile */
+    overflow-x: unset;   /* remove horizontal scroll */
+    justify-content: center; /* optional: center cards */
+  }
+
+  .stat-item{
+    border: 1px solid lightgray;
+    min-width: 0;
+    border-radius: 0%;
+    padding: 5px 5px;
+  }
+
+  .stats-wrapper .stat-card {
+    flex: 1 1 150px;   /* flexible with min width */
+    max-width: 200px;  /* prevent too wide cards */
+  }
+}
