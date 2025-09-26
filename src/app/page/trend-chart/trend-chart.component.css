@@ -272,6 +272,7 @@ label {
 /* Dropdown search input */
 .dropdown-menu input[type="text"] {
   width: 100%;
+  display: flex;
   padding: 0.5rem 0.75rem;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
@@ -291,6 +292,7 @@ label {
 .dropdown-menu .border-bottom {
   border-bottom: 1px solid #e5e7eb !important;
   padding: 0.5rem 0.75rem;
+  display: flex;
   background: #f9fafb;
 }
 

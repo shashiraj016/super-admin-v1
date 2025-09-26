@@ -120,6 +120,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   loadingUsers: { [dealerId: string]: boolean } = {};
   filteredDealerData: any[] = [];
   showLogoutModal: boolean = false;
+  isTop = true; // true if scroll is at the top
 
   currentPageMap: { [dealerId: string]: number } = {}; // track current page per dealer
   showAllSMs: { [dealerId: string]: boolean } = {};
@@ -127,6 +128,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   customStartDate: string = '';
   customEndDate: string = '';
   isAllSelected: boolean = false;
+  isAtTop = true;
 
   displayedDealers: any[] = [];
   itemsToShow: number = 10;
@@ -181,6 +183,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   table2Length = 10;
   isLoading = false;
   overallData: any = {}; // 👈 holds overall API response metrics
+  isVerticalScroll = false;
 
   dealerSummaryCallsViewType: 'table' | 'chart' = 'table';
 
@@ -3097,5 +3100,17 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     setTimeout(() => {
       this.refreshingSA = false;
     }, 1500);
+  }
+  onScroll(event: any) {
+    this.isAtTop = event.target.scrollTop === 0; // true only if scrolled at the top
+  }
+  onDealerTableScroll(event: any) {
+    const scrollTop = event.target.scrollTop;
+
+    // Detect vertical scroll
+    this.isVerticalScroll = scrollTop !== this.lastScrollTop;
+
+    // Update last scroll top
+    this.lastScrollTop = scrollTop;
   }
 }

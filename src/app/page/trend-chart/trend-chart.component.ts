@@ -478,7 +478,7 @@ export class TrendChartComponent {
       return { series, categories };
     };
 
-    // ---- Efficient chart update ----
+    // ---- Enhanced chart update with better data labels ----
     const updateChart = (
       chartRef: any,
       chartData: any,
@@ -489,39 +489,72 @@ export class TrendChartComponent {
 
       const isAllDealersSingleLine =
         chartData.series.length === 1 &&
-        chartData.series[0].name === 'All Dealers';
+        (chartData.series[0].name === 'All Dealers' ||
+          this.selectedDealers.length === 0 ||
+          !this.userTouchedDealers);
 
       let fixedColors: string[] = [];
       if (isAllDealersSingleLine) {
-        if (metricKey === 'leads') fixedColors = ['#000080']; // navy blue
-        if (metricKey === 'utd') fixedColors = ['#FFA500']; // orange
-        if (metricKey === 'followups') fixedColors = ['#008000']; // green
-        if (metricKey.toLowerCase().includes('call')) fixedColors = ['#800080']; // purple
-        if (metricKey === 'lastLogin') fixedColors = ['#FF0000']; // red
+        if (metricKey === 'leads') fixedColors = ['#000080'];
+        if (metricKey === 'utd') fixedColors = ['#FFA500'];
+        if (metricKey === 'followups') fixedColors = ['#008000'];
+        if (metricKey.toLowerCase().includes('call')) fixedColors = ['#800080'];
+        if (metricKey === 'lastLogin') fixedColors = ['#FF0000'];
       }
 
-      const chartOptions = {
-        chart: { height: 150, toolbar: { show: false } },
-        stroke: { curve: 'smooth', width: 1 },
-        markers: { size: 4 },
+      // --- Adjust height for mobile screens ---
+      const isMobile = window.innerWidth <= 768;
+      const chartHeight = isMobile ? 300 : 150;
+
+      const chartOptions: ApexCharts.ApexOptions = {
+        chart: {
+          height: chartHeight,
+          toolbar: { show: false },
+          type: 'line',
+        },
+        stroke: {
+          curve: 'smooth',
+          width: isAllDealersSingleLine ? 1 : 1,
+        },
+        markers: {
+          size: isAllDealersSingleLine ? 4 : 3,
+          strokeWidth: isAllDealersSingleLine ? 2 : 1,
+        },
         tooltip: { enabled: true },
-        legend: { show: false },
         xaxis: {
           categories: chartData.categories,
           labels: { rotate: isHourChart ? 0 : -60 },
         },
-        yaxis: { labels: { formatter: (val: number) => val.toString() } },
-        grid: { show: true, padding: { left: 0, right: 0, top: 0, bottom: 0 } },
+        yaxis: {
+          labels: { formatter: (val: number) => val.toString() },
+        },
+        legend: {
+          show: false,
+        },
+        grid: {
+          show: true,
+          padding: { left: 0, right: 0, top: 0, bottom: 0 },
+        },
         colors: fixedColors.length ? fixedColors : undefined,
-        dataLabels: isAllDealersSingleLine
-          ? {
-              enabled: true,
-              formatter: (val: number) => val.toString(),
-              style: { colors: ['#000'], fontSize: '12px', fontWeight: 'bold' },
-              background: { enabled: false },
-              offsetY: -6,
-            }
-          : { enabled: false },
+        dataLabels: {
+          enabled: isAllDealersSingleLine,
+          formatter: (val: number) => (val > 0 ? val.toString() : ''),
+          style: {
+            fontSize: '11px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontWeight: 'bold',
+            colors: ['#304758'],
+          },
+          background: {
+            enabled: true,
+            foreColor: '#fff',
+            padding: 4,
+            borderRadius: 2,
+            borderWidth: 1,
+            borderColor: '#ccc',
+            opacity: 0.9,
+          },
+        },
       };
 
       if (chartRef.updateOptions && chartRef.updateSeries) {
@@ -532,6 +565,7 @@ export class TrendChartComponent {
           ...chartRef,
           series: chartData.series,
           ...chartOptions,
+          legend: { show: false },
         };
       }
 

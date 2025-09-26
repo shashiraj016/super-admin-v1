@@ -4481,6 +4481,18 @@ body {
   padding: 0.375rem 0.75rem;
   font-size: 0.75rem;
 }
+.kpi-section {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* 6 equal columns */
+  gap: 12px;
+}
+
+.kpi-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
 /* KPI Section */
 .kpi-section {
@@ -4491,7 +4503,7 @@ body {
 
 @media (min-width: 768px) {
   .kpi-section {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(6, 1fr);
   }
 }
 
@@ -4623,7 +4635,7 @@ body {
 .table-row:hover {
   background: #eef7ff !important;
 } */
- 
+
 .table-row td {
   transition: background-color 0.3s;
 }
@@ -4722,7 +4734,7 @@ body {
 .sub-row-inner {
   padding: 1rem 1.5rem;
   border-top: 1px solid #e2e8f0;
-  border: 1px solid #ccc;
+  /* border: 1px solid #ccc; */
   border-radius: 10px;
 }
 
@@ -4922,6 +4934,9 @@ tbody tr:nth-child(odd) {
 }
 
 @media (max-width: 844px) {
+  #selectall {
+    white-space: nowrap;
+  }
   /* Ye CSS sirf tab chalega jab screen 767px ya usse chhoti ho (mobiles) */
   .header2 {
     display: block !important;
@@ -5006,7 +5021,7 @@ tbody tr:nth-child(odd) {
 /* First header row */
 .table-thead tr:first-child th {
   position: sticky;
-  top: 18px;
+  top: 10px !important;
   background: white;
   z-index: 30; /* lower than dealer column */
 }
@@ -5441,4 +5456,184 @@ input:focus {
 .sort-arrows-spaced .arrow-up.active,
 .sort-arrows-spaced .arrow-down.active {
   color: #555;
+}
+
+/*  */
+
+/* Apply border to the table */
+.bordered-table {
+  border-collapse: collapse; /* important for clean borders */
+  width: 100%;
+}
+
+/* Border for each cell */
+.bordered-table th,
+.bordered-table td {
+  border: 1px solid #ccc; /* or any color you want */
+  padding: 8px;
+  text-align: center;
+}
+
+/* Optional: Header background */
+.bordered-table th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
+/* Optional: Alternating row colors */
+.bordered-table tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+/* Scrollable container */
+.table-scroll {
+  max-height: 500px; /* Set your desired table height */
+  overflow: auto;
+  position: relative;
+}
+/* User sub-table only */
+.sub-table {
+  border-collapse: collapse;
+  width: 100%;
+  border: 1px solid #ccc; /* outer border */
+}
+
+/* Borders for each cell */
+.sub-table th,
+.sub-table td {
+  border: 1px solid #ccc;
+  padding: 6px 8px;
+  text-align: center;
+}
+
+/* Optional: highlight user table header */
+.sub-table thead th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+/* Sticky thead */
+.data-table thead th {
+  position: sticky;
+  /* top: 0; */
+  /* background: #fff; Or your header color */
+  /* z-index: 20; */
+  box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2); /* Optional shadow for distinction */
+}
+
+/* Sticky first column (Dealer) */
+.sticky-col-header {
+  position: sticky;
+  left: 0;
+  /* background: #fff; */
+  z-index: 25; /* higher than thead */
+  /* box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.2); */
+}
+/* Main table header (both rows) */
+.data-table thead tr:first-child th {
+  /* position: sticky; */
+  /* top: 0;
+  z-index: 20; First row of header */
+  /* background: #fff; */
+}
+
+.data-table thead tr:nth-child(2) th {
+  position: sticky;
+  top: 35px; /* height of first row */
+  z-index: 21; /* second row above first row */
+  background: #fff;
+}
+
+/* Sticky first column */
+.sticky-col-header {
+  position: sticky;
+  left: 0;
+  z-index: 22; /* above header row? adjust if needed */
+  background: #fff;
+}
+
+/* Optional: sticky for sub-rows inside expanded table */
+.sub-table thead th {
+  position: sticky;
+  top: 0;
+  background: #f7f7f7;
+  z-index: 15;
+}
+
+/* CLAUDE */
+/* Container for scrolling */
+.sub-table-container {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid #ccc;
+}
+
+/* Table */
+.sub-table {
+  border-collapse: separate; /* change to separate for individual row borders */
+  border-spacing: 0; /* no gaps between cells */
+  width: 100%;
+  min-width: max-content;
+}
+
+/* Headers and cells */
+.sub-table th,
+.sub-table td {
+  border: 1px solid #ccc;
+  padding: 6px 8px;
+  text-align: center;
+  white-space: nowrap;
+  background: #fff;
+}
+
+/* Optional: sticky header */
+.sub-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f9f9f9;
+  font-weight: 600;
+}
+
+/* Add a border around each row */
+.sub-table tbody tr {
+  display: table-row;
+  border: 1px solid #ccc; /* row border */
+}
+
+/* Optional: alternate row shading */
+.sub-table tbody tr.row-alt {
+  background-color: #f9f9f9;
+}
+
+.sub-table tbody tr.row-normal {
+  background-color: #fff;
+}
+
+/* Text alignment helpers */
+.td-center {
+  text-align: center;
+}
+.td-left {
+  text-align: left;
+}
+.td-right {
+  text-align: right;
+}
+.sub-table td {
+  border-bottom: 2px solid #ccc; /* thicker row separation */
+}
+
+.td-left.sticky-col-header {
+  position: sticky; /* keep it sticky horizontally */
+  left: 0; /* horizontal stick */
+  background: #fff;
+  z-index: 2; /* above other columns */
+  top: auto; /* allow vertical scroll */
+}
+
+/* Optional: when expanded or vertical scroll, remove z-index to avoid overlapping */
+.td-left.sticky-disabled {
+  position: static; /* scroll normally vertically */
 }
