@@ -2,36 +2,7 @@
     <div *ngIf="isLoading" class="loader-overlay">
         <div class="spinner"></div>
     </div>
-    <!-- Header with Stats -->
-    <!-- <div class="dashboard-header">
-        <div class="stats-row">
-            <div class="stat-item">
-                <span class="stat-number">{{DistinctUsers | number}}</span>
-                <span class="stat-label">Active Users</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number">{{ topsaLeads | number }}</span>
-                <span class="stat-label">Leads</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number">{{ topTasks | number }}</span>
-                <span class="stat-label">Tasks</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number">{{ topUTDs | number }}</span>
-                <span class="stat-label">UTDs</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number">{{ topenquiryCalls | number }} / {{ topcoldCalls | number }}</span>
-                <span class="stat-label">Enquiry calls / Cold calls</span>
-            </div>
-        </div>
-    </div> -->
 
-    <!-- Filter Controls -->
-    <!-- <div class="filter-section">
-        <div class="filter-row">
-            <div class="dashboard-top"> -->
     <div class="filter-section">
         <div class="filter-row">
             <div class="dashboard-top" #headerSection [class.sticky]="isSticky" [class.hidden]="isHidden">
@@ -126,11 +97,11 @@
     <!-- Charts Section -->
     <div class="charts-container">
         <div class="metrics-rows">
-            <!-- Leads Row -->
             <div class="charts-level-header" style="display: flex;">
                 <div style="flex: 1; text-align: center;" class="chart-level-title">Day Level</div>
                 <div style="flex: 1; text-align: center;" class="chart-level-title">Hour Level</div>
             </div>
+            <!-- Leads Row -->
             <div class="metric-row">
                 <div class="metric-label">
                     <h3>Leads</h3>
@@ -140,9 +111,15 @@
                         <div class="chart-wrapper">
                             <apx-chart [series]="dayLeadChart.series!" [chart]="dayLeadChart.chart!"
                                 [xaxis]="dayLeadChart.xaxis!" [stroke]="dayLeadChart.stroke!"
+<<<<<<< HEAD
                                 [markers]="dayLeadChart.markers!" [tooltip]="dayLeadChart.tooltip!"
                                 [colors]="dayLeadChart.colors!" [grid]="dayLeadChart.grid!"
                                 [dataLabels]="dayLeadChart.dataLabels!">
+=======
+                                [markers]="dayLeadChart.markers!" [legend]="dayLeadChart.legend!"
+                                [tooltip]="dayLeadChart.tooltip!" [colors]="dayLeadChart.colors!"
+                                [grid]="dayLeadChart.grid!" [dataLabels]="dayLeadChart.dataLabels!">
+>>>>>>> 61c95a09e95af470a0a1e9135d88b49880339890
                             </apx-chart>
                         </div>
                     </div>
@@ -150,9 +127,15 @@
                         <div class="chart-wrapper">
                             <apx-chart [series]="hourLeadChart.series!" [chart]="hourLeadChart.chart!"
                                 [xaxis]="hourLeadChart.xaxis!" [stroke]="hourLeadChart.stroke!"
+<<<<<<< HEAD
                                 [markers]="hourLeadChart.markers!" [tooltip]="hourLeadChart.tooltip!"
                                 [colors]="hourLeadChart.colors!" [grid]="hourLeadChart.grid!"
                                 [dataLabels]="hourLeadChart.dataLabels!">
+=======
+                                [markers]="hourLeadChart.markers!" [legend]="hourLeadChart.legend!"
+                                [tooltip]="hourLeadChart.tooltip!" [colors]="hourLeadChart.colors!"
+                                [grid]="hourLeadChart.grid!" [dataLabels]="hourLeadChart.dataLabels!">
+>>>>>>> 61c95a09e95af470a0a1e9135d88b49880339890
                             </apx-chart>
                         </div>
                     </div>
@@ -162,16 +145,22 @@
             <!-- Events Row -->
             <div class="metric-row">
                 <div class="metric-label">
-                    <h3>Events</h3>
+                    <h3>Test Drive</h3>
                 </div>
                 <div class="charts-pair">
                     <div class="chart-section">
                         <div class="chart-wrapper">
                             <apx-chart [series]="dayEventChart.series!" [chart]="dayEventChart.chart!"
                                 [xaxis]="dayEventChart.xaxis!" [stroke]="dayEventChart.stroke!"
+<<<<<<< HEAD
                                 [markers]="dayEventChart.markers!" [tooltip]="dayEventChart.tooltip!"
                                 [colors]="dayEventChart.colors!" [grid]="dayEventChart.grid!"
                                 [dataLabels]="dayEventChart.dataLabels!">
+=======
+                                [markers]="dayEventChart.markers!" [legend]="dayEventChart.legend!"
+                                [tooltip]="dayEventChart.tooltip!" [colors]="dayEventChart.colors!"
+                                [grid]="dayEventChart.grid!" [dataLabels]="dayEventChart.dataLabels!">
+>>>>>>> 61c95a09e95af470a0a1e9135d88b49880339890
                             </apx-chart>
                         </div>
                     </div>
@@ -179,9 +168,15 @@
                         <div class="chart-wrapper">
                             <apx-chart [series]="hourEventChart.series!" [chart]="hourEventChart.chart!"
                                 [xaxis]="hourEventChart.xaxis!" [stroke]="hourEventChart.stroke!"
+<<<<<<< HEAD
                                 [markers]="hourEventChart.markers!" [tooltip]="hourEventChart.tooltip!"
                                 [colors]="hourEventChart.colors!" [grid]="hourEventChart.grid!"
                                 [dataLabels]="hourEventChart.dataLabels!">
+=======
+                                [markers]="hourEventChart.markers!" [legend]="hourEventChart.legend!"
+                                [tooltip]="hourEventChart.tooltip!" [colors]="hourEventChart.colors!"
+                                [grid]="hourEventChart.grid!" [dataLabels]="hourEventChart.dataLabels!">
+>>>>>>> 61c95a09e95af470a0a1e9135d88b49880339890
                             </apx-chart>
                         </div>
                     </div>
@@ -191,16 +186,22 @@
             <!-- Tasks Row -->
             <div class="metric-row">
                 <div class="metric-label">
-                    <h3>Tasks</h3>
+                    <h3>Follow-ups</h3>
                 </div>
                 <div class="charts-pair">
                     <div class="chart-section">
                         <div class="chart-wrapper">
                             <apx-chart [series]="dayTaskChart.series!" [chart]="dayTaskChart.chart!"
                                 [xaxis]="dayTaskChart.xaxis!" [stroke]="dayTaskChart.stroke!"
+<<<<<<< HEAD
                                 [markers]="dayTaskChart.markers!" [tooltip]="dayTaskChart.tooltip!"
                                 [colors]="dayTaskChart.colors!" [grid]="dayTaskChart.grid!"
                                 [dataLabels]="dayTaskChart.dataLabels!">
+=======
+                                [markers]="dayTaskChart.markers!" [legend]="dayTaskChart.legend!"
+                                [tooltip]="dayTaskChart.tooltip!" [colors]="dayTaskChart.colors!"
+                                [grid]="dayTaskChart.grid!" [dataLabels]="dayTaskChart.dataLabels!">
+>>>>>>> 61c95a09e95af470a0a1e9135d88b49880339890
                             </apx-chart>
                         </div>
                     </div>
@@ -208,9 +209,47 @@
                         <div class="chart-wrapper">
                             <apx-chart [series]="hourTaskChart.series!" [chart]="hourTaskChart.chart!"
                                 [xaxis]="hourTaskChart.xaxis!" [stroke]="hourTaskChart.stroke!"
+<<<<<<< HEAD
                                 [markers]="hourTaskChart.markers!" [tooltip]="hourTaskChart.tooltip!"
                                 [colors]="hourTaskChart.colors!" [grid]="hourTaskChart.grid!"
                                 [dataLabels]="hourTaskChart.dataLabels!">
+=======
+                                [markers]="hourTaskChart.markers!" [legend]="hourTaskChart.legend!"
+                                [tooltip]="hourTaskChart.tooltip!" [colors]="hourTaskChart.colors!"
+                                [grid]="hourTaskChart.grid!" [dataLabels]="hourTaskChart.dataLabels!">
+                            </apx-chart>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calls Row -->
+            <div class="metric-row">
+
+                <div class="metric-label">
+                    <h3>calls</h3>
+                </div>
+
+                <div class="charts-pair">
+                    <div class="chart-section">
+                        <div class="chart-wrapper">
+                            <apx-chart [series]="dayCallsChart.series!" [chart]="dayCallsChart.chart!"
+                                [xaxis]="dayCallsChart.xaxis!" [stroke]="dayCallsChart.stroke!"
+                                [markers]="dayCallsChart.markers!" [legend]="dayCallsChart.legend!"
+                                [tooltip]="dayCallsChart.tooltip!" [colors]="dayCallsChart.colors!"
+                                [grid]="dayCallsChart.grid!">
+                            </apx-chart>
+                        </div>
+                    </div>
+
+                    <div class="chart-section">
+                        <div class="chart-wrapper">
+                            <apx-chart [series]="hourCallsChart.series!" [chart]="hourCallsChart.chart!"
+                                [xaxis]="hourCallsChart.xaxis!" [stroke]="hourCallsChart.stroke!"
+                                [markers]="hourCallsChart.markers!" [legend]="hourCallsChart.legend!"
+                                [tooltip]="hourCallsChart.tooltip!" [colors]="hourCallsChart.colors!"
+                                [grid]="hourCallsChart.grid!">
+>>>>>>> 61c95a09e95af470a0a1e9135d88b49880339890
                             </apx-chart>
                         </div>
                     </div>
@@ -309,10 +348,5 @@
                 </div>
             </div>
         </div>
-
-
-
-
-
     </div>
 </div>

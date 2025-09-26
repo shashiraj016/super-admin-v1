@@ -168,11 +168,17 @@ export class TrendChartComponent {
   psWiseData: any = {};
   shouldFillBars = false;
   private lastScrollTop = 0;
+  lastApiResponse: any;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
     this.fetchTrendChart();
+    this.fetchTrendChartWithFilters();
+     window.addEventListener('resize', () => {
+    this.updateAllChartsFromApi(this.lastApiResponse);
+  });
+
   }
   ngAfterViewInit() {
     const header = document.querySelector('.dashboard-top') as HTMLElement;
@@ -373,6 +379,7 @@ export class TrendChartComponent {
       .get<any>(`${this.BASE_URL}${this.TREND_CHART_URL}`, { headers, params })
       .subscribe({
         next: (res) => {
+          this.lastApiResponse = res; 
           this.isLoading = false;
 
           console.log('✅ API Response:', res.topCards);
@@ -494,7 +501,10 @@ export class TrendChartComponent {
           !this.userTouchedDealers);
 
       let fixedColors: string[] = [];
+      let labelColor = '#304758'; // default
+
       if (isAllDealersSingleLine) {
+<<<<<<< HEAD
         if (metricKey === 'leads') fixedColors = ['#000080'];
         if (metricKey === 'utd') fixedColors = ['#FFA500'];
         if (metricKey === 'followups') fixedColors = ['#008000'];
@@ -503,6 +513,30 @@ export class TrendChartComponent {
       }
 
       // --- Adjust height for mobile screens ---
+=======
+        if (metricKey === 'leads') {
+          fixedColors = ['#000080'];
+          labelColor = '#000080';
+        }
+        if (metricKey === 'utd') {
+          fixedColors = ['#FFA500'];
+          labelColor = '#FFA500'; // 🔸 orange for Test Drive
+        }
+        if (metricKey === 'followups') {
+          fixedColors = ['#008000'];
+          labelColor = '#008000'; // ✅ green for Follow-ups
+        }
+        if (metricKey.toLowerCase().includes('call')) {
+          fixedColors = ['#800080'];
+          labelColor = '#800080';
+        }
+        if (metricKey === 'lastLogin') {
+          fixedColors = ['#FF0000'];
+          labelColor = '#FF0000';
+        }
+      }
+
+>>>>>>> 61c95a09e95af470a0a1e9135d88b49880339890
       const isMobile = window.innerWidth <= 768;
       const chartHeight = isMobile ? 300 : 150;
 
@@ -543,7 +577,11 @@ export class TrendChartComponent {
             fontSize: '11px',
             fontFamily: 'Helvetica, Arial, sans-serif',
             fontWeight: 'bold',
+<<<<<<< HEAD
             colors: ['#304758'],
+=======
+            colors: [labelColor], // 🔹 dynamic color applied here
+>>>>>>> 61c95a09e95af470a0a1e9135d88b49880339890
           },
           background: {
             enabled: true,
@@ -571,6 +609,7 @@ export class TrendChartComponent {
 
       return chartRef;
     };
+
 
     // ---- Chart configurations ----
     const chartConfigs = [
@@ -609,6 +648,10 @@ export class TrendChartComponent {
   private filterUpdateTimeout: any;
 
   fetchTrendChartWithFilters() {
+    console.log('🔄 fetchTrendChartWithFilters called');
+    console.log('Current selectedDateFilter:', this.selectedDateFilter);
+    console.log('Current psWiseCharts length:', this.psWiseCharts?.length || 0);
+
     const token = localStorage.getItem('token');
     if (!token) return;
 
@@ -627,9 +670,12 @@ export class TrendChartComponent {
       params = params.set('dealer_ids', dealerIds);
     }
 
+    console.log('📤 API params:', params.toString());
+
     clearTimeout(this.filterUpdateTimeout);
     this.filterUpdateTimeout = setTimeout(() => {
       this.isLoading = true;
+
       this.http
         .get<any>(`${this.BASE_URL}${this.TREND_CHART_URL}`, {
           headers,
@@ -637,6 +683,10 @@ export class TrendChartComponent {
         })
         .subscribe({
           next: (res) => {
+            console.log('📥 API Response received');
+            console.log('Has psWiseActivity:', !!res.psWiseActivity);
+            console.log('psWiseActivity data length:', res.psWiseActivity?.length || 0);
+
             // Update top cards immediately
             if (res.topCards) {
               this.topLeads = res.topCards.leads || 0;
@@ -653,15 +703,23 @@ export class TrendChartComponent {
             // Update charts
             this.updateAllChartsFromApi(res);
 
-            // Store PS data but don't process it yet
+            // Handle PS data
             if (res.psWiseActivity) {
+              console.log('✅ Setting psWiseData and calling scheduleProcessPsActivity');
               this.psWiseData = res.psWiseActivity;
-              // Process PS data separately with delay
               this.scheduleProcessPsActivity();
+            } else {
+              console.log('❌ No psWiseActivity in response');
+              this.psWiseCharts = [];
             }
+
             this.isLoading = false;
           },
-          error: (err) => console.error(err),
+          error: (err) => {
+            console.error('❌ API Error:', err);
+            this.isLoading = false;
+            this.psWiseCharts = [];
+          },
         });
     }, 200);
   }
@@ -730,167 +788,26 @@ export class TrendChartComponent {
 
   psWiseSelectedCallType = 'calls'; // default
 
-  // Add this method to process PS-wise activity data
-  // processPsWiseActivity(psWiseActivity: any) {
-  //   console.log('==== Start processPsWiseActivity ====');
-  //   if (!psWiseActivity) return;
 
-  //   const staticMetrics = ['saLeads', 'uniquetestDrives', 'followups', 'lastLogin', 'target'];
-  //   const dynamicCallMetrics = ['calls', 'coldCalls', 'enquiryCalls'];
-
-  //   const metricLabels: Record<string, string> = {
-  //     saLeads: 'SALeads',
-  //     uniquetestDrives: 'Events',
-  //     followups: 'Tasks',
-  //     calls: 'calls',
-  //     coldCalls: 'cold calls',
-  //     enquiryCalls: 'Enquiry calls',
-  //     lastLogin: 'last login',
-  //     target: 'target'
-  //   };
-
-  //   this.psWiseCharts = [];
-
-  //   // --- Precompute All-India averages ---
-  //   const allMetrics = [...staticMetrics, ...dynamicCallMetrics];
-  //   const allIndiaAvgMap: Record<string, number> = {};
-
-  //   allMetrics.forEach(metric => {
-  //     let sum = 0, count = 0;
-  //     Object.values(psWiseActivity).forEach((users: any) => {
-  //       if (!Array.isArray(users)) return;
-  //       users.forEach(u => {
-  //         if (this.roleFilter === 'Both' || u.role === this.roleFilter) {
-  //           sum += u[metric] || 0;
-  //           count++;
-  //         }
-  //       });
-  //     });
-  //     allIndiaAvgMap[metric] = count > 0 ? Math.round(sum / count) : 0;
-  //     console.log(`All India Avg for ${metric}:`, allIndiaAvgMap[metric]);
-  //   });
-
-  //   // --- Process per dealer asynchronously to avoid blocking ---
-  //   Promise.resolve().then(() => {
-  //     Object.entries(psWiseActivity).forEach(([dealerName, users]: [string, any]) => {
-  //       if (!Array.isArray(users)) return;
-
-  //       const filteredUsers = users.filter(u =>
-  //         this.roleFilter === 'Both' ? true : u.role === this.roleFilter
-  //       );
-
-  //       const charts: any[] = [];
-
-  //       // Process static metrics
-  //       staticMetrics.forEach(metric => {
-  //         const metricData = filteredUsers.map(u => ({
-  //           x: u.name,
-  //           y: u[metric] && u[metric] > 0 ? u[metric] : 0.0001, // tiny placeholder for zero
-  //           displayVal: u[metric] || 0,
-  //           dealer: dealerName
-  //         }));
-
-  //         if (metricData.length > 0) {
-  //           const dealerAvg = Math.round(metricData.reduce((sum, d) => sum + d.displayVal, 0) / metricData.length);
-
-  //           charts.push({
-  //             title: metricLabels[metric],
-  //             allIndiaAvg: allIndiaAvgMap[metric],
-  //             dealerAvg,
-  //             series: [{ name: metricLabels[metric], data: metricData.map(d => d.y) }],
-  //             chart: { type: 'bar', height: 350, toolbar: { show: false } },
-  //             plotOptions: { bar: { horizontal: true, distributed: true, barHeight: '70%' } },
-  //             colors: this.generateColors(metricData.length),
-  //             xaxis: { categories: metricData.map(d => d.x), labels: { style: { fontSize: '10px' } } },
-  //             yaxis: { labels: { style: { fontSize: '10px' } } },
-  //             dataLabels: {
-  //               enabled: true,
-  //               formatter: (_val: number, opts: any) => metricData[opts.dataPointIndex].displayVal,
-  //               style: { fontSize: '10px', fontWeight: 'bold' }
-  //             },
-  //             tooltip: {
-  //               custom: ({ dataPointIndex }: any) => {
-  //                 const user = metricData[dataPointIndex];
-  //                 return `<div style="padding:8px;">
-  //                         <strong>${user.x}</strong><br>
-  //                         <span>${user.dealer}</span><br>
-  //                         <span>${metricLabels[metric]}: ${user.displayVal}</span>
-  //                       </div>`;
-  //               }
-  //             },
-  //             legend: { show: false },
-  //             key: metricLabels[metric].toLowerCase().replace(/\s/g, '')
-  //           });
-  //         }
-  //       });
-
-  //       // Process selected call metric dynamically
-  //       const callMetric = this.psWiseSelectedCallType || 'calls';
-  //       if (dynamicCallMetrics.includes(callMetric)) {
-  //         const callData = filteredUsers.map(u => ({
-  //           x: u.name,
-  //           y: u[callMetric] && u[callMetric] > 0 ? u[callMetric] : 0.0001,
-  //           displayVal: u[callMetric] || 0,
-  //           dealer: dealerName
-  //         }));
-
-  //         if (callData.length > 0) {
-  //           const dealerAvg = Math.round(callData.reduce((sum, d) => sum + d.displayVal, 0) / callData.length);
-
-  //           charts.push({
-  //             title: metricLabels[callMetric],
-  //             allIndiaAvg: allIndiaAvgMap[callMetric],
-  //             dealerAvg,
-  //             series: [{ name: metricLabels[callMetric], data: callData.map(d => d.y) }],
-  //             chart: { type: 'bar', height: 350, toolbar: { show: false } },
-  //             plotOptions: { bar: { horizontal: true, distributed: true, barHeight: '70%', dataLabels: { position: 'right' } } },
-  //             colors: this.generateColors(callData.length),
-  //             xaxis: { categories: callData.map(d => d.x), labels: { style: { fontSize: '10px' } } },
-  //             yaxis: { labels: { style: { fontSize: '10px' } } },
-  //             dataLabels: { enabled: true, formatter: (_val: number, opts: any) => callData[opts.dataPointIndex].displayVal, style: { fontSize: '10px', fontWeight: 'bold' } },
-  //             tooltip: {
-  //               custom: ({ dataPointIndex }: any) => {
-  //                 const user = callData[dataPointIndex];
-  //                 return `<div style="padding:8px;">
-  //                         <strong>${user.x}</strong><br>
-  //                         <span>${user.dealer}</span><br>
-  //                         <span>${metricLabels[callMetric]}: ${user.displayVal}</span>
-  //                       </div>`;
-  //               }
-  //             },
-  //             legend: { show: false },
-  //             key: 'countOfCalls'
-  //           });
-  //         }
-  //       }
-
-  //       if (charts.length > 0) {
-  //         this.psWiseCharts.push({ dealerName, users: filteredUsers, charts });
-  //       }
-  //     });
-
-  //     console.log('Final psWiseCharts array:', this.psWiseCharts);
-
-  //     // Initialize accordion states after processing
-  //     this.initializePsAccordionStates();
-
-  //     console.log('==== End processPsWiseActivity ====');
-  //   });
-  // }
 
   private psProcessingTimeout: any;
 
   scheduleProcessPsActivity() {
-    this.isLoading = true;
+    console.log('⏰ scheduleProcessPsActivity called');
+    console.log('psWiseData available:', !!this.psWiseData);
+    console.log('roleFilter:', this.roleFilter);
+
     clearTimeout(this.psProcessingTimeout);
-    // Process PS data after main UI updates are complete
     this.psProcessingTimeout = setTimeout(() => {
+      console.log('🔄 Processing PS activity...');
       this.processPsWiseActivityChunked();
     }, 100);
   }
 
   processPsWiseActivityChunked() {
     console.log('==== Start processPsWiseActivity (Chunked) ====');
+    console.log('📊 processPsWiseActivityChunked called');
+    console.log('psWiseData length:', this.psWiseData?.length || 0);
     if (!this.psWiseData) return;
 
     const staticMetrics = [
@@ -915,6 +832,8 @@ export class TrendChartComponent {
 
     // Clear existing data
     this.psWiseCharts = [];
+
+    console.log('Before processing - psWiseCharts length:', this.psWiseCharts.length);
 
     // Precompute averages (this is fast)
     const allIndiaAvgMap = this.computeAllIndiaAverages(
@@ -977,6 +896,8 @@ export class TrendChartComponent {
       this.initializePsAccordionStates();
       this.isLoading = false;
       console.log('==== End processPsWiseActivity (Chunked) ====');
+      console.log('After processing - psWiseCharts length:', this.psWiseCharts.length);
+      console.log('Final psWiseCharts:', this.psWiseCharts);
     }
   }
 
