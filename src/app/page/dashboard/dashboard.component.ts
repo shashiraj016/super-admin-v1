@@ -321,7 +321,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private toastr: ToastrService
   ) {}
   data: any; // To hold your data
-  apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
+  apiUrl: string =
+    'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew';
 
   ngOnInit(): void {
     // 1️⃣ Read persisted filter from localStorage
@@ -717,7 +718,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
+    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -748,7 +749,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (!token) return;
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
+    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -830,7 +831,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http
       .get<any>(
-        `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`,
+        `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`,
         { headers }
       )
       .subscribe({
@@ -1041,17 +1042,17 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     if (!this.selectedDealers?.length) {
       url = isCustomMode
-        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
+        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
     } else if (this.selectedDealers.length === 1) {
       url = isCustomMode
-        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
+        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
     } else {
       const dealerIds = this.selectedDealers.map((d) => d.dealerId).join(',');
       url = isCustomMode
-        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
+        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
     }
 
     // console.log('🌐 API URL:', url);
@@ -1505,7 +1506,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
+    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
 
     this.http.get<any>(url, { headers }).subscribe(
       (res) => {
@@ -1899,7 +1900,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.customEndDate
     ) {
       // For custom date mode, build URL with start_date and end_date parameters
-      const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
+      const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
 
       this.http
         .get(url, { headers: { Authorization: `Bearer ${token}` } })
@@ -1908,7 +1909,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         });
     } else {
       // Fallback: legacy API with type
-      const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
+      const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
       this.http
         .get(url, { headers: { Authorization: `Bearer ${token}` } })
         .subscribe((res) => {
@@ -1980,7 +1981,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.loadingPS = true; // start loading
 
     const type = this.selectedFilter;
-    const baseUrl = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
+    const baseUrl =
+      'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew';
     const dealerId = this.selectedDealerId;
     const smId = this.selectedSM.sm_id;
     const url = `${baseUrl}?type=${type}&dealer_id=${dealerId}&sm_id=${smId}`;
@@ -2213,7 +2215,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
+    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -2287,7 +2289,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   fetchData(): void {
     this.http
-      .get<any>('https://uat.smartassistapp.in/api/superAdmin/dashbaordNew')
+      .get<any>(
+        'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew'
+      )
       .subscribe(
         (response) => {
           // console.log('API Response:', response); // Log the response to check its structure
@@ -2327,6 +2331,33 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     return this.dashboardData?.leads?.change || 0;
   }
 
+  // sortData(column: string) {
+  //   // Toggle sort direction
+  //   if (this.sortColumn === column) {
+  //     this.sortDirection =
+  //       this.sortDirection === 'asc'
+  //         ? 'desc'
+  //         : this.sortDirection === 'desc'
+  //         ? 'default'
+  //         : 'asc';
+  //   } else {
+  //     this.sortColumn = column;
+  //     this.sortDirection = 'asc';
+  //   }
+
+  //   // No sorting if reset
+  //   if (this.sortDirection === 'default') return;
+
+  //   // Only sort selectedDealers (displayed rows)
+  //   if (!this.selectedDealers?.length) return;
+
+  //   // In-place sort to preserve references
+  //   this.selectedDealers.sort((a: any, b: any) => {
+  //     const valA = a[column] ?? 0;
+  //     const valB = b[column] ?? 0;
+  //     return this.sortDirection === 'asc' ? valA - valB : valB - valA;
+  //   });
+  // }
   sortData(column: string) {
     // Toggle sort direction
     if (this.sortColumn === column) {
@@ -2349,15 +2380,25 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     // In-place sort to preserve references
     this.selectedDealers.sort((a: any, b: any) => {
-      const valA = a[column] ?? 0;
-      const valB = b[column] ?? 0;
+      let valA = a[column] ?? 0;
+      let valB = b[column] ?? 0;
+
+      // Handle nested fields for calls
+      if (column === 'enquiriesCalls') {
+        valA = a.enquiriesCalls?.totalCalls ?? 0;
+        valB = b.enquiriesCalls?.totalCalls ?? 0;
+      } else if (column === 'enquiriesConnectedCalls') {
+        valA = a.enquiriesCalls?.connectedCalls ?? 0;
+        valB = b.enquiriesCalls?.connectedCalls ?? 0;
+      }
+
       return this.sortDirection === 'asc' ? valA - valB : valB - valA;
     });
   }
 
   fetchDashboardDataForTopCards(filter: string) {
     const token = localStorage.getItem('token') || '';
-    let url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM`;
+    let url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM`;
 
     if (filter === 'CUSTOM' && this.customStartDate && this.customEndDate) {
       url += `?startDate=${this.customStartDate}&endDate=${this.customEndDate}`;
@@ -3104,13 +3145,24 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   onScroll(event: any) {
     this.isAtTop = event.target.scrollTop === 0; // true only if scrolled at the top
   }
+
   onDealerTableScroll(event: any) {
-    const scrollTop = event.target.scrollTop;
+    this.isVerticalScroll = event.target.scrollTop > 0;
+  }
 
-    // Detect vertical scroll
-    this.isVerticalScroll = scrollTop !== this.lastScrollTop;
+  toggleStickyColumns(disableSticky: boolean) {
+    const table = document.querySelector('.data-table'); // match your table class
+    if (!table) return;
 
-    // Update last scroll top
-    this.lastScrollTop = scrollTop;
+    const stickyElements = table.querySelectorAll('.sticky-col-header');
+
+    stickyElements.forEach((el) => {
+      const htmlEl = el as HTMLElement;
+      if (disableSticky) {
+        htmlEl.style.position = 'static';
+      } else {
+        htmlEl.style.position = 'sticky';
+      }
+    });
   }
 }

@@ -147,7 +147,7 @@ export class TrendChartComponent {
     },
   };
 
-  BASE_URL = 'https://uat.smartassistapp.in';
+  BASE_URL = 'https://api.prod.smartassistapp.in';
   TREND_CHART_URL = '/api/superAdmin/dashboard/trend-chart';
 
   // Day-level charts
@@ -170,15 +170,14 @@ export class TrendChartComponent {
   private lastScrollTop = 0;
   lastApiResponse: any;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
     this.fetchTrendChart();
     this.fetchTrendChartWithFilters();
-     window.addEventListener('resize', () => {
-    this.updateAllChartsFromApi(this.lastApiResponse);
-  });
-
+    window.addEventListener('resize', () => {
+      this.updateAllChartsFromApi(this.lastApiResponse);
+    });
   }
   ngAfterViewInit() {
     const header = document.querySelector('.dashboard-top') as HTMLElement;
@@ -379,7 +378,7 @@ export class TrendChartComponent {
       .get<any>(`${this.BASE_URL}${this.TREND_CHART_URL}`, { headers, params })
       .subscribe({
         next: (res) => {
-          this.lastApiResponse = res; 
+          this.lastApiResponse = res;
           this.isLoading = false;
 
           console.log('✅ API Response:', res.topCards);
@@ -504,27 +503,17 @@ export class TrendChartComponent {
       let labelColor = '#304758'; // default
 
       if (isAllDealersSingleLine) {
-<<<<<<< HEAD
-        if (metricKey === 'leads') fixedColors = ['#000080'];
-        if (metricKey === 'utd') fixedColors = ['#FFA500'];
-        if (metricKey === 'followups') fixedColors = ['#008000'];
-        if (metricKey.toLowerCase().includes('call')) fixedColors = ['#800080'];
-        if (metricKey === 'lastLogin') fixedColors = ['#FF0000'];
-      }
-
-      // --- Adjust height for mobile screens ---
-=======
         if (metricKey === 'leads') {
           fixedColors = ['#000080'];
           labelColor = '#000080';
         }
         if (metricKey === 'utd') {
           fixedColors = ['#FFA500'];
-          labelColor = '#FFA500'; // 🔸 orange for Test Drive
+          labelColor = '#FFA500';
         }
         if (metricKey === 'followups') {
           fixedColors = ['#008000'];
-          labelColor = '#008000'; // ✅ green for Follow-ups
+          labelColor = '#008000';
         }
         if (metricKey.toLowerCase().includes('call')) {
           fixedColors = ['#800080'];
@@ -536,7 +525,6 @@ export class TrendChartComponent {
         }
       }
 
->>>>>>> 61c95a09e95af470a0a1e9135d88b49880339890
       const isMobile = window.innerWidth <= 768;
       const chartHeight = isMobile ? 300 : 150;
 
@@ -548,7 +536,7 @@ export class TrendChartComponent {
         },
         stroke: {
           curve: 'smooth',
-          width: isAllDealersSingleLine ? 1 : 1,
+          width: 1,
         },
         markers: {
           size: isAllDealersSingleLine ? 4 : 3,
@@ -557,7 +545,18 @@ export class TrendChartComponent {
         tooltip: { enabled: true },
         xaxis: {
           categories: chartData.categories,
-          labels: { rotate: isHourChart ? 0 : -60 },
+          labels: {
+            // rotate: isMobile ? 0 : -60,
+            rotate: 0,
+            style: {
+              colors: '#333',
+              fontFamily: 'Helvetica, Arial, sans-serif',
+              fontWeight: 400,
+            },
+            trim: false, // prevent cutting
+            offsetX: 0,
+            offsetY: 5,
+          },
         },
         yaxis: {
           labels: { formatter: (val: number) => val.toString() },
@@ -567,7 +566,12 @@ export class TrendChartComponent {
         },
         grid: {
           show: true,
-          padding: { left: 0, right: 0, top: 0, bottom: 0 },
+          padding: {
+            left: 15,
+            right: 15,
+            top: 0,
+            // bottom: isMobile ? 30 : 50,
+          },
         },
         colors: fixedColors.length ? fixedColors : undefined,
         dataLabels: {
@@ -577,11 +581,7 @@ export class TrendChartComponent {
             fontSize: '11px',
             fontFamily: 'Helvetica, Arial, sans-serif',
             fontWeight: 'bold',
-<<<<<<< HEAD
-            colors: ['#304758'],
-=======
-            colors: [labelColor], // 🔹 dynamic color applied here
->>>>>>> 61c95a09e95af470a0a1e9135d88b49880339890
+            colors: [labelColor],
           },
           background: {
             enabled: true,
@@ -609,7 +609,6 @@ export class TrendChartComponent {
 
       return chartRef;
     };
-
 
     // ---- Chart configurations ----
     const chartConfigs = [
@@ -685,7 +684,10 @@ export class TrendChartComponent {
           next: (res) => {
             console.log('📥 API Response received');
             console.log('Has psWiseActivity:', !!res.psWiseActivity);
-            console.log('psWiseActivity data length:', res.psWiseActivity?.length || 0);
+            console.log(
+              'psWiseActivity data length:',
+              res.psWiseActivity?.length || 0
+            );
 
             // Update top cards immediately
             if (res.topCards) {
@@ -705,7 +707,9 @@ export class TrendChartComponent {
 
             // Handle PS data
             if (res.psWiseActivity) {
-              console.log('✅ Setting psWiseData and calling scheduleProcessPsActivity');
+              console.log(
+                '✅ Setting psWiseData and calling scheduleProcessPsActivity'
+              );
               this.psWiseData = res.psWiseActivity;
               this.scheduleProcessPsActivity();
             } else {
@@ -788,8 +792,6 @@ export class TrendChartComponent {
 
   psWiseSelectedCallType = 'calls'; // default
 
-
-
   private psProcessingTimeout: any;
 
   scheduleProcessPsActivity() {
@@ -815,25 +817,26 @@ export class TrendChartComponent {
       'uniquetestDrives',
       'followups',
       'lastLogin',
-      'target',
     ];
     const dynamicCallMetrics = ['calls', 'coldCalls', 'enquiryCalls'];
 
     const metricLabels: Record<string, string> = {
       saLeads: 'SA Leads',
-      uniquetestDrives: 'Events',
-      followups: 'Tasks',
+      uniquetestDrives: 'Test Drives',
+      followups: 'Followups',
       calls: 'Calls',
       coldCalls: 'Cold calls',
       enquiryCalls: 'Enquiry calls',
       lastLogin: 'Last login',
-      target: 'Target',
     };
 
     // Clear existing data
     this.psWiseCharts = [];
 
-    console.log('Before processing - psWiseCharts length:', this.psWiseCharts.length);
+    console.log(
+      'Before processing - psWiseCharts length:',
+      this.psWiseCharts.length
+    );
 
     // Precompute averages (this is fast)
     const allIndiaAvgMap = this.computeAllIndiaAverages(
@@ -896,7 +899,10 @@ export class TrendChartComponent {
       this.initializePsAccordionStates();
       this.isLoading = false;
       console.log('==== End processPsWiseActivity (Chunked) ====');
-      console.log('After processing - psWiseCharts length:', this.psWiseCharts.length);
+      console.log(
+        'After processing - psWiseCharts length:',
+        this.psWiseCharts.length
+      );
       console.log('Final psWiseCharts:', this.psWiseCharts);
     }
   }
@@ -948,6 +954,8 @@ export class TrendChartComponent {
       const sortedUsers = filteredUsers
         .map((u) => ({
           name: u.name,
+          role: u.role, // ✅ include role
+
           value: u[metric] || 0,
           dealer: dealerName,
         }))
@@ -977,6 +985,8 @@ export class TrendChartComponent {
     const callUsers = filteredUsers
       .map((u) => ({
         name: u.name,
+        role: u.role, // ✅ include role
+
         value: u[callMetric] || 0,
         dealer: dealerName,
       }))
@@ -1010,9 +1020,9 @@ export class TrendChartComponent {
 
     if (title.includes('sa leads')) {
       return '#001f5b'; // Navy Blue
-    } else if (title.includes('events')) {
+    } else if (title.includes('followups')) {
       return '#ff9800'; // Orange
-    } else if (title.includes('tasks')) {
+    } else if (title.includes('test drives')) {
       return '#28a745'; // Green
     } else if (title.includes('last login')) {
       return '#007bff'; // Green

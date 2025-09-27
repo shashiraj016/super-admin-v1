@@ -16,7 +16,7 @@ export class UserService {
     });
 
     return this.http.get<any>(
-      'https://uat.smartassistapp.in/api/superAdmin/show-profile',
+      'https://api.prod.smartassistapp.in/api/superAdmin/show-profile',
       { headers }
     );
     // 🔁 Replace with your real API URL

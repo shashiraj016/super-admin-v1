@@ -608,7 +608,7 @@
     });
 
     document.addEventListener('DOMContentLoaded', function () {
-        fetch('https://uat.smartassistapp.in/api/superAdmin / dashboardd') // Replace with your actual API endpoint
+        fetch('https://api.prod.smartassistapp.in/api/superAdmin / dashboardd') // Replace with your actual API endpoint
             .then(response => response.json())
             .then(data => {
                 populateTable(data.data.rankings.leads); // Assuming the structure is data.data.rankings.leads

@@ -69,7 +69,7 @@ export class Login1Component {
   countdown = 0;
   private countdownInterval: any;
 
-  private readonly API_BASE_URL = 'https://uat.smartassistapp.in/api/';
+  private readonly API_BASE_URL = 'https://api.prod.smartassistapp.in/api/';
   private readonly SESSION_TIMEOUT = 60 * 60 * 1000;
 
   private readonly http = inject(HttpClient);

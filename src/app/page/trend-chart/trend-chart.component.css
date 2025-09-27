@@ -2477,6 +2477,7 @@ body {
 
 .metric-title {
   font-size: 11px;
+  white-space: nowrap;
   font-weight: 600;
   color: #333;
 }
@@ -2729,6 +2730,7 @@ body {
   font-weight: 600;
   color: #333;
   margin-right: 35px;
+  white-space: nowrap;
 }
 
 .averages-row {
@@ -2969,23 +2971,23 @@ body {
     font-size: 9px !important;
   }
 
-  .no-border{
+  .no-border {
     font-size: 8px;
   }
 
-  .filter-group{
-    padding-left: 4px ;
+  .filter-group {
+    padding-left: 4px;
   }
 }
 
 @media (max-width: 768px) {
   .stats-wrapper {
-    flex-wrap: wrap;     /* ✅ allow wrapping only on mobile */
-    overflow-x: unset;   /* remove horizontal scroll */
+    flex-wrap: wrap; /* ✅ allow wrapping only on mobile */
+    overflow-x: unset; /* remove horizontal scroll */
     justify-content: center; /* optional: center cards */
   }
 
-  .stat-item{
+  .stat-item {
     border: 1px solid lightgray;
     min-width: 0;
     border-radius: 0%;
@@ -2993,7 +2995,7 @@ body {
   }
 
   .stats-wrapper .stat-card {
-    flex: 1 1 150px;   /* flexible with min width */
-    max-width: 200px;  /* prevent too wide cards */
+    flex: 1 1 150px; /* flexible with min width */
+    max-width: 200px; /* prevent too wide cards */
   }
 }

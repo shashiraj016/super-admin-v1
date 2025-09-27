@@ -190,8 +190,9 @@
 
         <div class="table-container">
           <div class="table-scroll">
-            <div class="dealers-scroll-container" (scroll)="onDealerTableScroll($event)">
-
+            <!-- <div class="dealers-scroll-container" (scroll)="onDealerTableScroll($event)"> -->
+            <div class="dealers-scroll-container" [class.vertical-scroll]="isVerticalScroll"
+              (scroll)="onDealerTableScroll($event)">
               <table class="data-table">
                 <thead class="table-thead">
                   <tr>
@@ -474,10 +475,20 @@
                     <td class="td-left" [ngClass]="{
                         'sticky-col-header': expandedSummaryRow !== dealer.dealerId
                       }"> -->
-                      <td class="td-left" [ngClass]="{
+                      <!-- <td class="td-left" [ngClass]="{
                         'sticky-col-header': expandedSummaryRow !== dealer.dealerId,
                         'sticky-disabled': expandedSummaryRow === dealer.dealerId || isVerticalScroll
                     }">
+                      <button class="expand-btn" (click)="toggleSummaryRow($event, dealer)"
+                        style="color: rgb(15 95 184 / var(--tw-text-opacity, 1));">
+                        <i class="fa" [ngClass]="expandedSummaryRow === dealer.dealerId ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+                        <span>{{ dealer.dealerName }}</span>
+                      </button>
+                    </td> -->
+                      <td class="td-left" [ngClass]="{
+    'sticky-col-header': expandedSummaryRow !== dealer.dealerId && !isVerticalScroll,
+    'sticky-disabled': expandedSummaryRow === dealer.dealerId || isVerticalScroll
+}">
                         <button class="expand-btn" (click)="toggleSummaryRow($event, dealer)"
                           style="color: rgb(15 95 184 / var(--tw-text-opacity, 1));">
                           <i class="fa"
@@ -485,7 +496,6 @@
                           <span>{{ dealer.dealerName }}</span>
                         </button>
                       </td>
-
                       <td class="td-right">{{ dealer.totalUsers ?? 0 }}</td>
                       <td class="td-right">{{ dealer.registerUsers ?? 0 }}</td>
                       <td class="td-right">{{dealer.activeUsers ?? 0}}</td>
@@ -764,14 +774,14 @@
                   <th class="th-right">Duration</th>
                 </tr>
               </thead>
-              <tbody class="call-logs-table">
+              <tbody>
                 <!-- Show loading row -->
 
 
                 <ng-container
                   *ngFor="let dealer of getSortedDealersForCallLogs() | slice:0:table2Length; let i = index">
                   <!-- Main dealer row -->
-                  <tr>
+                  <tr class="table-row">
                     <td class="sticky-col td-font-medium">
                       <button class="expand-btn" (click)="toggleCallLogsRow($event, dealer)"
                         style="color: rgb(15 95 184 / var(--tw-text-opacity, 1));">
@@ -898,7 +908,7 @@
                           User-wise Call Logs — {{ dealer.dealerName }}
                         </div>
                         <div class="sub-table-container">
-                          <table class="sub-table">
+                          <table class="sub-table" style="background: white;">
                             <thead>
                               <tr>
                                 <th style="text-align: left !important;">User</th>
@@ -912,9 +922,13 @@
                             </thead>
                             <tbody>
 
-                              <!-- User rows -->
+                              <!-- <tr
+                                *ngFor="let user of getSortedCallLogs(dealer.dealerId); let i = index; trackBy: trackByUserId"> -->
                               <tr
-                                *ngFor="let user of getSortedCallLogs(dealer.dealerId); let i = index; trackBy: trackByUserId">
+                                *ngFor="let user of getSortedCallLogs(dealer.dealerId); let i = index; trackBy: trackByUserId"
+                                style="background-color: white !important;"
+                                onmouseover="this.style.backgroundColor='white'"
+                                onmouseout="this.style.backgroundColor='white'">
                                 <td style="text-align: left !important;width:90px !important">{{ user.name }}</td>
                                 <td [ngStyle]="{ color: user.calls.total < 60 ? 'red' : 'black' }">{{ user.calls.total
                                   }}</td>
@@ -925,11 +939,9 @@
                                 </td>
                                 <td style="color:red;">{{ user.calls.declined }}</td>
 
-                                <!-- <td style="color:red">{{ getUserCalls(user)?.declined  0 }}</td> -->
                                 <td style="color:black;">{{ user.calls.duration }}</td>
                               </tr>
 
-                              <!-- No users found -->
                               <tr
                                 *ngIf="!loadingUsers[dealer.dealerId] && (!userCallLogs[dealer.dealerId] || userCallLogs[dealer.dealerId]?.length === 0)">
                                 <td colspan="7" class="td-center">No Users Found</td>
