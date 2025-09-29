@@ -147,7 +147,7 @@ export class TrendChartComponent {
     },
   };
 
-  BASE_URL = 'https://api.prod.smartassistapp.in';
+  BASE_URL = 'https://uat.smartassistapp.in';
   TREND_CHART_URL = '/api/superAdmin/dashboard/trend-chart';
 
   // Day-level charts
@@ -418,6 +418,231 @@ export class TrendChartComponent {
 
   private chartUpdateTimeout: any;
 
+  // updateAllChartsFromApi(res: any) {
+  //   if (!res) return;
+
+  //   // ---- Normalize input data ----
+  //   const normalizeData = (input: any, key: string) => {
+  //     if (!input) return [];
+
+  //     if (
+  //       typeof input === 'object' &&
+  //       !Array.isArray(input) &&
+  //       Array.isArray(input[key])
+  //     ) {
+  //       return (input[key] || []).map((d: any) => ({
+  //         ...d,
+  //         dealer_name: 'All Dealers',
+  //       }));
+  //     }
+
+  //     if (typeof input === 'object' && !Array.isArray(input)) {
+  //       return Object.entries(input).flatMap(([dealer, obj]: [string, any]) => {
+  //         const arr = obj?.[key] || [];
+  //         return arr.map((d: any) => ({ ...d, dealer_name: dealer }));
+  //       });
+  //     }
+
+  //     if (Array.isArray(input)) {
+  //       return input.map((d: any) => ({ ...d, dealer_name: 'All Dealers' }));
+  //     }
+
+  //     return [];
+  //   };
+
+  //   // ---- Transform data into chart-ready format ----
+  //   const transform = (data: any[], isHourChart = false) => {
+  //     if (!data || !data.length) return { series: [], categories: [] };
+  //     const xKey = isHourChart ? 'hour' : 'label';
+
+  //     const categories = Array.from(
+  //       new Set(data.map((item) => item[xKey]))
+  //     ).sort((a, b) => {
+  //       if (isHourChart) {
+  //         const [ah, am] = a.split(':').map(Number);
+  //         const [bh, bm] = b.split(':').map(Number);
+  //         return ah * 60 + am - (bh * 60 + bm);
+  //       } else {
+  //         return new Date(a).getTime() - new Date(b).getTime();
+  //       }
+  //     });
+
+  //     const dealerMap = new Map<string, Map<string, number>>();
+  //     data.forEach((item) => {
+  //       const dealer = item.dealer_name || 'All Dealers';
+  //       if (!dealerMap.has(dealer)) dealerMap.set(dealer, new Map());
+  //       dealerMap.get(dealer)!.set(item[xKey], Number(item.count) || 0);
+  //     });
+
+  //     const series = Array.from(dealerMap.entries()).map(
+  //       ([dealer, catMap]) => ({
+  //         name: dealer,
+  //         data: categories.map((cat) => catMap.get(cat) || 0),
+  //       })
+  //     );
+
+  //     return { series, categories };
+  //   };
+
+  //   // ---- Enhanced chart update with better data labels ----
+  //   const updateChart = (
+  //     chartRef: any,
+  //     chartData: any,
+  //     isHourChart = false,
+  //     metricKey: string = ''
+  //   ) => {
+  //     if (!chartRef) return;
+
+  //     const isAllDealersSingleLine =
+  //       chartData.series.length === 1 &&
+  //       (chartData.series[0].name === 'All Dealers' ||
+  //         this.selectedDealers.length === 0 ||
+  //         !this.userTouchedDealers);
+
+  //     let fixedColors: string[] = [];
+  //     let labelColor = '#304758'; // default
+
+  //     if (isAllDealersSingleLine) {
+  //       if (metricKey === 'leads') {
+  //         fixedColors = ['#000080'];
+  //         labelColor = '#000080';
+  //       }
+  //       if (metricKey === 'utd') {
+  //         fixedColors = ['#FFA500'];
+  //         labelColor = '#FFA500';
+  //       }
+  //       if (metricKey === 'followups') {
+  //         fixedColors = ['#008000'];
+  //         labelColor = '#008000';
+  //       }
+  //       if (metricKey.toLowerCase().includes('call')) {
+  //         fixedColors = ['#800080'];
+  //         labelColor = '#800080';
+  //       }
+  //       if (metricKey === 'lastLogin') {
+  //         fixedColors = ['#FF0000'];
+  //         labelColor = '#FF0000';
+  //       }
+  //     }
+
+  //     const isMobile = window.innerWidth <= 768;
+  //     const chartHeight = isMobile ? 300 : 150;
+
+  //     const chartOptions: ApexCharts.ApexOptions = {
+  //       chart: {
+  //         height: chartHeight,
+  //         toolbar: { show: false },
+  //         type: 'line',
+  //       },
+  //       stroke: {
+  //         curve: 'smooth',
+  //         width: 1,
+  //       },
+  //       markers: {
+  //         size: isAllDealersSingleLine ? 4 : 3,
+  //         strokeWidth: isAllDealersSingleLine ? 2 : 1,
+  //       },
+  //       tooltip: { enabled: true },
+  //       xaxis: {
+  //         categories: chartData.categories,
+  //         labels: {
+  //           // rotate: isMobile ? 0 : -60,
+  //           rotate: 0,
+  //           style: {
+  //             colors: '#333',
+  //             fontFamily: 'Helvetica, Arial, sans-serif',
+  //             fontWeight: 400,
+  //           },
+  //           trim: false, // prevent cutting
+  //           offsetX: 0,
+  //           offsetY: 5,
+  //         },
+  //       },
+  //       yaxis: {
+  //         labels: { formatter: (val: number) => val.toString() },
+  //       },
+  //       legend: {
+  //         show: false,
+  //       },
+  //       grid: {
+  //         show: true,
+  //         padding: {
+  //           left: 15,
+  //           right: 15,
+  //           top: 0,
+  //           // bottom: isMobile ? 30 : 50,
+  //         },
+  //       },
+  //       colors: fixedColors.length ? fixedColors : undefined,
+  //       dataLabels: {
+  //         enabled: isAllDealersSingleLine,
+  //         formatter: (val: number) => (val > 0 ? val.toString() : ''),
+  //         style: {
+  //           fontSize: '11px',
+  //           fontFamily: 'Helvetica, Arial, sans-serif',
+  //           fontWeight: 'bold',
+  //           colors: [labelColor],
+  //         },
+  //         background: {
+  //           enabled: true,
+  //           foreColor: '#fff',
+  //           padding: 4,
+  //           borderRadius: 2,
+  //           borderWidth: 1,
+  //           borderColor: '#ccc',
+  //           opacity: 0.9,
+  //         },
+  //       },
+  //     };
+
+  //     if (chartRef.updateOptions && chartRef.updateSeries) {
+  //       chartRef.updateSeries(chartData.series, true);
+  //       chartRef.updateOptions(chartOptions, true);
+  //     } else {
+  //       chartRef = {
+  //         ...chartRef,
+  //         series: chartData.series,
+  //         ...chartOptions,
+  //         legend: { show: false },
+  //       };
+  //     }
+
+  //     return chartRef;
+  //   };
+
+  //   // ---- Chart configurations ----
+  //   const chartConfigs = [
+  //     { key: 'leads', resKey: 'left', target: 'dayLeadChart' },
+  //     { key: 'utd', resKey: 'left', target: 'dayEventChart' },
+  //     { key: 'followups', resKey: 'left', target: 'dayTaskChart' },
+  //     { key: this.selectedCallType, resKey: 'left', target: 'dayCallsChart' },
+  //     { key: 'lastLogin', resKey: 'left', target: 'dayLastLoginChart' },
+
+  //     { key: 'leads', resKey: 'right', target: 'hourLeadChart' },
+  //     { key: 'utd', resKey: 'right', target: 'hourEventChart' },
+  //     { key: 'followups', resKey: 'right', target: 'hourTaskChart' },
+  //     { key: this.selectedCallType, resKey: 'right', target: 'hourCallsChart' },
+  //     { key: 'lastLogin', resKey: 'right', target: 'hourLastLoginChart' },
+  //   ];
+
+  //   // ---- Debounce heavy updates ----
+  //   clearTimeout(this.chartUpdateTimeout);
+  //   this.chartUpdateTimeout = setTimeout(() => {
+  //     chartConfigs.forEach(({ key, resKey, target }) => {
+  //       const isHourChart = resKey === 'right';
+  //       const chartData = transform(
+  //         normalizeData(res[resKey], key),
+  //         isHourChart
+  //       );
+  //       (this as any)[target] = updateChart(
+  //         (this as any)[target],
+  //         chartData,
+  //         isHourChart,
+  //         key
+  //       );
+  //     });
+  //   }, 100);
+  // }
   updateAllChartsFromApi(res: any) {
     if (!res) return;
 
@@ -530,9 +755,11 @@ export class TrendChartComponent {
 
       const chartOptions: ApexCharts.ApexOptions = {
         chart: {
+          type: 'line',
           height: chartHeight,
           toolbar: { show: false },
-          type: 'line',
+          zoom: { enabled: false },
+          selection: { enabled: false },
         },
         stroke: {
           curve: 'smooth',
@@ -643,7 +870,6 @@ export class TrendChartComponent {
       });
     }, 100);
   }
-
   private filterUpdateTimeout: any;
 
   fetchTrendChartWithFilters() {
@@ -1017,13 +1243,12 @@ export class TrendChartComponent {
   // Method to get bar color based on index
   getBarColor(index: number, chartTitle?: string): string {
     const title = chartTitle?.toLowerCase() || '';
-
     if (title.includes('sa leads')) {
       return '#001f5b'; // Navy Blue
     } else if (title.includes('followups')) {
-      return '#ff9800'; // Orange
+      return '#28a745'; // Orange
     } else if (title.includes('test drives')) {
-      return '#28a745'; // Green
+      return '#ff9800'; // Green
     } else if (title.includes('last login')) {
       return '#007bff'; // Green
     } else if (title.includes('target')) {

@@ -40,7 +40,7 @@ import { SingleUserComponent } from '../page/single-user/single-user.component';
   providedIn: 'root',
 })
 export class MasterService {
-  apiUrl: string = 'https://api.prod.smartassistapp.in/api/superadmin/';
+  apiUrl: string = 'https://uat.smartassistapp.in/api/superadmin/';
 
   constructor(
     private http: HttpClient,

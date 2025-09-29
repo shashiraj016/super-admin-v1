@@ -39,7 +39,7 @@
     <div class="fltt" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
 
       <!-- Left side: filters -->
-      <div style="display:flex; align-items:center; gap:0.5rem;">
+      <div id="filters">
         <select [(ngModel)]="selectedFilter" (change)="onFilterChange(selectedFilter)" class="time-dropdown flt1">
           <option value="DAY">Today</option>
           <option value="YESTERDAY">Yesterday</option>

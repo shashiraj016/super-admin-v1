@@ -69,7 +69,7 @@ export class Login1Component {
   countdown = 0;
   private countdownInterval: any;
 
-  private readonly API_BASE_URL = 'https://api.prod.smartassistapp.in/api/';
+  private readonly API_BASE_URL = 'https://uat.smartassistapp.in/api/';
   private readonly SESSION_TIMEOUT = 60 * 60 * 1000;
 
   private readonly http = inject(HttpClient);
@@ -182,15 +182,41 @@ export class Login1Component {
     return true;
   }
 
+  // private validateNewPassword(): boolean {
+  //   if (!this.loginObj.newPwd || !this.loginObj.confirmPassword) {
+  //     this.toastr.error('Please enter both passwords', 'Validation Error');
+  //     return false;
+  //   }
+  //   if (this.loginObj.newPwd !== this.loginObj.confirmPassword) {
+  //     this.toastr.error('Passwords do not match', 'Validation Error');
+  //     return false;
+  //   }
+  //   return true;
+  // }
+
   private validateNewPassword(): boolean {
     if (!this.loginObj.newPwd || !this.loginObj.confirmPassword) {
       this.toastr.error('Please enter both passwords', 'Validation Error');
       return false;
     }
+
     if (this.loginObj.newPwd !== this.loginObj.confirmPassword) {
       this.toastr.error('Passwords do not match', 'Validation Error');
       return false;
     }
+
+    // ✅ Strength check: min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
+    const strongPwdRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (!strongPwdRegex.test(this.loginObj.newPwd)) {
+      this.toastr.error(
+        'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character',
+        'Validation Error'
+      );
+      return false;
+    }
+
     return true;
   }
 
@@ -319,7 +345,9 @@ export class Login1Component {
     input.value = numericValue;
   }
 
-  onSetNewPassword() {
+  onSetNewPassword(event: Event) {
+    event.preventDefault(); // stop native form submit
+
     if (!this.validateNewPassword()) return;
 
     const resetPasswordData = {

@@ -321,8 +321,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private toastr: ToastrService
   ) {}
   data: any; // To hold your data
-  apiUrl: string =
-    'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew';
+  apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
 
   ngOnInit(): void {
     // 1️⃣ Read persisted filter from localStorage
@@ -718,7 +717,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -749,7 +748,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (!token) return;
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -831,7 +830,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http
       .get<any>(
-        `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`,
+        `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`,
         { headers }
       )
       .subscribe({
@@ -1042,17 +1041,17 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     if (!this.selectedDealers?.length) {
       url = isCustomMode
-        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
+        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
     } else if (this.selectedDealers.length === 1) {
       url = isCustomMode
-        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
+        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
     } else {
       const dealerIds = this.selectedDealers.map((d) => d.dealerId).join(',');
       url = isCustomMode
-        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
+        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
     }
 
     // console.log('🌐 API URL:', url);
@@ -1127,7 +1126,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             }));
 
             dealer.users = mappedUsers; // <-- update dealer.users
-            this.userCallLogs[dealer.dealerId] = mappedUsers;
+            // this.userCallLogs[dealer.dealerId] = mappedUsers;
           });
 
           // --- Select all dealers on first load, otherwise preserve selection ---
@@ -1506,7 +1505,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
 
     this.http.get<any>(url, { headers }).subscribe(
       (res) => {
@@ -1900,7 +1899,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.customEndDate
     ) {
       // For custom date mode, build URL with start_date and end_date parameters
-      const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
+      const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
 
       this.http
         .get(url, { headers: { Authorization: `Bearer ${token}` } })
@@ -1909,7 +1908,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         });
     } else {
       // Fallback: legacy API with type
-      const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
+      const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
       this.http
         .get(url, { headers: { Authorization: `Bearer ${token}` } })
         .subscribe((res) => {
@@ -1981,8 +1980,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.loadingPS = true; // start loading
 
     const type = this.selectedFilter;
-    const baseUrl =
-      'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew';
+    const baseUrl = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
     const dealerId = this.selectedDealerId;
     const smId = this.selectedSM.sm_id;
     const url = `${baseUrl}?type=${type}&dealer_id=${dealerId}&sm_id=${smId}`;
@@ -2215,7 +2213,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
+    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -2289,9 +2287,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   fetchData(): void {
     this.http
-      .get<any>(
-        'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew'
-      )
+      .get<any>('https://uat.smartassistapp.in/api/superAdmin/dashbaordNew')
       .subscribe(
         (response) => {
           // console.log('API Response:', response); // Log the response to check its structure
@@ -2398,7 +2394,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   fetchDashboardDataForTopCards(filter: string) {
     const token = localStorage.getItem('token') || '';
-    let url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM`;
+    let url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM`;
 
     if (filter === 'CUSTOM' && this.customStartDate && this.customEndDate) {
       url += `?startDate=${this.customStartDate}&endDate=${this.customEndDate}`;
@@ -3115,31 +3111,59 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     // Sticky header logic
     this.isSticky = scrollY >= this.originalHeaderOffsetTop;
   }
+  //  CLOSE STATE OF USER TABLE
   // refreshSuperAdminDealers() {
-  //   console.log('🔄 Refresh SuperAdmin dealers clicked');
+  //   // console.log('🔄 Refresh SuperAdmin dealers clicked');
   //   this.refreshingSA = true;
+
+  //   // Collapse all expanded rows
+  //   this.expandedSummaryRow = null;
+  //   this.expandedRow = null; // 👈 reset user call logs expansion too
+  //   this.cdr.detectChanges(); // 👈 force UI to update immediately
 
   //   // Call your existing SuperAdmin dashboard API fetch
   //   this.fetchSuperAdminDashboard(this.selectedFilter);
 
-  //   // Reset refreshing state after data comes back (or use API complete)
+  //   // Reset refreshing state after data comes back
   //   setTimeout(() => {
   //     this.refreshingSA = false;
   //   }, 1500);
   // }
   refreshSuperAdminDealers() {
-    // console.log('🔄 Refresh SuperAdmin dealers clicked');
     this.refreshingSA = true;
 
-    // Collapse all expanded rows
-    this.expandedSummaryRow = null;
+    // Store currently expanded dealer IDs and find the expanded dealer object
+    const expandedSummary = this.expandedSummaryRow;
+    const expandedCallLogs = this.expandedRow;
 
-    // Call your existing SuperAdmin dashboard API fetch
+    // Find the currently expanded dealer object before refresh
+    const expandedDealer = expandedCallLogs
+      ? this.getSortedDealersForCallLogs().find(
+          (d) => d.dealerId === expandedCallLogs
+        )
+      : null;
+
+    // Call your existing API to refresh data
     this.fetchSuperAdminDashboard(this.selectedFilter);
 
-    // Reset refreshing state after data comes back
+    // After data comes back, restore the expanded rows
     setTimeout(() => {
+      this.expandedSummaryRow = expandedSummary; // restore Summary expansion
+      this.expandedRow = expandedCallLogs; // restore Call Logs expansion
+
+      // If there was an expanded dealer, re-fetch its user data
+      if (expandedCallLogs && expandedDealer) {
+        // Find the dealer in the new data (after refresh)
+        const refreshedDealer = this.getSortedDealersForCallLogs().find(
+          (d) => d.dealerId === expandedCallLogs
+        );
+        if (refreshedDealer) {
+          this.fetchDealerUsers(refreshedDealer);
+        }
+      }
+
       this.refreshingSA = false;
+      this.cdr.detectChanges(); // force UI update
     }, 1500);
   }
   onScroll(event: any) {

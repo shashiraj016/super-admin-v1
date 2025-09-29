@@ -4961,8 +4961,17 @@ tbody tr:nth-child(odd) {
 .fltt {
   display: inline-flex;
 }
+#filters {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
 @media (max-width: 844px) {
+  #filters {
+    display: contents !important;
+  }
+
   #selectall {
     white-space: nowrap;
   }
@@ -5050,7 +5059,7 @@ tbody tr:nth-child(odd) {
 /* First header row */
 .table-thead tr:first-child th {
   position: sticky;
-  top: 10px !important;
+  /* top: 10px !important; */
   background: white;
   z-index: 30; /* lower than dealer column */
 }
@@ -5696,4 +5705,11 @@ input:focus {
 
 .sub-table tr:hover {
   background-color: white !important;
+}
+
+.table-thead th {
+  position: sticky;
+  top: 0; /* make it flush to the very top */
+  background: #fff; /* cover anything behind */
+  z-index: 10; /* keep above rows */
 }

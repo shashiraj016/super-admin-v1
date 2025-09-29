@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class DealerService {
   private apiUrl =
-    'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary?type=DAY';
+    'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary?type=DAY';
 
   constructor(private http: HttpClient) {}
 
