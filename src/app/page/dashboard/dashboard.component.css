@@ -4968,8 +4968,22 @@ tbody tr:nth-child(odd) {
 }
 
 @media (max-width: 844px) {
-  #filters {
+  /* #filters {
     display: contents !important;
+  } */
+  #filters {
+    display: flex !important;
+    flex-wrap: wrap; /* ✅ allow wrapping */
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .fltt {
+    display: flex !important;
+    flex-direction: column; /* ✅ stack items vertically on iPhone */
+    align-items: stretch;
+    width: 100%;
+    gap: 0.5rem;
   }
 
   #selectall {
@@ -5053,7 +5067,7 @@ tbody tr:nth-child(odd) {
   position: sticky;
   left: 0;
   background: white;
-  z-index: 50 !important; /* higher than header rows */
+  /* z-index: 50 !important; */
 }
 
 /* First header row */
@@ -5061,7 +5075,7 @@ tbody tr:nth-child(odd) {
   position: sticky;
   /* top: 10px !important; */
   background: white;
-  z-index: 30; /* lower than dealer column */
+  /* z-index: 30; lower than dealer column */
 }
 
 /* Second header row */
@@ -5069,14 +5083,14 @@ tbody tr:nth-child(odd) {
   position: sticky;
   top: 40px; /* adjust to height of first row */
   background: white;
-  z-index: 25; /* lower than dealer column */
+  /* z-index: 25; lower than dealer column */
 }
 /* Make table headers sticky */
 .table-thead th {
   position: sticky;
   top: 0; /* stick to top */
   background: #fff; /* match header background */
-  z-index: 5; /* stay above rows */
+  /* z-index: 5; stay above rows */
   box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1); /* optional */
 }
 
@@ -5085,7 +5099,7 @@ tbody tr:nth-child(odd) {
   position: sticky;
   left: 0;
   background: #fff;
-  z-index: 10;
+  /* z-index: 10; */
 }
 
 /* USERS */
@@ -5102,7 +5116,7 @@ tbody tr:nth-child(odd) {
   position: sticky;
   top: 0;
   background: #fff;
-  z-index: 15; /* higher than sub-table rows (0-10), below main table header if main is 20) */
+  /* z-index: 15; higher than sub-table rows (0-10), below main table header if main is 20) */
   box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
 }
 
@@ -5127,7 +5141,7 @@ tbody tr:nth-child(odd) {
   position: sticky;
   top: 0;
   background-color: #f9f9f9; /* Match table background */
-  z-index: 2;
+  /* z-index: 2; */
   box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
 }
 
@@ -5152,7 +5166,7 @@ tbody tr:nth-child(odd) {
   position: sticky;
   left: 0;
   background: #f9f9f9;
-  z-index: 2;
+  /* z-index: 2; */
 }
 .sub-table-container {
   max-height: 900px; /* or whatever fits your UI */
@@ -5164,7 +5178,7 @@ tbody tr:nth-child(odd) {
   position: sticky;
   top: 0;
   background: white; /* so header doesn't look transparent */
-  z-index: 2; /* keep it above body rows */
+  z-index: 2;
 }
 /* Group headers styling */
 .table-thead th.th-center {
@@ -5564,7 +5578,7 @@ input:focus {
   position: sticky;
   left: 0;
   /* background: #fff; */
-  z-index: 25; /* higher than thead */
+  /* z-index: 25; higher than thead */
   /* box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.2); */
 }
 /* Main table header (both rows) */
@@ -5578,7 +5592,7 @@ input:focus {
 .data-table thead tr:nth-child(2) th {
   position: sticky;
   top: 35px; /* height of first row */
-  z-index: 21; /* second row above first row */
+  /* z-index: 21; second row above first row */
   background: #fff;
 }
 
@@ -5586,7 +5600,7 @@ input:focus {
 .sticky-col-header {
   position: sticky;
   left: 0;
-  z-index: 22; /* above header row? adjust if needed */
+  /* z-index: 22; above header row? adjust if needed */
   background: #fff;
 }
 
@@ -5666,7 +5680,7 @@ input:focus {
   position: sticky; /* keep it sticky horizontally */
   left: 0; /* horizontal stick */
   background: #fff;
-  z-index: 2; /* above other columns */
+  /* z-index: 2; above other columns */
   top: auto; /* allow vertical scroll */
 }
 
@@ -5675,7 +5689,7 @@ input:focus {
   position: sticky !important;
   left: 0;
   background: white;
-  z-index: 2;
+  /* z-index: 2; */
 }
 
 /* Disable sticky only when scrolling vertically */
@@ -5711,5 +5725,77 @@ input:focus {
   position: sticky;
   top: 0; /* make it flush to the very top */
   background: #fff; /* cover anything behind */
-  z-index: 10; /* keep above rows */
+  /* z-index: 10; keep above rows */
+}
+#unique {
+  white-space: break-spaces;
+}
+.sticky-disabled {
+  position: static !important;
+  left: auto !important;
+}
+/* Default sticky column for horizontal scroll */
+.sticky-col-header {
+  position: sticky;
+  left: 0;
+  background: white;
+  /* z-index: 10; */
+}
+
+/* Disable sticky when vertical scroll */
+.sticky-col-header.no-sticky {
+  position: static !important;
+  left: auto !important;
+  z-index: auto !important;
+}
+/* Main table header group row */
+.table-thead > tr:first-child {
+  position: sticky;
+  top: 0; /* sticks to top when scrolling vertically */
+  background: #fff; /* ensure header background */
+  z-index: 10; /* higher than table body */
+}
+
+/* Second row (sub-headers like Total, Registered…) */
+.table-thead > tr:nth-child(2) {
+  position: sticky;
+  top: 40px; /* height of first row */
+  background: #f9f9f9;
+  z-index: 9; /* slightly less than top row */
+}
+#refresh {
+  border: 1px solid #ccc !important; /* Keep gray border */
+  border-radius: 11px;
+  padding: 9px;
+  margin: 2px;
+  background-color: white; /* Optional: keep white background */
+  color: #007bff; /* Match outline-primary color */
+}
+
+#refresh:focus,
+#refresh:active {
+  border: 1px solid #ccc !important; /* Override blue border */
+  box-shadow: none !important; /* Remove Bootstrap blue shadow */
+  background-color: #e6f0ff !important; /* Optional: light blue bg on click */
+}
+.refresh-btn {
+  border: 1px solid #ccc;
+  border-radius: 11px;
+  color: #222fb9; /* text color */
+  background-color: #fff; /* optional: white background */
+  display: flex;
+  align-items: center;
+  gap: 5px; /* space between icon and text */
+  transition: border 0.3s ease;
+}
+
+/* Icon inside button */
+.refresh-btn i {
+  color: #222fb9;
+}
+
+/* Hover effect */
+.refresh-btn:hover {
+  border-color: #222fb9; /* border color on hover */
+  cursor: pointer;
 }

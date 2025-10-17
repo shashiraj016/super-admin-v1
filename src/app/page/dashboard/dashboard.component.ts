@@ -44,6 +44,7 @@ import {
   ApexChart,
   ApexXAxis,
   ApexDataLabels,
+  ApexYAxis,
   ApexStroke,
   ApexPlotOptions,
   ApexTitleSubtitle,
@@ -56,6 +57,8 @@ export type ChartOptions = {
   chart: ApexChart;
   xaxis: ApexXAxis;
   dataLabels: ApexDataLabels;
+  yaxis?: ApexYAxis | ApexYAxis[]; // ✅ <-- make sure this exists
+
   stroke: ApexStroke;
   plotOptions?: ApexPlotOptions; // ✅ added
   tooltip?: ApexTooltip; // ✅ added
@@ -236,6 +239,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   loadingSMs: { [dealerId: string]: boolean } = {}; // Loading state for SMs
   // expandedRow: number | null = null;
   Math = Math;
+  isMobile: boolean = false;
+
   itemsPerPagedeal: number = 10; // or 4
   currentDisplayCount: number = 10; // Track current number of items shown (initialize in ngOnInit)
   kpiData: any = {
@@ -321,15 +326,33 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     private toastr: ToastrService
   ) {}
   data: any; // To hold your data
-  apiUrl: string = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
+  apiUrl: string =
+    'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew';
 
   ngOnInit(): void {
+    this.checkIfMobile();
+
     // 1️⃣ Read persisted filter from localStorage
     const savedFilter = localStorage.getItem('selectedFilter') as FilterType;
     this.selectedFilter = savedFilter ?? 'DAY';
 
-    // 2️⃣ Fetch data based on selected filter
-    if (this.selectedFilter !== 'CUSTOM') {
+    if (this.selectedFilter === 'CUSTOM') {
+      const savedStart = localStorage.getItem('customStartDate');
+      const savedEnd = localStorage.getItem('customEndDate');
+
+      if (savedStart && savedEnd) {
+        this.customStartDate = savedStart;
+        this.customEndDate = savedEnd;
+
+        // ✅ Fetch dashboard with saved custom dates
+        this.fetchSuperAdminDashboard('CUSTOM');
+      } else {
+        // fallback if dates missing
+        this.selectedFilter = 'DAY';
+        this.fetchSuperAdminDashboard('DAY');
+      }
+    } else {
+      // Non-CUSTOM filter
       const apiFilter = this.mapFilterToApi(this.selectedFilter);
       this.fetchSuperAdminDashboard(apiFilter);
     }
@@ -346,6 +369,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       pageTitle: 'Dashboard',
     });
   }
+
   initializeDisplay() {
     this.currentDisplayCount = this.itemsPerPage;
   }
@@ -717,7 +741,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
+    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -748,7 +772,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (!token) return;
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    const url = `https://uat.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
+    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${dealerId}&sm_id=${smId}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -830,7 +854,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     this.http
       .get<any>(
-        `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`,
+        `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`,
         { headers }
       )
       .subscribe({
@@ -1026,13 +1050,6 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   fetchSuperAdminDashboard(type: string): void {
     this.isLoading = true;
 
-    // console.log('🚀 fetchSuperAdminDashboard called with:', type);
-    // console.log(
-    //   '📍 Selected dealers:',
-    //   this.selectedDealers?.length,
-    //   this.selectedDealers
-    // );
-
     let url = '';
     const isCustomMode =
       this.selectedFilter === 'CUSTOM' &&
@@ -1041,17 +1058,17 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     if (!this.selectedDealers?.length) {
       url = isCustomMode
-        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
+        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${type}`;
     } else if (this.selectedDealers.length === 1) {
       url = isCustomMode
-        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
+        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${type}`;
     } else {
       const dealerIds = this.selectedDealers.map((d) => d.dealerId).join(',');
       url = isCustomMode
-        ? `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
+        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${dealerIds}&type=${type}`;
     }
 
     // console.log('🌐 API URL:', url);
@@ -1293,6 +1310,127 @@ export class DashboardComponent implements AfterViewInit, OnInit {
               ? this.selectedDealers
               : this.dealers;
 
+          // this.chartOptions = {
+          //   series: [
+          //     {
+          //       name: 'Total Calls',
+          //       data: targetDealers.map(
+          //         (d) => this.getDealerCalls(d)?.totalCalls ?? 0
+          //       ),
+          //     },
+          //     {
+          //       name: 'Incoming',
+          //       data: targetDealers.map(
+          //         (d) => this.getDealerCalls(d)?.incoming ?? 0
+          //       ),
+          //     },
+          //     {
+          //       name: 'Outgoing',
+          //       data: targetDealers.map(
+          //         (d) => this.getDealerCalls(d)?.outgoing ?? 0
+          //       ),
+          //     },
+          //     {
+          //       name: 'Connected',
+          //       data: targetDealers.map(
+          //         (d) => this.getDealerCalls(d)?.connected ?? 0
+          //       ),
+          //     },
+          //     {
+          //       name: 'Declined',
+          //       data: targetDealers.map(
+          //         (d) => this.getDealerCalls(d)?.declined ?? 0
+          //       ),
+          //     },
+          //   ],
+          //   chart: {
+          //     type: 'bar',
+          //     height: 430,
+          //     stacked: true,
+          //   },
+          //   plotOptions: {
+          //     bar: {
+          //       horizontal: true,
+
+          //       dataLabels: { position: 'center' },
+          //     },
+          //   },
+          //   dataLabels: {
+          //     enabled: true,
+          //     style: {
+          //       fontSize: '12px',
+          //       colors: ['#fff'],
+          //     },
+          //   },
+          //   stroke: {
+          //     show: true,
+          //     width: 1,
+          //     colors: ['#fff'],
+          //   },
+          //   tooltip: {
+          //     shared: true,
+          //     intersect: false,
+          //     y: {
+          //       formatter: (val, opts) => {
+          //         const dealerName =
+          //           opts?.w?.globals?.labels[opts.dataPointIndex];
+          //         const series = opts?.w?.config?.series;
+          //         let tooltipText = `${dealerName}<br/>`;
+          //         series.forEach((s: any) => {
+          //           const value = s.data[opts.dataPointIndex];
+          //           tooltipText += `${s.name}: ${value}<br/>`;
+          //         });
+          //         return tooltipText;
+          //       },
+          //     },
+          //   },
+          //   xaxis: {
+          //     categories: targetDealers.map((d) => d.dealerName), // ✅ only selected dealers
+          //   },
+          //   title: {
+          //     text: 'Dealer-wise Calls Analysis',
+          //     align: 'left',
+          //   },
+          //   legend: {
+          //     show: true,
+          //     position: 'bottom',
+          //     horizontalAlign: 'center',
+          //     markers: { size: 12 },
+          //   },
+          //   responsive: [
+          //     {
+          //       breakpoint: 768,
+          //       options: {
+          //         xaxis: {
+          //           labels: {
+          //             rotate: -60,
+          //             style: { fontSize: '9px' },
+          //           },
+          //         },
+          //         legend: {
+          //           position: 'bottom',
+          //           fontSize: '10px',
+          //         },
+          //       },
+          //     },
+          //     {
+          //       breakpoint: 480,
+          //       options: {
+          //         xaxis: {
+          //           labels: {
+          //             show: true,
+          //             rotate: -75,
+          //             style: { fontSize: '8px' },
+          //           },
+          //         },
+          //         legend: {
+          //           position: 'bottom',
+          //           fontSize: '8px',
+          //         },
+          //       },
+          //     },
+          //   ],
+          // };
           this.chartOptions = {
             series: [
               {
@@ -1334,16 +1472,19 @@ export class DashboardComponent implements AfterViewInit, OnInit {
             plotOptions: {
               bar: {
                 horizontal: true,
-
-                dataLabels: { position: 'center' },
+                barHeight: '40%',
               },
             },
             dataLabels: {
               enabled: true,
               style: {
-                fontSize: '12px',
-                colors: ['#fff'],
+                fontSize: '6px',
+                colors: ['black'],
               },
+              formatter: (val: number) => (val > 0 ? val : ''),
+              offsetX: 0,
+              offsetY: -5,
+              dropShadow: { enabled: false },
             },
             stroke: {
               show: true,
@@ -1354,22 +1495,45 @@ export class DashboardComponent implements AfterViewInit, OnInit {
               shared: true,
               intersect: false,
               y: {
-                formatter: (val, opts) => {
+                formatter: (val: number, opts: any) => {
                   const dealerName =
                     opts?.w?.globals?.labels[opts.dataPointIndex];
                   const series = opts?.w?.config?.series;
+
                   let tooltipText = `${dealerName}<br/>`;
+
                   series.forEach((s: any) => {
                     const value = s.data[opts.dataPointIndex];
                     tooltipText += `${s.name}: ${value}<br/>`;
                   });
+
                   return tooltipText;
                 },
               },
             },
             xaxis: {
-              categories: targetDealers.map((d) => d.dealerName), // ✅ only selected dealers
+              categories: targetDealers.map((d) => d.dealerName), // ✅ dealer names appear on y-axis
+              labels: {
+                formatter: (val: string) => {
+                  const numVal = Number(val); // convert string to number just in case
+                  if (!isNaN(numVal) && numVal >= 1000)
+                    return (numVal / 1000).toFixed(1).replace('.0', '') + 'k';
+                  return val;
+                },
+                style: { fontSize: '10px' },
+              },
             },
+            yaxis: {
+              labels: {
+                maxWidth: 50,
+                style: {
+                  fontSize: '1px',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                },
+              },
+            } as any,
             title: {
               text: 'Dealer-wise Calls Analysis',
               align: 'left',
@@ -1384,37 +1548,21 @@ export class DashboardComponent implements AfterViewInit, OnInit {
               {
                 breakpoint: 768,
                 options: {
-                  xaxis: {
-                    labels: {
-                      rotate: -60,
-                      style: { fontSize: '9px' },
-                    },
-                  },
-                  legend: {
-                    position: 'bottom',
-                    fontSize: '10px',
-                  },
+                  xaxis: { labels: { style: { fontSize: '2px' } } },
+                  yaxis: { labels: { style: { fontSize: '2px' } } },
+                  legend: { fontSize: '8px' },
                 },
               },
               {
                 breakpoint: 480,
                 options: {
-                  xaxis: {
-                    labels: {
-                      show: true,
-                      rotate: -75,
-                      style: { fontSize: '8px' },
-                    },
-                  },
-                  legend: {
-                    position: 'bottom',
-                    fontSize: '8px',
-                  },
+                  xaxis: { labels: { style: { fontSize: '2px' } } },
+                  yaxis: { labels: { style: { fontSize: '2px' } } },
+                  legend: { fontSize: '6px' },
                 },
               },
             ],
           };
-
           // console.log('Chart series:', this.chartOptions.series);
         } else {
           this.dealers = [];
@@ -1505,7 +1653,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
+    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${filter}`;
 
     this.http.get<any>(url, { headers }).subscribe(
       (res) => {
@@ -1528,7 +1676,37 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       }
     );
   }
+  chartHasData(): boolean {
+    if (!this.chartOptions?.series || this.chartOptions.series.length === 0)
+      return false;
 
+    return this.chartOptions.series.some((s) => {
+      if (!s.data || s.data.length === 0) return false;
+
+      return s.data.some((val) => {
+        if (val == null) return false; // null or undefined
+        if (typeof val === 'number') return val > 0;
+        if (typeof val === 'object' && 'y' in val) return val.y > 0;
+        return false;
+      });
+    });
+  }
+  // applyCustomDate() {
+  //   if (!this.customStartDate || !this.customEndDate) {
+  //     this.toastr.warning('Please select both start and end dates', 'Warning');
+  //     return;
+  //   }
+
+  //   if (new Date(this.customEndDate) < new Date(this.customStartDate)) {
+  //     this.toastr.error('End date cannot be earlier than start date', 'Error');
+  //     return;
+  //   }
+
+  //   this.isLoading = true;
+  //   this.selectedFilter = 'CUSTOM';
+
+  //   this.fetchSuperAdminDashboard('CUSTOM'); // Call API with proper dates
+  // }
   applyCustomDate() {
     if (!this.customStartDate || !this.customEndDate) {
       this.toastr.warning('Please select both start and end dates', 'Warning');
@@ -1543,28 +1721,50 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.isLoading = true;
     this.selectedFilter = 'CUSTOM';
 
+    // ✅ Save to localStorage
+    localStorage.setItem('selectedFilter', this.selectedFilter);
+    localStorage.setItem('customStartDate', this.customStartDate);
+    localStorage.setItem('customEndDate', this.customEndDate);
+
     this.fetchSuperAdminDashboard('CUSTOM'); // Call API with proper dates
   }
 
+  // resetCustomDate() {
+  //   this.customStartDate = '';
+  //   this.customEndDate = '';
+
+  //   this.selectedFilter = 'DAY';
+
+  //   this.invalidDateRange = false; // ✅ reset validation
+
+  //   // ✅ Show loader
+  //   this.isLoading = true;
+
+  //   // Fetch default data
+  //   this.onFilterChange(this.selectedFilter);
+
+  //   // Remove applied visual effect
+  //   const inputs = document.querySelector('.custom-inputs');
+  //   if (inputs) {
+  //     inputs.classList.remove('applied');
+  //   }
+  // }
   resetCustomDate() {
     this.customStartDate = '';
     this.customEndDate = '';
-
     this.selectedFilter = 'DAY';
+    this.invalidDateRange = false;
 
-    this.invalidDateRange = false; // ✅ reset validation
+    // ✅ Clear localStorage
+    localStorage.removeItem('selectedFilter');
+    localStorage.removeItem('customStartDate');
+    localStorage.removeItem('customEndDate');
 
-    // ✅ Show loader
     this.isLoading = true;
-
-    // Fetch default data
     this.onFilterChange(this.selectedFilter);
 
-    // Remove applied visual effect
     const inputs = document.querySelector('.custom-inputs');
-    if (inputs) {
-      inputs.classList.remove('applied');
-    }
+    if (inputs) inputs.classList.remove('applied');
   }
   validateCustomDates() {
     if (this.customStartDate && this.customEndDate) {
@@ -1804,11 +2004,12 @@ export class DashboardComponent implements AfterViewInit, OnInit {
               this.chartOptions = {
                 series: [
                   { name: 'Total Calls', data: totalCalls },
-                  { name: 'Outgoing Calls', data: outgoing },
                   { name: 'Incoming Calls', data: incoming },
-                  { name: 'Duration Sec', data: durationSec },
-                  { name: 'Declined Calls', data: declined },
+                  { name: 'Outgoing Calls', data: outgoing },
                   { name: 'Connected Calls', data: connected },
+                  { name: 'Declined Calls', data: declined },
+
+                  { name: 'Duration Sec', data: durationSec },
                 ],
                 chart: { type: 'bar', height: 430 },
                 plotOptions: {
@@ -1899,7 +2100,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       this.customEndDate
     ) {
       // For custom date mode, build URL with start_date and end_date parameters
-      const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
+      const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
 
       this.http
         .get(url, { headers: { Authorization: `Bearer ${token}` } })
@@ -1908,7 +2109,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         });
     } else {
       // Fallback: legacy API with type
-      const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
+      const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${dealerId}&type=${type}`;
       this.http
         .get(url, { headers: { Authorization: `Bearer ${token}` } })
         .subscribe((res) => {
@@ -1980,7 +2181,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.loadingPS = true; // start loading
 
     const type = this.selectedFilter;
-    const baseUrl = 'https://uat.smartassistapp.in/api/superAdmin/dashbaordNew';
+    const baseUrl =
+      'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew';
     const dealerId = this.selectedDealerId;
     const smId = this.selectedSM.sm_id;
     const url = `${baseUrl}?type=${type}&dealer_id=${dealerId}&sm_id=${smId}`;
@@ -2213,7 +2415,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    const url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
+    const url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${type}`;
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
@@ -2287,7 +2489,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   fetchData(): void {
     this.http
-      .get<any>('https://uat.smartassistapp.in/api/superAdmin/dashbaordNew')
+      .get<any>(
+        'https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew'
+      )
       .subscribe(
         (response) => {
           // console.log('API Response:', response); // Log the response to check its structure
@@ -2394,7 +2598,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
   fetchDashboardDataForTopCards(filter: string) {
     const token = localStorage.getItem('token') || '';
-    let url = `https://uat.smartassistapp.in/api/superAdmin/dashboard/NoSM`;
+    let url = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM`;
 
     if (filter === 'CUSTOM' && this.customStartDate && this.customEndDate) {
       url += `?startDate=${this.customStartDate}&endDate=${this.customEndDate}`;
@@ -3188,5 +3392,10 @@ export class DashboardComponent implements AfterViewInit, OnInit {
         htmlEl.style.position = 'sticky';
       }
     });
+  }
+  checkIfMobile() {
+    this.isMobile =
+      /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+      window.innerWidth <= 768;
   }
 }

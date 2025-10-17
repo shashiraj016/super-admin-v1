@@ -1,41 +1,39 @@
 <div class=" custom-container">
+  <div *ngIf="isLoading" class="loader-overlay">
+    <div class="spinner"></div>
+  </div>
   <div class="login-content">
-    <form *ngIf="currentStep === 'login'" #loginForm="ngForm">
-      <img class="mx-auto inline-flex items-center justify-center" src="../../../assets/admin-img/jlr logo.svg"
-        alt="Avatar Image" />
-      <h2 class="title" style="color:#222fb9;font-size:20px;text-transform: capitalize;margin-top:15px;">Login to Smart
-        Assist</h2>
+    <!-- Login Form HTML -->
+    <form *ngIf="currentStep === 'login'" #loginForm="ngForm" class="login-container">
+      <!-- Logo -->
+      <img class="logo" src="../../../assets/admin-img/jlr logo.svg" alt="JLR Logo" />
 
-      <div class="input-div one">
-        <div class="i mr-3">
-          <i class="fas fa-user"></i>
-        </div>
-        <div class="div relative">
-          <h5 class="absolute left-2 top-1 text-gray-500 text-sm">Email</h5>
-          <input [(ngModel)]="loginObj.email" #inputElement type="text" name="username" required
-            class="forms-control" />
-        </div>
+      <!-- Title -->
+      <h2 class="login-title">Login to Smart Assist</h2>
+
+      <!-- Email Input -->
+      <div class="form-group">
+        <label class="input-label">Email</label>
+        <input [(ngModel)]="loginObj.email" type="email" name="username" required placeholder="Enter Email ID"
+          class="form-input" />
       </div>
 
-      <div class="input-div pass">
-        <div class="i mr-3">
-          <i class="fas fa-lock"></i>
-        </div>
-        <div class="div relative">
-          <h5>Password</h5>
+      <!-- Password Input -->
+      <div class="form-group">
+        <label class="input-label">Password</label>
+        <div class="password-wrapper">
           <input id="passwordInput" [(ngModel)]="loginObj.password" [type]="showPassword ? 'text' : 'password'"
-            name="password" required autocomplete="off" autocorrect="off" spellcheck="false"
-            class="inputt focus:outline-none focus:border-none border-transparent focus:ring-0 py-2 px-4 bg-transparent text-gray-800"
-            #inputElement style="padding-left: 1px !important;" />
-          <i [class]="'icon11 absolute right-8 top-1/2 transform -translate-y-1/2 cursor-pointer ' + (showPassword ? 'fas fa-eye-slash eye' : 'fas fa-eye eye')"
+            name="password" required placeholder="Enter Password" autocomplete="off" autocorrect="off"
+            spellcheck="false" class="form-input password-input" />
+          <i [class]="showPassword ? 'fas fa-eye eye-icon' : 'fas fa-eye-slash eye-icon'"
             (click)="togglePassword('password')"></i>
         </div>
       </div>
 
-      <!-- Login button -->
-      <input type="submit" class="btn" value="Login" (click)="onLogin()" />
+      <!-- Login Button -->
+      <button type="submit" class="login-btn" (click)="onLogin()">Login</button>
 
-      <!-- Centered Forgot/Reset Password link -->
+      <!-- Links -->
       <div class="text-center mt-2">
         <a href="javascript:void(0)" class="forgot-password text-sm" (click)="showVerifyEmail()"
           style="text-align: center;">
@@ -52,6 +50,8 @@
         </div>
       </div>
     </form>
+
+
     <form *ngIf="currentStep === 'verifyEmail'" #verifyForm="ngForm">
       <div class="flex justify-center">
         <img class="mx-auto inline-flex items-center justify-center" src="../../../assets/admin-img/jlr logo.svg"
@@ -62,28 +62,17 @@
         Verify Email
       </h2>
 
-      <!-- <div class="input-div">
-        <div class="i mr-3">
-          <i class="fas fa-envelope"></i>
-        </div>
-        <div class="div relative">
-          <input [(ngModel)]="verifyObj.email" name="dealer_email" type="email" required email placeholder="E-mail"
-            #dealerEmail="ngModel" />
-        </div>
-      </div> -->
-      <div class="input-div">
-        <div class="i mr-3">
-          <i class="fas fa-envelope"></i>
-        </div>
-        <div class="div relative">
-          <input [(ngModel)]="verifyObj.email" name="dealer_email" type="email" required email placeholder=" "
-            #dealerEmail="ngModel" />
-          <label class="floating-label">Verify Email</label>
+      <div class="form-group">
+        <label class="input-label">Verify Email</label>
+        <div class="password-wrapper"> <!-- wrapper div same as password input -->
+          <input [(ngModel)]="verifyObj.email" name="dealer_email" type="email" required email placeholder="Enter Email"
+            #dealerEmail="ngModel" class="form-input" />
         </div>
       </div>
       <a href="javascript:void(0)" class="back-to-login" (click)="backToLogin()">Back to Login</a>
       <input type="submit" class="btn" value="Send OTP" (click)="onVerifyEmail()" />
     </form>
+
     <form *ngIf="currentStep === 'verifyOtp'" #otpForm="ngForm">
       <div class="flex justify-center">
         <img class="mx-auto inline-flex items-center justify-center" src="../../../assets/admin-img/jlr logo.svg"
@@ -97,7 +86,7 @@
       <div *ngIf="countdown > 0" class="text-center mb-4">
         Time remaining: {{ countdown }}s
       </div>
-
+      <!-- 
       <div class="input-div one">
         <div class="i mr-3">
           <i class="fas fa-key color"></i>
@@ -105,6 +94,13 @@
         <div class="relative z-0 w-full mb-1 group flex flex-col">
           <input (input)="onOtpInput($event)" type="text" [(ngModel)]="loginObj.otp" name="otp" #otp="ngModel" required
             placeholder="OTP" class="" />
+        </div>
+      </div> -->
+      <div class="form-group">
+        <label class="input-label">OTP</label>
+        <div class="password-wrapper"> <!-- wrapper same as password input -->
+          <input (input)="onOtpInput($event)" type="text" [(ngModel)]="loginObj.otp" name="otp" #otp="ngModel" required
+            placeholder="Enter OTP" class="form-input" />
         </div>
       </div>
 
@@ -117,6 +113,11 @@
     </form>
 
     <form *ngIf="currentStep === 'newPassword'">
+      <div class="flex justify-center">
+        <img class="mx-auto inline-flex items-center justify-center" src="../../../assets/admin-img/jlr logo.svg"
+          alt="Avatar Image" />
+      </div>
+
       <h2 class="title">Set New Password</h2>
 
       <!-- <div class="input-div pass">
@@ -149,37 +150,26 @@
         </div>
       </div> -->
 
-      <div class="input-div pass">
-        <div class="i mr-3">
-          <i class="fas fa-lock"></i>
-        </div>
-        <div class="div relative">
-          <input [(ngModel)]="loginObj.newPwd" name="password" [type]="showPassword ? 'text' : 'password'"
-            class="forms-control peer focus:outline-none focus:border-none border-transparent focus:ring-0 w-full py-2 px-4 bg-transparent text-gray-800"
-            placeholder=" " required />
-          <label class="floating-label">New Password</label>
-          <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
-            class="icon11 absolute right-8 top-1/2 transform -translate-y-1/2 cursor-pointer"
+      <div class="form-group">
+        <label class="input-label">New Password</label>
+        <div class="password-wrapper relative">
+          <input [(ngModel)]="loginObj.newPwd" name="password" [type]="showPassword ? 'text' : 'password'" required
+            placeholder="Enter New Password" class="form-input password-input" />
+          <i [class]="showPassword ? 'fas fa-eye eye-icon' : 'fas fa-eye-slash eye-icon'"
             (click)="togglePassword('password')"></i>
         </div>
       </div>
 
-      <div class="input-div pass">
-        <div class="i">
-          <i class="fas fa-lock"></i>
-        </div>
-        <div class="div relative">
+      <div class="form-group">
+        <label class="input-label">Confirm Password</label>
+        <div class="password-wrapper relative">
           <input [(ngModel)]="loginObj.confirmPassword" name="confirm-password"
-            [type]="showConfirmPassword ? 'text' : 'password'"
-            class="forms-control peer focus:outline-none focus:border-none border-transparent focus:ring-0 w-full py-2 px-4 bg-transparent text-gray-800"
-            placeholder=" " required />
-          <label class="floating-label">Confirm Password</label>
-          <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
-            class="icon11 absolute right-8 top-1/2 transform -translate-y-1/2 cursor-pointer"
+            [type]="showConfirmPassword ? 'text' : 'password'" required placeholder="Enter Confirm Password"
+            class="form-input password-input" />
+          <i [class]="showConfirmPassword ? 'fas fa-eye eye-icon' : 'fas fa-eye-slash eye-icon'"
             (click)="togglePassword('confirmPassword')"></i>
         </div>
       </div>
-
       <div class="flex justify-between w-full">
         <a style="cursor: pointer" class="back-to-login" (click)="backToLogin()">Back to Login</a>
       </div>

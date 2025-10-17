@@ -147,7 +147,7 @@ export class TrendChartComponent {
     },
   };
 
-  BASE_URL = 'https://uat.smartassistapp.in';
+  BASE_URL = 'https://api.prod.smartassistapp.in';
   TREND_CHART_URL = '/api/superAdmin/dashboard/trend-chart';
 
   // Day-level charts
@@ -172,40 +172,64 @@ export class TrendChartComponent {
 
   constructor(private http: HttpClient) {}
 
+  private iosPerformanceMode = false;
+
   ngOnInit(): void {
+    this.iosPerformanceMode = this.isIOS();
+
+    if (this.iosPerformanceMode) {
+      console.log('iOS Performance Mode Enabled');
+      // Increase delays for iOS
+      this.scrollThrottleDelay = 150;
+    }
     this.fetchTrendChart();
     this.fetchTrendChartWithFilters();
-    window.addEventListener('resize', () => {
-      this.updateAllChartsFromApi(this.lastApiResponse);
-    });
+    // window.addEventListener('resize', () => {
+    //   this.updateAllChartsFromApi(this.lastApiResponse);
+    // });
   }
+
+  private scrollTimeout: any;
+  private lastScrollTime = 0;
+  private scrollThrottleDelay = 100; // ms
+
+  // @HostListener('window:scroll', [])
+  // onWindowScroll() {
+  //   const now = Date.now();
+
+  //   // Throttle scroll events (especially important for iOS)
+  //   if (now - this.lastScrollTime < this.scrollThrottleDelay) {
+  //     return;
+  //   }
+  //   this.lastScrollTime = now;
+
+  //   // Use requestAnimationFrame for smooth updates
+  //   if (this.scrollTimeout) {
+  //     cancelAnimationFrame(this.scrollTimeout);
+  //   }
+
+  //   this.scrollTimeout = requestAnimationFrame(() => {
+  //     const scrollY = window.scrollY || document.documentElement.scrollTop;
+
+  //     // Sticky Header Logic
+  //     const offset = this.originalHeaderOffsetTop || 0;
+  //     this.isSticky = scrollY >= offset;
+  //     this.isHidden = false;
+
+  //     // Fill Bars Logic (only trigger once)
+  //     if (scrollY > this.lastScrollTop && !this.shouldFillBars) {
+  //       this.shouldFillBars = true;
+  //     }
+
+  //     this.lastScrollTop = Math.max(scrollY, 0);
+  //   });
+  // }
   ngAfterViewInit() {
     const header = document.querySelector('.dashboard-top') as HTMLElement;
     if (header) {
       this.originalHeaderOffsetTop = header.offsetTop;
     }
   }
-
-  // @HostListener('window:scroll', [])
-  // onWindowScroll() {
-  //   const scrollY = window.scrollY || document.documentElement.scrollTop;
-
-  //   /** 🔹 Sticky Header Logic */
-  //   this.isSticky = scrollY >= this.originalHeaderOffsetTop;
-  //   this.isHidden = false; // never hide
-
-  //   /** 🔹 Fill Bars Logic */
-  //   if (scrollY > this.lastScrollTop) {
-  //     // user scrolling down
-  //     this.shouldFillBars = true;
-  //   } else {
-  //     // user scrolling up (optional reset)
-  //     // this.shouldFillBars = false;
-  //   }
-
-  //   this.lastScrollTop = scrollY <= 0 ? 0 : scrollY;
-  // }
-
   @HostListener('window:scroll', [])
   onWindowScroll() {
     const scrollY = window.scrollY || document.documentElement.scrollTop;
@@ -323,6 +347,51 @@ export class TrendChartComponent {
       this.filteredDealers.every((dealer) => this.isDealerSelected(dealer))
     );
   }
+  toggleSort(chart: any, dealerIndex: number): void {
+    const dealerGroup = this.psWiseCharts[dealerIndex];
+    if (!dealerGroup) return;
+
+    // Determine next sort order
+    let newOrder: 'asc' | 'desc' | null = null;
+
+    if (!chart.sortOrder) {
+      newOrder = 'desc';
+    } else if (chart.sortOrder === 'desc') {
+      newOrder = 'asc';
+    } else {
+      newOrder = null;
+    }
+
+    // Update the clicked chart's sortOrder
+    chart.sortOrder = newOrder;
+
+    // Determine sorting base (the clicked chart users)
+    let sortedUsersBase: any[] = [];
+
+    if (newOrder === 'desc') {
+      sortedUsersBase = [...chart.users].sort((a, b) => b.value - a.value);
+    } else if (newOrder === 'asc') {
+      sortedUsersBase = [...chart.users].sort((a, b) => a.value - b.value);
+    } else {
+      sortedUsersBase = [...(chart.originalUsers || chart.users)];
+    }
+
+    // Get the sorted user IDs in the desired order
+    const sortedUserIds = sortedUsersBase.map((u) => u.id || u.name);
+
+    // Apply same order to ALL charts for that dealer
+    dealerGroup.charts.forEach((c: any) => {
+      const userMap = new Map(
+        (c.originalUsers || c.users).map((u: any) => [u.id || u.name, u])
+      );
+      c.users = sortedUserIds.map((id) => userMap.get(id)).filter(Boolean);
+
+      // Sync sortOrder visually (optional)
+      if (c !== chart) {
+        c.sortOrder = chart.sortOrder;
+      }
+    });
+  }
 
   toggleSelectAll(event: any) {
     const isChecked = event.target.checked;
@@ -368,11 +437,14 @@ export class TrendChartComponent {
       dealerIds = this.selectedDealers.join(',');
     }
 
+    // const params = new HttpParams()
+    //   .set('dealer_ids', dealerIds)
+    //   .set('type', 'DAY')
+    //   .set('timezone', Intl.DateTimeFormat().resolvedOptions().timeZone);
     const params = new HttpParams()
       .set('dealer_ids', dealerIds)
       .set('type', 'DAY')
-      .set('timezone', Intl.DateTimeFormat().resolvedOptions().timeZone);
-
+      .set('timezone', 'Asia/Kolkata');
     this.isLoading = true;
     this.http
       .get<any>(`${this.BASE_URL}${this.TREND_CHART_URL}`, { headers, params })
@@ -643,10 +715,22 @@ export class TrendChartComponent {
   //     });
   //   }, 100);
   // }
+
+  isIOS(): boolean {
+    return (
+      /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
+    );
+  }
+  isAllZero(series: any[]): boolean {
+    if (!series || !series.length) return true;
+    return series.every(
+      (s) => Array.isArray(s.data) && s.data.every((val: number) => val === 0)
+    );
+  }
+
   updateAllChartsFromApi(res: any) {
     if (!res) return;
 
-    // ---- Normalize input data ----
     const normalizeData = (input: any, key: string) => {
       if (!input) return [];
 
@@ -662,6 +746,36 @@ export class TrendChartComponent {
       }
 
       if (typeof input === 'object' && !Array.isArray(input)) {
+        const dealerCount = Object.keys(input).length;
+
+        // Check if we should aggregate: either no dealers selected OR all dealers from response are selected
+        const shouldAggregate =
+          !this.selectedDealers ||
+          this.selectedDealers.length === 0 ||
+          this.selectedDealers.length >= dealerCount;
+
+        if (shouldAggregate) {
+          // Aggregate all dealer data into one "All Dealers" series
+          const aggregatedData = new Map<string, number>();
+
+          Object.entries(input).forEach(([dealer, obj]: [string, any]) => {
+            const arr = obj?.[key] || [];
+            arr.forEach((d: any) => {
+              const xKey = d.hour || d.label;
+              const currentCount = aggregatedData.get(xKey) || 0;
+              aggregatedData.set(xKey, currentCount + (Number(d.count) || 0));
+            });
+          });
+
+          return Array.from(aggregatedData.entries()).map(([xKey, count]) => ({
+            hour: xKey.includes(':') ? xKey : undefined,
+            label: !xKey.includes(':') ? xKey : undefined,
+            count: count,
+            dealer_name: 'All Dealers',
+          }));
+        }
+
+        // If specific dealers are selected (not all), return individual series
         return Object.entries(input).flatMap(([dealer, obj]: [string, any]) => {
           const arr = obj?.[key] || [];
           return arr.map((d: any) => ({ ...d, dealer_name: dealer }));
@@ -675,7 +789,6 @@ export class TrendChartComponent {
       return [];
     };
 
-    // ---- Transform data into chart-ready format ----
     const transform = (data: any[], isHourChart = false) => {
       if (!data || !data.length) return { series: [], categories: [] };
       const xKey = isHourChart ? 'hour' : 'label';
@@ -709,7 +822,6 @@ export class TrendChartComponent {
       return { series, categories };
     };
 
-    // ---- Enhanced chart update with better data labels ----
     const updateChart = (
       chartRef: any,
       chartData: any,
@@ -718,35 +830,41 @@ export class TrendChartComponent {
     ) => {
       if (!chartRef) return;
 
-      const isAllDealersSingleLine =
-        chartData.series.length === 1 &&
-        (chartData.series[0].name === 'All Dealers' ||
-          this.selectedDealers.length === 0 ||
-          !this.userTouchedDealers);
+      // Show single line with data labels when:
+      // 1. Only one series exists AND it's "All Dealers"
+      // 2. OR when exactly 1 dealer is selected
+      const isSingleDealerLine =
+        (chartData.series.length === 1 &&
+          chartData.series[0].name === 'All Dealers') ||
+        this.selectedDealers.length === 1;
 
+      // Default colors
       let fixedColors: string[] = [];
-      let labelColor = '#304758'; // default
+      let labelColor = '#304758';
 
-      if (isAllDealersSingleLine) {
-        if (metricKey === 'leads') {
-          fixedColors = ['#000080'];
-          labelColor = '#000080';
-        }
-        if (metricKey === 'utd') {
-          fixedColors = ['#FFA500'];
-          labelColor = '#FFA500';
-        }
-        if (metricKey === 'followups') {
-          fixedColors = ['#008000'];
-          labelColor = '#008000';
-        }
-        if (metricKey.toLowerCase().includes('call')) {
-          fixedColors = ['#800080'];
-          labelColor = '#800080';
-        }
-        if (metricKey === 'lastLogin') {
-          fixedColors = ['#FF0000'];
-          labelColor = '#FF0000';
+      if (isSingleDealerLine) {
+        switch (metricKey) {
+          case 'leads':
+            fixedColors = ['#000080'];
+            labelColor = '#000080';
+            break;
+          case 'utd':
+            fixedColors = ['#FFA500'];
+            labelColor = '#FFA500';
+            break;
+          case 'followups':
+            fixedColors = ['#008000'];
+            labelColor = '#008000';
+            break;
+          case 'lastLogin':
+            fixedColors = ['#FF0000'];
+            labelColor = '#FF0000';
+            break;
+          default:
+            if (metricKey.toLowerCase().includes('call')) {
+              fixedColors = ['#800080'];
+              labelColor = '#800080';
+            }
         }
       }
 
@@ -760,27 +878,43 @@ export class TrendChartComponent {
           toolbar: { show: false },
           zoom: { enabled: false },
           selection: { enabled: false },
+          animations: {
+            enabled: !this.iosPerformanceMode,
+            speed: this.iosPerformanceMode ? 0 : 800,
+            animateGradually: {
+              enabled: !this.iosPerformanceMode,
+              delay: this.iosPerformanceMode ? 0 : 150,
+            },
+            dynamicAnimation: {
+              enabled: !this.iosPerformanceMode,
+              speed: this.iosPerformanceMode ? 0 : 350,
+            },
+          },
+          redrawOnParentResize: !this.iosPerformanceMode,
+          redrawOnWindowResize: !this.iosPerformanceMode,
         },
         stroke: {
           curve: 'smooth',
-          width: 1,
+          width: this.iosPerformanceMode ? 1 : 2,
         },
         markers: {
-          size: isAllDealersSingleLine ? 4 : 3,
-          strokeWidth: isAllDealersSingleLine ? 2 : 1,
+          size: isSingleDealerLine ? 3 : 2,
+          strokeWidth: isSingleDealerLine ? 1 : 0,
         },
-        tooltip: { enabled: true },
+        tooltip: {
+          enabled: true,
+          fillSeriesColor: this.iosPerformanceMode,
+        },
         xaxis: {
           categories: chartData.categories,
           labels: {
-            // rotate: isMobile ? 0 : -60,
             rotate: 0,
             style: {
               colors: '#333',
               fontFamily: 'Helvetica, Arial, sans-serif',
               fontWeight: 400,
             },
-            trim: false, // prevent cutting
+            trim: false,
             offsetX: 0,
             offsetY: 5,
           },
@@ -788,21 +922,11 @@ export class TrendChartComponent {
         yaxis: {
           labels: { formatter: (val: number) => val.toString() },
         },
-        legend: {
-          show: false,
-        },
-        grid: {
-          show: true,
-          padding: {
-            left: 15,
-            right: 15,
-            top: 0,
-            // bottom: isMobile ? 30 : 50,
-          },
-        },
+        legend: { show: false },
+        grid: { show: true, padding: { left: 15, right: 15, top: 0 } },
         colors: fixedColors.length ? fixedColors : undefined,
         dataLabels: {
-          enabled: isAllDealersSingleLine,
+          enabled: isSingleDealerLine && !this.iosPerformanceMode,
           formatter: (val: number) => (val > 0 ? val.toString() : ''),
           style: {
             fontSize: '11px',
@@ -823,8 +947,8 @@ export class TrendChartComponent {
       };
 
       if (chartRef.updateOptions && chartRef.updateSeries) {
-        chartRef.updateSeries(chartData.series, true);
-        chartRef.updateOptions(chartOptions, true);
+        chartRef.updateSeries(chartData.series, false);
+        chartRef.updateOptions(chartOptions, false, !this.iosPerformanceMode);
       } else {
         chartRef = {
           ...chartRef,
@@ -837,22 +961,21 @@ export class TrendChartComponent {
       return chartRef;
     };
 
-    // ---- Chart configurations ----
     const chartConfigs = [
       { key: 'leads', resKey: 'left', target: 'dayLeadChart' },
       { key: 'utd', resKey: 'left', target: 'dayEventChart' },
       { key: 'followups', resKey: 'left', target: 'dayTaskChart' },
-      { key: this.selectedCallType, resKey: 'left', target: 'dayCallsChart' },
+      { key: 'enquiryCalls', resKey: 'left', target: 'dayCallsChart' },
       { key: 'lastLogin', resKey: 'left', target: 'dayLastLoginChart' },
-
       { key: 'leads', resKey: 'right', target: 'hourLeadChart' },
       { key: 'utd', resKey: 'right', target: 'hourEventChart' },
       { key: 'followups', resKey: 'right', target: 'hourTaskChart' },
-      { key: this.selectedCallType, resKey: 'right', target: 'hourCallsChart' },
+      { key: 'enquiryCalls', resKey: 'right', target: 'hourCallsChart' },
       { key: 'lastLogin', resKey: 'right', target: 'hourLastLoginChart' },
     ];
 
-    // ---- Debounce heavy updates ----
+    const debounceTime = this.iosPerformanceMode ? 200 : 100;
+
     clearTimeout(this.chartUpdateTimeout);
     this.chartUpdateTimeout = setTimeout(() => {
       chartConfigs.forEach(({ key, resKey, target }) => {
@@ -868,7 +991,16 @@ export class TrendChartComponent {
           key
         );
       });
-    }, 100);
+    }, debounceTime);
+  }
+
+  ngOnDestroy() {
+    if (this.scrollTimeout) {
+      cancelAnimationFrame(this.scrollTimeout);
+    }
+    clearTimeout(this.chartUpdateTimeout);
+    clearTimeout(this.filterUpdateTimeout);
+    clearTimeout(this.psProcessingTimeout);
   }
   private filterUpdateTimeout: any;
 
@@ -889,7 +1021,7 @@ export class TrendChartComponent {
 
     let params = new HttpParams()
       .set('type', this.selectedDateFilter)
-      .set('timezone', 'Asia/Calcutta');
+      .set('timezone', 'Asia/Kolkata');
 
     if (dealerIds.trim()) {
       params = params.set('dealer_ids', dealerIds);
@@ -1158,6 +1290,91 @@ export class TrendChartComponent {
     return allIndiaAvgMap;
   }
 
+  // processSingleDealer(
+  //   dealerName: string,
+  //   users: any,
+  //   staticMetrics: string[],
+  //   metricLabels: Record<string, string>,
+  //   allIndiaAvgMap: Record<string, number>
+  // ) {
+  //   if (!Array.isArray(users)) return null;
+
+  //   const filteredUsers = users.filter((u) =>
+  //     this.roleFilter === 'Both' ? true : u.role === this.roleFilter
+  //   );
+
+  //   if (filteredUsers.length === 0) return null;
+
+  //   const charts: any[] = [];
+
+  //   // Process static metrics
+  //   staticMetrics.forEach((metric) => {
+  //     const sortedUsers = filteredUsers
+  //       .map((u) => ({
+  //         name: u.name,
+  //         role: u.role, // ✅ include role
+
+  //         value: u[metric] || 0,
+  //         dealer: dealerName,
+  //       }))
+  //       .sort((a, b) => b.value - a.value);
+
+  //     if (sortedUsers.length > 0) {
+  //       const dealerAvg = Math.round(
+  //         sortedUsers.reduce((sum, u) => sum + u.value, 0) / sortedUsers.length
+  //       );
+
+  //       // Find max value for percentage calculation
+  //       const maxValue = Math.max(...sortedUsers.map((u) => u.value), 1);
+
+  //       charts.push({
+  //         title: metricLabels[metric],
+  //         allIndiaAvg: allIndiaAvgMap[metric],
+  //         dealerAvg,
+  //         maxValue,
+  //         users: sortedUsers,
+  //         key: metricLabels[metric].toLowerCase().replace(/\s/g, ''),
+  //       });
+  //     }
+  //   });
+
+  //   // Process call metric
+  //   const callMetric = this.psWiseSelectedCallType || 'calls';
+  //   const callUsers = filteredUsers
+  //     .map((u) => ({
+  //       name: u.name,
+  //       role: u.role, // ✅ include role
+
+  //       value: u[callMetric] || 0,
+  //       dealer: dealerName,
+  //     }))
+  //     .sort((a, b) => b.value - a.value);
+
+  //   if (callUsers.length > 0) {
+  //     const dealerAvg = Math.round(
+  //       callUsers.reduce((sum, u) => sum + u.value, 0) / callUsers.length
+  //     );
+
+  //     const maxValue = Math.max(...callUsers.map((u) => u.value), 1);
+
+  //     charts.push({
+  //       title: metricLabels[callMetric],
+  //       allIndiaAvg: allIndiaAvgMap[callMetric],
+  //       dealerAvg,
+  //       maxValue,
+  //       users: callUsers,
+  //       key: 'countOfCalls',
+  //     });
+  //   }
+
+  //   return charts.length > 0
+  //     ? { dealerName, users: filteredUsers, charts }
+  //     : null;
+  // }
+
+  // Method to get bar color based on index
+  // CODE GIVEN BY SHAHSI ON 14
+
   processSingleDealer(
     dealerName: string,
     users: any,
@@ -1165,82 +1382,73 @@ export class TrendChartComponent {
     metricLabels: Record<string, string>,
     allIndiaAvgMap: Record<string, number>
   ) {
+    if (!dealerName || dealerName.trim().toLowerCase() === 'dealer null')
+      return null;
     if (!Array.isArray(users)) return null;
 
     const filteredUsers = users.filter((u) =>
       this.roleFilter === 'Both' ? true : u.role === this.roleFilter
     );
-
     if (filteredUsers.length === 0) return null;
 
     const charts: any[] = [];
 
     // Process static metrics
     staticMetrics.forEach((metric) => {
-      const sortedUsers = filteredUsers
-        .map((u) => ({
-          name: u.name,
-          role: u.role, // ✅ include role
+      const mappedUsers = filteredUsers.map((u) => ({
+        name: u.name,
+        role: u.role,
+        value: u[metric] || 0,
+        dealer: dealerName,
+      }));
 
-          value: u[metric] || 0,
-          dealer: dealerName,
-        }))
-        .sort((a, b) => b.value - a.value);
+      const dealerAvg = Math.round(
+        mappedUsers.reduce((sum, u) => sum + u.value, 0) / mappedUsers.length
+      );
+      const maxValue = Math.max(...mappedUsers.map((u) => u.value), 1);
 
-      if (sortedUsers.length > 0) {
-        const dealerAvg = Math.round(
-          sortedUsers.reduce((sum, u) => sum + u.value, 0) / sortedUsers.length
-        );
-
-        // Find max value for percentage calculation
-        const maxValue = Math.max(...sortedUsers.map((u) => u.value), 1);
-
-        charts.push({
-          title: metricLabels[metric],
-          allIndiaAvg: allIndiaAvgMap[metric],
-          dealerAvg,
-          maxValue,
-          users: sortedUsers,
-          key: metricLabels[metric].toLowerCase().replace(/\s/g, ''),
-        });
-      }
+      charts.push({
+        title: metricLabels[metric],
+        allIndiaAvg: allIndiaAvgMap[metric],
+        dealerAvg,
+        maxValue,
+        users: [...mappedUsers], // default order
+        originalUsers: [...mappedUsers], // store original for sorting/highlight
+        key: metricLabels[metric].toLowerCase().replace(/\s/g, ''),
+        sortOrder: null, // no default sorting
+      });
     });
 
     // Process call metric
     const callMetric = this.psWiseSelectedCallType || 'calls';
-    const callUsers = filteredUsers
-      .map((u) => ({
-        name: u.name,
-        role: u.role, // ✅ include role
+    const callUsers = filteredUsers.map((u) => ({
+      name: u.name,
+      role: u.role,
+      value: u[callMetric] || 0,
+      dealer: dealerName,
+    }));
 
-        value: u[callMetric] || 0,
-        dealer: dealerName,
-      }))
-      .sort((a, b) => b.value - a.value);
+    const dealerAvg = Math.round(
+      callUsers.reduce((sum, u) => sum + u.value, 0) / callUsers.length
+    );
+    const maxValue = Math.max(...callUsers.map((u) => u.value), 1);
 
-    if (callUsers.length > 0) {
-      const dealerAvg = Math.round(
-        callUsers.reduce((sum, u) => sum + u.value, 0) / callUsers.length
-      );
-
-      const maxValue = Math.max(...callUsers.map((u) => u.value), 1);
-
-      charts.push({
-        title: metricLabels[callMetric],
-        allIndiaAvg: allIndiaAvgMap[callMetric],
-        dealerAvg,
-        maxValue,
-        users: callUsers,
-        key: 'countOfCalls',
-      });
-    }
+    charts.push({
+      title: metricLabels[callMetric],
+      allIndiaAvg: allIndiaAvgMap[callMetric],
+      dealerAvg,
+      maxValue,
+      users: [...callUsers], // default order
+      originalUsers: [...callUsers],
+      key: 'countOfCalls',
+      sortOrder: null,
+    });
 
     return charts.length > 0
       ? { dealerName, users: filteredUsers, charts }
       : null;
   }
 
-  // Method to get bar color based on index
   getBarColor(index: number, chartTitle?: string): string {
     const title = chartTitle?.toLowerCase() || '';
     if (title.includes('sa leads')) {
@@ -1326,25 +1534,70 @@ export class TrendChartComponent {
     }
     return colors;
   }
-
-  accordionStates = {
-    leads: true, // Default to open
-    events: false,
-    tasks: false,
-    calls: false,
-    lastLogin: false,
-  };
-
-  // Add method to toggle accordion sections
-  toggleAccordion(section: string) {
-    this.accordionStates[section as keyof typeof this.accordionStates] =
-      !this.accordionStates[section as keyof typeof this.accordionStates];
+  refreshStats() {
+    console.log('Refreshing stats...');
+    this.fetchTrendChartWithFilters();
   }
+  private isScrolling = false;
+  highlightedUsers: Array<{ dealerIndex: number; userId: string }> = [];
 
-  expandedDealerIndex: number | null = null;
+  // Updated synchronized scroll method (keep as is)
+  onChartScroll(event: Event, dealerIndex: number): void {
+    const scrollTop = (event.target as HTMLElement).scrollTop;
+    const dealerGroup = this.psWiseCharts[dealerIndex];
 
-  toggleDealer(index: number) {
-    this.expandedDealerIndex =
-      this.expandedDealerIndex === index ? null : index;
+    if (!dealerGroup) return;
+
+    const containers = document.querySelectorAll(
+      `.custom-chart-container[data-dealer-index="${dealerIndex}"]`
+    );
+
+    containers.forEach((container: Element, index: number) => {
+      if (index !== 0) {
+        const el = container as HTMLElement;
+        el.scrollTop = scrollTop;
+
+        // 🔥 Force browser to repaint immediately (fix stuck effect)
+        void el.offsetHeight;
+      }
+    });
+  }
+  isUserHighlighted(dealerIndex: number, userId: string): boolean {
+    return this.highlightedUsers.some(
+      (u) => u.dealerIndex === dealerIndex && u.userId === userId
+    );
+  }
+  toggleUserHighlight(dealerIndex: number, userId: string): void {
+    const dealerGroup = this.psWiseCharts[dealerIndex];
+    if (!dealerGroup) return;
+
+    const existingIndex = this.highlightedUsers.findIndex(
+      (u) => u.dealerIndex === dealerIndex && u.userId === userId
+    );
+
+    if (existingIndex > -1) {
+      // Remove highlight
+      this.highlightedUsers.splice(existingIndex, 1);
+    } else {
+      // Add highlight
+      this.highlightedUsers.push({ dealerIndex, userId });
+    }
+
+    // Align all charts using base order (first chart)
+    const baseOrder = dealerGroup.charts[0].users.map(
+      (u: any) => u.id || u.name
+    );
+
+    dealerGroup.charts.forEach((chart: any) => {
+      const userMap = new Map(
+        (chart.originalUsers || chart.users).map((u: any) => [
+          u.id || u.name,
+          u,
+        ])
+      );
+
+      // Reorder chart.users according to baseOrder
+      chart.users = baseOrder.map((id: any) => userMap.get(id)).filter(Boolean);
+    });
   }
 }

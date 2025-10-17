@@ -55,13 +55,35 @@
           <option value="CUSTOM">Custom</option>
         </select>
 
-        <div *ngIf="selectedFilter === 'CUSTOM'" class="custom-inputs flt1" style="display:flex; gap:0.25rem;">
+        <!-- Desktop version -->
+        <div *ngIf="selectedFilter === 'CUSTOM' && !isMobile" class="custom-inputs flt1"
+          style="display:flex; gap:0.25rem;">
           <input type="date" [(ngModel)]="customStartDate" class="custom-date" (change)="validateCustomDates()" />
           <input type="date" [(ngModel)]="customEndDate" class="custom-date" (change)="validateCustomDates()" />
           <button (click)="applyCustomDate()" class="apply-btn flt2">Apply</button>
           <button (click)="resetCustomDate()" class="reset-btn flt2">Reset</button>
         </div>
 
+        <!-- Mobile/iPhone version -->
+        <div *ngIf="selectedFilter === 'CUSTOM' && isMobile" class="custom-inputs flt1"
+          style="display:flex; flex-wrap: wrap; gap:0.5rem; width: 100%;">
+          <div style="flex: 1 1 45%; min-width: 140px; position: relative;">
+            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">Start Date</label>
+            <input type="date" [(ngModel)]="customStartDate" class="custom-date" (change)="validateCustomDates()"
+              style="width: 100%; -webkit-appearance: none; appearance: none; padding: 10px; font-size: 16px; border: 1px solid #ddd; border-radius: 6px;" />
+          </div>
+
+          <div style="flex: 1 1 45%; min-width: 140px; position: relative;">
+            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">End Date</label>
+            <input type="date" [(ngModel)]="customEndDate" class="custom-date" (change)="validateCustomDates()"
+              style="width: 100%; -webkit-appearance: none; appearance: none; padding: 10px; font-size: 16px; border: 1px solid #ddd; border-radius: 6px;" />
+          </div>
+
+          <button (click)="applyCustomDate()" class="apply-btn flt2"
+            style="flex: 1 1 45%; min-width: 80px; padding: 10px; font-size: 16px;">Apply</button>
+          <button (click)="resetCustomDate()" class="reset-btn flt2"
+            style="flex: 1 1 45%; min-width: 80px; padding: 10px; font-size: 16px;">Reset</button>
+        </div>
         <div class="dropdown flt1" [class.show]="dropdownOpen" style="margin-right: 5px;">
           <button class="time-dropdown dropdown-toggle" type="button" (click)="toggleDropdown()"
             [disabled]="selectedFilter === 'CUSTOM' && invalidDateRange">
@@ -120,9 +142,8 @@
 
       <!-- Right side: refresh button -->
       <div>
-        <button class="btn btn-sm btn-outline-primary" id="refresh" style="border:1px solid #ccc;border-radius:11px;"
-          (click)="refreshSuperAdminDealers()">
-          <i class="fa fa-refresh"></i> Refresh
+        <button class="btn btn-sm btn-outline-primary refresh-btn" id="refresh" (click)="refreshSuperAdminDealers()">
+          <i class="fa fa-refresh"></i> <span style="color:#222fb9">Refresh </span>
         </button>
       </div>
 
@@ -163,7 +184,7 @@
         </div>
 
         <div class="kpi-card">
-          <div class="kpi-label">Unique / Completed Test Drives</div>
+          <div class="kpi-label" id="unique">Unique / Completed Test Drives</div>
           <div class="kpi-value" style="color:black;">
             {{ kpiData?.uniqueTestDrives }} / {{ kpiData?.completedTestDrives }}
           </div>
@@ -197,13 +218,13 @@
                 <thead class="table-thead">
                   <tr>
                     <th rowspan="2" class="sticky-col-header th-left group-divider">Dealer</th>
-                    <th colspan="3" class="th-right group-divider ">Users</th>
-                    <th colspan="4" class="th-right group-divider">Leads</th>
-                    <th colspan="7" class="th-right group-divider">Follow-ups</th>
-                    <th colspan="6" class="th-right group-divider">Test Drives</th>
+                    <th colspan="3" class="th-right group-divider " style="position:static">Users</th>
+                    <th colspan="4" class="th-right group-divider" style="position:static">Leads</th>
+                    <th colspan="7" class="th-right group-divider" style="position:static">Follow-ups</th>
+                    <th colspan="6" class="th-right group-divider" style="position:static">Test Drives</th>
 
-                  </tr>
                   <tr>
+
 
                     <th class="th-right sortable-header" style="cursor:pointer;" (click)="sortData('totalUsers')">
                       Total
@@ -536,7 +557,7 @@
                       <td class="td-right">{{ dealer.openFollowUps ?? 0 }}</td>
                       <td class="td-right">{{ dealer.closedFollowUps ?? 0 }}</td>
                       <!-- <td class="td-right">{{ dealer.cxpFollowUps ?? 0 }}</td> -->
-                      <td class="td-right">{{dealer.totalTestDrives}}</td>
+                      <td class="td-right" style="color:#222fb9">{{dealer.totalTestDrives}}</td>
                       <!-- <td class="td-right"
                       [ngStyle]="{'color': dealer.saTestDrives === dealer.cxpTestDrives ? 'green' : 'red'}">
                       {{ dealer.cxpTestDrives ?? 0 }}
@@ -553,7 +574,7 @@
                       <td class="td-right">{{ dealer.closedTestDrives ?? 0 }}</td>
 
 
-                      <td class="td-right">{{ dealer.opportunitiesConverted ?? 0 }}</td>
+                      <td class="td-right" style="color:black">{{ dealer.opportunitiesConverted ?? 0 }}</td>
 
                     </tr>
 
@@ -645,7 +666,11 @@
                                   <td class="td-right">{{ user.leads?.sa ?? 0 }}</td>
                                   <td class="td-right">{{ user.leads?.manuallyEntered ?? 0 }}</td>
 
-                                  <td class="td-right">{{ user.leads?.cxp ?? 0 }}</td>
+                                  <!-- <td class="td-right">{{ user.leads?.cxp ?? 0 }}</td> -->
+                                  <td class="td-right"
+                                    [ngStyle]="{'color': (user.leads?.cxp ?? 0) < (user.leads?.sa ?? 0) ? 'red' : '#475569'}">
+                                    {{ user.leads?.cxp ?? 0 }}
+                                  </td>
                                   <td class="td-right">{{ user.leads?.ics ?? 0 }}</td>
 
 
@@ -663,7 +688,11 @@
                                   </td>
 
 
-                                  <td class="td-right">{{ user.followups?.cxp ?? 0 }}</td>
+                                  <!-- <td class="td-right">{{ user.followups?.cxp ?? 0 }}</td> -->
+                                  <td class="td-right"
+                                    [ngStyle]="{'color': (user.followups?.cxp ?? 0) < (user.followups?.sa ?? 0) ? 'red' : '#475569'}">
+                                    {{ user.followups?.cxp ?? 0 }}
+                                  </td>
                                   <td class="td-right">{{ user.followups?.completed ?? 0 }}</td>
                                   <td class="td-right">{{ user.followups?.open ?? 0 }}</td>
                                   <td class="td-right">{{ user.followups?.closed ?? 0 }}</td>
@@ -674,7 +703,11 @@
 
                                   <!-- <td class="td-right">{{ user.testdrives?.unique ?? 0 }}</td> -->
                                   <td class="td-right">{{ user.testdrives?.sa ?? 0 }}</td>
-                                  <td class="td-right">{{ user.testdrives?.cxp ?? 0 }}</td>
+                                  <!-- <td class="td-right">{{ user.testdrives?.cxp ?? 0 }}</td> -->
+                                  <td class="td-right"
+                                    [ngStyle]="{'color': (user.testdrives?.cxp ?? 0) < (user.testdrives?.sa ?? 0) ? 'red' : '#475569'}">
+                                    {{ user.testdrives?.cxp ?? 0 }}
+                                  </td>
                                   <td class="td-right">{{ user.testdrives?.completed ?? 0 }}</td>
 
 
@@ -971,7 +1004,7 @@
           </div>
         </div>
         <!-- Chart View -->
-        <div *ngIf="dealerSummaryCallsViewType === 'chart'" class="chart-container"
+        <!-- <div *ngIf="dealerSummaryCallsViewType === 'chart'" class="chart-container"
           style="min-height:400px; padding:20px; background:white; border-radius:10px;">
           <div id="chart">
             <apx-chart [series]="chartOptions.series!" [chart]="chartOptions.chart!" [xaxis]="chartOptions.xaxis!"
@@ -979,8 +1012,24 @@
               [dataLabels]="chartOptions.dataLabels!" [title]="chartOptions.title!">
             </apx-chart>
           </div>
-        </div>
+        </div> -->
+        <div *ngIf="dealerSummaryCallsViewType === 'chart'">
+          <div *ngIf="chartHasData(); else noData" class="chart-container"
+            style="min-height:400px; padding:20px; background:white; border-radius:10px;">
+            <div id="chart">
+              <apx-chart [series]="chartOptions.series!" [chart]="chartOptions.chart!" [xaxis]="chartOptions.xaxis!"
+                [plotOptions]="chartOptions.plotOptions!" [stroke]="chartOptions.stroke!"
+                [dataLabels]="chartOptions.dataLabels!" [title]="chartOptions.title!">
+              </apx-chart>
+            </div>
+          </div>
 
+          <ng-template #noData>
+            <div class="text-center p-5" style="background:white; border-radius:10px;">
+              No data available
+            </div>
+          </ng-template>
+        </div>
       </div>
     </main>
   </div>

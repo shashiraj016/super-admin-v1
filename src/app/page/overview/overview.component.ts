@@ -244,7 +244,7 @@ export class OverviewComponent implements OnInit {
   // 🔹 Load dealers and extract New Inquiry KPI
   // loadDealers(type: string = 'DAY') {
   //   const apiUrl =
-  //     'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
+  //     'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
   //   const token = localStorage.getItem('token');
 
   //   this.http
@@ -308,7 +308,7 @@ export class OverviewComponent implements OnInit {
   // }
   loadDashboard(type: string) {
     const apiUrl =
-      'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
+      'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
     const token = localStorage.getItem('token');
 
     this.http

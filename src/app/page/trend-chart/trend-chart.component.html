@@ -66,6 +66,28 @@
                 </div>
 
                 <!-- Stats Section (Right) -->
+                <!-- <div class="stats-row">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ DistinctUsers | number }}</span>
+                        <span class="stat-label">Active Users</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ topsaLeads | number }}</span>
+                        <span class="stat-label">Leads</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ topTasks | number }}</span>
+                        <span class="stat-label">Follow-ups</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ topUTDs | number }}</span>
+                        <span class="stat-label">UTDs</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ topenquiryCalls | number }} / {{ topcoldCalls | number }}</span>
+                        <span class="stat-label">Enquiry / Cold calls</span>
+                    </div>
+                </div> -->
                 <div class="stats-row">
                     <div class="stat-item">
                         <span class="stat-number">{{ DistinctUsers | number }}</span>
@@ -77,7 +99,7 @@
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">{{ topTasks | number }}</span>
-                        <span class="stat-label">Tasks</span>
+                        <span class="stat-label">Follow-ups</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">{{ topUTDs | number }}</span>
@@ -86,6 +108,14 @@
                     <div class="stat-item">
                         <span class="stat-number">{{ topenquiryCalls | number }} / {{ topcoldCalls | number }}</span>
                         <span class="stat-label">Enquiry / Cold calls</span>
+                    </div>
+
+                    <!-- Refresh Button -->
+                    <div class="ms-auto">
+                        <button class="btn btn-sm btn-outline-primary refresh-btn" id="refresh"
+                            (click)="refreshStats()">
+                            <i class="fa fa-refresh"></i> <span>Refresh</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -97,12 +127,25 @@
     <!-- Charts Section -->
     <div class="charts-container">
         <div class="metrics-rows">
-            <div class="charts-level-header" style="display: flex;">
+            <!-- <div class="charts-level-header" style="display: flex;">
                 <div style="flex: 1; text-align: center;" class="chart-level-title">Day Level</div>
                 <div style="flex: 1; text-align: center;" class="chart-level-title">Hour Level</div>
+            </div> -->
+            <div class="charts-level-header" style="display: flex;">
+                <!-- Day Level header only shows for filters other than Today/Yesterday -->
+                <div *ngIf="selectedDateFilter !== 'DAY' && selectedDateFilter !== 'YESTERDAY'"
+                    style="flex: 1; text-align: center;" class="chart-level-title">
+                    Day Level
+                </div>
+
+                <!-- Hour Level header always shows -->
+                <div style="flex: 1; text-align: center;" class="chart-level-title">
+                    Hour Level
+                </div>
             </div>
+
             <!-- Leads Row -->
-            <div class="metric-row">
+            <!-- <div class="metric-row">
 
                 <div class="metric-label">
                     <h3>Leads</h3>
@@ -110,7 +153,6 @@
 
                 <div class="charts-pair">
                     <div class="chart-section">
-                        <!-- <div class="chart-level-title">Day Level</div> -->
                         <div class="chart-wrapper">
                             <apx-chart [series]="dayLeadChart.series!" [chart]="dayLeadChart.chart!"
                                 [xaxis]="dayLeadChart.xaxis!" [stroke]="dayLeadChart.stroke!"
@@ -122,7 +164,6 @@
                     </div>
 
                     <div class="chart-section">
-                        <!-- <div class="chart-level-title">Hour Level</div> -->
                         <div class="chart-wrapper">
                             <apx-chart [series]="hourLeadChart.series!" [chart]="hourLeadChart.chart!"
                                 [xaxis]="hourLeadChart.xaxis!" [stroke]="hourLeadChart.stroke!"
@@ -133,72 +174,191 @@
                         </div>
                     </div>
                 </div>
+            </div> -->
+            <!-- Leads Row -->
+            <!-- Leads Section -->
+            <div class="metric-row">
+                <div class="metric-label">
+                    <h3>Leads</h3>
+                </div>
+
+                <div class="charts-pair">
+                    <!-- Show Day Lead chart ONLY for filters other than Today/Yesterday -->
+                    <div class="chart-section"
+                        *ngIf="selectedDateFilter !== 'DAY' && selectedDateFilter !== 'YESTERDAY'">
+                        <div class="chart-wrapper">
+                            <ng-container *ngIf="
+                    dayLeadChart &&
+                    dayLeadChart.series &&
+                    dayLeadChart.series.length > 0 &&
+                    dayLeadChart.series[0].data &&
+                    dayLeadChart.series[0].data.length > 0 &&
+                    !isAllZero(dayLeadChart.series);
+                    else noDataDayLead
+                  ">
+                                <apx-chart [series]="dayLeadChart.series!" [chart]="dayLeadChart.chart!"
+                                    [xaxis]="dayLeadChart.xaxis!" [stroke]="dayLeadChart.stroke!"
+                                    [markers]="dayLeadChart.markers!" [legend]="dayLeadChart.legend!"
+                                    [tooltip]="dayLeadChart.tooltip!" [colors]="dayLeadChart.colors!"
+                                    [grid]="dayLeadChart.grid!" [dataLabels]="dayLeadChart.dataLabels!"></apx-chart>
+                            </ng-container>
+                            <ng-template #noDataDayLead>
+                                <div class="no-data">No Data Available</div>
+                            </ng-template>
+                        </div>
+                    </div>
+
+                    <!-- Always show Hour Lead chart -->
+                    <div class="chart-section">
+                        <div class="chart-wrapper">
+                            <ng-container *ngIf="
+                    hourLeadChart &&
+                    hourLeadChart.series &&
+                    hourLeadChart.series.length > 0 &&
+                    hourLeadChart.series[0].data &&
+                    hourLeadChart.series[0].data.length > 0 &&
+                    !isAllZero(hourLeadChart.series);
+                    else noDataHourLead
+                  ">
+                                <apx-chart [series]="hourLeadChart.series!" [chart]="hourLeadChart.chart!"
+                                    [xaxis]="hourLeadChart.xaxis!" [stroke]="hourLeadChart.stroke!"
+                                    [markers]="hourLeadChart.markers!" [legend]="hourLeadChart.legend!"
+                                    [tooltip]="hourLeadChart.tooltip!" [colors]="hourLeadChart.colors!"
+                                    [grid]="hourLeadChart.grid!" [dataLabels]="hourLeadChart.dataLabels!"></apx-chart>
+                            </ng-container>
+                            <ng-template #noDataHourLead>
+                                <div class="no-data">No Data Available</div>
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Events Row -->
+            <!-- Test Drive Row -->
             <div class="metric-row">
                 <div class="metric-label">
                     <h3>Test Drive</h3>
                 </div>
+
                 <div class="charts-pair">
-                    <div class="chart-section">
-                        <!-- <div class="chart-level-title">Day Level</div> -->
+                    <!-- Show Day Event chart ONLY for filters other than Today/Yesterday -->
+                    <div class="chart-section"
+                        *ngIf="selectedDateFilter !== 'DAY' && selectedDateFilter !== 'YESTERDAY'">
                         <div class="chart-wrapper">
-                            <apx-chart [series]="dayEventChart.series!" [chart]="dayEventChart.chart!"
-                                [xaxis]="dayEventChart.xaxis!" [stroke]="dayEventChart.stroke!"
-                                [markers]="dayEventChart.markers!" [legend]="dayEventChart.legend!"
-                                [tooltip]="dayEventChart.tooltip!" [colors]="dayEventChart.colors!"
-                                [grid]="dayEventChart.grid!" [dataLabels]="dayEventChart.dataLabels!">
-                            </apx-chart>
+                            <ng-container *ngIf="
+                    dayEventChart &&
+                    dayEventChart.series &&
+                    dayEventChart.series.length > 0 &&
+                    dayEventChart.series[0].data &&
+                    dayEventChart.series[0].data.length > 0 &&
+                    !isAllZero(dayEventChart.series);
+                    else noDataDayEvent
+                  ">
+                                <apx-chart [series]="dayEventChart.series!" [chart]="dayEventChart.chart!"
+                                    [xaxis]="dayEventChart.xaxis!" [stroke]="dayEventChart.stroke!"
+                                    [markers]="dayEventChart.markers!" [legend]="dayEventChart.legend!"
+                                    [tooltip]="dayEventChart.tooltip!" [colors]="dayEventChart.colors!"
+                                    [grid]="dayEventChart.grid!" [dataLabels]="dayEventChart.dataLabels!"></apx-chart>
+                            </ng-container>
+                            <ng-template #noDataDayEvent>
+                                <div class="no-data">No Data Available</div>
+                            </ng-template>
                         </div>
                     </div>
 
+                    <!-- Always show Hour Event chart -->
                     <div class="chart-section">
                         <div class="chart-wrapper">
-                            <apx-chart [series]="hourEventChart.series!" [chart]="hourEventChart.chart!"
-                                [xaxis]="hourEventChart.xaxis!" [stroke]="hourEventChart.stroke!"
-                                [markers]="hourEventChart.markers!" [legend]="hourEventChart.legend!"
-                                [tooltip]="hourEventChart.tooltip!" [colors]="hourEventChart.colors!"
-                                [grid]="hourEventChart.grid!" [dataLabels]="hourEventChart.dataLabels!">
-                            </apx-chart>
+                            <ng-container *ngIf="
+                    hourEventChart &&
+                    hourEventChart.series &&
+                    hourEventChart.series.length > 0 &&
+                    hourEventChart.series[0].data &&
+                    hourEventChart.series[0].data.length > 0 &&
+                    !isAllZero(hourEventChart.series);
+                    else noDataHourEvent
+                  ">
+                                <apx-chart [series]="hourEventChart.series!" [chart]="hourEventChart.chart!"
+                                    [xaxis]="hourEventChart.xaxis!" [stroke]="hourEventChart.stroke!"
+                                    [markers]="hourEventChart.markers!" [legend]="hourEventChart.legend!"
+                                    [tooltip]="hourEventChart.tooltip!" [colors]="hourEventChart.colors!"
+                                    [grid]="hourEventChart.grid!" [dataLabels]="hourEventChart.dataLabels!"></apx-chart>
+                            </ng-container>
+                            <ng-template #noDataHourEvent>
+                                <div class="no-data">No Data Available</div>
+                            </ng-template>
                         </div>
                     </div>
                 </div>
             </div>
 
+
+
+            <!-- Tasks Row -->
             <!-- Tasks Row -->
             <div class="metric-row">
                 <div class="metric-label">
                     <h3>Follow-ups</h3>
                 </div>
+
                 <div class="charts-pair">
-                    <div class="chart-section">
+                    <!-- Show Day Follow-up chart ONLY for filters other than Today/Yesterday -->
+                    <div class="chart-section"
+                        *ngIf="selectedDateFilter !== 'DAY' && selectedDateFilter !== 'YESTERDAY'">
                         <div class="chart-wrapper">
-                            <apx-chart [series]="dayTaskChart.series!" [chart]="dayTaskChart.chart!"
-                                [xaxis]="dayTaskChart.xaxis!" [stroke]="dayTaskChart.stroke!"
-                                [markers]="dayTaskChart.markers!" [legend]="dayTaskChart.legend!"
-                                [tooltip]="dayTaskChart.tooltip!" [colors]="dayTaskChart.colors!"
-                                [grid]="dayTaskChart.grid!" [dataLabels]="dayTaskChart.dataLabels!">
-                            </apx-chart>
+                            <ng-container *ngIf="
+                    dayTaskChart &&
+                    dayTaskChart.series &&
+                    dayTaskChart.series.length > 0 &&
+                    dayTaskChart.series[0].data &&
+                    dayTaskChart.series[0].data.length > 0 &&
+                    !isAllZero(dayTaskChart.series);
+                    else noDataDayTask
+                  ">
+                                <apx-chart [series]="dayTaskChart.series!" [chart]="dayTaskChart.chart!"
+                                    [xaxis]="dayTaskChart.xaxis!" [stroke]="dayTaskChart.stroke!"
+                                    [markers]="dayTaskChart.markers!" [legend]="dayTaskChart.legend!"
+                                    [tooltip]="dayTaskChart.tooltip!" [colors]="dayTaskChart.colors!"
+                                    [grid]="dayTaskChart.grid!" [dataLabels]="dayTaskChart.dataLabels!"></apx-chart>
+                            </ng-container>
+                            <ng-template #noDataDayTask>
+                                <div class="no-data">No Data Available</div>
+                            </ng-template>
                         </div>
                     </div>
 
+                    <!-- Always show Hour Follow-up chart -->
                     <div class="chart-section">
-                        <!-- <div class="chart-level-title">Hour Level</div> -->
                         <div class="chart-wrapper">
-                            <apx-chart [series]="hourTaskChart.series!" [chart]="hourTaskChart.chart!"
-                                [xaxis]="hourTaskChart.xaxis!" [stroke]="hourTaskChart.stroke!"
-                                [markers]="hourTaskChart.markers!" [legend]="hourTaskChart.legend!"
-                                [tooltip]="hourTaskChart.tooltip!" [colors]="hourTaskChart.colors!"
-                                [grid]="hourTaskChart.grid!" [dataLabels]="hourTaskChart.dataLabels!">
-                            </apx-chart>
+                            <ng-container *ngIf="
+                    hourTaskChart &&
+                    hourTaskChart.series &&
+                    hourTaskChart.series.length > 0 &&
+                    hourTaskChart.series[0].data &&
+                    hourTaskChart.series[0].data.length > 0 &&
+                    !isAllZero(hourTaskChart.series);
+                    else noDataHourTask
+                  ">
+                                <apx-chart [series]="hourTaskChart.series!" [chart]="hourTaskChart.chart!"
+                                    [xaxis]="hourTaskChart.xaxis!" [stroke]="hourTaskChart.stroke!"
+                                    [markers]="hourTaskChart.markers!" [legend]="hourTaskChart.legend!"
+                                    [tooltip]="hourTaskChart.tooltip!" [colors]="hourTaskChart.colors!"
+                                    [grid]="hourTaskChart.grid!" [dataLabels]="hourTaskChart.dataLabels!"></apx-chart>
+                            </ng-container>
+                            <ng-template #noDataHourTask>
+                                <div class="no-data">No Data Available</div>
+                            </ng-template>
                         </div>
                     </div>
                 </div>
             </div>
 
+
+
+
             <!-- Calls Row -->
-            <div class="metric-row">
+            <!-- <div class="metric-row">
 
                 <div class="metric-label">
                     <h3>calls</h3>
@@ -227,42 +387,93 @@
                         </div>
                     </div>
                 </div>
+            </div> -->
+            <!-- Calls Row -->
+            <div class="metric-row">
+                <div class="metric-label">
+                    <h3>Enquiry Calls</h3>
+                </div>
+
+                <div class="charts-pair">
+                    <div class="chart-section"
+                        *ngIf="selectedDateFilter !== 'DAY' && selectedDateFilter !== 'YESTERDAY'">
+                        <div class="chart-wrapper">
+                            <ng-container *ngIf="
+                      dayCallsChart &&
+                      dayCallsChart.series &&
+                      dayCallsChart.series.length > 0 &&
+                      dayCallsChart.series[0].data &&
+                      dayCallsChart.series[0].data.length > 0 &&
+                      !isAllZero(dayCallsChart.series);
+                      else noDataDayCalls
+                    ">
+                                <apx-chart [series]="dayCallsChart.series!" [chart]="dayCallsChart.chart!"
+                                    [xaxis]="dayCallsChart.xaxis!" [stroke]="dayCallsChart.stroke!"
+                                    [markers]="dayCallsChart.markers!" [legend]="dayCallsChart.legend!"
+                                    [tooltip]="dayCallsChart.tooltip!" [colors]="dayCallsChart.colors!"
+                                    [grid]="dayCallsChart.grid!" [dataLabels]="dayCallsChart.dataLabels!">
+                                </apx-chart>
+                            </ng-container>
+                            <ng-template #noDataDayCalls>
+                                <div class="no-data">No Data Available</div>
+                            </ng-template>
+                        </div>
+                    </div>
+
+                    <div class="chart-section">
+                        <div class="chart-wrapper">
+                            <ng-container *ngIf="
+                      hourCallsChart &&
+                      hourCallsChart.series &&
+                      hourCallsChart.series.length > 0 &&
+                      hourCallsChart.series[0].data &&
+                      hourCallsChart.series[0].data.length > 0 &&
+                      !isAllZero(hourCallsChart.series);
+                      else noDataHourCalls
+                    ">
+                                <apx-chart [series]="hourCallsChart.series!" [chart]="hourCallsChart.chart!"
+                                    [xaxis]="hourCallsChart.xaxis!" [stroke]="hourCallsChart.stroke!"
+                                    [markers]="hourCallsChart.markers!" [legend]="hourCallsChart.legend!"
+                                    [tooltip]="hourCallsChart.tooltip!" [colors]="hourCallsChart.colors!"
+                                    [grid]="hourCallsChart.grid!" [dataLabels]="hourCallsChart.dataLabels!">
+                                </apx-chart>
+                            </ng-container>
+                            <ng-template #noDataHourCalls>
+                                <div class="no-data">No Data Available</div>
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
             </div>
+
         </div>
 
 
         <!-- PS-wise Activity Section -->
-        <div class="ps-wise-activity" *ngIf="psWiseCharts.length > 0">
+        <!-- <div class="ps-wise-activity" *ngIf="psWiseCharts.length > 0">
             <div class="ps-section-header">
                 <div class="chart-title">
                     {{ roleFilter === 'Both' ? 'PS + SM-wise Activity' : roleFilter + '-wise Activity' }}
                 </div>
 
-                <!-- Role Filter Dropdown -->
                 <select [(ngModel)]="roleFilter" (change)="scheduleProcessPsActivity()" class="role-filter-select">
                     <option value="PS">PS</option>
                     <option value="SM">SM</option>
                     <option value="Both">Both</option>
                 </select>
             </div>
-            <!-- Scrollable Dealers Container -->
             <div class="dealers-scroll-container">
-                <!-- Dealers Loop -->
                 <div class="dealer-block" *ngFor="let dealerGroup of psWiseCharts">
-                    <!-- Dealer Header -->
                     <div class="dealer-header">
                         <h3>{{ dealerGroup.dealerName }}</h3>
                         <div class="user-count-badge">{{ dealerGroup.users.length }} Users</div>
                     </div>
 
-                    <!-- Horizontal Charts Container -->
                     <div class="horizontal-charts-container">
                         <div class="chart-column" *ngFor="let chart of dealerGroup.charts; let isLast = last">
-                            <!-- Chart Header -->
                             <div class="chart-header-section">
                                 <div class="chart-title-row">
                                     <span class="metric-title">{{ chart.title }}</span>
-                                    <!-- Call Type Dropdown -->
                                     <ng-container *ngIf="chart.title.toLowerCase().includes('calls')">
                                         <div class="call-type-selector">
                                             <select [(ngModel)]="psWiseSelectedCallType"
@@ -275,28 +486,35 @@
                                     </ng-container>
                                 </div>
 
-                                <!-- Averages Row -->
+
                                 <div class="averages-row">
                                     <div class="avg-item">
                                         <span class="avg-label">Avg:</span>
                                         <span class="avg-value dealer-avg">{{ chart.dealerAvg }}</span>
+
+                                        <span class="sort-icon" (click)="toggleSort(chart)">
+                                            <i *ngIf="!chart.sortOrder" class="fas fa-sort"></i>
+                                            <i *ngIf="chart.sortOrder === 'asc'" class="fas fa-sort-amount-up"></i>
+                                            <i *ngIf="chart.sortOrder === 'desc'" class="fas fa-sort-amount-down"></i>
+                                        </span>
                                     </div>
+
                                 </div>
                             </div>
 
-                            <!-- Custom Bar Chart Container -->
                             <div class="custom-chart-wrapper">
                                 <div class="custom-chart-container">
-                                    <!-- User Bars -->
                                     <div class="user-bar" *ngFor="let user of chart.users; let i = index">
-                                        <!-- User Info -->
                                         <div class="user-info">
-                                            <span class="user-name" [title]="user.name + ' (' + user.role + ')'">
-                                                {{ user.name }} ({{ user.role }})
+
+                                            <span class="user-name"
+                                                [title]="roleFilter === 'Both' ? (user.name + ' (' + user.role + ')') : user.name">
+                                                {{ user.name }}<span *ngIf="roleFilter === 'Both'"> ({{ user.role
+                                                    }})</span>
                                             </span>
+
                                         </div>
 
-                                        <!-- Bar Container -->
                                         <div class="bar-container">
                                             <div class="bar-background">
                                                 <div class="bar-fill"
@@ -305,13 +523,104 @@
                                                 </div>
 
                                             </div>
-                                            <!-- Value span outside bar-background -->
                                             <span class="user-value">{{ user.value }}</span>
                                         </div>
 
                                     </div>
 
-                                    <!-- Empty state -->
+                                    <div class="empty-state" *ngIf="chart.users.length === 0">
+                                        <span>No data available</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="chart-divider" *ngIf="!isLast"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+        <div class="ps-wise-activity" *ngIf="psWiseCharts.length > 0">
+            <div class="ps-section-header">
+                <div class="chart-title">
+                    {{ roleFilter === 'Both' ? 'PS + SM-wise Activity' : roleFilter + '-wise Activity' }}
+                </div>
+
+                <select [(ngModel)]="roleFilter" (change)="scheduleProcessPsActivity()" class="role-filter-select">
+                    <option value="PS">PS</option>
+                    <option value="SM">SM</option>
+                    <option value="Both">Both</option>
+                </select>
+            </div>
+
+            <div class="dealers-scroll-container">
+                <div class="dealer-block" *ngFor="let dealerGroup of psWiseCharts; let dealerIndex = index">
+                    <div class="dealer-header">
+                        <h3>{{ dealerGroup.dealerName }}</h3>
+                        <div class="user-count-badge">{{ dealerGroup.users.length }} Users</div>
+                    </div>
+
+                    <div class="horizontal-charts-container">
+                        <div class="chart-column"
+                            *ngFor="let chart of dealerGroup.charts; let isLast = last; let chartIndex = index">
+                            <div class="chart-header-section">
+                                <div class="chart-title-row">
+                                    <span class="metric-title">{{ chart.title }}</span>
+                                    <ng-container *ngIf="chart.title.toLowerCase().includes('calls')">
+                                        <div class="call-type-selector">
+                                            <select [(ngModel)]="psWiseSelectedCallType"
+                                                (change)="psWiseOnCallTypeChange()" class="ps-calls-select">
+                                                <option *ngFor="let type of psWiseCallTypes" [value]="type.value">
+                                                    {{ type.label }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </ng-container>
+                                </div>
+
+                                <div class="averages-row">
+                                    <div class="avg-item">
+                                        <span class="avg-label">Avg:</span>
+                                        <span class="avg-value dealer-avg">{{ chart.dealerAvg }}</span>
+
+                                        <span class="sort-icon" (click)="toggleSort(chart,dealerIndex)">
+                                            <i *ngIf="!chart.sortOrder" class="fas fa-sort"></i>
+                                            <i *ngIf="chart.sortOrder === 'asc'" class="fas fa-sort-amount-up"></i>
+                                            <i *ngIf="chart.sortOrder === 'desc'" class="fas fa-sort-amount-down"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="custom-chart-wrapper">
+                                <div class="custom-chart-container" [class.scrollable]="chartIndex === 0"
+                                    [class.non-scrollable]="chartIndex !== 0" [attr.data-dealer-index]="dealerIndex"
+                                    [attr.data-chart-index]="chartIndex"
+                                    (scroll)="chartIndex === 0 && onChartScroll($event, dealerIndex)">
+                                    <div class="user-bar" *ngFor="let user of chart.users; let i = index"
+                                        [attr.data-user-id]="user.id || user.name"
+                                        [class.highlighted]="isUserHighlighted(dealerIndex, user.id || user.name)"
+                                        [class.dimmed]="highlightedUsers.length > 0 && !isUserHighlighted(dealerIndex, user.id || user.name)">
+                                        <div class="user-info" *ngIf="chartIndex === 0">
+                                            <span class="user-name"
+                                                [title]="roleFilter === 'Both' ? (user.name + ' (' + user.role + ')') : user.name"
+                                                (click)="toggleUserHighlight(dealerIndex, user.id || user.name)">
+                                                {{ user.name }}<span *ngIf="roleFilter === 'Both'"> ({{ user.role
+                                                    }})</span>
+                                            </span>
+                                        </div>
+
+                                        <div class="bar-container" [class.no-user-info]="chartIndex !== 0">
+                                            <div class="bar-background">
+                                                <div class="bar-fill"
+                                                    [style.background-color]="getBarColor(i, chart.title)"
+                                                    [style.width.%]="shouldFillBars ? getBarWidth(user.value, chart.maxValue) : 0">
+                                                </div>
+                                            </div>
+                                            <span class="user-value">{{ user.value }}</span>
+                                        </div>
+                                    </div>
+
                                     <div class="empty-state" *ngIf="chart.users.length === 0">
                                         <span>No data available</span>
                                     </div>
@@ -325,5 +634,6 @@
                 </div>
             </div>
         </div>
+
     </div>
 </div>

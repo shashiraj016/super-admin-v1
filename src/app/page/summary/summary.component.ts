@@ -430,7 +430,7 @@ export class SummaryComponent implements OnInit {
   //   model: string = ''
   // ) {
   //   const apiUrl =
-  //     'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
+  //     'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
   //   const token = localStorage.getItem('token');
 
   //   let query = '';
@@ -521,7 +521,7 @@ export class SummaryComponent implements OnInit {
   //   model: string = '' // car model
   // ) {
   //   const apiUrl =
-  //     'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
+  //     'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
   //   const token = localStorage.getItem('token');
 
   //   let query = '';
@@ -818,7 +818,7 @@ export class SummaryComponent implements OnInit {
     callback?: () => void // <-- add this
   ) {
     const apiUrl =
-      'https://uat.smartassistapp.in/api/superAdmin/dashboard/summary';
+      'https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary';
     const token = localStorage.getItem('token');
 
     let query = '';

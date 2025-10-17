@@ -61,6 +61,7 @@ export class Login1Component {
   verifyObj: verifyData = {
     email: '',
   };
+  isLoading = false; // 👈 Add this in your component
 
   // View control flags
   currentStep: 'login' | 'verifyEmail' | 'verifyOtp' | 'newPassword' = 'login';
@@ -69,7 +70,7 @@ export class Login1Component {
   countdown = 0;
   private countdownInterval: any;
 
-  private readonly API_BASE_URL = 'https://uat.smartassistapp.in/api/';
+  private readonly API_BASE_URL = 'https://api.prod.smartassistapp.in/api/';
   private readonly SESSION_TIMEOUT = 60 * 60 * 1000;
 
   private readonly http = inject(HttpClient);
@@ -182,43 +183,43 @@ export class Login1Component {
     return true;
   }
 
-  // private validateNewPassword(): boolean {
-  //   if (!this.loginObj.newPwd || !this.loginObj.confirmPassword) {
-  //     this.toastr.error('Please enter both passwords', 'Validation Error');
-  //     return false;
-  //   }
-  //   if (this.loginObj.newPwd !== this.loginObj.confirmPassword) {
-  //     this.toastr.error('Passwords do not match', 'Validation Error');
-  //     return false;
-  //   }
-  //   return true;
-  // }
-
   private validateNewPassword(): boolean {
     if (!this.loginObj.newPwd || !this.loginObj.confirmPassword) {
       this.toastr.error('Please enter both passwords', 'Validation Error');
       return false;
     }
-
     if (this.loginObj.newPwd !== this.loginObj.confirmPassword) {
       this.toastr.error('Passwords do not match', 'Validation Error');
       return false;
     }
-
-    // ✅ Strength check: min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
-    const strongPwdRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-    if (!strongPwdRegex.test(this.loginObj.newPwd)) {
-      this.toastr.error(
-        'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character',
-        'Validation Error'
-      );
-      return false;
-    }
-
     return true;
   }
+
+  // private validateNewPassword(): boolean {
+  //   if (!this.loginObj.newPwd || !this.loginObj.confirmPassword) {
+  //     this.toastr.error('Please enter both passwords', 'Validation Error');
+  //     return false;
+  //   }
+
+  //   if (this.loginObj.newPwd !== this.loginObj.confirmPassword) {
+  //     this.toastr.error('Passwords do not match', 'Validation Error');
+  //     return false;
+  //   }
+
+  //   // ✅ Strength check: min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
+  //   const strongPwdRegex =
+  //     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+  //   if (!strongPwdRegex.test(this.loginObj.newPwd)) {
+  //     this.toastr.error(
+  //       'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character',
+  //       'Validation Error'
+  //     );
+  //     return false;
+  //   }
+
+  //   return true;
+  // }
 
   private isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -250,8 +251,36 @@ export class Login1Component {
   //     });
   // }
 
+  // onLogin() {
+  //   if (!this.validateLoginInput()) return;
+
+  //   this.http
+  //     .post<LoginResponse>(
+  //       `${this.API_BASE_URL}login/super-admin`,
+  //       this.loginObj
+  //     )
+  //     .subscribe({
+  //       next: (response) => {
+  //         if (response.status === 200 && response.data?.token) {
+  //           this.handleSuccessfulLogin(response.data.token);
+  //         } else {
+  //           this.toastr.error(
+  //             response.message || 'Invalid credentials',
+  //             'Error'
+  //           );
+  //         }
+  //       },
+  //       error: (error) => {
+  //         console.error('Login error:', error);
+  //         const errorMessage = error.error?.message || 'An error occurred';
+  //         this.toastr.error(errorMessage, 'Error');
+  //       },
+  //     });
+  // }
   onLogin() {
     if (!this.validateLoginInput()) return;
+
+    this.isLoading = true; // start loader
 
     this.http
       .post<LoginResponse>(
@@ -260,6 +289,7 @@ export class Login1Component {
       )
       .subscribe({
         next: (response) => {
+          this.isLoading = false; // stop loader
           if (response.status === 200 && response.data?.token) {
             this.handleSuccessfulLogin(response.data.token);
           } else {
@@ -270,13 +300,39 @@ export class Login1Component {
           }
         },
         error: (error) => {
+          this.isLoading = false; // stop loader
           console.error('Login error:', error);
           const errorMessage = error.error?.message || 'An error occurred';
           this.toastr.error(errorMessage, 'Error');
         },
       });
   }
+  // onVerifyEmail() {
+  //   if (!this.verifyObj.email || !this.isValidEmail(this.verifyObj.email)) {
+  //     this.toastr.error(
+  //       'Please enter a valid email address',
+  //       'Validation Error'
+  //     );
+  //     return;
+  //   }
 
+  //   this.http
+  //     .post(`${this.API_BASE_URL}login/s-admin/forgot-pwd/verify-email`, {
+  //       email: this.verifyObj.email,
+  //     })
+  //     .subscribe({
+  //       next: () => {
+  //         this.toastr.success('OTP sent to your email', 'Success');
+  //         this.showVerifyOtp();
+  //         this.startCountdown();
+  //       },
+  //       error: (error) => {
+  //         // console.error('Login error:', error);
+  //         const errorMessage = error.error?.message || 'An error occurred';
+  //         this.toastr.error(errorMessage, 'Error');
+  //       },
+  //     });
+  // }
   onVerifyEmail() {
     if (!this.verifyObj.email || !this.isValidEmail(this.verifyObj.email)) {
       this.toastr.error(
@@ -286,24 +342,55 @@ export class Login1Component {
       return;
     }
 
+    this.isLoading = true; // start loader
+
     this.http
       .post(`${this.API_BASE_URL}login/s-admin/forgot-pwd/verify-email`, {
         email: this.verifyObj.email,
       })
       .subscribe({
         next: () => {
+          this.isLoading = false; // stop loader
           this.toastr.success('OTP sent to your email', 'Success');
           this.showVerifyOtp();
           this.startCountdown();
         },
         error: (error) => {
-          // console.error('Login error:', error);
+          this.isLoading = false; // stop loader
           const errorMessage = error.error?.message || 'An error occurred';
           this.toastr.error(errorMessage, 'Error');
         },
       });
   }
 
+  // onVerifyOtp() {
+  //   if (this.loginObj.otp === null || isNaN(Number(this.loginObj.otp))) {
+  //     this.toastr.error('Please enter a valid OTP', 'Validation Error');
+  //     return;
+  //   }
+
+  //   const otpPayload = {
+  //     otp: Number(this.loginObj.otp),
+  //     email: this.verifyObj.email,
+  //   };
+
+  //   this.http
+  //     .post(
+  //       `${this.API_BASE_URL}login/s-admin/forgot-pwd/verify-otp`,
+  //       otpPayload
+  //     )
+  //     .subscribe({
+  //       next: () => {
+  //         this.toastr.success('OTP verified successfully', 'Success');
+  //         this.showNewPassword();
+  //       },
+  //       error: (error) => {
+  //         console.error('OTP verification error:', error);
+  //         const errorMessage = error.error.error;
+  //         this.toastr.error('Entered OTP is invalid');
+  //       },
+  //     });
+  // }
   onVerifyOtp() {
     if (this.loginObj.otp === null || isNaN(Number(this.loginObj.otp))) {
       this.toastr.error('Please enter a valid OTP', 'Validation Error');
@@ -315,6 +402,8 @@ export class Login1Component {
       email: this.verifyObj.email,
     };
 
+    this.isLoading = true; // start loader
+
     this.http
       .post(
         `${this.API_BASE_URL}login/s-admin/forgot-pwd/verify-otp`,
@@ -322,17 +411,17 @@ export class Login1Component {
       )
       .subscribe({
         next: () => {
+          this.isLoading = false; // stop loader
           this.toastr.success('OTP verified successfully', 'Success');
           this.showNewPassword();
         },
         error: (error) => {
+          this.isLoading = false; // stop loader
           console.error('OTP verification error:', error);
-          const errorMessage = error.error.error;
           this.toastr.error('Entered OTP is invalid');
         },
       });
   }
-
   onOtpInput(event: Event) {
     const input = event.target as HTMLInputElement;
     // Remove any non-numeric characters
@@ -369,17 +458,15 @@ export class Login1Component {
         },
         error: (error) => {
           console.error('Password reset error:', error);
-          if (error.status === 400) {
-            this.toastr.error(
-              'Invalid request. Please check your inputs.',
-              'Error'
-            );
-          } else if (error.status === 404) {
-            this.toastr.error('User not found', 'Error');
-          } else {
-            const errorMessage = error.error.error;
-            this.toastr.error(errorMessage, 'Error');
-          }
+
+          // Try to extract backend message safely
+          const backendMsg =
+            error?.error?.error ||
+            error?.error?.message ||
+            'An unexpected error occurred. Please try again.';
+
+          // Show the backend message directly
+          this.toastr.error(backendMsg, 'Error');
         },
         complete: () => {
           // Clear sensitive data

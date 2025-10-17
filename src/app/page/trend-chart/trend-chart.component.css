@@ -2999,3 +2999,199 @@ body {
     max-width: 200px; /* prevent too wide cards */
   }
 }
+
+/* TODAY CODE HE GAVE */
+/* iOS-specific optimizations */
+@supports (-webkit-touch-callout: none) {
+  /* Target only iOS devices */
+
+  .charts-container,
+  .ps-wise-activity {
+    /* Enable hardware acceleration */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    perspective: 1000;
+  }
+
+  /* Optimize scrolling */
+  .dashboard-container {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+  }
+
+  .dealers-scroll-container {
+    -webkit-overflow-scrolling: touch;
+    will-change: auto; /* Remove will-change on iOS */
+  }
+
+  /* Simplify animations on iOS */
+  .bar-fill {
+    transition: width 0.3s ease-out; /* Faster transition */
+  }
+
+  /* Reduce box-shadows on iOS */
+  .chart-section,
+  .stat-item,
+  .dealer-block {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+/* Prevent layout shifts during loading */
+.chart-wrapper {
+  min-height: 150px;
+  contain: layout style paint;
+}
+
+/* Optimize custom bars */
+.custom-chart-container {
+  contain: layout style;
+}
+
+.user-bar {
+  will-change: auto; /* Don't hint will-change on iOS */
+  contain: layout;
+}
+.no-data {
+  display: flex;
+  justify-content: center; /* horizontal center */
+  align-items: center; /* vertical center */
+  height: 100%; /* take full height of chart-wrapper */
+  font-size: 16px;
+  color: #888;
+  font-weight: 500;
+}
+#refresh {
+  border: 1px solid #ccc !important; /* Keep gray border */
+  border-radius: 11px;
+  padding: 9px;
+  margin: 2px;
+  background-color: white; /* Optional: keep white background */
+  color: #007bff; /* Match outline-primary color */
+}
+
+#refresh:focus,
+#refresh:active {
+  border: 1px solid #ccc !important; /* Override blue border */
+  box-shadow: none !important; /* Remove Bootstrap blue shadow */
+  background-color: #e6f0ff !important; /* Optional: light blue bg on click */
+}
+/* Button styling */
+.refresh-btn {
+  border: 1px solid #ccc;
+  border-radius: 11px;
+  padding: 9px;
+  margin: 2px;
+  color: #222fb9; /* text color */
+  background-color: #fff; /* optional */
+  display: flex;
+  align-items: center;
+  gap: 5px; /* space between icon and text */
+  transition: border 0.3s ease, color 0.3s ease;
+}
+
+/* Icon inside button */
+.refresh-btn i {
+  color: #222fb9;
+}
+
+/* Span text inside button */
+.refresh-btn span {
+  color: #222fb9;
+}
+
+/* Hover effect */
+.refresh-btn:hover {
+  border-color: #222fb9;
+  cursor: pointer;
+}
+.custom-chart-container {
+  max-height: 450px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Simple thin scrollbar */
+.custom-chart-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-chart-container::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+
+.custom-chart-container::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.custom-chart-container::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* Firefox scrollbar */
+.custom-chart-container {
+  scrollbar-width: thin;
+  scrollbar-color: #ccc #f5f5f5;
+}
+
+/* ===== USER HIGHLIGHT FEATURE ===== */
+
+/* Clickable user name */
+.user-info .user-name {
+  cursor: pointer;
+}
+
+.user-info .user-name:hover {
+  color: #2196f3;
+}
+
+/* Highlighted user row - simple yellow background */
+.user-bar.highlighted {
+  background-color: #fff9c4;
+}
+
+.user-bar.highlighted .user-name {
+  font-weight: 600;
+  color: #000;
+}
+
+/* Dimmed users - just reduce opacity */
+.user-bar.dimmed {
+  opacity: 0.3;
+}
+
+/* ✅ Only first column is scrollable */
+.custom-chart-container.scrollable {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 400px; /* Adjust as needed */
+  scroll-behavior: smooth; /* smooth scroll sync */
+}
+
+/* ✅ Other columns follow the scroll but aren't independently scrollable */
+.custom-chart-container.non-scrollable {
+  overflow: hidden;
+  max-height: 400px; /* Same as scrollable */
+
+  /* These 3 lines fix the “stuck” issue */
+  will-change: transform;
+  transform: translateZ(0);
+  contain: layout paint;
+}
+
+/* ✅ Ensure all containers align in height */
+.custom-chart-container {
+  position: relative;
+}
+.custom-chart-container.non-scrollable {
+  overflow: hidden;
+  max-height: 400px;
+
+  /* 🔥 Forces repaint on scroll sync */
+  will-change: scroll-position, transform;
+  transform: translateZ(0);
+}

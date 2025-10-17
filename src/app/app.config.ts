@@ -14,7 +14,6 @@
 //   ],
 // };
 
-// app.config.ts
 import {
   ApplicationConfig,
   provideZoneChangeDetection,
@@ -23,10 +22,15 @@ import {
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
-import { provideHttpClient } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+  HTTP_INTERCEPTORS,
+} from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { ToastrModule } from 'ngx-toastr';
 import { DataTablesModule } from 'angular-datatables';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -34,7 +38,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     DataTablesModule,
     provideClientHydration(),
-    provideHttpClient(),
+    provideHttpClient(withInterceptorsFromDi()), // CHANGED: Added withInterceptorsFromDi()
     provideAnimationsAsync(),
     importProvidersFrom(
       ToastrModule.forRoot({
@@ -44,5 +48,11 @@ export const appConfig: ApplicationConfig = {
         progressBar: true,
       })
     ),
+    // ADDED: Register the AuthInterceptor
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
   ],
 };
