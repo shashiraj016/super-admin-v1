@@ -3109,6 +3109,7 @@ body {
 /* Call Logs Table */
 .table-container {
   overflow-x: auto;
+
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
@@ -4478,12 +4479,12 @@ body {
 }
 
 .btn-primary {
-  background: #2563eb;
+  background: #222fb9;
   color: white;
 }
 
 .btn-primary:hover {
-  background: #1d4ed8;
+  background: #222fb9;
 }
 
 .btn-secondary {
@@ -4571,7 +4572,7 @@ body {
 .table-header {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid #e2e8f0;
-  display: flex;
+  /* display: flex; */
   align-items: center;
   justify-content: space-between;
 }
@@ -4589,7 +4590,7 @@ body {
 }
 
 .table-actions {
-  display: flex;
+  /* display: flex; */
   align-items: center;
   gap: 0.5rem;
 }
@@ -4968,6 +4969,9 @@ tbody tr:nth-child(odd) {
 }
 
 @media (max-width: 844px) {
+  #exportsummary {
+    display: flex !important;
+  }
   /* #filters {
     display: contents !important;
   } */
@@ -5029,10 +5033,10 @@ tbody tr:nth-child(odd) {
     margin-left: 0px !important;
   }
   .table-actions {
-    display: flex;
+    /* display: flex;
     flex-direction: column; /* stack top-down */
-    align-items: flex-end; /* optional, left-align items */
-    gap: 6px; /* spacing between buttons */
+    /* align-items: flex-end; optional, left-align items */
+    /* gap: 6px; spacing between bttons */
   }
   .btn-small {
     align-items: flex-end;
@@ -5047,7 +5051,7 @@ tbody tr:nth-child(odd) {
 
   #exportsummary {
     align-items: center !important;
-    margin-top: -40% !important;
+    /* margin-top: -40% !important; */
   }
   .kpi-label {
     white-space: break-spaces !important;
@@ -5798,4 +5802,233 @@ input:focus {
 .refresh-btn:hover {
   border-color: #222fb9; /* border color on hover */
   cursor: pointer;
+}
+/* Make first column sticky */
+.sticky-col {
+  position: sticky;
+  left: 0; /* sticks to the left edge */
+  /* background: #fff; match table background */
+  z-index: 2; /* ensures it stays above other cells */
+  /* box-shadow: 2px 0 5px -2px rgba(0, 0, 0, 0.3); optional shadow for separation */
+}
+
+/* Optional: style for the header cell too */
+.sticky-col-header {
+  position: sticky;
+  left: 0;
+  background: #f5f5f5; /* header background */
+  z-index: 3; /* above regular sticky cells */
+}
+/* HORIZONTAL SCROLL  CODE CSS  */
+
+.sub-table-container {
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+}
+
+.sub-table {
+  min-width: 100%;
+  white-space: nowrap;
+}
+/* Remove horizontal scrollbar */
+.sub-row-inner {
+  overflow-x: hidden !important; /* Hide horizontal scroll */
+  overflow-y: visible;
+  max-width: 100%;
+}
+
+.sub-table-container {
+  overflow-x: hidden !important; /* Hide horizontal scroll */
+  overflow-y: visible;
+}
+
+/* Let the table take full width */
+.sub-table {
+  width: 100%;
+  table-layout: auto;
+}
+.btn-secondary:focus,
+.btn-secondary:active,
+.btn-secondary:active:focus {
+  background-color: #ffffff !important;
+  border-color: #dee2e6 !important; /* Light grey border */
+  color: #212529 !important; /* Dark text for contrast */
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Laptop / Desktop */
+@media (min-width: 768px) {
+  .table-header {
+    display: flex;
+  }
+
+  .table-actions {
+    display: flex;
+  }
+}
+.highlight-red {
+  color: red !important;
+}
+.highlight-blue {
+  color: #0f5fb8 !important;
+}
+.normal {
+  color: black !important;
+}
+.circle-red {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: red;
+  color: white;
+  font-size: 10px;
+  margin-right: 6px;
+}
+.circle-blue {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #0f5fb8;
+  color: white;
+  font-size: 10px;
+  margin-right: 6px;
+}
+.text-positive {
+  color: green;
+  width: 36px;
+  text-align: left;
+  font-size: 12px;
+}
+.arrow-up-export,
+.arrow-down-export {
+  font-size: 16px;
+  margin-right: 5px;
+  color: green;
+}
+#hiddenExportTable table thead th {
+  background: #ffffff !important;
+  color: #000 !important;
+  font-weight: 600 !important;
+}
+#hiddenExportTable table thead th {
+  background: #ffffff !important;
+  color: #000 !important;
+  font-weight: 600 !important;
+  border: 1px solid #e0e0e0 !important; /* optional thin border */
+}
+#hiddenExportTable {
+  background: #ffffff !important;
+}
+/* Target the hidden export table specifically */
+#hiddenExportTable,
+#hiddenExportTable * {
+  background: #ffffff !important;
+}
+
+#hiddenExportTable table {
+  background: #ffffff !important;
+  border-collapse: collapse !important;
+}
+
+#hiddenExportTable table thead,
+#hiddenExportTable table thead tr,
+#hiddenExportTable table thead th {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  font-weight: 600 !important;
+  border: 1px solid #e0e0e0 !important;
+}
+
+#hiddenExportTable table tbody tr,
+#hiddenExportTable table tbody td {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e0e0e0 !important;
+}
+.sticky-user-col {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 10 !important;
+  background-color: white !important;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+}
+
+/* For sub-table header */
+.sub-table-thead .sticky-user-col {
+  z-index: 11 !important;
+  background-color: #f8f9fa !important;
+}
+
+/* Ensure alternating row colors work with sticky column */
+.row-alt .sticky-user-col {
+  background-color: #f8f9fa !important;
+}
+
+.row-normal .sticky-user-col {
+  background-color: white !important;
+}
+
+/* Maintain sticky behavior during horizontal scroll */
+.sub-table-container {
+  position: relative;
+  overflow-x: auto;
+}
+
+.sub-table {
+  position: relative;
+}
+/*  */
+/* ✅ Sticky User Column in Sub-table */
+.sticky-user-col {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 10 !important;
+  background-color: white !important;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1) !important;
+  min-width: 120px; /* ✅ prevents column from being too narrow */
+}
+
+/* For sub-table header - higher z-index */
+.sub-table-thead .sticky-user-col {
+  z-index: 11 !important;
+  background-color: #f8f9fa !important;
+  font-weight: 600;
+}
+
+/* Ensure alternating row colors work with sticky column */
+.row-alt .sticky-user-col {
+  background-color: #f0f8ff !important; /* Match your alternating row color */
+}
+
+.row-normal .sticky-user-col {
+  background-color: white !important;
+}
+
+/* ✅ Important: Force horizontal scroll on container */
+.sub-table-container {
+  position: relative;
+  overflow-x: auto !important;
+  overflow-y: visible;
+  max-width: 100%;
+}
+
+.sub-table {
+  position: relative;
+  width: 100%;
+  min-width: max-content; /* ✅ ensures table doesn't shrink */
+}
+
+/* ✅ Remove any conflicting overflow rules */
+.sub-row-inner {
+  overflow-x: visible !important;
+  overflow-y: visible;
 }

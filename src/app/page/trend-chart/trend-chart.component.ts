@@ -178,7 +178,7 @@ export class TrendChartComponent {
     this.iosPerformanceMode = this.isIOS();
 
     if (this.iosPerformanceMode) {
-      console.log('iOS Performance Mode Enabled');
+      // console.log('iOS Performance Mode Enabled');
       // Increase delays for iOS
       this.scrollThrottleDelay = 150;
     }
@@ -347,49 +347,101 @@ export class TrendChartComponent {
       this.filteredDealers.every((dealer) => this.isDealerSelected(dealer))
     );
   }
+  // toggleSort(chart: any, dealerIndex: number): void {
+  //   const dealerGroup = this.psWiseCharts[dealerIndex];
+  //   if (!dealerGroup) return;
+
+  //   // Determine next sort order
+  //   let newOrder: 'asc' | 'desc' | null = null;
+
+  //   if (!chart.sortOrder) {
+  //     newOrder = 'desc';
+  //   } else if (chart.sortOrder === 'desc') {
+  //     newOrder = 'asc';
+  //   } else {
+  //     newOrder = null;
+  //   }
+
+  //   // Update the clicked chart's sortOrder
+  //   chart.sortOrder = newOrder;
+
+  //   // Determine sorting base (the clicked chart users)
+  //   let sortedUsersBase: any[] = [];
+
+  //   if (newOrder === 'desc') {
+  //     sortedUsersBase = [...chart.users].sort((a, b) => b.value - a.value);
+  //   } else if (newOrder === 'asc') {
+  //     sortedUsersBase = [...chart.users].sort((a, b) => a.value - b.value);
+  //   } else {
+  //     sortedUsersBase = [...(chart.originalUsers || chart.users)];
+  //   }
+
+  //   // Get the sorted user IDs in the desired order
+  //   const sortedUserIds = sortedUsersBase.map((u) => u.id || u.name);
+
+  //   // Apply same order to ALL charts for that dealer
+  //   dealerGroup.charts.forEach((c: any) => {
+  //     const userMap = new Map(
+  //       (c.originalUsers || c.users).map((u: any) => [u.id || u.name, u])
+  //     );
+  //     c.users = sortedUserIds.map((id) => userMap.get(id)).filter(Boolean);
+
+  //     // Sync sortOrder visually (optional)
+  //     if (c !== chart) {
+  //       c.sortOrder = chart.sortOrder;
+  //     }
+  //   });
+  // }
   toggleSort(chart: any, dealerIndex: number): void {
     const dealerGroup = this.psWiseCharts[dealerIndex];
     if (!dealerGroup) return;
 
-    // Determine next sort order
-    let newOrder: 'asc' | 'desc' | null = null;
-
+    // 🔁 Determine next sort order (3-stage cycle)
+    let newOrder: 'desc' | 'asc' | null = null;
     if (!chart.sortOrder) {
-      newOrder = 'desc';
+      newOrder = 'desc'; // 1st click → High → Low
     } else if (chart.sortOrder === 'desc') {
-      newOrder = 'asc';
+      newOrder = 'asc'; // 2nd click → Low → High
     } else {
-      newOrder = null;
+      newOrder = null; // 3rd click → Reset to default (SA Leads order)
     }
 
-    // Update the clicked chart's sortOrder
     chart.sortOrder = newOrder;
 
-    // Determine sorting base (the clicked chart users)
     let sortedUsersBase: any[] = [];
 
     if (newOrder === 'desc') {
+      // 🔼 High → Low
       sortedUsersBase = [...chart.users].sort((a, b) => b.value - a.value);
     } else if (newOrder === 'asc') {
+      // 🔽 Low → High
       sortedUsersBase = [...chart.users].sort((a, b) => a.value - b.value);
     } else {
-      sortedUsersBase = [...(chart.originalUsers || chart.users)];
+      // 🧭 3rd click → Reset to default (SA Leads-based order)
+      const defaultOrder = chart.defaultUserOrder;
+
+      if (defaultOrder && defaultOrder.length > 0) {
+        const userMap = new Map(
+          chart.originalUsers.map((u: any) => [u.id || u.name, u])
+        );
+        sortedUsersBase = defaultOrder
+          .map((id: any) => userMap.get(id))
+          .filter(Boolean);
+      } else {
+        console.warn('⚠️ No default SA Leads order found for reset');
+        sortedUsersBase = [...chart.users]; // fallback
+      }
     }
 
-    // Get the sorted user IDs in the desired order
     const sortedUserIds = sortedUsersBase.map((u) => u.id || u.name);
 
-    // Apply same order to ALL charts for that dealer
+    // ✅ Apply same sorted order to all charts in the dealer group
     dealerGroup.charts.forEach((c: any) => {
       const userMap = new Map(
         (c.originalUsers || c.users).map((u: any) => [u.id || u.name, u])
       );
       c.users = sortedUserIds.map((id) => userMap.get(id)).filter(Boolean);
-
-      // Sync sortOrder visually (optional)
-      if (c !== chart) {
-        c.sortOrder = chart.sortOrder;
-      }
+      c.sortOrder = chart.sortOrder;
     });
   }
 
@@ -416,10 +468,10 @@ export class TrendChartComponent {
 
   fetchTrendChart() {
     const token = localStorage.getItem('token');
-    console.log('Token:', localStorage.getItem('token'));
+    // console.log('Token:', localStorage.getItem('token'));
 
     if (!token) {
-      console.error('❌ No token found in localStorage');
+      // console.error('❌ No token found in localStorage');
       return;
     }
 
@@ -453,7 +505,7 @@ export class TrendChartComponent {
           this.lastApiResponse = res;
           this.isLoading = false;
 
-          console.log('✅ API Response:', res.topCards);
+          // console.log('✅ API Response:', res.topCards);
 
           // store dealer list on first load
           if (res.activeDealers) {
@@ -483,7 +535,7 @@ export class TrendChartComponent {
           this.updateAllChartsFromApi(res);
         },
         error: (err) => {
-          console.error('❌ API Error:', err);
+          // console.error('❌ API Error:', err);
         },
       });
   }
@@ -1005,9 +1057,9 @@ export class TrendChartComponent {
   private filterUpdateTimeout: any;
 
   fetchTrendChartWithFilters() {
-    console.log('🔄 fetchTrendChartWithFilters called');
-    console.log('Current selectedDateFilter:', this.selectedDateFilter);
-    console.log('Current psWiseCharts length:', this.psWiseCharts?.length || 0);
+    // console.log('🔄 fetchTrendChartWithFilters called');
+    // console.log('Current selectedDateFilter:', this.selectedDateFilter);
+    // console.log('Current psWiseCharts length:', this.psWiseCharts?.length || 0);
 
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -1027,7 +1079,7 @@ export class TrendChartComponent {
       params = params.set('dealer_ids', dealerIds);
     }
 
-    console.log('📤 API params:', params.toString());
+    // console.log('📤 API params:', params.toString());
 
     clearTimeout(this.filterUpdateTimeout);
     this.filterUpdateTimeout = setTimeout(() => {
@@ -1040,12 +1092,12 @@ export class TrendChartComponent {
         })
         .subscribe({
           next: (res) => {
-            console.log('📥 API Response received');
-            console.log('Has psWiseActivity:', !!res.psWiseActivity);
-            console.log(
-              'psWiseActivity data length:',
-              res.psWiseActivity?.length || 0
-            );
+            // console.log('📥 API Response received');
+            // console.log('Has psWiseActivity:', !!res.psWiseActivity);
+            // console.log(
+            //   'psWiseActivity data length:',
+            //   res.psWiseActivity?.length || 0
+            // );
 
             // Update top cards immediately
             if (res.topCards) {
@@ -1053,7 +1105,7 @@ export class TrendChartComponent {
               this.topsaLeads = res.topCards.saLeads || 0;
               this.topdigitalLeads = res.topCards.digitalLeads || 0;
               this.topTasks = res.topCards.followups || 0;
-              this.topUTDs = res.topCards.testDrives || 0;
+              this.topUTDs = res.topCards.utd || 0;
               this.topCall = res.topCards.calls || 0;
               this.topenquiryCalls = res.topCards.enquiryCalls || 0;
               this.topcoldCalls = res.topCards.coldCalls || 0;
@@ -1065,20 +1117,20 @@ export class TrendChartComponent {
 
             // Handle PS data
             if (res.psWiseActivity) {
-              console.log(
-                '✅ Setting psWiseData and calling scheduleProcessPsActivity'
-              );
+              // console.log(
+              //   '✅ Setting psWiseData and calling scheduleProcessPsActivity'
+              // );
               this.psWiseData = res.psWiseActivity;
               this.scheduleProcessPsActivity();
             } else {
-              console.log('❌ No psWiseActivity in response');
+              // console.log('❌ No psWiseActivity in response');
               this.psWiseCharts = [];
             }
 
             this.isLoading = false;
           },
           error: (err) => {
-            console.error('❌ API Error:', err);
+            // console.error('❌ API Error:', err);
             this.isLoading = false;
             this.psWiseCharts = [];
           },
@@ -1153,21 +1205,21 @@ export class TrendChartComponent {
   private psProcessingTimeout: any;
 
   scheduleProcessPsActivity() {
-    console.log('⏰ scheduleProcessPsActivity called');
-    console.log('psWiseData available:', !!this.psWiseData);
-    console.log('roleFilter:', this.roleFilter);
+    // console.log('⏰ scheduleProcessPsActivity called');
+    // console.log('psWiseData available:', !!this.psWiseData);
+    // console.log('roleFilter:', this.roleFilter);
 
     clearTimeout(this.psProcessingTimeout);
     this.psProcessingTimeout = setTimeout(() => {
-      console.log('🔄 Processing PS activity...');
+      // console.log('🔄 Processing PS activity...');
       this.processPsWiseActivityChunked();
     }, 100);
   }
 
   processPsWiseActivityChunked() {
-    console.log('==== Start processPsWiseActivity (Chunked) ====');
-    console.log('📊 processPsWiseActivityChunked called');
-    console.log('psWiseData length:', this.psWiseData?.length || 0);
+    // console.log('==== Start processPsWiseActivity (Chunked) ====');
+    // console.log('📊 processPsWiseActivityChunked called');
+    // console.log('psWiseData length:', this.psWiseData?.length || 0);
     if (!this.psWiseData) return;
 
     const staticMetrics = [
@@ -1191,10 +1243,10 @@ export class TrendChartComponent {
     // Clear existing data
     this.psWiseCharts = [];
 
-    console.log(
-      'Before processing - psWiseCharts length:',
-      this.psWiseCharts.length
-    );
+    // console.log(
+    //   'Before processing - psWiseCharts length:',
+    //   this.psWiseCharts.length
+    // );
 
     // Precompute averages (this is fast)
     const allIndiaAvgMap = this.computeAllIndiaAverages(
@@ -1215,6 +1267,55 @@ export class TrendChartComponent {
     );
   }
 
+  // processNextDealerChunk(
+  //   dealers: [string, any][],
+  //   currentIndex: number,
+  //   staticMetrics: string[],
+  //   metricLabels: Record<string, string>,
+  //   allIndiaAvgMap: Record<string, number>
+  // ) {
+  //   const CHUNK_SIZE = 1; // Process one dealer at a time
+  //   const endIndex = Math.min(currentIndex + CHUNK_SIZE, dealers.length);
+
+  //   // Process current chunk
+  //   for (let i = currentIndex; i < endIndex; i++) {
+  //     const [dealerName, users] = dealers[i];
+  //     const dealerCharts = this.processSingleDealer(
+  //       dealerName,
+  //       users,
+  //       staticMetrics,
+  //       metricLabels,
+  //       allIndiaAvgMap
+  //     );
+  //     if (dealerCharts) {
+  //       this.psWiseCharts.push(dealerCharts);
+  //     }
+  //   }
+
+  //   // Continue with next chunk if there are more dealers
+  //   if (endIndex < dealers.length) {
+  //     // Use setTimeout to yield control back to browser
+  //     setTimeout(() => {
+  //       this.processNextDealerChunk(
+  //         dealers,
+  //         endIndex,
+  //         staticMetrics,
+  //         metricLabels,
+  //         allIndiaAvgMap
+  //       );
+  //     }, 10); // Small delay to allow UI updates
+  //   } else {
+  //     // All done - initialize accordion states
+  //     this.initializePsAccordionStates();
+  //     this.isLoading = false;
+  //     console.log('==== End processPsWiseActivity (Chunked) ====');
+  //     console.log(
+  //       'After processing - psWiseCharts length:',
+  //       this.psWiseCharts.length
+  //     );
+  //     console.log('Final psWiseCharts:', this.psWiseCharts);
+  //   }
+  // }
   processNextDealerChunk(
     dealers: [string, any][],
     currentIndex: number,
@@ -1235,14 +1336,51 @@ export class TrendChartComponent {
         metricLabels,
         allIndiaAvgMap
       );
+
       if (dealerCharts) {
+        // ✅ Default sort: SA Leads highest first (descending)
+        dealerCharts.charts.forEach((chart) => {
+          if (chart.title.toLowerCase().includes('sa leads')) {
+            chart.users.sort(
+              (a: any, b: any) => (b.value || 0) - (a.value || 0)
+            );
+          }
+        });
+
+        // ✅ Use the SA Leads chart as the base order for all other charts
+        const saLeadsChart = dealerCharts.charts.find((c) =>
+          c.title.toLowerCase().includes('sa leads')
+        );
+
+        if (saLeadsChart) {
+          // Store SA Leads–based default user order
+          const defaultUserOrder = saLeadsChart.users.map(
+            (u: any) => u.id || u.name
+          );
+
+          dealerCharts.charts.forEach((chart) => {
+            // Preserve original order (for toggle reset)
+            chart.originalUsers = [...chart.users];
+
+            // ✅ Apply same default user order to all charts for alignment
+            const userMap = new Map(
+              chart.users.map((u: any) => [u.id || u.name, u])
+            );
+            chart.users = defaultUserOrder
+              .map((id: any) => userMap.get(id))
+              .filter(Boolean);
+
+            // Save for 3rd click reset
+            chart.defaultUserOrder = [...defaultUserOrder];
+          });
+        }
+
         this.psWiseCharts.push(dealerCharts);
       }
     }
 
     // Continue with next chunk if there are more dealers
     if (endIndex < dealers.length) {
-      // Use setTimeout to yield control back to browser
       setTimeout(() => {
         this.processNextDealerChunk(
           dealers,
@@ -1256,12 +1394,12 @@ export class TrendChartComponent {
       // All done - initialize accordion states
       this.initializePsAccordionStates();
       this.isLoading = false;
-      console.log('==== End processPsWiseActivity (Chunked) ====');
-      console.log(
-        'After processing - psWiseCharts length:',
-        this.psWiseCharts.length
-      );
-      console.log('Final psWiseCharts:', this.psWiseCharts);
+      // console.log('==== End processPsWiseActivity (Chunked) ====');
+      // console.log(
+      //   'After processing - psWiseCharts length:',
+      //   this.psWiseCharts.length
+      // );
+      // console.log('Final psWiseCharts:', this.psWiseCharts);
     }
   }
 
@@ -1535,7 +1673,7 @@ export class TrendChartComponent {
     return colors;
   }
   refreshStats() {
-    console.log('Refreshing stats...');
+    // console.log('Refreshing stats...');
     this.fetchTrendChartWithFilters();
   }
   private isScrolling = false;

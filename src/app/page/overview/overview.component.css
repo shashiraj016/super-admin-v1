@@ -1770,12 +1770,13 @@ body {
     /* margin-left: -27px !important; */
   }
   .user-icon-wrapper {
-    margin-top: -10px !important;
+    margin-top: 10px !important;
   }
   #track {
     white-space: break-spaces !important;
   }
 }
+
 /* User Dropdown Styles - Add this to your CSS */
 
 .user-dropdown-container {
@@ -1922,6 +1923,7 @@ body {
   width: 100%; /* Ensure it spans full width */
   align-items: center;
   cursor: pointer;
+  margin-top: 10px !important;
 }
 
 /* user-icon uses ml-auto from your old code */

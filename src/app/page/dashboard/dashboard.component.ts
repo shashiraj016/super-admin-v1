@@ -16,6 +16,10 @@ import {
   HttpClientModule,
   HttpHeaders,
 } from '@angular/common/http';
+import html2canvas from 'html2canvas';
+
+import jsPDF from 'jspdf';
+
 import { Router } from '@angular/router';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { ApexNonAxisChartSeries, ApexResponsive } from 'ng-apexcharts';
@@ -184,6 +188,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   ytdOrders = signal<number>(0);
   table1Length = 10;
   table2Length = 10;
+
   isLoading = false;
   overallData: any = {}; // 👈 holds overall API response metrics
   isVerticalScroll = false;
@@ -191,7 +196,8 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   dealerSummaryCallsViewType: 'table' | 'chart' = 'table';
 
   // Dropdown (enquiries or coldcalls)
-  dealerSummaryCallsDataType: 'enquiries' | 'coldcalls' = 'enquiries';
+  // dealerSummaryCallsDataType: 'enquiries' | 'coldcalls' = 'enquiries';
+  dealerSummaryCallsDataType: 'enquiries' | 'coldcalls' | 'both' = 'enquiries';
 
   selectedFilter!: FilterType;
 
@@ -2272,9 +2278,10 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   showLessTable1() {
     this.table1Length = 10;
   }
-
   showMoreTable2() {
-    const list = this.dealers; // yaha selectedDealers ka concept nahi hai, sirf dealers hai
+    const list = this.filteredDealers?.length
+      ? this.filteredDealers
+      : this.dealers;
     if (this.table2Length < list.length) {
       this.table2Length += 10;
     }
@@ -2283,6 +2290,16 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   showLessTable2() {
     this.table2Length = 10;
   }
+  // showMoreTable2() {
+  //   const list = this.dealers; // yaha selectedDealers ka concept nahi hai, sirf dealers hai
+  //   if (this.table2Length < list.length) {
+  //     this.table2Length += 10;
+  //   }
+  // }
+
+  // showLessTable2() {
+  //   this.table2Length = 10;
+  // }
 
   // dealerEngagementView(type: 'table' | 'chart' | 'enquiries' | 'coldcalls') {
   //   if (type === 'table' || type === 'chart') {
@@ -2297,7 +2314,31 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     this.dealerSummaryCallsViewType
   //   );
   // }
-  dealerEngagementView(type: 'table' | 'chart' | 'enquiries' | 'coldcalls') {
+  // dealerEngagementView(type: 'table' | 'chart' | 'enquiries' | 'coldcalls') {
+  //   if (type === 'table' || type === 'chart') {
+  //     this.dealerSummaryCallsViewType = type;
+  //   } else {
+  //     this.dealerSummaryCallsDataType = type;
+
+  //     // ✅ Close any open user call logs table when switching data type
+  //     this.expandedRow = null;
+
+  //     // ✅ Refresh chart when data type changes
+  //     this.updateDealerChart();
+  //   }
+
+  //   // ✅ Refresh dealer table
+  //   this.loadDealerData(
+  //     this.dealerSummaryCallsDataType,
+  //     this.dealerSummaryCallsViewType
+  //   );
+
+  //   // ✅ Refresh user table for expanded row
+  //   this.refreshUserCallLogsForFilterChange();
+  // }
+  dealerEngagementView(
+    type: 'table' | 'chart' | 'enquiries' | 'coldcalls' | 'both'
+  ) {
     if (type === 'table' || type === 'chart') {
       this.dealerSummaryCallsViewType = type;
     } else {
@@ -2381,26 +2422,53 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       }) || [];
   }
 
+  // loadDealerData(
+  //   dataType: 'enquiries' | 'coldcalls',
+  //   viewType: 'table' | 'chart'
+  // ) {
+  //   // map API response to only pick relevant call data
+  //   this.filteredDealerData = this.dealersData.map((dealer) => {
+  //     return {
+  //       dealerId: dealer.dealerId,
+  //       dealerName: dealer.dealerName,
+  //       totalCalls:
+  //         dataType === 'enquiries'
+  //           ? dealer.enquiriesCalls.totalCalls
+  //           : dealer.coldCalls.totalCalls,
+  //       connectedCalls:
+  //         dataType === 'enquiries'
+  //           ? dealer.enquiriesCalls.connectedCalls
+  //           : dealer.coldCalls.connectedCalls,
+  //     };
+  //   });
+  // }
   loadDealerData(
-    dataType: 'enquiries' | 'coldcalls',
+    dataType: 'enquiries' | 'coldcalls' | 'both',
     viewType: 'table' | 'chart'
   ) {
     // map API response to only pick relevant call data
     this.filteredDealerData = this.dealersData.map((dealer) => {
+      // ✅ choose the right data source based on type
+      const source =
+        dataType === 'enquiries'
+          ? dealer.enquiriesCalls
+          : dataType === 'coldcalls'
+          ? dealer.coldCalls
+          : dealer.combinedCalls; // ✅ for both
+
       return {
         dealerId: dealer.dealerId,
         dealerName: dealer.dealerName,
-        totalCalls:
-          dataType === 'enquiries'
-            ? dealer.enquiriesCalls.totalCalls
-            : dealer.coldCalls.totalCalls,
-        connectedCalls:
-          dataType === 'enquiries'
-            ? dealer.enquiriesCalls.connectedCalls
-            : dealer.coldCalls.connectedCalls,
+        totalCalls: source.totalCalls,
+        connectedCalls: source.connectedCalls,
+        outgoing: source.outgoing, // (optional — add if you need)
+        incoming: source.incoming, // (optional — add if you need)
+        duration: source.duration, // (optional)
+        declined: source.declined, // (optional)
       };
     });
   }
+
   updateDisplayedDealers() {
     this.displayedDealers = this.dealers.slice(0, this.itemsToShow);
     this.showMoreVisible = this.itemsToShow < this.dealers.length;
@@ -2635,9 +2703,9 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     );
   }
   toggleDropdown() {
+    console.log('toggleDropdown called');
     this.dropdownOpen = !this.dropdownOpen;
     if (this.dropdownOpen) {
-      // reset list when dropdown opens
       this.filteredDealers = [...this.dealers];
     }
   }
@@ -2661,9 +2729,15 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.fetchSuperAdminDashboard(this.selectedFilter);
   }
 
+  // clearSelection(): void {
+  //   this.selectedDealers = [];
+  //   this.cdr.detectChanges(); // forces Angular to refresh view immediately
+  // }
   clearSelection(): void {
     this.selectedDealers = [];
-    this.cdr.detectChanges(); // forces Angular to refresh view immediately
+    this.sortColumn = '';
+    this.sortDirection = 'default';
+    this.cdr.detectChanges();
   }
 
   selectDealer(dealer: any) {
@@ -2716,7 +2790,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   }
 
   exportToCSV() {
-    // Get the same list as the table is showing
+    // Get the same list as the ta ble is showing
     const dealersToExport = this.getSortedDealersForSummary();
 
     if (!dealersToExport || dealersToExport.length === 0) {
@@ -2786,6 +2860,138 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+  // Updated exportImage method - replace your existing one
+  // Replace your existing exportImage() method with this one:
+  exportingImage: boolean | 'success' | 'failed' = false;
+
+  exportImage() {
+    const originalLength = this.table2Length;
+    const fullLength =
+      this.selectedDealers.length > 0
+        ? this.selectedDealers.length
+        : this.dealers.length;
+
+    this.exportingImage = true;
+
+    // ✅ Show all rows
+    this.table2Length = fullLength;
+
+    // ✅ Collapse all expanded rows to avoid nested content
+    const previousExpandedRow = this.expandedRow;
+    this.expandedRow = null;
+
+    // ✅ Remove scroll limit from the table-scroll container
+    const scrollBox = document.querySelector('.table-scroll') as HTMLElement;
+    const originalMaxHeight = scrollBox?.style.maxHeight;
+    const originalOverflow = scrollBox?.style.overflow;
+
+    if (scrollBox) {
+      scrollBox.style.maxHeight = 'none';
+      scrollBox.style.overflow = 'visible';
+    }
+
+    // ✅ Force change detection to render all rows
+    this.cdr.detectChanges();
+
+    // ✅ Wait longer for DOM to fully render all rows (increased from 600ms to 1000ms)
+    setTimeout(() => {
+      const table = document.querySelector(
+        '#dealerSummaryTable'
+      ) as HTMLElement;
+
+      if (!table) {
+        this.restoreExport(
+          originalLength,
+          originalMaxHeight,
+          originalOverflow,
+          previousExpandedRow,
+          false
+        );
+        return;
+      }
+
+      // ✅ Scroll to top before capture
+      window.scrollTo(0, 0);
+      if (scrollBox) scrollBox.scrollTop = 0;
+
+      // ✅ Get the actual rendered height of the table
+      const tableHeight = table.scrollHeight;
+
+      html2canvas(table, {
+        scale: 2, // Higher quality
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        logging: false,
+        height: tableHeight,
+        windowHeight: tableHeight,
+        scrollY: -window.scrollY, // Compensate for any scroll offset
+        scrollX: 0,
+        allowTaint: true,
+      })
+        .then((canvas) => {
+          // ✅ Create download link
+          const link = document.createElement('a');
+          const timestamp = new Date().toISOString().split('T')[0];
+          link.download = `dealer-call-logs-${timestamp}.png`;
+          link.href = canvas.toDataURL('image/png');
+
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          // ✅ Restore original state
+          this.restoreExport(
+            originalLength,
+            originalMaxHeight,
+            originalOverflow,
+            previousExpandedRow,
+            true
+          );
+        })
+        .catch((err) => {
+          console.error('Image export failed:', err);
+          this.restoreExport(
+            originalLength,
+            originalMaxHeight,
+            originalOverflow,
+            previousExpandedRow,
+            false
+          );
+        });
+    }, 1000); // Increased timeout to ensure all rows render
+  }
+
+  // Replace your existing restoreExport() method with this one:
+
+  restoreExport(
+    originalLength: number,
+    originalMaxHeight: any,
+    originalOverflow: any,
+    previousExpandedRow: any,
+    success: boolean
+  ) {
+    const scrollBox = document.querySelector('.table-scroll') as HTMLElement;
+
+    if (scrollBox) {
+      scrollBox.style.maxHeight = originalMaxHeight || '';
+      scrollBox.style.overflow = originalOverflow || 'auto';
+    }
+
+    this.table2Length = originalLength;
+    this.expandedRow = previousExpandedRow; // Restore expanded row state
+
+    this.exportingImage = success ? 'success' : 'failed';
+
+    this.cdr.detectChanges();
+
+    setTimeout(
+      () => {
+        this.exportingImage = false;
+        this.cdr.detectChanges();
+      },
+      success ? 2000 : 3000
+    );
   }
 
   trackByUserId(index: number, user: any) {
@@ -3139,16 +3345,38 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     },
   //   });
   // }
+  // toggleCallLogsRow(event: Event, dealer: any) {
+  //   event.stopPropagation();
+  //   const id = dealer.dealerId;
+
+  //   this.expandedRow = this.expandedRow === id ? null : id;
+  //   if (!this.expandedRow) return;
+
+  //   // Fetch user data when row expands
+  //   this.fetchDealerUsers(dealer);
+  // }
   toggleCallLogsRow(event: Event, dealer: any) {
     event.stopPropagation();
     const id = dealer.dealerId;
 
-    this.expandedRow = this.expandedRow === id ? null : id;
-    if (!this.expandedRow) return;
+    // If clicking same dealer → collapse
+    if (this.expandedRow === id) {
+      this.expandedRow = null;
+      return;
+    }
 
-    // Fetch user data when row expands
-    this.fetchDealerUsers(dealer);
+    // ✅ Show loader immediately before changing UI
+    this.loadingUsers[id] = true;
+
+    // ✅ Delay expand by one tick so loader renders first
+    setTimeout(() => {
+      this.expandedRow = id;
+
+      // ✅ Fetch call logs
+      this.fetchDealerUsers(dealer);
+    }, 0);
   }
+
   fetchDealerUsers(dealer: any) {
     const id = dealer.dealerId;
     const token = localStorage.getItem('token');
@@ -3210,6 +3438,25 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       },
     });
   }
+  // getDealerCalls(dealer: any) {
+  //   let calls: any = {};
+
+  //   if (this.dealerSummaryCallsDataType === 'enquiries') {
+  //     calls = dealer.enquiriesCalls || {};
+  //   } else if (this.dealerSummaryCallsDataType === 'coldcalls') {
+  //     calls = dealer.coldCalls || {};
+  //   } else {
+  //     calls = dealer.callLogs || {};
+  //   }
+
+  //   // normalize duration field (different APIs use `duration` vs `durationSec`)
+  //   const durationSec = calls.durationSec ?? calls.duration ?? 0;
+
+  //   return {
+  //     ...calls,
+  //     duration: this.formatDuration(Number(durationSec)),
+  //   };
+  // }
   getDealerCalls(dealer: any) {
     let calls: any = {};
 
@@ -3218,7 +3465,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     } else if (this.dealerSummaryCallsDataType === 'coldcalls') {
       calls = dealer.coldCalls || {};
     } else {
-      calls = dealer.callLogs || {};
+      // ✅ FIX: use combinedCalls first for "both"
+      calls =
+        dealer.combinedCalls && dealer.combinedCalls.totalCalls
+          ? dealer.combinedCalls
+          : dealer.callLogs || {};
     }
 
     // normalize duration field (different APIs use `duration` vs `durationSec`)
@@ -3256,15 +3507,47 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   //     return user.calls ?? {};
   //   }
   // }
+  // getUserCalls(user: any) {
+  //   if (this.dealerSummaryCallsDataType === 'enquiries') {
+  //     return user.enquiriesCalls ?? user.calls ?? {};
+  //   } else if (this.dealerSummaryCallsDataType === 'coldcalls') {
+  //     return user.coldCalls ?? user.calls ?? {};
+  //   } else {
+  //     return user.calls ?? {};
+  //   }
+  // }
   getUserCalls(user: any) {
+    let calls: any = {};
+
     if (this.dealerSummaryCallsDataType === 'enquiries') {
-      return user.enquiriesCalls ?? user.calls ?? {};
+      calls = user.enquiriesCalls ?? user.calls ?? {};
     } else if (this.dealerSummaryCallsDataType === 'coldcalls') {
-      return user.coldCalls ?? user.calls ?? {};
+      calls = user.coldCalls ?? user.calls ?? {};
     } else {
-      return user.calls ?? {};
+      calls =
+        user.combinedCalls && user.combinedCalls.totalCalls
+          ? user.combinedCalls
+          : user.calls ?? {};
     }
+
+    // ✅ Normalize duration safely
+    let durationSec: any = calls.durationSec ?? calls.duration ?? 0;
+
+    // ✅ If duration is like "01:10:20", convert to seconds
+    if (typeof durationSec === 'string' && durationSec.includes(':')) {
+      const [h, m, s] = durationSec.split(':').map(Number);
+      durationSec = h * 3600 + m * 60 + s;
+    }
+
+    durationSec = Number(durationSec) || 0;
+
+    return {
+      ...calls,
+      duration: this.formatDuration(durationSec),
+      durationSec,
+    };
   }
+
   updateDealerChart() {
     this.chartOptions = {
       ...this.chartOptions, // keep old chart settings like tooltip, legend, etc.
@@ -3397,5 +3680,308 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     this.isMobile =
       /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
       window.innerWidth <= 768;
+  }
+  // get canSort(): boolean {
+  //   return this.selectedDealers && this.selectedDealers.length > 1;
+  // }
+  get canSort(): boolean {
+    const count = this.selectedDealers?.length || 0;
+
+    // ✅ 1 dealer → hide icon
+    return count !== 1;
+  }
+
+  exportDealerCallsImagePDF() {
+    this.exportingImage = true;
+
+    setTimeout(() => {
+      const table = document.getElementById('hiddenExportTable');
+
+      if (!table) {
+        this.exportingImage = 'failed';
+        setTimeout(() => (this.exportingImage = false), 1500);
+        return;
+      }
+
+      html2canvas(table, { scale: 2, useCORS: true })
+        .then((canvas) => {
+          const imgData = canvas.toDataURL('image/png');
+          const pdf = new jsPDF('l', 'mm', 'a4');
+
+          let pageWidth = pdf.internal.pageSize.getWidth();
+          let pageHeight = pdf.internal.pageSize.getHeight();
+          let imgWidth = pageWidth;
+          let imgHeight = (canvas.height * imgWidth) / canvas.width;
+          let heightLeft = imgHeight;
+          let position = 0;
+
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+
+          while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+          }
+
+          pdf.save('Dealer-Calls-Summary.pdf');
+          this.exportingImage = 'success';
+          setTimeout(() => (this.exportingImage = false), 1500);
+        })
+        .catch(() => {
+          this.exportingImage = 'failed';
+          setTimeout(() => (this.exportingImage = false), 1500);
+        });
+    }, 400);
+  }
+  // exportDealerCallsImagePNG() {
+  //   this.exportingImage = true;
+
+  //   setTimeout(() => {
+  //     const hiddenTable = document.getElementById('hiddenExportTable');
+
+  //     if (!hiddenTable) {
+  //       this.exportingImage = 'failed';
+  //       setTimeout(() => (this.exportingImage = false), 1500);
+  //       return;
+  //     }
+
+  //     html2canvas(hiddenTable, { scale: 1.5 })
+  //       .then((canvas) => {
+  //         const imgData = canvas.toDataURL('image/png');
+
+  //         // ✅ Create download link for PNG
+  //         const link = document.createElement('a');
+  //         link.href = imgData;
+  //         link.download = `Dealer-Calls-Summary.png`;
+  //         link.click();
+
+  //         this.exportingImage = 'success';
+  //         setTimeout(() => (this.exportingImage = false), 1500);
+  //       })
+  //       .catch(() => {
+  //         this.exportingImage = 'failed';
+  //         setTimeout(() => (this.exportingImage = false), 1500);
+  //       });
+  //   }, 600);
+  // }
+  // exportDealerCallsImagePNG() {
+  //   this.exportingImage = true;
+
+  //   setTimeout(() => {
+  //     const hiddenTable = document.getElementById(
+  //       'hiddenExportTable'
+  //     ) as HTMLElement;
+
+  //     if (!hiddenTable) {
+  //       this.exportingImage = 'failed';
+  //       setTimeout(() => (this.exportingImage = false), 1500);
+  //       return;
+  //     }
+
+  //     // Show + Style for capture
+  //     hiddenTable.style.display = 'block';
+  //     hiddenTable.style.opacity = '1';
+  //     hiddenTable.style.background = '#fff';
+
+  //     requestAnimationFrame(() => {
+  //       html2canvas(hiddenTable, {
+  //         scale: 1.5,
+  //         backgroundColor: '#fff',
+  //         useCORS: true,
+  //         logging: false,
+  //         windowWidth: document.body.scrollWidth,
+  //       } as any)
+  //         .then((canvas) => {
+  //           hiddenTable.style.display = 'none';
+
+  //           const link = document.createElement('a');
+  //           link.href = canvas.toDataURL('image/png');
+  //           link.download = `Dealer-Calls-Summary.png`;
+  //           link.click();
+
+  //           this.exportingImage = 'success';
+  //           setTimeout(() => (this.exportingImage = false), 1500);
+  //         })
+  //         .catch(() => {
+  //           hiddenTable.style.display = 'none';
+  //           this.exportingImage = 'failed';
+  //           setTimeout(() => (this.exportingImage = false), 1500);
+  //         });
+  //     });
+  //   }, 500);
+  // }
+  exportDealerCallsImagePNG() {
+    this.exportingImage = true;
+
+    setTimeout(() => {
+      const hiddenTable = document.getElementById(
+        'hiddenExportTable'
+      ) as HTMLElement;
+
+      if (!hiddenTable) {
+        this.exportingImage = 'failed';
+        setTimeout(() => (this.exportingImage = false), 1500);
+        return;
+      }
+
+      hiddenTable.style.display = 'block';
+      hiddenTable.style.opacity = '1';
+      hiddenTable.style.background = '#fff';
+
+      // ✅ Let UI breathe before starting heavy work
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          // ✅ Split work again to avoid main-thread freeze
+          setTimeout(() => {
+            html2canvas(hiddenTable, {
+              scale: 1.5,
+              backgroundColor: '#fff',
+              useCORS: true,
+              logging: false,
+              windowWidth: document.body.scrollWidth,
+            } as any)
+              .then((canvas) => {
+                hiddenTable.style.display = 'none';
+
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `Dealer-Calls-Summary.png`;
+                link.click();
+
+                this.exportingImage = 'success';
+                setTimeout(() => (this.exportingImage = false), 1500);
+              })
+              .catch(() => {
+                hiddenTable.style.display = 'none';
+                this.exportingImage = 'failed';
+                setTimeout(() => (this.exportingImage = false), 1500);
+              });
+          }, 50); // ⚠️ IMPORTANT break to avoid freeze
+        });
+      }, 50); // ⚠️ small delay to avoid blocking UI
+    }, 200);
+  }
+
+  exportDealerUserWiseCSV(dealer: any) {
+    const users = this.getSortedUsers(dealer.dealerId);
+
+    if (!users || users.length === 0) {
+      alert('No user data found for this dealer');
+      return;
+    }
+
+    const headers = [
+      'User',
+      'Role',
+      'Registered',
+      'Status',
+      'Last Login',
+      'SA Leads',
+      'Digital Leads',
+      'CXP Leads',
+      'ICS Leads',
+      'SA Followups',
+      'Calls',
+      'Connected Calls',
+      'CXP Followups',
+      'Completed Followups',
+      'Upcoming Followups',
+      'Overdue Followups',
+      'SA Test Drives',
+      'CXP Test Drives',
+      'Completed TD',
+      'Unique TD',
+      'Upcoming TD',
+      'Overdue TD',
+      'Opportunities Converted',
+    ];
+    const rows = users.map((u) => [
+      `"${u.user}"`,
+      `"${u.user_role}"`,
+      `"${u.registerUser ? 'Yes' : 'No'}"`,
+      `"${u.active ? 'Active' : 'Inactive'}"`,
+
+      `"${
+        u.last_login
+          ? (() => {
+              const d = new Date(u.last_login);
+              const day = String(d.getDate()).padStart(2, '0');
+              const month = String(d.getMonth() + 1).padStart(2, '0');
+              const year = d.getFullYear();
+              const hours = String(d.getHours()).padStart(2, '0');
+              const mins = String(d.getMinutes()).padStart(2, '0');
+              return `${day}-${month}-${year} ${hours}:${mins}`;
+            })()
+          : '-'
+      }"`,
+
+      u.leads?.sa ?? 0,
+      u.leads?.manuallyEntered ?? 0,
+      u.leads?.cxp ?? 0,
+      u.leads?.ics ?? 0,
+
+      u.followups?.sa ?? 0,
+      u.enquiriesCalls?.totalCalls ?? 0,
+      u.enquiriesCalls?.connectedCalls ?? 0,
+      u.followups?.cxp ?? 0,
+      u.followups?.completed ?? 0,
+      u.followups?.open ?? 0,
+      u.followups?.closed ?? 0,
+
+      u.testdrives?.sa ?? 0,
+      u.testdrives?.cxp ?? 0,
+      u.testdrives?.completed ?? 0,
+      u.testdrives?.unique ?? 0,
+      u.testdrives?.upcoming ?? 0,
+      u.testdrives?.closed ?? 0,
+      u.opportunitiesConverted ?? 0,
+    ]);
+
+    let csvContent =
+      'data:text/csv;charset=utf-8,' +
+      headers.join(',') +
+      '\n' +
+      rows.map((e) => e.join(',')).join('\n');
+
+    const link = document.createElement('a');
+    link.setAttribute('href', encodeURI(csvContent));
+    link.setAttribute('download', `${dealer.dealerName}-Users.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+  exportUserCallLogsToCSV(dealerId: any) {
+    const users = this.userCallLogs[dealerId] || [];
+
+    const headers = [
+      'User',
+      'Total Calls',
+      'Outgoing',
+      'Incoming',
+      'Connected',
+      'Declined',
+      'Duration',
+    ];
+
+    const rows = users.map((u) => [
+      `"${u.name}"`,
+      u.calls.total ?? 0,
+      u.calls.outgoing ?? 0,
+      u.calls.incoming ?? 0,
+      u.calls.connected ?? 0,
+      u.calls.declined ?? 0,
+      `"${u.calls.duration || '00:00:00'}"`,
+    ]);
+
+    let csv = headers.join(',') + '\n';
+    rows.forEach((r) => (csv += r.join(',') + '\n'));
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `User_CallLogs.csv`;
+    link.click();
   }
 }

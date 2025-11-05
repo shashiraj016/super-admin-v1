@@ -3195,3 +3195,32 @@ body {
   will-change: scroll-position, transform;
   transform: translateZ(0);
 }
+
+
+
+
+@media (max-width: 844px) {
+  .filter-group {
+    display: block !important;
+  }
+  .filter-group .flt1 {
+    width: auto !important;
+    display: block !important; /* removes inline-block */
+  }
+  .filter-item {
+    width: auto !important;
+    display: block !important;
+  }
+  .filter-group .filter-item {
+    display: block !important;
+  }
+}
+@media (max-width: 768px) {
+  .filter-group .filter-item {
+    width: auto !important;
+    display: block !important; /* if needed to remove inline-block */
+  }
+  .stat-item {
+    white-space: nowrap !important;
+  }
+}

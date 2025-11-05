@@ -156,6 +156,9 @@ export class OverviewComponent implements OnInit {
   toggleUserDropdown(): void {
     this.userDropdownOpen = !this.userDropdownOpen;
   }
+  openLogoutModal() {
+    this.showLogoutModal = true;
+  }
   navigateTo(route: string) {
     this.router.navigate(['/Admin', route]);
   }

@@ -1,6 +1,6 @@
 import {
   CommonModule
-} from "./chunk-52J6WQ2H.js";
+} from "./chunk-H3VRXP6D.js";
 import {
   Directive,
   ElementRef,
@@ -13,11 +13,11 @@ import {
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵdirectiveInject
-} from "./chunk-B73HQR2W.js";
+} from "./chunk-S6EJF6KG.js";
 import "./chunk-6PBVBKNM.js";
 import "./chunk-LE5FXKQ4.js";
 import "./chunk-INKKGWHP.js";
-import "./chunk-3OV72XIM.js";
+import "./chunk-TXDUYLVM.js";
 
 // node_modules/angular-datatables/fesm2022/angular-datatables.mjs
 var DataTableDirective = class _DataTableDirective {

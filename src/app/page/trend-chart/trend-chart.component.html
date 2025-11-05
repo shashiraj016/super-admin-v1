@@ -48,54 +48,35 @@
                     </div>
 
                     <!-- Date Filter -->
-                    <div class="filter-item">
+                    <div class="filter-item filter-group">
                         <label>Date Filter</label>
-                        <select id="usageGran" [(ngModel)]="selectedDateFilter" (change)="fetchTrendChartWithFilters()">
-                            <option value="DAY">Today</option>
-                            <option value="YESTERDAY">Yesterday</option>
-                            <option value="WEEK">This Week</option>
-                            <option value="LAST_WEEK">Last Week</option>
-                            <option value="MTD">This Month</option>
-                            <option value="LAST_MONTH">Last Month</option>
-                            <option value="QTD">This Quarter</option>
-                            <option value="LAST_QUARTER">Last Quarter</option>
-                            <option value="SIX_MONTH">Last 6 Months</option>
-                            <option value="YTD">Year to Date</option>
-                        </select>
+                        <div class="dropdown flt1">
+                            <select id="usageGran" class="no-border time-dropdown dropdown-toggle"
+                                [(ngModel)]="selectedDateFilter" (change)="fetchTrendChartWithFilters()">
+                                <option value="DAY">Today</option>
+                                <option value="YESTERDAY">Yesterday</option>
+                                <option value="WEEK">This Week</option>
+                                <option value="LAST_WEEK">Last Week</option>
+                                <option value="MTD">This Month</option>
+                                <option value="LAST_MONTH">Last Month</option>
+                                <option value="QTD">This Quarter</option>
+                                <option value="LAST_QUARTER">Last Quarter</option>
+                                <option value="SIX_MONTH">Last 6 Months</option>
+                                <option value="YTD">Year to Date</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Stats Section (Right) -->
-                <!-- <div class="stats-row">
-                    <div class="stat-item">
-                        <span class="stat-number">{{ DistinctUsers | number }}</span>
-                        <span class="stat-label">Active Users</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">{{ topsaLeads | number }}</span>
-                        <span class="stat-label">Leads</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">{{ topTasks | number }}</span>
-                        <span class="stat-label">Follow-ups</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">{{ topUTDs | number }}</span>
-                        <span class="stat-label">UTDs</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">{{ topenquiryCalls | number }} / {{ topcoldCalls | number }}</span>
-                        <span class="stat-label">Enquiry / Cold calls</span>
-                    </div>
-                </div> -->
                 <div class="stats-row">
                     <div class="stat-item">
                         <span class="stat-number">{{ DistinctUsers | number }}</span>
                         <span class="stat-label">Active Users</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">{{ topsaLeads | number }}</span>
-                        <span class="stat-label">Leads</span>
+                        <span class="stat-number">{{ topsaLeads | number }} / {{ topdigitalLeads | number }}</span>
+                        <span class="stat-label">SA / Digital Leads</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">{{ topTasks | number }}</span>
