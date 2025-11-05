@@ -14691,8 +14691,7 @@ var If = class i {
     );
   }
   loadDashboard(t) {
-    let e =
-        "https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary",
+    let e = "https://dev.smartassistapp.in/api/superAdmin/dashboard/summary",
       n = localStorage.getItem("token");
     this.http
       .get(e, {
@@ -40792,7 +40791,7 @@ var _m = class i {
   constructor(t) {
     this.http = t;
   }
-  baseUrl = "https://api.prod.smartassistapp.in/api/superAdmin/dashboard";
+  baseUrl = "https://dev.smartassistapp.in/api/superAdmin/dashboard";
   getDealerActivities(t) {
     let e = sessionStorage.getItem("token"),
       n = new Sn({ Authorization: `Bearer ${e}` }),
@@ -40817,28 +40816,28 @@ var _m = class i {
   }
   getDealers(t, e) {
     return this.http.get(
-      `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${t}`,
+      `https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${t}`,
       { headers: { Authorization: `Bearer ${e}` } }
     );
   }
   getDealersByCustomDate(t, e, n, r) {
-    let o = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${t}&end_date=${e}`;
+    let o = `https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${t}&end_date=${e}`;
     return (
       r &&
-        (o = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${r}&start_date=${t}&end_date=${e}`),
+        (o = `https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${r}&start_date=${t}&end_date=${e}`),
       this.http.get(o, { headers: { Authorization: `Bearer ${n}` } })
     );
   }
   getDealerUsers(t, e, n) {
-    let r = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${t}&type=${e}`;
+    let r = `https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${t}&type=${e}`;
     return this.http.get(r, { headers: { Authorization: `Bearer ${n}` } });
   }
   getCustomUsers(t, e, n, r) {
-    let o = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${t}&start_date=${e}&end_date=${n}`;
+    let o = `https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${t}&start_date=${e}&end_date=${n}`;
     return this.http.get(o, { headers: { Authorization: `Bearer ${r}` } });
   }
   getKpiData(t, e = "MTD") {
-    let n = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${e}`;
+    let n = `https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${e}`;
     return this.http.get(n, { headers: { Authorization: `Bearer ${t}` } });
   }
   static ɵfac = function (e) {
@@ -44663,7 +44662,7 @@ var ym = class i {
   progressValue = 0;
   strokeColor = "red";
   data;
-  apiUrl = "https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew";
+  apiUrl = "https://dev.smartassistapp.in/api/superAdmin/dashbaordNew";
   ngOnInit() {
     this.checkIfMobile();
     let t = localStorage.getItem("selectedFilter");
@@ -44899,7 +44898,7 @@ var ym = class i {
     let r = localStorage.getItem("token");
     if (!r) return;
     let o = new Sn({ Authorization: `Bearer ${r}` }),
-      a = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${t}&type=${e}`;
+      a = `https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${t}&type=${e}`;
     this.http.get(a, { headers: o }).subscribe({
       next: (s) => {
         (this.dealerSMS[t] =
@@ -44919,7 +44918,7 @@ var ym = class i {
     let n = localStorage.getItem("token");
     if (!n) return;
     let r = new Sn({ Authorization: `Bearer ${n}` }),
-      o = `https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${e}&sm_id=${t}`;
+      o = `https://dev.smartassistapp.in/api/superAdmin/dashbaordNew?type=${this.selectedFilter}&dealer_id=${e}&sm_id=${t}`;
     this.http.get(o, { headers: r }).subscribe({
       next: (a) => {
         this.psData[t] = a?.data?.ps || [];
@@ -44978,7 +44977,7 @@ var ym = class i {
     let n = { Authorization: `Bearer ${localStorage.getItem("token")}` };
     this.http
       .get(
-        `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${t}`,
+        `https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${t}`,
         { headers: n }
       )
       .subscribe({
@@ -45106,17 +45105,17 @@ var ym = class i {
         this.customEndDate;
     if (!this.selectedDealers?.length)
       e = n
-        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${t}`;
+        ? `https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM?start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM?type=${t}`;
     else if (this.selectedDealers.length === 1)
       e = n
-        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${t}`;
+        ? `https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${this.selectedDealers[0].dealerId}&type=${t}`;
     else {
       let a = this.selectedDealers.map((s) => s.dealerId).join(",");
       e = n
-        ? `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${a}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
-        : `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${a}&type=${t}`;
+        ? `https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${a}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`
+        : `https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealerIds=${a}&type=${t}`;
     }
     let r = localStorage.getItem("token");
     if (!r) {
@@ -45433,7 +45432,7 @@ var ym = class i {
   fetchDealers(t) {
     let e = localStorage.getItem("token"),
       n = new Sn({ Authorization: `Bearer ${e}` }),
-      r = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${t}`;
+      r = `https://dev.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${t}`;
     this.http.get(r, { headers: n }).subscribe(
       (o) => {
         o?.status === 200 && o.data?.dealerData
@@ -45727,12 +45726,12 @@ var ym = class i {
       this.customStartDate &&
       this.customEndDate
     ) {
-      let r = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${t}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
+      let r = `https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${t}&start_date=${this.customStartDate}&end_date=${this.customEndDate}`;
       this.http
         .get(r, { headers: { Authorization: `Bearer ${n}` } })
         .subscribe((o) => {});
     } else {
-      let r = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${t}&type=${e}`;
+      let r = `https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM?dealer_id=${t}&type=${e}`;
       this.http
         .get(r, { headers: { Authorization: `Bearer ${n}` } })
         .subscribe((o) => {});
@@ -45789,7 +45788,7 @@ var ym = class i {
     if (!this.selectedSM || !this.selectedDealerId) return;
     this.loadingPS = !0;
     let t = this.selectedFilter,
-      e = "https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew",
+      e = "https://dev.smartassistapp.in/api/superAdmin/dashbaordNew",
       n = this.selectedDealerId,
       r = this.selectedSM.sm_id,
       o = `${e}?type=${t}&dealer_id=${n}&sm_id=${r}`,
@@ -45943,7 +45942,7 @@ var ym = class i {
     let e = localStorage.getItem("token");
     if (!e) return;
     let n = new Sn().set("Authorization", `Bearer ${e}`),
-      r = `https://api.prod.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${t}`;
+      r = `https://dev.smartassistapp.in/api/superAdmin/dashboard/view-activities?type=${t}`;
     this.http.get(r, { headers: n }).subscribe({
       next: (o) => {
         let a = o?.data || {},
@@ -45981,7 +45980,7 @@ var ym = class i {
   }
   fetchData() {
     this.http
-      .get("https://api.prod.smartassistapp.in/api/superAdmin/dashbaordNew")
+      .get("https://dev.smartassistapp.in/api/superAdmin/dashbaordNew")
       .subscribe(
         (t) => {
           t?.data && (this.data = t.data);
@@ -46028,7 +46027,7 @@ var ym = class i {
   }
   fetchDashboardDataForTopCards(t) {
     let e = localStorage.getItem("token") || "",
-      n = "https://api.prod.smartassistapp.in/api/superAdmin/dashboard/NoSM";
+      n = "https://dev.smartassistapp.in/api/superAdmin/dashboard/NoSM";
     t === "CUSTOM" && this.customStartDate && this.customEndDate
       ? (n += `?startDate=${this.customStartDate}&endDate=${this.customEndDate}`)
       : t !== "CUSTOM" && (n += `?type=${t}`),
@@ -47586,7 +47585,7 @@ var Ii = class i {
     this.http = t;
     this.storageService = e;
   }
-  apiUrl = "https://api.prod.smartassistapp.in/api/superadmin/";
+  apiUrl = "https://dev.smartassistapp.in/api/superadmin/";
   getAuthHeaders() {
     let t = this.storageService.getItem("token");
     return new Sn()
@@ -68907,7 +68906,7 @@ var rp = class i {
   showConfirmPassword = !1;
   countdown = 0;
   countdownInterval;
-  API_BASE_URL = "https://api.prod.smartassistapp.in/api/";
+  API_BASE_URL = "https://dev.smartassistapp.in/api/";
   SESSION_TIMEOUT = 60 * 60 * 1e3;
   http = Se(Hn);
   router = Se(ln);
@@ -69463,7 +69462,7 @@ var Ym = class i {
   }
   getProfileImage() {
     this.http
-      .get("https://api.prod.smartassistapp.in/api/superAdmin/show-profile")
+      .get("https://dev.smartassistapp.in/api/superAdmin/show-profile")
       .subscribe({
         next: (t) => {
           console.log("Fetched Profile Image:", t),
@@ -75407,8 +75406,7 @@ var lp = class i {
     });
   }
   loadDealers(t = "DAY", e = "all", n = null, r = "", o) {
-    let a =
-        "https://api.prod.smartassistapp.in/api/superAdmin/dashboard/summary",
+    let a = "https://dev.smartassistapp.in/api/superAdmin/dashboard/summary",
       s = localStorage.getItem("token"),
       d = "";
     e &&
@@ -76583,7 +76581,7 @@ var ug = class i {
       column: { colors: ["transparent"], opacity: 0 },
     },
   };
-  BASE_URL = "https://api.prod.smartassistapp.in";
+  BASE_URL = "https://dev.smartassistapp.in";
   TREND_CHART_URL = "/api/superAdmin/dashboard/trend-chart";
   dayLeadChart = {};
   dayEventChart = {};

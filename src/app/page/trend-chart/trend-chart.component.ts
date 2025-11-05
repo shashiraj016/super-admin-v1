@@ -147,7 +147,7 @@ export class TrendChartComponent {
     },
   };
 
-  BASE_URL = 'https://api.prod.smartassistapp.in';
+  BASE_URL = 'https://dev.smartassistapp.in';
   TREND_CHART_URL = '/api/superAdmin/dashboard/trend-chart';
 
   // Day-level charts
